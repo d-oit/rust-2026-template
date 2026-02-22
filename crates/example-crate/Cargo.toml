@@ -1,0 +1,21 @@
+[package]
+name = "example-crate"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme = "README.md"
+description = "Example crate in the rust-2026-template workspace"
+
+[dependencies]
+# Add workspace dependencies like:
+# tokio = { workspace = true }
+# serde = { workspace = true }
+# thiserror = { workspace = true }
+
+[dev-dependencies]
+# tokio-test = { workspace = true }
