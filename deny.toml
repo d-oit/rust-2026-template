@@ -42,10 +42,9 @@ allow = [
 unlicensed = "deny"
 allow-osi-fsf-free = "neither"
 copyleft = "warn"
-
 # Exceptions for specific crates with special licenses
-[[licenses.exceptions]]
-# Example:
+# Uncomment and fill in when needed:
+# [[licenses.exceptions]]
 # allow = ["LicenseRef-ring"]
 # name = "ring"
 # version = "*"
@@ -60,18 +59,15 @@ multiple-versions = "warn"
 wildcards = "deny"
 # Deny workspace default members being listed explicitly
 highlight = "all"
-
 # Deny known problematic crates
 deny = [
   # Old unmaintained openssl bindings
   # { name = "openssl", reason = "use rustls instead" },
 ]
-
 # Allow certain duplicate versions that are unavoidable
 skip = [
   # { name = "example-crate", version = "=1.0.0" }
 ]
-
 skip-tree = [
   # { name = "windows-sys", version = "=0.48" }
 ]
