@@ -1,0 +1,42 @@
+# .cargo/config.toml
+# WSL2/Linux disk space optimization + fast linker config
+# See: AGENTS.md - Disk Space Management section
+
+# ─── Linker (Linux/WSL2 only) ───────────────────────────────────────────────
+# Uncomment to use mold linker for 2-5x faster link times on Linux.
+# Install: apt install mold  OR  cargo install mold
+# NOTE: Disable in CI if runner doesn't have mold installed.
+# [target.'cfg(target_os = "linux")']
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+# ─── Dev profile disk space optimization ────────────────────────────────────
+# Reduces target/ from ~5GB to ~2GB in large workspaces.
+# Maintains fast compilation with essential debug info.
+[profile.dev]
+debug = "line-tables-only"    # ~60% smaller debug artifacts vs. full debug
+
+[profile.dev.package."*"]
+debug = false                  # No debug info for dependencies (huge savings)
+
+[profile.dev.build-override]
+opt-level = 3                  # Fast proc-macro execution
+
+# Full debug profile when needed (cargo build --profile debugging)
+[profile.debugging]
+inherits = "dev"
+debug = true
+
+# ─── Cargo alias shortcuts ─────────────────────────────────────────────────
+[alias]
+# Quick quality check
+check-all = "check --workspace --all-features"
+# Run all tests with nextest
+test-all = "nextest run --workspace"
+# Format check (CI-friendly)
+fmt-check = "fmt --all -- --check"
+# Lint with strict warnings
+lint = "clippy --workspace --all-targets --all-features -- -D warnings"
+# Release check
+release-check = "semver-checks check-release"
+# Dependency audit
+audit-check = "deny check"
