@@ -1,0 +1,18 @@
+[toolchain]
+# Pin stable toolchain for reproducible builds.
+# Update regularly: https://releases.rs/
+channel = "1.85"
+components = [
+    "rustfmt",
+    "clippy",
+    "rust-src",          # for rust-analyzer
+    "rust-analyzer",
+    "llvm-tools",        # for cargo-llvm-cov
+]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    # Uncomment for cross-compilation targets:
+    # "wasm32-unknown-unknown",
+    # "aarch64-unknown-linux-gnu",
+    # "x86_64-pc-windows-gnu",
+]
