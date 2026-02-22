@@ -1,0 +1,44 @@
+name: Bug Report
+description: File a bug report
+title: "[bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for filing a bug report!
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      placeholder: Tell us what happened...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps To Reproduce
+      placeholder: "1. Run cargo ...\n2. See error..."
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      value: |
+        - OS:
+        - Rust: (rustc --version)
+        - Cargo: (cargo --version)
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log Output
+      render: shell
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues
+          required: true
