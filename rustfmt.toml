@@ -1,0 +1,27 @@
+# rustfmt.toml - Rust 2026 formatting configuration
+# https://rust-lang.github.io/rustfmt/
+
+edition = "2024"
+
+# Line length (default 100 is good for modern displays)
+max_width = 100
+
+# Imports
+imports_granularity = "Crate"     # Group all imports from same crate
+group_imports = "StdExternalCrate" # std, external, crate ordering
+
+# Formatting style
+use_field_init_shorthand = true
+use_try_shorthand = true
+
+# Trailing commas in multi-line expressions
+trailing_comma = "Vertical"
+
+# Comments
+wrap_comments = true
+format_code_in_doc_comments = true
+doc_comment_code_block_width = 80
+
+# Misc
+newline_style = "Unix"
+struct_field_align_threshold = 20
