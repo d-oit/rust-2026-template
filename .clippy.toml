@@ -3,9 +3,6 @@
 # Cognitive complexity threshold for functions
 cognitive-complexity-threshold = 15
 
-# Maximum number of lines in a function
-# too-many-lines-threshold = 100
-
 # Allow certain naming patterns
 allow-mixed-uninlined-format-args = false
 
@@ -15,28 +12,14 @@ array-size-threshold = 512
 # Enforce documentation for public items
 missing-docs-in-crate-items = false
 
-# Standard library types to avoid
-avoid-breaking-exported-api = true
-
 # Maximum struct field count before suggesting builder
 too-many-arguments-threshold = 7
-
-# Disallow usage of wildcard imports in certain modules
-wildcard-imports-recursion-limit = 5
-
-# Clippy nursery and pedantic lints enabled in CI (see lib.rs #![warn(...)])
-# pedantic: all pedantic lints as warnings
-# nursery: experimental lints as warnings
-# restriction: opt-in specific restriction lints
 
 # Vec<Box<T>> warn threshold
 vec-box-size-threshold = 4096
 
 # Maximum number of single char bindings
 single-char-binding-names-threshold = 4
-
-# Enforce consistent use of semicolons
-# semicolon_if_nothing_returned = true  # enforced via rustfmt
 
 # Minimum string length for suggest using a constant
 msrv = "1.85"
