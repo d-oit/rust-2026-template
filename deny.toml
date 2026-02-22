@@ -1,5 +1,6 @@
 # deny.toml - cargo-deny configuration for supply chain security
 # Run: cargo deny check
+# Compatible with cargo-deny v2+
 
 [graph]
 # Rust edition for the dependency graph
@@ -20,7 +21,7 @@ ignore = [
 ]
 
 # ============================================================
-# LICENSES - Enforce acceptable licenses
+# LICENSES - Enforce acceptable licenses (cargo-deny v2 format)
 # ============================================================
 [licenses]
 version = 2
@@ -38,10 +39,6 @@ allow = [
   "BSL-1.0",
   "OpenSSL",
 ]
-# Deny any license not in the allow list
-unlicensed = "deny"
-allow-osi-fsf-free = "neither"
-copyleft = "warn"
 # Exceptions for specific crates with special licenses
 # Uncomment and fill in when needed:
 # [[licenses.exceptions]]
