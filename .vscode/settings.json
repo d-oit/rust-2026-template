@@ -1,0 +1,50 @@
+{
+  "// WSL2 FIX": "Prevents VS Code file watcher crash during cargo build",
+  "files.watcherExclude": {
+    "**/target/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true
+  },
+  "// RUST-ANALYZER": "rust-analyzer settings for WSL2 + workspace",
+  "rust-analyzer.checkOnSave.command": "clippy",
+  "rust-analyzer.checkOnSave.allTargets": true,
+  "rust-analyzer.checkOnSave.allFeatures": true,
+  "rust-analyzer.checkOnSave.extraArgs": ["-D", "warnings"],
+  "rust-analyzer.cargo.allFeatures": true,
+  "rust-analyzer.procMacro.enable": true,
+  "rust-analyzer.inlayHints.bindingModeHints.enable": true,
+  "rust-analyzer.inlayHints.closureCaptureHints.enable": true,
+  "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "skip_trivial",
+  "rust-analyzer.inlayHints.typeHints.enable": true,
+  "rust-analyzer.inlayHints.parameterHints.enable": true,
+  "rust-analyzer.diagnostics.enable": true,
+  "rust-analyzer.lens.enable": true,
+  "rust-analyzer.lens.implementations.enable": true,
+  "rust-analyzer.lens.run.enable": true,
+  "// EDITOR": "Editor quality-of-life settings",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "rust-lang.rust-analyzer",
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml",
+    "editor.formatOnSave": true
+  },
+  "editor.rulers": [100],
+  "editor.insertSpaces": true,
+  "// TERMINAL": "Terminal settings for WSL2",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "// SEARCH": "Exclude build artifacts from search",
+  "search.exclude": {
+    "**/target": true,
+    "**/*.lock": true,
+    "**/Cargo.lock": false
+  },
+  "// EXTENSIONS": "Recommended extension settings",
+  "evenBetterToml.formatter.alignEntries": false,
+  "evenBetterToml.formatter.trailingNewline": true
+}
