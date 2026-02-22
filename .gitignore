@@ -1,0 +1,56 @@
+# Rust build artifacts
+/target/
+
+# Cargo lock files (keep for binaries, omit for libraries)
+# Cargo.lock  # Uncomment for library crates
+
+# Generated documentation
+/doc/
+
+# IDE and editor files
+.idea/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+lcov.info
+coverage/
+*.profraw
+*.profdata
+
+# Benchmark results
+criterion/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# cargo-dist artifacts
+dist/
+
+# cargo-fuzz artifacts
+fuzz/corpus/
+fuzz/artifacts/
+
+# Flamegraph output
+flamegraph.svg
+perf.data
+perf.data.old
+
+# LLVM profiling data
+default.profraw
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# WSL2 Windows line endings
+*.bat~
+
+# cargo-audit advisory DB cache
+.cargo/advisory-db/
