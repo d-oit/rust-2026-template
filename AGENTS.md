@@ -1,6 +1,6 @@
 # Agent Coding Guidelines
 
-> **2026 Best Practice Rust Template**  
+> **2026 Best Practice Rust Template**
 > All AI agents (Claude, Gemini, OpenCode, Cursor, etc.) read this file first.
 > CLAUDE.md and GEMINI.md both reference this file via `@AGENTS.md`.
 
@@ -9,213 +9,151 @@
 | Task | Command |
 |------|----------|
 | **Build (dev)** | `cargo build --workspace` |
-| **Build (release)** | `cargo build --release --workspace` |
-| **Type-check only** | `cargo check --workspace` |
-| **Format** | `cargo fmt --all` |
-| **Lint** | `cargo clippy --all -- -D warnings` |
-| **Tests** | `cargo nextest run --all` |
-| **Doc tests** | `cargo test --doc` |
-| **Security audit** | `cargo audit` |
-| **Quality gates** | `./scripts/quality-gates.sh` |
-| **Full CI local** | `./scripts/ci-local.sh` |
+| **Quality** | `./scripts/code-quality.sh fmt|clippy|audit|check` |
+| **Tests** | `cargo nextest run --all` (doctests: `cargo test --doc`) |
+| **Quality Gates** | `./scripts/quality-gates.sh` |
+| **Docs Integrity** | `./scripts/check-docs-integrity.sh` |
+| **Release Ops** | `./scripts/release-manager.sh validate|prepare|publish|full` |
 
 ## Project Structure
 
 ```
 rust-2026-template/
-├── .agents/skills/        # AI agent skill definitions
-├── .cargo/config.toml     # Cargo linker + profile config
-├── .claude/               # Claude-specific config
-├── .config/nextest.toml   # nextest profiles
+├── .agents/skills/      # AI agent skill definitions
+├── .cargo/config.toml   # Cargo linker + profile config
+├── .claude/             # Claude-specific config
+├── .config/nextest.toml # nextest profiles
 ├── .github/
-│   ├── workflows/         # CI/CD GitHub Actions
-│   ├── CODEOWNERS         # Code ownership
+│   ├── workflows/       # CI/CD GitHub Actions
 │   └── PULL_REQUEST_TEMPLATE.md
-├── .githooks/             # Pre-commit hooks
-├── .opencode/             # OpenCode agent config
-├── .vscode/settings.json  # VS Code / WSL2 settings
-├── src/                   # Main library source
-├── benches/               # Criterion benchmarks
-├── examples/              # Usage examples
-├── tests/                 # Integration tests
-├── scripts/               # Dev helper scripts
-├── docs/                  # Documentation
-├── plans/adr/             # Architecture Decision Records
-├── AGENTS.md              # THIS FILE - AI agent instructions
-├── CLAUDE.md              # Claude: @AGENTS.md
-├── GEMINI.md              # Gemini: @AGENTS.md
-├── Cargo.toml             # Workspace manifest
-├── rust-toolchain.toml    # Pinned toolchain
-├── rustfmt.toml           # Formatting config
-├── .clippy.toml           # Clippy config
-├── deny.toml              # cargo-deny config
-├── release.toml           # cargo-release config
-└── CHANGELOG.md           # Keep-a-changelog format
+├── .vscode/settings.json # VS Code / WSL2 settings
+├── scripts/             # Dev helper scripts
+├── plans/adr/           # Architecture Decision Records
+├── AGENTS.md            # THIS FILE - AI agent instructions
+├── CLAUDE.md            # Claude: @AGENTS.md
+├── GEMINI.md            # Gemini: @AGENTS.md
+└── Cargo.toml           # Workspace manifest
 ```
 
 ## Skill + CLI Pattern (CRITICAL)
 
-**ALWAYS use skills first** for high-frequency operations:
+**ALWAYS use Skill + CLI first** for high-frequency operations:
 
-| Operation | Skill | Command | Token Cost |
-|-----------|-------|---------|------------|
-| Build | `build-rust` | `cargo build --workspace` | Low |
+| Operation | Skill | Script/CLI | Token Cost |
+|-----------|-------|-------------|-------------|
+| Build | `build-rust` | `./scripts/build-rust.sh` | Low |
 | Format/Lint | `code-quality` | `./scripts/code-quality.sh` | Low |
 | Quality Gates | `code-quality` | `./scripts/quality-gates.sh` | Medium |
+| CI Issues | `github-workflows` | `gh workflow list` | Low |
 | Tests | `test-runner` | `cargo nextest run --all` | Medium |
 | Debug | `debug-troubleshoot` | `RUST_LOG=debug cargo nextest run` | Medium |
-| CI Issues | `github-workflows` | `gh workflow list` | Low |
-| Release | `release-guard` | `./scripts/release.sh` | High |
 
-**Decision tree before using task tool:**
+**Before using task tool:**
 1. Is there a skill in `.agents/skills/`? → Use it
 2. Is there a script in `scripts/`? → Use it
 3. Is this high-frequency? → Use Skill + CLI
 4. Is this complex multi-agent? → Use task tool
 
+## Token Efficiency (2026-03)
+
+**Tool Selection Priority (lowest token cost first):**
+1. **Glob** - File discovery (cheapest, structured output)
+2. **Grep** - Code search (cheap, file-by-file breakdown)
+3. **Read** - File inspection (medium)
+4. **Bash** - Shell commands (expensive - prefer scripts)
+
+**Verified Patterns:**
+- Grep tool: 1 call → structured file-by-file breakdown
+- Glob tool: 1 call → all matching files with paths
+- Scripts: 1 call → multiple operations combined
+
 ## Change Workflow (Golden Path)
 
-1. Read existing code patterns before modifying
-2. Identify owner module + relevant file
-3. Add/update tests first (TDD preferred)
-4. `cargo fmt --all` → fix formatting
+1. **Read** existing code patterns before modifying
+2. **Identify** owner module + relevant file
+3. **Add/update tests** first (TDD preferred)
+4. `./scripts/code-quality.sh fmt` → fix formatting
 5. `cargo clippy --all -- -D warnings` → fix ALL warnings
-6. `cargo nextest run -p <crate>` → targeted tests
+6. `cargo nextest run -p <package>` → targeted tests
 7. `cargo nextest run --all` → full suite
-8. `cargo test --doc` → doc tests
-9. `./scripts/quality-gates.sh` → final validation
-10. Commit with conventional format
+8. `./scripts/quality-gates.sh` → final validation
+9. **Commit** with conventional format
 
 ## Required Checks Before Every Commit
 
 - [ ] `cargo fmt --all -- --check`
-- [ ] `cargo clippy --all -- -D warnings`
+- [ ] `cargo clippy --workspace --tests -- -D warnings` (CI parity)
 - [ ] `cargo build --workspace`
 - [ ] `cargo nextest run --all`
-- [ ] `cargo test --doc`
 - [ ] `./scripts/quality-gates.sh`
+
+## CI Parity (2026-03)
+
+**CRITICAL**: Local checks must match CI exactly to prevent "works locally, fails in CI".
+
+| Check | Local Command |
+|-------|---------------|
+| Full CI Parity | `./scripts/code-quality.sh check` |
+| Clippy (tests) | `./scripts/code-quality.sh clippy` |
 
 ## Code Conventions (Non-Negotiable)
 
 - **Max 500 LOC per source file** - split into submodules when exceeded
 - **Zero clippy warnings** - fix, never suppress with `#[allow(...)]` without comment
 - **Single responsibility** per module
-- **Async everywhere** - Tokio runtime, no blocking in async paths (use `spawn_blocking`)
+- **Async everywhere** - Tokio runtime, no blocking in async paths
 - **Error handling** - `thiserror` for library errors, `anyhow` for binaries
 - **No `unwrap()`** in library code - propagate errors
 - **Doc comments** on all public items (`///`)
-- **Tests required** - `#[tokio::test]` for async, AAA pattern (Arrange-Act-Assert)
+- **Tests required** - `#[tokio::test]` for async, AAA pattern
 
 ## Core Invariants (Never Break)
 
-- **Async**: Tokio runtime everywhere. No `std::thread::sleep` in async paths
-- **SQL**: Parameterized queries only. Short transactions. No locks across `.await`
+- **Async**: Tokio runtime everywhere. No blocking in async paths (use `spawn_blocking`)
 - **Clippy**: Zero warnings enforced (`-D warnings`). Fix, don't suppress
-- **Files**: ≤500 LOC per source file. Split into submodules when exceeded
+- **Files**: ≤500 LOC per source file.
 - **Tests**: ≥80% coverage target. `#[tokio::test]` for async
 - **Secrets**: Never hardcode. Use environment variables or `.env` files
-- **Dependencies**: Review before adding. Run `cargo audit` and `cargo deny check`
 
 ## Testing Strategy (2026)
 
 | Layer | Tool | When |
 |-------|------|------|
-| Unit | `cargo nextest` | Always |
-| Integration | `cargo nextest` (tests/) | Always |
+| Unit/Integration | `cargo nextest` | Always |
 | Doc tests | `cargo test --doc` | Always |
-| Benchmarks | `cargo bench` (Criterion) | CI nightly |
 | Property | `proptest` | Core invariants |
 | Snapshot | `insta` | CLI/API output |
 | Mutation | `cargo-mutants` | Pre-release |
-| Fuzz | `cargo-fuzz` | Security-critical |
-
-**nextest profiles** (`.config/nextest.toml`):
-- `default` - local dev, fast feedback
-- `ci` - CI with retries and JUnit output
-- `nightly` - mutation + fuzz + full coverage
 
 ## Disk Space Management (WSL2/Linux)
 
 ```toml
 # .cargo/config.toml - keeps target/ small
 [profile.dev]
-debug = "line-tables-only"    # ~60% smaller
-
+debug = "line-tables-only" # ~60% smaller
 [profile.dev.package."*"]
-debug = false                  # no debug info for deps
-
-[profile.dev.build-override]
-opt-level = 3                  # fast proc-macros
+debug = false              # no debug info for deps
 ```
-
-- Use `mold` linker on Linux: `RUSTFLAGS="-C link-arg=-fuse-ld=mold"`
-- Exclude `target/` from VS Code watcher (see `.vscode/settings.json`)
-- Run `cargo clean` or `./scripts/clean-artifacts.sh` periodically
-
-## Feature Flags Pattern
-
-```toml
-[features]
-default = []
-full = ["feature-a", "feature-b"]
-feature-a = ["dep:some-crate"]
-feature-b = []
-```
-
-Always test with `--all-features` in CI.
 
 ## Commit Format (Conventional Commits)
 
-```
-feat(module): add new capability
-fix(module): resolve bug description
-docs(module): update documentation
-chore(deps): update dependencies
-refactor(module): restructure without behavior change
-test(module): add missing tests
-ci: update workflow
-perf(module): improve performance
-```
+`feat(module): description`
+`fix(module): description`
+`chore(deps): update dependencies`
+
+## Self-Learning Patterns (2026-03)
+
+1. **Systematic codebase analysis** before planning.
+2. **Write ADRs** for every non-trivial architectural change before implementation.
+3. **Add executable scripts to skills** — agent can run them directly.
+4. **Treat CI failures as blockers** — verify empty required-check rollup as a failure evidence.
 
 ## Release Workflow
 
-1. All quality gates pass
-2. `cargo semver-checks check-release` (no breaking changes without major bump)
-3. `cargo release patch|minor|major` (updates versions)
-4. `cargo dist build` (binaries + installers)
-5. Tag pushed → CI builds and publishes
-
-See `plans/adr/` for Architecture Decision Records.
-
-## Environment Variables
-
-| Variable | Purpose | Required |
-|----------|---------|----------|
-| `RUST_LOG` | Log level (debug/info/warn/error) | No (default: info) |
-| `RUST_BACKTRACE` | Backtrace on panic (1/full) | No |
-| `DATABASE_URL` | Primary DB connection string | If using DB |
-
-See `.env.example` for full list. **Never commit secrets.**
-
-## Security
-
-- Use environment variables (never hardcode secrets)
-- Run `cargo audit` before every release
-- Run `cargo deny check` in CI
-- Input validation at all API boundaries
-- Use `cargo-geiger` to audit unsafe code
-- See `SECURITY.md` for vulnerability reporting
-
-## Performance Targets
-
-Document performance budgets in `plans/adr/`. Use Criterion benchmarks with baselines:
-
-```bash
-cargo bench --bench benchmark -- --save-baseline main
-cargo bench --bench benchmark -- --baseline main
-```
-
-CI fails if regression > 10%.
+1. All quality gates pass (`./scripts/quality-gates.sh`)
+2. `cargo semver-checks check-release`
+3. `cargo release [patch|minor|major]`
+4. `./scripts/release-manager.sh --execute`
 
 ## Cross-References
 
@@ -223,8 +161,5 @@ CI fails if regression > 10%.
 |-------|----------|
 | Architecture decisions | `plans/adr/` |
 | Testing strategies | `docs/TESTING.md` |
-| Code style | `docs/CODE_CONVENTIONS.md` |
 | Release engineering | `docs/RELEASE.md` |
-| Security policies | `SECURITY.md` |
-| Contributing | `CONTRIBUTING.md` |
 | Skills | `.agents/skills/` |
