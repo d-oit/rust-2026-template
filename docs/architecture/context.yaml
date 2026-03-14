@@ -1,0 +1,46 @@
+# Repository LLM Context Template
+# This file provides structured context for LLM APIs to understand the codebase
+# Format: YAML (machine-optimized, minimal markup)
+
+metadata:
+  project_name: "your_project_name"
+  description: "Short description of the project"
+  format_version: "1.0"
+  last_updated: 2026-03-14
+
+mission:
+  statement: "Clear mission statement of the project"
+  scope:
+    - Core feature 1
+    - Core feature 2
+    - Core feature 3
+
+constraints:
+  hard:
+    - name: max_loc_per_file
+      value: 500
+      unit: lines
+      description: Source files must not exceed 500 lines of code
+    - name: async_runtime
+      value: "tokio"
+      pattern: "async/await"
+      description: Use Tokio async/await for all I/O operations
+    - name: zero_warnings
+      value: true
+      description: Clippy warnings are blockers
+
+stack:
+  language: "Rust"
+  edition: "2024"
+  major_deps:
+    - tokio
+    - thiserror
+    - anyhow
+    - tracing
+    - serde
+    - clap
+
+conventions:
+  error_handling: "Propagate errors with thiserror/anyhow. No unwrap() in library code."
+  testing: "AAA pattern. Unit tests in source files, integration tests in tests/."
+  async: "No blocking calls in async context. Use spawn_blocking for CPU-heavy tasks."
