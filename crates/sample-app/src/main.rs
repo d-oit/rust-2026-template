@@ -120,9 +120,7 @@ fn process_items(count: usize) -> Result<Vec<String>> {
         )));
     }
 
-    let items: Vec<String> = (1..=count)
-        .map(|i| format!("item-{:04}", i))
-        .collect();
+    let items: Vec<String> = (1..=count).map(|i| format!("item-{:04}", i)).collect();
 
     info!("Successfully processed {} items", items.len());
     Ok(items)
