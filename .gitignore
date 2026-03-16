@@ -54,3 +54,4 @@ default.profraw
 
 # cargo-audit advisory DB cache
 .cargo/advisory-db/
+.blackboxcli/

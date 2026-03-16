@@ -18,7 +18,7 @@
 ### Documentation
 - `has_context_yaml`: true
 - `has_agents_md`: true
-- `is_architecture_documented`: false
+- `is_architecture_documented`: true
 
 ### Git
 - `is_dirty`: false
