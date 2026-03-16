@@ -160,6 +160,4 @@ debug = false              # no debug info for deps
 | Topic | Document |
 |-------|----------|
 | Architecture decisions | `plans/adr/` |
-| Testing strategies | `docs/TESTING.md` |
-| Release engineering | `docs/RELEASE.md` |
 | Skills | `.agents/skills/` |

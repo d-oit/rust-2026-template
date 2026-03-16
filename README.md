@@ -14,7 +14,7 @@ Best practice 2026 Rust GitHub repository template with AI agent support, CI/CD,
 - **AI agent support** - `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` for AI coding assistants
 - **Agent skills** - `.agents/skills/` directory with reusable agent skill files
 - **Quality gates** - `scripts/quality-gates.sh` for local quality checks
-- **Architecture decisions** - `docs/adr/` with ADR template
+- **Architecture decisions** - `plans/adr/` with ADR template
 - **Supply chain security** - `deny.toml` with cargo-deny v2 configuration
 - **Modern linting** - `.clippy.toml` with pedantic lints
 - **Formatting** - `rustfmt.toml` with Rust 2024 edition settings
@@ -51,7 +51,7 @@ rust-2026-template/
 │   └── example-crate/   # Replace with your crate(s)
 │       ├── src/lib.rs
 │       └── Cargo.toml
-├── docs/
+├── plans/
 │   └── adr/             # Architecture Decision Records
 ├── scripts/
 │   └── quality-gates.sh # Local quality gate runner

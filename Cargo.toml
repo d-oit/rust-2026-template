@@ -45,7 +45,8 @@ proptest = "1"
 insta = { version = "1", features = ["yaml"] }
 
 # ─── Build profiles ───────────────────────────────────────────────────────────
-# NOTE: .cargo/config.toml handles debug symbols for WSL2 disk space optimization.
+# NOTE: Detailed dev profile settings are in .cargo/config.toml for WSL2/Linux
+# disk space optimization and fast linker configuration.
 
 [profile.dev]
 opt-level = 0

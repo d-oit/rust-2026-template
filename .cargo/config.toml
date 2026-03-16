@@ -3,11 +3,11 @@
 # See: AGENTS.md - Disk Space Management section
 
 # ─── Linker (Linux/WSL2 only) ───────────────────────────────────────────────
-# Uncomment to use mold linker for 2-5x faster link times on Linux.
+# Use mold linker for 2-5x faster link times on Linux.
 # Install: apt install mold  OR  cargo install mold
-# NOTE: Disable in CI if runner doesn't have mold installed.
-# [target.'cfg(target_os = "linux")']
-# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+[target.'cfg(target_os = "linux")']
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 # ─── Dev profile disk space optimization ────────────────────────────────────
 # Reduces target/ from ~5GB to ~2GB in large workspaces.
