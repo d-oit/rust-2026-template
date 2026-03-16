@@ -114,10 +114,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-deny
         run: cargo install cargo-deny
+        env:
+          # Disable sccache for install
+          RUSTC_WRAPPER: ""
       - name: Run cargo-deny
         run: cargo deny check
         env:
-          # Unset sccache - not available in cargo-deny Docker container
+          # Disable sccache for deny
           RUSTC_WRAPPER: ""
 
   # ───────────────────────────────────────────────────
