@@ -78,17 +78,14 @@ struct Args {
 
 /// Load configuration from file or use defaults
 fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
-    match config_path {
-        Some(path) => {
-            info!("Loading config from: {:?}", path);
-            let contents = std::fs::read_to_string(&path)?;
-            let config: Config = serde_json::from_str(&contents)?;
-            Ok(config)
-        }
-        None => {
-            info!("Using default configuration");
-            Ok(Config::default())
-        }
+    if let Some(path) = config_path {
+        info!("Loading config from: {:?}", path);
+        let contents = std::fs::read_to_string(&path)?;
+        let config: Config = serde_json::from_str(&contents)?;
+        Ok(config)
+    } else {
+        info!("Using default configuration");
+        Ok(Config::default())
     }
 }
 
@@ -116,14 +113,13 @@ fn process_items(count: usize) -> Result<Vec<String>> {
     }
 
     if count > 1000 {
-        error!("Too many items requested: {}", count);
+        error!("Too many items requested: {count}");
         return Err(AppError::Config(format!(
-            "Cannot process more than 1000 items, got {}",
-            count
+            "Cannot process more than 1000 items, got {count}"
         )));
     }
 
-    let items: Vec<String> = (1..=count).map(|i| format!("item-{:04}", i)).collect();
+    let items: Vec<String> = (1..=count).map(|i| format!("item-{i:04}")).collect();
 
     info!("Successfully processed {} items", items.len());
     Ok(items)
@@ -150,7 +146,7 @@ async fn main() -> Result<()> {
     // Print results
     println!("\nProcessed {} items:", items.len());
     for item in items.iter().take(5) {
-        println!("  - {}", item);
+        println!("  - {item}");
     }
     if items.len() > 5 {
         println!("  ... and {} more", items.len() - 5);
@@ -207,7 +203,7 @@ mod tests {
 
     #[test]
     fn test_args_parsing() {
-        let args = Args::parse_from(&["sample-app", "--count", "5"]);
+        let args = Args::parse_from(["sample-app", "--count", "5"]);
         assert_eq!(args.count, 5);
     }
 }

@@ -22,4 +22,4 @@ vec-box-size-threshold = 4096
 single-char-binding-names-threshold = 4
 
 # Minimum string length for suggest using a constant
-msrv = "1.85"
+msrv = "1.87"
