@@ -64,7 +64,7 @@ impl Default for Config {
 #[command(about = "A sample application using rust-2026-template", long_about = None)]
 struct Args {
     /// Path to config file (optional)
-    #[arg(short, long)]
+    #[arg(long)]
     config: Option<PathBuf>,
 
     /// Enable verbose logging
