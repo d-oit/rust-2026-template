@@ -113,7 +113,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-deny
-        run: cargo install cargo-deny
+        run: cargo install cargo-deny --version 0.18.3
         env:
           # Disable sccache for install
           RUSTC_WRAPPER: ""
