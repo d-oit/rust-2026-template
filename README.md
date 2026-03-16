@@ -2,14 +2,14 @@
 
 [![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Rust 1.85+](https://img.shields.io/badge/rust-1.85%2B-orange.svg)](https://www.rust-lang.org)
+[![Rust 1.87+](https://img.shields.io/badge/rust-1.87%2B-orange.svg)](https://www.rust-lang.org)
 
 Best practice 2026 Rust GitHub repository template with AI agent support, CI/CD, quality gates, and all modern Rust tooling.
 
 ## Features
 
 - **Workspace structure** - Multi-crate Cargo workspace with `crates/` layout
-- **2026 Rust edition** - Rust edition 2024, MSRV 1.85
+- **2026 Rust edition** - Rust edition 2024, MSRV 1.87
 - **CI/CD pipeline** - Full GitHub Actions CI with format, clippy, test, security audit, cargo-deny, MSRV check
 - **AI agent support** - `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` for AI coding assistants
 - **Agent skills** - `.agents/skills/` directory with reusable agent skill files
@@ -81,7 +81,7 @@ The CI pipeline runs the following jobs on every push to `main`/`develop` and al
 | Test | `cargo nextest` | Run tests with CI profile |
 | Security Audit | `cargo audit` | Check for known vulnerabilities |
 | Dependency Policy | `cargo deny` | License and supply chain checks |
-| MSRV Check | `cargo check` | Verify MSRV 1.85 compatibility |
+| MSRV Check | `cargo check` | Verify MSRV 1.87 compatibility |
 | CI Success | Gate | All jobs must pass |
 
 ## AI Agent Integration
