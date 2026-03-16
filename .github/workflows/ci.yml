@@ -111,7 +111,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: EmbarkStudios/cargo-deny-action@v2
+      - name: Run cargo-deny
+        run: cargo deny check
+        env:
+          # Unset sccache - not available in cargo-deny Docker container
+          RUSTC_WRAPPER: ""
 
   # ───────────────────────────────────────────────────
   # Minimal versions check - ensures deps work with oldest allowed versions
