@@ -1,0 +1,1054 @@
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+* Dependency Policy (cargo-deny) (ID 67220404806)
+  ✓ Set up job
+  * Build EmbarkStudios/cargo-deny-action@v2
+  * Run actions/checkout@v4
+  * Run EmbarkStudios/cargo-deny-action@v2
+* Test (ubuntu-latest) (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-nextest
+  * Build workspace
+  * Run tests (nextest)
+  * Run doc tests
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* MSRV Check (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  * Run dtolnay/rust-toolchain@1.85
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Check MSRV
+  * Post Run actions/checkout@v4
+* Clippy (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Clippy (all targets, all features)
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* Security Audit (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  * Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-audit
+  * Generate lockfile
+  * Run cargo audit
+  * Post Run actions/checkout@v4
+* Format (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Check formatting
+  * Post Run actions/checkout@v4
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+* Dependency Policy (cargo-deny) (ID 67220404806)
+  ✓ Set up job
+  * Build EmbarkStudios/cargo-deny-action@v2
+  * Run actions/checkout@v4
+  * Run EmbarkStudios/cargo-deny-action@v2
+* Test (ubuntu-latest) (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-nextest
+  * Build workspace
+  * Run tests (nextest)
+  * Run doc tests
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* MSRV Check (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  * Run dtolnay/rust-toolchain@1.85
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Check MSRV
+  * Post Run actions/checkout@v4
+* Clippy (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Clippy (all targets, all features)
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* Security Audit (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  * Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-audit
+  * Generate lockfile
+  * Run cargo audit
+  * Post Run actions/checkout@v4
+* Format (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Check formatting
+  * Post Run actions/checkout@v4
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+* Dependency Policy (cargo-deny) (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  * Run EmbarkStudios/cargo-deny-action@v2
+  * Post Run actions/checkout@v4
+* Test (ubuntu-latest) (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-nextest
+  * Build workspace
+  * Run tests (nextest)
+  * Run doc tests
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* MSRV Check (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Check MSRV
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* Clippy (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Clippy (all targets, all features)
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* Security Audit (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  * Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-audit
+  * Generate lockfile
+  * Run cargo audit
+  * Post Run actions/checkout@v4
+* Format (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Check formatting
+  * Post Run actions/checkout@v4
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+* Dependency Policy (cargo-deny) (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  * Run EmbarkStudios/cargo-deny-action@v2
+  * Post Run actions/checkout@v4
+* Test (ubuntu-latest) (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  * Install cargo-nextest
+  * Build workspace
+  * Run tests (nextest)
+  * Run doc tests
+  * Post Enable sccache
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* MSRV Check (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Check MSRV
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* Clippy (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* Security Audit (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-audit
+  * Generate lockfile
+  * Run cargo audit
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+* Dependency Policy (cargo-deny) (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  * Run EmbarkStudios/cargo-deny-action@v2
+  * Post Run actions/checkout@v4
+* Test (ubuntu-latest) (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+* MSRV Check (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* Security Audit (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  * Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-audit
+  * Generate lockfile
+  * Run cargo audit
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+* Dependency Policy (cargo-deny) (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  * Run EmbarkStudios/cargo-deny-action@v2
+  * Post Run actions/checkout@v4
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* Security Audit (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  * Enable sccache
+  * Install cargo-audit
+  * Generate lockfile
+  * Run cargo audit
+  * Post Enable sccache
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+* Dependency Policy (cargo-deny) (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  * Run EmbarkStudios/cargo-deny-action@v2
+  * Post Run actions/checkout@v4
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* Security Audit (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  * Run cargo audit
+  * Post Enable sccache
+  * Post Run Swatinem/rust-cache@v2
+  * Post Run actions/checkout@v4
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+* Dependency Policy (cargo-deny) (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  * Run EmbarkStudios/cargo-deny-action@v2
+  * Post Run actions/checkout@v4
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Security Audit in 40s (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  ✓ Run cargo audit
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+X Dependency Policy (cargo-deny) in 42s (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  X Run EmbarkStudios/cargo-deny-action@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Security Audit in 40s (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  ✓ Run cargo audit
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* CI Success (ID 67220497922)
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+X Dependency Policy (cargo-deny) in 42s (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  X Run EmbarkStudios/cargo-deny-action@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Security Audit in 40s (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  ✓ Run cargo audit
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* CI Success (ID 67220497922)
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push less than a minute ago
+
+JOBS
+X Dependency Policy (cargo-deny) in 42s (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  X Run EmbarkStudios/cargo-deny-action@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Security Audit in 40s (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  ✓ Run cargo audit
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* CI Success (ID 67220497922)
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push about 1 minute ago
+
+JOBS
+X Dependency Policy (cargo-deny) in 42s (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  X Run EmbarkStudios/cargo-deny-action@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Security Audit in 40s (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  ✓ Run cargo audit
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* CI Success (ID 67220497922)
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push about 1 minute ago
+
+JOBS
+X Dependency Policy (cargo-deny) in 42s (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  X Run EmbarkStudios/cargo-deny-action@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Security Audit in 40s (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  ✓ Run cargo audit
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* CI Success (ID 67220497922)
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+Refreshing run status every 3 seconds. Press Ctrl+C to quit.
+
+* main CI · 23142005230
+Triggered via push about 1 minute ago
+
+JOBS
+X Dependency Policy (cargo-deny) in 42s (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  X Run EmbarkStudios/cargo-deny-action@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Security Audit in 40s (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  ✓ Run cargo audit
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+* CI Success (ID 67220497922)
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
+X main CI · 23142005230
+Triggered via push about 1 minute ago
+
+JOBS
+X Dependency Policy (cargo-deny) in 42s (ID 67220404806)
+  ✓ Set up job
+  ✓ Build EmbarkStudios/cargo-deny-action@v2
+  ✓ Run actions/checkout@v4
+  X Run EmbarkStudios/cargo-deny-action@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+X Test (ubuntu-latest) in 29s (ID 67220404814)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-nextest
+  ✓ Build workspace
+  X Run tests (nextest)
+  - Run doc tests
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ MSRV Check in 27s (ID 67220404815)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@1.85
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Check MSRV
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Clippy in 24s (ID 67220404822)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Clippy (all targets, all features)
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Security Audit in 40s (ID 67220404823)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Run Swatinem/rust-cache@v2
+  ✓ Enable sccache
+  ✓ Install cargo-audit
+  ✓ Generate lockfile
+  ✓ Run cargo audit
+  ✓ Post Enable sccache
+  ✓ Post Run Swatinem/rust-cache@v2
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+✓ Format in 17s (ID 67220404833)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Run dtolnay/rust-toolchain@stable
+  ✓ Check formatting
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+X CI Success in 2s (ID 67220497922)
+  ✓ Set up job
+  X Check all jobs passed
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Format: .github#2
+
