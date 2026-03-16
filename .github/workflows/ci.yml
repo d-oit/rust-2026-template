@@ -109,19 +109,13 @@ jobs:
   deny:
     name: Dependency Policy (cargo-deny)
     runs-on: ubuntu-latest
+    # Disable sccache globally for this job - cargo-deny action runs in Docker without sccache
+    env:
+      RUSTC_WRAPPER: ""
+      SCCACHE_GHA_ENABLED: "false"
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-deny
-        run: cargo install cargo-deny --version 0.18.3
-        env:
-          # Disable sccache for install
-          RUSTC_WRAPPER: ""
-      - name: Run cargo-deny
-        run: cargo deny check
-        env:
-          # Disable sccache for deny
-          RUSTC_WRAPPER: ""
+      - uses: EmbarkStudios/cargo-deny-action@v2
 
   # ───────────────────────────────────────────────────
   # Minimal versions check - ensures deps work with oldest allowed versions
