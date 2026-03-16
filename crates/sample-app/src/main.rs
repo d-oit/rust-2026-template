@@ -21,12 +21,15 @@ use tracing::{error, info, warn};
 /// Custom error types for the application
 #[derive(Error, Debug)]
 pub enum AppError {
+    /// IO error from file system operations
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 
+    /// JSON serialization/deserialization error
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
 
+    /// Configuration error
     #[error("Configuration error: {0}")]
     Config(String),
 }

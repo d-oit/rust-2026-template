@@ -128,6 +128,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@v0.0.9
+      - name: Install mold linker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mold
       - name: Check MSRV
         run: cargo check --workspace
 
