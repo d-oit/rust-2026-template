@@ -1,0 +1,18 @@
+# Dependabot configuration
+# Keeps Rust dependencies and GitHub Actions up to date
+version: 2
+
+updates:
+  # Rust dependencies - weekly updates
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+
+  # GitHub Actions - weekly updates
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10

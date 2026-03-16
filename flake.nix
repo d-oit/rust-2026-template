@@ -59,6 +59,8 @@
               # Build essentials
               openssl
               pkg-config
+              clang
+              mold
 
               # Cargo tools - mirrors CI pipeline jobs
               cargo-binstall   # fast binary installs
