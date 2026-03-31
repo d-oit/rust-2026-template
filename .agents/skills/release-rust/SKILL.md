@@ -10,6 +10,24 @@ Create and publish a new release of the Rust project.
 
 ## Steps
 
+### 0. Verify crate name availability on crates.io (FIRST TIME PUBLISH ONLY)
+
+Before the very first publish, confirm the crate name is not already taken:
+
+```bash
+# Check via cargo search
+cargo search <your-crate-name>
+
+# Or via API (404 = available, 200 = taken)
+curl -s https://crates.io/api/v1/crates/<your-crate-name> | python3 -m json.tool | grep '"name"'
+
+# Or open in browser: https://crates.io/crates/<your-crate-name>
+```
+
+> See `.agents/skills/crates-io-name-check/SKILL.md` for full naming guidance and best practices.
+
+**Do not proceed with publishing if the name is taken — choose a unique name first.**
+
 ### 1. Pre-release checks
 ```bash
 cargo fmt --all -- --check
@@ -45,7 +63,9 @@ Pushing a tag triggers `.github/workflows/release.yml`:
 - Tag on GitHub
 - Release with binaries created
 - CHANGELOG updated
+- Crate name verified unique on crates.io (first publish)
 
 ## References
 - [cargo-dist](https://opensource.axo.dev/cargo-dist/)
 - [Keep a Changelog](https://keepachangelog.com/)
+- [crates.io naming policy](https://crates.io/policies)
