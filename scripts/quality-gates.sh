@@ -27,7 +27,7 @@ info "Starting quality gates..."
 # ============================================================
 # 1. FORMAT CHECK
 # ============================================================
-info "[1/7] Checking formatting..."
+info "[1/8] Checking formatting..."
 if $FIX; then
   cargo fmt --all
   pass "Format: auto-fixed"
@@ -39,7 +39,7 @@ fi
 # ============================================================
 # 2. CLIPPY
 # ============================================================
-info "[2/7] Running Clippy..."
+info "[2/8] Running Clippy..."
 if $FIX; then
   cargo clippy --fix --allow-dirty --allow-staged --all-targets --all-features
   pass "Clippy: auto-fixed"
@@ -51,14 +51,14 @@ fi
 # ============================================================
 # 3. BUILD
 # ============================================================
-info "[3/7] Building..."
+info "[3/8] Building..."
 cargo build --all-targets || fail "Build: failed"
 pass "Build: OK"
 
 # ============================================================
 # 4. TESTS
 # ============================================================
-info "[4/7] Running tests..."
+info "[4/8] Running tests..."
 if command -v cargo-nextest &>/dev/null; then
   cargo nextest run --all-features --workspace || fail "Tests: failed"
 else
@@ -73,7 +73,7 @@ pass "Tests: OK"
 # ============================================================
 # 5. SECURITY AUDIT
 # ============================================================
-info "[5/7] Security audit..."
+info "[5/8] Security audit..."
 if command -v cargo-audit &>/dev/null; then
   cargo audit || fail "Security audit: vulnerabilities found"
   pass "Audit: OK"
@@ -84,7 +84,7 @@ fi
 # ============================================================
 # 6. SUPPLY CHAIN (cargo-deny)
 # ============================================================
-info "[6/7] Supply chain check..."
+info "[6/8] Supply chain check..."
 if command -v cargo-deny &>/dev/null; then
   cargo deny check || fail "cargo-deny: violations found"
   pass "Deny: OK"
@@ -95,12 +95,25 @@ fi
 # ============================================================
 # 7. UNUSED DEPENDENCIES
 # ============================================================
-info "[7/7] Checking unused dependencies..."
+info "[7/8] Checking unused dependencies..."
 if command -v cargo-machete &>/dev/null; then
   cargo machete || fail "Unused deps found"
   pass "Machete: OK"
 else
   info "cargo-machete not installed, skipping (run: cargo install cargo-machete)"
+fi
+
+# ============================================================
+# 8. PRIVACY CHECK (No emails)
+# ============================================================
+info "[8/8] Checking for email addresses (privacy-first)..."
+EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target|\.agents'
+
+if grep -rE "$EMAIL_PATTERN" . 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
+  fail "Email address detected in codebase. Please remove it to comply with privacy-first policy."
+else
+  pass "Privacy: OK"
 fi
 
 echo ""
