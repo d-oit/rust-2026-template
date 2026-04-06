@@ -14,6 +14,7 @@
 
 use clap::Parser;
 use serde::{Deserialize, Serialize};
+use std::fmt::Write;
 use std::path::PathBuf;
 use thiserror::Error;
 use tracing::{error, info, warn};
@@ -100,6 +101,9 @@ fn init_logging(verbose: bool) {
     tracing_subscriber::fmt()
         .with_max_level(level)
         .with_target(false)
+        // Disable thread metadata for CLI performance
+        .with_thread_ids(false)
+        .with_thread_names(false)
         .init();
 }
 
@@ -119,14 +123,20 @@ fn process_items(count: usize) -> Result<Vec<String>> {
         )));
     }
 
-    let items: Vec<String> = (1..=count).map(|i| format!("item-{i:04}")).collect();
+    // Pre-allocate Vec and Strings for efficiency
+    let mut items = Vec::with_capacity(count);
+    for i in 1..=count {
+        let mut s = String::with_capacity(9);
+        let _ = write!(s, "item-{i:04}");
+        items.push(s);
+    }
 
     info!("Successfully processed {} items", items.len());
     Ok(items)
 }
 
 /// Main application entry point
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
     // Parse CLI arguments
     let args = Args::parse();
