@@ -15,6 +15,7 @@
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use std::fmt::Write;
+use std::io::Read;
 use std::path::PathBuf;
 use thiserror::Error;
 use tracing::{error, info, warn};
@@ -79,9 +80,35 @@ struct Args {
 
 /// Load configuration from file or use defaults
 fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
+    // Security: Check file size before reading to prevent DoS (memory exhaustion)
+    // Use a 1MB limit for configuration files
+    const MAX_CONFIG_SIZE: u64 = 1024 * 1024;
+
     if let Some(path) = config_path {
-        info!("Loading config from: {:?}", path);
-        let contents = std::fs::read_to_string(&path)?;
+        info!("Loading config from: {}", path.display());
+
+        let file = std::fs::File::open(&path)?;
+        let metadata = file.metadata()?;
+
+        if !metadata.is_file() {
+            return Err(AppError::Config(format!(
+                "Config path is not a regular file: {}",
+                path.display()
+            )));
+        }
+
+        let file_size = metadata.len();
+        if file_size > MAX_CONFIG_SIZE {
+            return Err(AppError::Config(format!(
+                "Config file too large: {file_size} bytes (max {MAX_CONFIG_SIZE})"
+            )));
+        }
+
+        // Capacity is safe to cast as we just checked against 1MB MAX_CONFIG_SIZE
+        #[allow(clippy::cast_possible_truncation)]
+        let mut contents = String::with_capacity(file_size as usize);
+        file.take(MAX_CONFIG_SIZE).read_to_string(&mut contents)?;
+
         let config: Config = serde_json::from_str(&contents)?;
         Ok(config)
     } else {
