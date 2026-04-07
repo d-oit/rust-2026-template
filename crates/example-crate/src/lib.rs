@@ -20,14 +20,7 @@
 /// ```
 #[must_use]
 pub fn greet(name: &str) -> String {
-    // BOLT optimization: Pre-allocate with capacity and use `push_str` to avoid
-    // the overhead of the formatting machinery.
-    // "Hello, " (7 bytes) + name length + "!" (1 byte)
-    let mut s = String::with_capacity(7 + name.len() + 1);
-    s.push_str("Hello, ");
-    s.push_str(name);
-    s.push('!');
-    s
+    format!("Hello, {name}!")
 }
 
 #[cfg(test)]
