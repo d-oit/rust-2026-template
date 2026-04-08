@@ -108,13 +108,14 @@ fi
 # ============================================================
 info "[8/8] Checking for email addresses (privacy-first)..."
 EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target|\.agents'
+EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target'
 
 # ⚡ Bolt: Optimized by using --exclude-dir to skip large/irrelevant directories
 # instead of filtering results after a full recursive scan. This significantly
 # reduces I/O and CPU time in large Rust projects with deep target/ folders.
+# Note: .agents IS included as it contains critical workflow definitions.
 if grep -rE "$EMAIL_PATTERN" \
-  --exclude-dir=.git --exclude-dir=target --exclude-dir=.agents \
+  --exclude-dir=.git --exclude-dir=target \
   . 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
   fail "Email address detected in codebase. Please remove it to comply with privacy-first policy."
 else
