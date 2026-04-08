@@ -5,3 +5,7 @@
 ## 2025-05-15 - [Linker Dependencies in Template Repos]
 **Learning:** Template repositories often include aggressive build optimizations like `mold` which may not be present in all development environments (like restricted sandboxes).
 **Action:** Verify the presence of specialized tools before assuming their availability in the build configuration, and provide fallbacks or clear documentation for local environment adjustments.
+
+## 2025-05-20 - [Efficient Workspace Scanning]
+**Learning:** Recursive scans (like `grep -r`) in a Rust workspace are surprisingly expensive due to the `target/` directory, which often contains tens of thousands of build artifacts. Filtering results with `grep -v` after a full scan is a common anti-pattern that wastes significant I/O.
+**Action:** Always use `--exclude-dir=target` (and `.git`) in search commands to prevent the tool from even entering these directories. This can reduce scan times by 70% or more.
