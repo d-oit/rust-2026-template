@@ -133,18 +133,18 @@ fn init_logging(verbose: bool) {
 }
 
 /// Process items and return a result
-fn process_items(count: usize) -> Result<Vec<String>> {
-    info!("Processing {} items", count);
+fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
+    info!("Processing {} items (limit: {})", count, limit);
 
     if count == 0 {
         warn!("No items to process");
         return Ok(vec![]);
     }
 
-    if count > 1000 {
-        error!("Too many items requested: {count}");
+    if count > limit {
+        error!("Too many items requested: {count} (limit: {limit})");
         return Err(AppError::Config(format!(
-            "Cannot process more than 1000 items, got {count}"
+            "Cannot process more than {limit} items, got {count}"
         )));
     }
 
@@ -192,7 +192,7 @@ async fn main() -> Result<()> {
     info!("App name: {}", config.app_name);
 
     // Process items
-    let items = process_items(args.count)?;
+    let items = process_items(args.count, config.max_items)?;
 
     // Print results
     println!("\nProcessed {} items:", items.len());
@@ -235,20 +235,20 @@ mod tests {
 
     #[test]
     fn test_process_items_zero() {
-        let result = process_items(0).unwrap();
+        let result = process_items(0, 100).unwrap();
         assert!(result.is_empty());
     }
 
     #[test]
     fn test_process_items_normal() {
-        let result = process_items(5).unwrap();
+        let result = process_items(5, 100).unwrap();
         assert_eq!(result.len(), 5);
         assert_eq!(result[0], "item-0001");
     }
 
     #[test]
     fn test_process_items_too_many() {
-        let result = process_items(1001);
+        let result = process_items(101, 100);
         assert!(result.is_err());
     }
 
