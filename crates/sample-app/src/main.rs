@@ -9,6 +9,7 @@
 //! - Logging with tracing
 //! - CLI with clap
 
+#![forbid(unsafe_code)]
 #![deny(missing_docs)]
 #![warn(clippy::all, clippy::pedantic, clippy::nursery)]
 
@@ -41,6 +42,7 @@ pub type Result<T> = std::result::Result<T, AppError>;
 
 /// Configuration for the application
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// Name of the application
     pub app_name: String,
@@ -217,6 +219,21 @@ mod tests {
         let decoded: Config = serde_json::from_str(&json).unwrap();
 
         assert_eq!(config.app_name, decoded.app_name);
+    }
+
+    #[test]
+    fn test_config_deny_unknown_fields() {
+        let json = r#"{
+            "app_name": "test",
+            "log_level": "info",
+            "max_items": 100,
+            "unknown_field": "oops"
+        }"#;
+
+        let result: std::result::Result<Config, _> = serde_json::from_str(json);
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("unknown field `unknown_field`"));
     }
 
     #[test]
