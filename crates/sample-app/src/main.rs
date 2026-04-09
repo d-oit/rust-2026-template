@@ -14,8 +14,7 @@
 
 use clap::Parser;
 use serde::{Deserialize, Serialize};
-use std::fmt::Write;
-use std::io::Read;
+use std::io::{BufReader, Read};
 use std::path::PathBuf;
 use thiserror::Error;
 use tracing::{error, info, warn};
@@ -104,12 +103,9 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
             )));
         }
 
-        // Capacity is safe to cast as we just checked against 1MB MAX_CONFIG_SIZE
-        #[allow(clippy::cast_possible_truncation)]
-        let mut contents = String::with_capacity(file_size as usize);
-        file.take(MAX_CONFIG_SIZE).read_to_string(&mut contents)?;
-
-        let config: Config = serde_json::from_str(&contents)?;
+        // Use BufReader to avoid reading the entire file into an intermediate String
+        let reader = BufReader::new(file.take(MAX_CONFIG_SIZE));
+        let config: Config = serde_json::from_reader(reader)?;
         Ok(config)
     } else {
         info!("Using default configuration");
@@ -153,8 +149,23 @@ fn process_items(count: usize) -> Result<Vec<String>> {
     // Pre-allocate Vec and Strings for efficiency
     let mut items = Vec::with_capacity(count);
     for i in 1..=count {
+        // "item-" (5 bytes) + max 4 digits (as per count limit of 1000)
         let mut s = String::with_capacity(9);
-        let _ = write!(s, "item-{i:04}");
+        s.push_str("item-");
+
+        // Fast manual formatting for 4-digit numbers to bypass write! macro overhead.
+        // We know count <= 1000, so i is at most 1000.
+        let d4 = (i / 1000) % 10;
+        let d3 = (i / 100) % 10;
+        let d2 = (i / 10) % 10;
+        let d1 = i % 10;
+
+        // Still handle up to 4 digits as per :04 format
+        s.push((b'0' + d4 as u8) as char);
+        s.push((b'0' + d3 as u8) as char);
+        s.push((b'0' + d2 as u8) as char);
+        s.push((b'0' + d1 as u8) as char);
+
         items.push(s);
     }
 
