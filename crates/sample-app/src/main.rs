@@ -234,6 +234,21 @@ mod tests {
     }
 
     #[test]
+    fn test_config_deny_unknown_fields() {
+        let json = r#"{
+            "app_name": "test",
+            "log_level": "info",
+            "max_items": 100,
+            "unknown_field": "oops"
+        }"#;
+
+        let result: std::result::Result<Config, _> = serde_json::from_str(json);
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("unknown field `unknown_field`"));
+    }
+
+    #[test]
     fn test_process_items_zero() {
         let result = process_items(0, 100).unwrap();
         assert!(result.is_empty());
