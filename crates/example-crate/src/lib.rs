@@ -21,7 +21,13 @@
 /// ```
 #[must_use]
 pub fn greet(name: &str) -> String {
-    format!("Hello, {name}!")
+    // Bolt: Use pre-allocated String and push_str to avoid format! macro overhead.
+    // Fixed capacity to 8 + name.len() to account for "Hello, " (7) and "!" (1).
+    let mut s = String::with_capacity(8 + name.len());
+    s.push_str("Hello, ");
+    s.push_str(name);
+    s.push('!');
+    s
 }
 
 #[cfg(test)]

@@ -30,7 +30,7 @@ pub enum AppError {
 
     /// JSON serialization/deserialization error
     #[error("JSON error: {0}")]
-    Json(#[from] serde_json::Error),
+    Json(#[from] serde_json::error::Error),
 
     /// Configuration error
     #[error("Configuration error: {0}")]
