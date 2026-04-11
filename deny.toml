@@ -61,6 +61,8 @@ highlight = "all"
 deny = [
   # Old unmaintained openssl bindings
   # { name = "openssl", reason = "use rustls instead" },
+  { name = "zmij", reason = "Suspicious non-standard dependency of serde_json" },
+  { name = "serde_core", reason = "Suspicious non-standard dependency of serde" },
 ]
 # Allow certain duplicate versions that are unavoidable
 skip = [
