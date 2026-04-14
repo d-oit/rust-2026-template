@@ -21,7 +21,13 @@
 /// ```
 #[must_use]
 pub fn greet(name: &str) -> String {
-    format!("Hello, {name}!")
+    // Optimization: Pre-allocate String with exact capacity to avoid format! macro overhead.
+    // This reduces allocations and avoids runtime parsing of the format string.
+    let mut s = String::with_capacity(8 + name.len());
+    s.push_str("Hello, ");
+    s.push_str(name);
+    s.push('!');
+    s
 }
 
 #[cfg(test)]

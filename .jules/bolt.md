@@ -5,3 +5,7 @@
 ## 2025-05-15 - [Linker Dependencies in Template Repos]
 **Learning:** Template repositories often include aggressive build optimizations like `mold` which may not be present in all development environments (like restricted sandboxes).
 **Action:** Verify the presence of specialized tools before assuming their availability in the build configuration, and provide fallbacks or clear documentation for local environment adjustments.
+
+## 2026-04-14 - Manual String Construction vs format! Macro
+**Learning:** In Rust, replacing the `format!` macro with manual string construction using `String::with_capacity` and `push_str` can yield significant performance gains (up to 2.6x) for simple concatenations by avoiding the overhead of the formatting machinery and reducing allocations to exactly one.
+**Action:** Prefer pre-allocating strings with exact capacity for simple concatenations in performance-critical hot loops. Always use `std::hint::black_box` when benchmarking to ensure the compiler doesn't optimize away the function call.
