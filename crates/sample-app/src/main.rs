@@ -9,13 +9,14 @@
 //! - Logging with tracing
 //! - CLI with clap
 
+#![forbid(unsafe_code)]
 #![deny(missing_docs)]
 #![warn(clippy::all, clippy::pedantic, clippy::nursery)]
 
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use std::fmt::Write;
-use std::io::Read;
+use std::io::{BufReader, Read};
 use std::path::PathBuf;
 use thiserror::Error;
 use tracing::{error, info, warn};
@@ -41,6 +42,7 @@ pub type Result<T> = std::result::Result<T, AppError>;
 
 /// Configuration for the application
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// Name of the application
     pub app_name: String,
@@ -104,12 +106,8 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
             )));
         }
 
-        // Capacity is safe to cast as we just checked against 1MB MAX_CONFIG_SIZE
-        #[allow(clippy::cast_possible_truncation)]
-        let mut contents = String::with_capacity(file_size as usize);
-        file.take(MAX_CONFIG_SIZE).read_to_string(&mut contents)?;
-
-        let config: Config = serde_json::from_str(&contents)?;
+        let reader = BufReader::new(file.take(MAX_CONFIG_SIZE));
+        let config: Config = serde_json::from_reader(reader)?;
         Ok(config)
     } else {
         info!("Using default configuration");
@@ -151,10 +149,26 @@ fn process_items(count: usize) -> Result<Vec<String>> {
     }
 
     // Pre-allocate Vec and Strings for efficiency
+    // Bolt: Use manual digit extraction to avoid formatting macro overhead for the common case (i < 10000)
     let mut items = Vec::with_capacity(count);
     for i in 1..=count {
         let mut s = String::with_capacity(9);
-        let _ = write!(s, "item-{i:04}");
+        s.push_str("item-");
+        if i < 10000 {
+            // Fast path for 4-digit formatting with leading zeros
+            // Safety: i < 10000 ensures i / 1000 < 10, so cast to u8 is safe
+            #[allow(clippy::cast_possible_truncation)]
+            s.push((b'0' + (i / 1000) as u8) as char);
+            #[allow(clippy::cast_possible_truncation)]
+            s.push((b'0' + ((i / 100) % 10) as u8) as char);
+            #[allow(clippy::cast_possible_truncation)]
+            s.push((b'0' + ((i / 10) % 10) as u8) as char);
+            #[allow(clippy::cast_possible_truncation)]
+            s.push((b'0' + (i % 10) as u8) as char);
+        } else {
+            // Fallback for larger numbers (though current limit is 1000)
+            let _ = write!(s, "{i:04}");
+        }
         items.push(s);
     }
 
