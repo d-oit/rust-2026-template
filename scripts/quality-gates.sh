@@ -27,7 +27,7 @@ info "Starting quality gates..."
 # ============================================================
 # 1. FORMAT CHECK
 # ============================================================
-info "[1/8] Checking formatting..."
+info "[1/9] Checking formatting..."
 if $FIX; then
   cargo fmt --all
   pass "Format: auto-fixed"
@@ -39,7 +39,7 @@ fi
 # ============================================================
 # 2. CLIPPY
 # ============================================================
-info "[2/8] Running Clippy..."
+info "[2/9] Running Clippy..."
 if $FIX; then
   cargo clippy --fix --allow-dirty --allow-staged --all-targets --all-features
   pass "Clippy: auto-fixed"
@@ -51,14 +51,14 @@ fi
 # ============================================================
 # 3. BUILD
 # ============================================================
-info "[3/8] Building..."
+info "[3/9] Building..."
 cargo build --all-targets || fail "Build: failed"
 pass "Build: OK"
 
 # ============================================================
 # 4. TESTS
 # ============================================================
-info "[4/8] Running tests..."
+info "[4/9] Running tests..."
 if command -v cargo-nextest &>/dev/null; then
   cargo nextest run --all-features --workspace || fail "Tests: failed"
 else
@@ -73,7 +73,7 @@ pass "Tests: OK"
 # ============================================================
 # 5. SECURITY AUDIT
 # ============================================================
-info "[5/8] Security audit..."
+info "[5/9] Security audit..."
 if command -v cargo-audit &>/dev/null; then
   cargo audit || fail "Security audit: vulnerabilities found"
   pass "Audit: OK"
@@ -84,7 +84,7 @@ fi
 # ============================================================
 # 6. SUPPLY CHAIN (cargo-deny)
 # ============================================================
-info "[6/8] Supply chain check..."
+info "[6/9] Supply chain check..."
 if command -v cargo-deny &>/dev/null; then
   cargo deny check || fail "cargo-deny: violations found"
   pass "Deny: OK"
@@ -95,7 +95,7 @@ fi
 # ============================================================
 # 7. UNUSED DEPENDENCIES
 # ============================================================
-info "[7/8] Checking unused dependencies..."
+info "[7/9] Checking unused dependencies..."
 if command -v cargo-machete &>/dev/null; then
   cargo machete || fail "Unused deps found"
   pass "Machete: OK"
@@ -106,14 +106,35 @@ fi
 # ============================================================
 # 8. PRIVACY CHECK (No emails)
 # ============================================================
-info "[8/8] Checking for email addresses (privacy-first)..."
+info "[8/9] Checking for email addresses (privacy-first)..."
 EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target|\.agents'
+EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target'
 
-if grep -rE "$EMAIL_PATTERN" . 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
+# ⚡ Bolt: Optimized by using --exclude-dir to skip large/irrelevant directories
+# instead of filtering results after a full recursive scan. This significantly
+# reduces I/O and CPU time in large Rust projects with deep target/ folders.
+# Note: .agents IS included as it contains critical workflow definitions.
+if grep -rE "$EMAIL_PATTERN" \
+  --exclude-dir=.git --exclude-dir=target \
+  . 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
   fail "Email address detected in codebase. Please remove it to comply with privacy-first policy."
 else
   pass "Privacy: OK"
+fi
+
+# ============================================================
+# 9. SECRET SCAN
+# ============================================================
+info "[9/9] Scanning for potential secrets..."
+# Matches patterns like api_key = "..." with at least 16 characters in the secret
+SECRET_PATTERN='(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]'
+EXCLUDE_DIR='--exclude-dir=.git --exclude-dir=target --exclude-dir=.agents'
+EXCLUDE_SECRET='example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN'
+
+if grep -rE $EXCLUDE_DIR "$SECRET_PATTERN" . 2>/dev/null | grep -vE "$EXCLUDE_SECRET"; then
+  fail "Potential secret detected in codebase. Please use environment variables instead."
+else
+  pass "Secret Scan: OK"
 fi
 
 echo ""
