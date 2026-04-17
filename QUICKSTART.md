@@ -4,7 +4,7 @@ Get a new Rust project running in under 5 minutes.
 
 ## Prerequisites
 
-- Rust stable via [rustup](https://rustup.rs/) (toolchain version is pinned in `rust-toolchain.toml`)
+- Rust stable via [rustup](https://rustup.rs/) — toolchain pinned to 1.87 in `rust-toolchain.toml`
 - Git 2.30+
 - Optional: `cargo-nextest`, `cargo-deny`, `cargo-audit` for full quality gates
 
@@ -36,6 +36,8 @@ mv crates/example-crate crates/your-crate-name
 
 See `.agents/skills/crates-io-name-check/SKILL.md` for the full name-check workflow.
 
+The `sample-app` binary crate can be kept as a reference or renamed/removed as needed.
+
 ## 3. Install Required Tools
 
 ```bash
@@ -50,8 +52,15 @@ cargo install cargo-audit
 ## 4. Build and Test
 
 ```bash
-cargo build
-cargo nextest run
+# Build all workspace crates
+cargo build --workspace
+
+# Run all tests
+cargo nextest run --workspace
+
+# Run the sample app
+cargo run -p sample-app
+cargo run -p sample-app -- --count 5 --verbose
 ```
 
 ## 5. Run All Quality Gates
@@ -60,7 +69,13 @@ cargo nextest run
 bash scripts/quality-gates.sh
 ```
 
-Expected output: all checks green.
+Runs 9 checks: format, clippy, build, tests, doc tests, security audit, cargo-deny, unused deps, privacy scan, secret scan.
+
+Pass `--fix` to auto-correct formatting and clippy issues:
+
+```bash
+bash scripts/quality-gates.sh --fix
+```
 
 ## 6. Update Project Metadata
 
@@ -68,7 +83,8 @@ Edit these files with your project details:
 
 | File | What to update |
 |---|---|
-| `Cargo.toml` | `name`, `description`, `repository`, `homepage` |
+| `Cargo.toml` | `authors`, `repository`, `homepage`, `documentation` |
+| `crates/*/Cargo.toml` | `name`, `description` |
 | `AGENTS.md` | Project name, description, domain context |
 | `CLAUDE.md` | Project-specific overrides |
 | `README.md` | Replace template content with your project |
@@ -83,7 +99,7 @@ git commit -m "feat: initialize project from rust-2026-template"
 git push origin main
 ```
 
-CI will run: format check, clippy, tests, security audit, dependency policy.
+CI runs: format check, clippy, nextest, doc tests, security audit, cargo-deny, MSRV check.
 
 ---
 
@@ -92,13 +108,16 @@ CI will run: format check, clippy, tests, security audit, dependency policy.
 | Component | Location | Purpose |
 |---|---|---|
 | CI pipeline | `.github/workflows/ci.yml` | Format, lint, test, audit on every push |
-| Release workflow | `.github/workflows/release.yml` | Automated publishing to crates.io |
-| Agent skills | `.agents/skills/` | AI coding assistant knowledge modules |
-| Quality gate | `scripts/quality-gates.sh` | Local pre-push checks |
+| Release workflow | `.github/workflows/release.yml` | Tag-triggered release with cargo-dist |
+| Agent skills | `.agents/skills/` | 9 AI coding assistant skill runbooks |
+| Quality gate script | `scripts/quality-gates.sh` | 9-step local pre-push checks |
+| Code quality script | `scripts/code-quality.sh` | fmt \| clippy \| audit \| check \| fix |
+| Release manager | `scripts/release-manager.sh` | validate \| prepare \| publish |
 | ADR template | `plans/adr/` | Architecture decision records |
 | Clippy config | `.clippy.toml` | Pedantic lint rules |
 | Deny config | `deny.toml` | License and vulnerability policy |
-| Nextest config | `.config/nextest.toml` | Test profiles (local + CI) |
+| Nextest config | `.config/nextest.toml` | Test profiles (default + ci) |
+| Cargo aliases | `.cargo/config.toml` | `check-all`, `test-all`, `lint`, etc. |
 
 ## Next Steps
 
