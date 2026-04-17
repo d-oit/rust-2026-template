@@ -195,12 +195,19 @@ async fn main() -> Result<()> {
     let items = process_items(args.count, config.max_items)?;
 
     // Print results
-    println!("\nProcessed {} items:", items.len());
-    for item in items.iter().take(5) {
-        println!("  - {item}");
-    }
-    if items.len() > 5 {
-        println!("  ... and {} more", items.len() - 5);
+    // Bolt: Lock stdout to minimize locking overhead and syscalls for multiple prints
+    {
+        use std::io::Write;
+        let stdout = std::io::stdout();
+        let mut handle = stdout.lock();
+        let _ = writeln!(handle, "\nProcessed {} items:", items.len());
+        for item in items.iter().take(5) {
+            let _ = writeln!(handle, "  - {item}");
+        }
+        if items.len() > 5 {
+            let _ = writeln!(handle, "  ... and {} more", items.len() - 5);
+        }
+        let _ = handle.flush();
     }
 
     info!("Application completed successfully");
@@ -231,6 +238,21 @@ mod tests {
         let decoded: Config = serde_json::from_str(&json).unwrap();
 
         assert_eq!(config.app_name, decoded.app_name);
+    }
+
+    #[test]
+    fn test_config_deny_unknown_fields() {
+        let json = r#"{
+            "app_name": "test",
+            "log_level": "info",
+            "max_items": 100,
+            "unknown_field": "oops"
+        }"#;
+
+        let result: std::result::Result<Config, _> = serde_json::from_str(json);
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("unknown field `unknown_field`"));
     }
 
     #[test]
