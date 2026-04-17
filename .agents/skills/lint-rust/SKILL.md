@@ -1,15 +1,35 @@
+---
+name: lint-rust
+description: >
+  Run comprehensive linting and static analysis on Rust code.
+  Use before committing code, during CI/CD pipeline, when reviewing code quality,
+  or after adding new dependencies. Triggers on "lint", "audit", "check quality",
+  "security scan", or "find unused dependencies".
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  source: d-o-hub/github-template-ai-agents
+  tags: rust lint clippy audit security format
+---
+
 # Skill: lint-rust
 
+Run comprehensive linting and static analysis on Rust code.
+
 ## Purpose
+
 Run comprehensive linting and static analysis on Rust code.
 
 ## Trigger Conditions
+
 - Before committing code
 - During CI/CD pipeline
 - When reviewing code quality
 - After adding new dependencies
 
 ## Prerequisites
+
 - `cargo clippy` (bundled with Rust)
 - `cargo audit` (`cargo install cargo-audit`)
 - `cargo deny` (`cargo install cargo-deny`)

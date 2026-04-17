@@ -14,17 +14,25 @@ metadata:
   tags: privacy security email lint quality personal-data rust cargo
 ---
 
-# Privacy First
+# Skill: privacy-first
 
 This skill ensures no email addresses or personal data leak into the Rust codebase.
-It provides detection, prevention, and automated checking for Rust projects.
 
-## When to Activate
+## Purpose
+
+Prevent email addresses and personal data from entering the codebase.
+
+## Trigger Conditions
 
 - User asks: "prevent emails", "remove personal data", "privacy check", "never use email"
 - Before writing any new code, `Cargo.toml`, config, or documentation file
 - During code review or quality gate checks
 - When adding contact information to any file
+
+## Prerequisites
+
+- No external dependencies required
+- Works with standard grep/bash tools
 
 ## Agent Workflow
 
@@ -115,3 +123,13 @@ fi
 - Remove email from `Cargo.toml` authors field
 - Use test domains (`example.com`) only in `#[cfg(test)]` blocks
 - Link to `SECURITY.md` for vulnerability reporting
+
+## Related Skills
+
+- `lint-rust` - General code quality and security auditing
+- `release-rust` - Pre-release checks include privacy verification
+
+## References
+
+- [crates.io policies](https://crates.io/policies)
+- [GDPR compliance for open source](https://gdpr.eu/what-is-gdpr/)

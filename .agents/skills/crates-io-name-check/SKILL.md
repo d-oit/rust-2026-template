@@ -1,4 +1,21 @@
+---
+name: crates-io-name-check
+description: >
+  Verify that a new Rust crate name is available and appropriate on crates.io.
+  Use when creating a new crate, renaming a crate, or before first publish.
+  Triggers on "check crate name", "is this name taken", "verify availability",
+  or "naming best practices".
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  source: d-o-hub/github-template-ai-agents
+  tags: rust crates-io naming availability check
+---
+
 # Skill: crates-io-name-check
+
+Verify that a new Rust crate name is available and appropriate on crates.io.
 
 ## Purpose
 
@@ -6,12 +23,17 @@ Verify that a new Rust crate name is **available and appropriate** on crates.io 
 committing to it in `Cargo.toml`. This is a generic skill for any Rust project using
 this template — run it whenever you create a new crate (workspace member or standalone).
 
-## When to Use
+## Trigger Conditions
 
-- Creating a new crate under `crates/` in the workspace
-- Starting a new Rust project from this template
+- When creating a new crate under `crates/` in the workspace
+- When starting a new Rust project from this template
 - Before the first `cargo publish`
 - When renaming a crate
+
+## Prerequisites
+
+- Access to crates.io (internet connection)
+- `cargo` CLI installed (for `cargo search`)
 
 ## Availability Check
 
@@ -61,6 +83,18 @@ cargo search <prefix>
 # Check typosquat risk manually on crates.io
 # https://crates.io/search?q=<your-name>
 ```
+
+## Common Issues
+
+### Name appears taken but project is abandoned
+
+**Symptom**: Crate exists on crates.io but has no recent updates or downloads  
+**Fix**: Contact the owner via crates.io contact link, or choose a different name with a suffix like `-rs` or `-core`
+
+### False positive from cargo search
+
+**Symptom**: `cargo search` shows similar names but not exact match  
+**Fix**: Verify with Method 2 (API) or Method 3 (browser) - only exact matches block your name
 
 ## Cargo.toml Name vs Package Directory
 

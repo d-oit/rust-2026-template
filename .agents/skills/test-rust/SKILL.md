@@ -1,9 +1,35 @@
+---
+name: test-rust
+description: >
+  Run the complete test suite for a Rust project using best practices.
+  Use when asked to run tests, check coverage, verify test organization,
+  or validate doc tests. Triggers on "test", "run tests", "coverage",
+  "doc tests", or "integration tests".
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  source: d-o-hub/github-template-ai-agents
+  tags: rust test nextest coverage doc-tests integration
+---
+
 # Skill: test-rust
 
-## Purpose
 Run the complete test suite for a Rust project using best practices.
 
+## Purpose
+
+Run the complete test suite for a Rust project using best practices.
+
+## Trigger Conditions
+
+- When asked to run tests or verify test results
+- During CI/CD pipeline execution
+- When checking code coverage
+- Before releasing new versions
+
 ## Prerequisites
+
 - `cargo nextest` (`cargo install cargo-nextest`)
 - `cargo llvm-cov` for coverage (`cargo install cargo-llvm-cov`)
 

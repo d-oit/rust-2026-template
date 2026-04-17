@@ -1,9 +1,35 @@
+---
+name: release-rust
+description: >
+  Create and publish a new release of the Rust project.
+  Use when preparing a release, publishing to crates.io, creating GitHub releases,
+  or managing version bumps. Triggers on "release", "publish", "new version",
+  "bump version", or "create tag".
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  source: d-o-hub/github-template-ai-agents
+  tags: rust release publish crates-io github versioning
+---
+
 # Skill: release-rust
 
-## Purpose
 Create and publish a new release of the Rust project.
 
+## Purpose
+
+Create and publish a new release of the Rust project.
+
+## Trigger Conditions
+
+- When preparing a new release
+- When publishing to crates.io
+- When creating GitHub releases with binaries
+- When managing version bumps
+
 ## Prerequisites
+
 - All CI checks pass on main
 - `CHANGELOG.md` updated
 - `cargo-dist` installed

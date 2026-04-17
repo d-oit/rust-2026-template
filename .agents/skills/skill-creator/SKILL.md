@@ -1,17 +1,39 @@
 ---
 name: skill-creator
-description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
+description: >
+  Create new skills, modify and improve existing skills, and measure skill performance.
+  Use when users want to create a skill from scratch, edit or optimize an existing skill,
+  run evals to test a skill, benchmark skill performance with variance analysis,
+  or optimize a skill's description for better triggering accuracy.
 license: MIT
 metadata:
   author: d-oit
   version: "1.0"
   source: d-o-hub/github-template-ai-agents
+  tags: skill-creation evals benchmarking optimization agentskills
 ---
 
-# Skill Creator
+# Skill: skill-creator
+
+Create and improve skills following the Agent Skills specification.
+
+## Purpose
 
 Create and improve skills following the Agent Skills specification.
 A skill extends agent capabilities with specialized knowledge, workflows, and tools.
+
+## Trigger Conditions
+
+- When asked to create a new skill from scratch
+- When editing or optimizing an existing skill
+- When running evals to test skill performance
+- When benchmarking skill performance with variance analysis
+- When optimizing a skill's description for better triggering accuracy
+
+## Prerequisites
+
+- Understanding of Agent Skills specification
+- Access to skill evaluation tools (for running evals)
 
 ## Core Loop
 
@@ -118,3 +140,12 @@ Store in `evals/evals.json`:
 - `references/best-practices.md` - Best practices for skill creators
 - `references/evaluating-skills.md` - Evaluating skill output quality
 - `references/schemas.md` - JSON structures for evals.json, grading.json
+
+## Related Skills
+
+- `skill-evaluator` - Evaluate and test skills created with this skill
+- `TEMPLATE.md` - Standard template for creating new skills
+
+## References
+
+- [Agent Skills specification](https://agentskills.io)

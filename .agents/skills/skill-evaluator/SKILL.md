@@ -1,35 +1,41 @@
 ---
 name: skill-evaluator
-description: "Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usage spot checks. Use when you need to check a skill, add evals, benchmark a skill, validate outputs against assertions, or compare current skill behavior against a baseline."
+description: >
+  Reusable skill for evaluating other skills with structure checks, eval coverage review,
+  and real usage spot checks. Use when you need to check a skill, add evals, benchmark
+  a skill, validate outputs against assertions, or compare current skill behavior
+  against a baseline.
 license: MIT
 metadata:
   author: d-oit
   version: "1.1"
   source: d-o-hub/github-template-ai-agents
   spec: "agentskills.io"
+  tags: skill-evaluation testing benchmarking quality-assurance
 ---
 
-# Skill Evaluator
+# Skill: skill-evaluator
 
 Evaluate local skills with a repeatable loop: inspect structure, read eval definitions,
 run one or more realistic prompts, then score the output with explicit assertions and evidence.
 
-## When To Use
+## Purpose
 
-- Test whether a skill is wired correctly
-- Check whether `evals/evals.json` exists and is usable
-- Run a real prompt through a skill and grade the result
-- Compare a skill against a no-skill baseline or older snapshot
-- Identify missing folders, weak evals, and flaky assertions
+Evaluate local skills with a repeatable workflow: inspect structure, read eval definitions,
+run realistic prompts, and score output with explicit assertions and evidence.
 
-## Required Inputs
+## Trigger Conditions
 
-At minimum, identify:
+- When testing whether a skill is wired correctly
+- When checking whether `evals/evals.json` exists and is usable
+- When running a real prompt through a skill and grading the result
+- When comparing a skill against a no-skill baseline or older snapshot
+- When identifying missing folders, weak evals, and flaky assertions
 
-```text
-SKILL_PATH: absolute or workspace-relative path to the skill directory
-GOAL: structure check / eval review / live run / baseline comparison
-```
+## Prerequisites
+
+- Access to the skill directory being evaluated
+- Understanding of eval file format (`evals/evals.json`)
 
 ## Evaluation Workflow
 
@@ -138,3 +144,8 @@ PASS | NEEDS_WORK | FAIL — <one-sentence summary>
 ## References
 
 - `references/evaluating-skills.md` — condensed eval workflow and grading guidance
+
+## Related Skills
+
+- `skill-creator` - Create and improve skills that can be evaluated with this skill
+- `TEMPLATE.md` - Reference for expected skill structure during evaluation

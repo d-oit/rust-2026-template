@@ -15,19 +15,28 @@ metadata:
   tags: rust code-quality anti-patterns review audit
 ---
 
-# Anti-AI-Slop Skill — Rust Edition
+# Skill: anti-ai-slop
 
 AI tools generate recognizable Rust monoculture. This skill audits and fixes it.
 
----
+## Purpose
 
-## How to Use
+Identify and eliminate generic "AI slop" patterns in Rust code including boilerplate structs,
+copy-paste error handling, meaningless variable names, over-engineered abstractions,
+and hollow documentation.
 
-1. **Audit mode** — Share code. Run through checklists below. Name every pattern.
-2. **Creation mode** — Read "What to do instead" first, then write code avoiding patterns.
-3. **Spot-fix mode** — Point to one element. Diagnose it, rewrite it, explain the fix.
+## Trigger Conditions
 
-Always **name the problem** before fixing it.
+- When asked to audit or review code quality
+- When user says "this looks AI-generated" or "too much boilerplate"
+- When asked to "humanize" code or "remove unnecessary abstractions"
+- During code review for anti-patterns
+- When fixing documentation or naming issues
+
+## Prerequisites
+
+- No external dependencies required
+- Works with any Rust codebase
 
 ---
 
@@ -122,3 +131,14 @@ Always **name the problem** before fixing it.
 - **Docs are contracts.** If it can fail or panic, document it. No exceptions.
 - **Flat is better than deep.** One layer of abstraction does more than three thin ones.
 - **Zero-cost means earned.** Don't add generics for flexibility you won't use.
+
+## Related Skills
+
+- `lint-rust` - Automated linting catches some anti-patterns
+- `skill-evaluator` - Evaluate code quality improvements
+
+## References
+
+- [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
+- [Effective Rust](https://www.lurklurk.org/effective-rust/)
+- [Clippy lints](https://rust-lang.github.io/rust-clippy/master/)

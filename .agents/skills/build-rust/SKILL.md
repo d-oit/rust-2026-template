@@ -1,14 +1,33 @@
+---
+name: build-rust
+description: >
+  Compile, test, and verify Rust projects following 2026 best practices.
+  Use when asked to build, compile, check, or verify a Rust project,
+  or when CI/CD pipeline needs to run build steps or investigate build failures.
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  source: d-o-hub/github-template-ai-agents
+  tags: rust build compile test clippy fmt
+---
+
 # Skill: build-rust
 
+Compile, test, and verify Rust projects following 2026 best practices.
+
 ## Purpose
+
 Compile, test, and verify Rust projects following 2026 best practices.
 
 ## Trigger Conditions
+
 - When asked to build, compile, or check a Rust project
 - When CI/CD pipeline needs to run build steps
 - When investigating build failures or warnings
 
 ## Prerequisites
+
 - Rust toolchain installed (see `rust-toolchain.toml`)
 - `cargo` available in PATH
 - WSL2 environment (optional but recommended on Windows)
