@@ -16,7 +16,7 @@
 //! assert_eq!(result, 5);
 //! ```
 
-#![deny(unsafe_code)]
+#![forbid(unsafe_code)]
 #![warn(
     missing_docs,
     clippy::pedantic,

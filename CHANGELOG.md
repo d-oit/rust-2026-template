@@ -11,12 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial project structure
 
 ### Changed
+- Updated toolchain from 1.85 to 1.87
+- Updated tokio features from "full" to specific features (rt-multi-thread, macros, sync, time, fs)
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+- Added missing documentation for enum variants in sample-app
+- Fixed CLI argument short name conflict (-c)
+- Fixed clippy warnings: single_match_else, uninlined_format_args, needless_borrows_for_generic_args
+- Added mold linker installation for clippy and MSRV CI jobs
+- Added Unicode-3.0 license to allowed licenses
 
 ### Security
 

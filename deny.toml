@@ -34,6 +34,7 @@ allow = [
   "BSD-3-Clause",
   "ISC",
   "Unicode-DFS-2016",
+  "Unicode-3.0",
   "CC0-1.0",
   "Zlib",
   "BSL-1.0",
@@ -60,6 +61,8 @@ highlight = "all"
 deny = [
   # Old unmaintained openssl bindings
   # { name = "openssl", reason = "use rustls instead" },
+  { name = "zmij", reason = "Suspicious non-standard dependency of serde_json" },
+  { name = "serde_core", reason = "Suspicious non-standard dependency of serde" },
 ]
 # Allow certain duplicate versions that are unavoidable
 skip = [

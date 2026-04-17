@@ -1,0 +1,108 @@
+# Quick Start — rust-2026-template
+
+Get a new Rust project running in under 5 minutes.
+
+## Prerequisites
+
+- Rust stable via [rustup](https://rustup.rs/) (toolchain version is pinned in `rust-toolchain.toml`)
+- Git 2.30+
+- Optional: `cargo-nextest`, `cargo-deny`, `cargo-audit` for full quality gates
+
+## 1. Create Your Project from the Template
+
+1. Click **"Use this template"** on GitHub
+2. Name your repository and create it
+3. Clone it locally:
+
+```bash
+git clone https://github.com/YOUR_USER/YOUR_REPO.git
+cd YOUR_REPO
+```
+
+## 2. Rename the Example Crate
+
+**Before anything else**, rename `example-crate` to your crate name:
+
+```bash
+# Check the name is available on crates.io first
+cargo search your-crate-name
+# If no exact match: available!
+
+# Rename directory and update Cargo.toml
+mv crates/example-crate crates/your-crate-name
+# Edit crates/your-crate-name/Cargo.toml
+# Change: name = "example-crate" -> name = "your-crate-name"
+```
+
+See `.agents/skills/crates-io-name-check/SKILL.md` for the full name-check workflow.
+
+## 3. Install Required Tools
+
+```bash
+# Required for tests
+cargo install cargo-nextest
+
+# Required for CI (supply chain checks)
+cargo install cargo-deny
+cargo install cargo-audit
+```
+
+## 4. Build and Test
+
+```bash
+cargo build
+cargo nextest run
+```
+
+## 5. Run All Quality Gates
+
+```bash
+bash scripts/quality-gates.sh
+```
+
+Expected output: all checks green.
+
+## 6. Update Project Metadata
+
+Edit these files with your project details:
+
+| File | What to update |
+|---|---|
+| `Cargo.toml` | `name`, `description`, `repository`, `homepage` |
+| `AGENTS.md` | Project name, description, domain context |
+| `CLAUDE.md` | Project-specific overrides |
+| `README.md` | Replace template content with your project |
+| `SECURITY.md` | Your security contact / advisory link |
+| `CONTRIBUTING.md` | Your contribution process |
+
+## 7. Push and Watch CI Pass
+
+```bash
+git add -A
+git commit -m "feat: initialize project from rust-2026-template"
+git push origin main
+```
+
+CI will run: format check, clippy, tests, security audit, dependency policy.
+
+---
+
+## What You Get
+
+| Component | Location | Purpose |
+|---|---|---|
+| CI pipeline | `.github/workflows/ci.yml` | Format, lint, test, audit on every push |
+| Release workflow | `.github/workflows/release.yml` | Automated publishing to crates.io |
+| Agent skills | `.agents/skills/` | AI coding assistant knowledge modules |
+| Quality gate | `scripts/quality-gates.sh` | Local pre-push checks |
+| ADR template | `plans/adr/` | Architecture decision records |
+| Clippy config | `.clippy.toml` | Pedantic lint rules |
+| Deny config | `deny.toml` | License and vulnerability policy |
+| Nextest config | `.config/nextest.toml` | Test profiles (local + CI) |
+
+## Next Steps
+
+- Read `AGENTS.md` to understand how AI coding assistants are configured
+- Read `CONTRIBUTING.md` before making changes
+- Check `MIGRATION.md` if adopting this template in an existing project
+- See `agents-docs/conventions.md` for coding conventions enforced by agents
