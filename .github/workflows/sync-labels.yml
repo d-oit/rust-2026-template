@@ -1,0 +1,126 @@
+# .github/workflows/sync-labels.yml
+#
+# Runs scripts/learn-labels.sh to discover and create missing labels by
+# mining the repo's own activity (commits, issues, PRs, file paths).
+#
+# Triggers:
+#   schedule   — 1st of every month at 08:00 UTC
+#   workflow_dispatch — manual run with optional inputs
+#
+# No external AI API is used. All signal comes from the GitHub API.
+# Labels are only ever created, never deleted (safe by design).
+
+name: Sync Labels (Self-Learning)
+
+on:
+  schedule:
+    # 1st of every month, 08:00 UTC
+    - cron: "0 8 1 * *"
+
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Lookback window in days (default: 90)"
+        required: false
+        default: "90"
+      dry_run:
+        description: "Dry-run only — report candidates without creating labels"
+        required: false
+        type: boolean
+        default: false
+
+# Only one sync at a time; a manual run cancels any queued scheduled run.
+concurrency:
+  group: sync-labels
+  cancel-in-progress: true
+
+permissions:
+  # `issues: write` is the minimum scope required by `gh label create`.
+  # contents: read is needed to clone the repo for git log analysis.
+  contents: read
+  issues: write
+
+jobs:
+  learn-and-sync:
+    name: Learn & sync labels
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout (needed for git log commit-message analysis) ───────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Fetch enough history for the lookback window.
+          # 200 commits covers most monthly windows; increase if needed.
+          fetch-depth: 200
+
+      # ── Resolve inputs (schedule has no inputs object) ──────────────────────
+      - name: Resolve inputs
+        id: inputs
+        run: |
+          # workflow_dispatch sets github.event.inputs; schedule leaves it null.
+          DAYS="${{ github.event.inputs.days || '90' }}"
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          echo "days=$DAYS"       >> "$GITHUB_OUTPUT"
+          echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
+          echo "Lookback: $DAYS days | Dry-run: $DRY_RUN"
+
+      # ── Run the learning script ─────────────────────────────────────────────
+      - name: Learn and sync labels
+        id: sync
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x scripts/learn-labels.sh
+
+          DAYS="${{ steps.inputs.outputs.days }}"
+          DRY_RUN="${{ steps.inputs.outputs.dry_run }}"
+
+          ARGS=(--days "$DAYS" --repo "${{ github.repository }}")
+          [[ "$DRY_RUN" == "false" ]] && ARGS+=(--execute)
+
+          bash scripts/learn-labels.sh "${ARGS[@]}" | tee /tmp/learn-output.txt
+
+          # Parse the SUMMARY line into step outputs
+          SUMMARY=$(grep '^SUMMARY:' /tmp/learn-output.txt || echo "SUMMARY: existing=0 candidates=0 created=0 skipped=0 stale=0")
+          parse() { echo "$SUMMARY" | grep -oP "(?<=${1}=)[0-9]+"; }
+
+          echo "existing=$(parse existing)"     >> "$GITHUB_OUTPUT"
+          echo "candidates=$(parse candidates)" >> "$GITHUB_OUTPUT"
+          echo "created=$(parse created)"       >> "$GITHUB_OUTPUT"
+          echo "stale=$(parse stale)"           >> "$GITHUB_OUTPUT"
+
+      # ── Write a rich job summary ────────────────────────────────────────────
+      - name: Write job summary
+        if: always()
+        env:
+          DAYS:       ${{ steps.inputs.outputs.days }}
+          DRY_RUN:    ${{ steps.inputs.outputs.dry_run }}
+          EXISTING:   ${{ steps.sync.outputs.existing }}
+          CANDIDATES: ${{ steps.sync.outputs.candidates }}
+          CREATED:    ${{ steps.sync.outputs.created }}
+          STALE:      ${{ steps.sync.outputs.stale }}
+        run: |
+          {
+            echo "## Label sync — $(date -u +%Y-%m-%d)"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|---|---|"
+            echo "| Lookback window | ${DAYS} days |"
+            echo "| Dry-run | ${DRY_RUN} |"
+            echo "| Existing labels | ${EXISTING} |"
+            echo "| New candidates found | ${CANDIDATES} |"
+            echo "| Labels created | ${CREATED} |"
+            echo "| Stale labels (unused) | ${STALE} |"
+            echo ""
+            echo "### Signal sources"
+            echo "- Conventional-commit prefixes in recent commits"
+            echo "- Recurring keywords in closed issue and merged PR bodies"
+            echo "- File paths touched in recent PRs (area labels)"
+            echo "- Label usage frequency (stale detection)"
+            echo ""
+            echo "### Full output"
+            echo '```'
+            cat /tmp/learn-output.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

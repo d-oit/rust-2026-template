@@ -1,0 +1,155 @@
+# .github/workflows/patch-release-on-label.yml
+#
+# Trigger : PR labelled with `release:patch`
+# Effect  : bumps the patch version in every relevant file on the PR branch,
+#           then commits the changes back.
+#
+# Canonical version source : [workspace.package] version in Cargo.toml
+# Files updated by scripts/bump-version.sh:
+#   - Cargo.toml              ([workspace.package] version)
+#   - crates/*/Cargo.toml     (any crate with a standalone version line)
+#   - Cargo.lock              (regenerated via `cargo update --workspace`)
+#   - CHANGELOG.md            ([Unreleased] → [X.Y.Z], new [Unreleased] header,
+#                              diff links)
+#   - README.md               (explicit version strings)
+#   - *.md / *.yml / *.yaml / *.json  (lines matching `version = "OLD"` or
+#                              `version: "OLD"` exactly — dependency specs are
+#                              left untouched)
+#
+# Loop prevention : the bot commit sets `skip-checks: true` and the job guards
+#   on `github.actor != 'github-actions[bot]'` so re-labelling by the bot
+#   never re-triggers the workflow.
+
+name: Patch Release on Label
+
+on:
+  pull_request:
+    types: [labeled]
+
+# One run per PR at a time; cancel any queued run for the same PR.
+concurrency:
+  group: patch-release-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # push commit to PR branch
+  pull-requests: read
+
+jobs:
+  bump-patch:
+    name: Bump patch version
+    # Guard 1: only the exact label we care about
+    if: >
+      github.event.label.name == 'release:patch' &&
+      github.event.pull_request.state == 'open' &&
+      github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout the PR branch (full history for CHANGELOG links) ───────────
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          # Use a PAT or the default GITHUB_TOKEN.
+          # GITHUB_TOKEN pushes are visible to CI but won't re-trigger
+          # `pull_request` events, which is exactly what we want.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      # ── Install stable Rust (needed for `cargo update`) ─────────────────────
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      # ── Cache Cargo registry to speed up `cargo update` ─────────────────────
+      - name: Cache Cargo registry
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      # ── Run the version bump script ──────────────────────────────────────────
+      - name: Bump patch version
+        id: bump
+        run: |
+          # Make script executable in case file permissions were lost
+          chmod +x scripts/bump-version.sh
+
+          # Capture old version before the bump
+          OLD=$(awk '
+            /^\[workspace\.package\]/ { in_section=1; next }
+            /^\[/                     { in_section=0 }
+            in_section && /^version[[:space:]]*=/ {
+              match($0, /"([0-9]+\.[0-9]+\.[0-9]+)"/, arr)
+              if (arr[1] != "") { print arr[1]; exit }
+            }
+          ' Cargo.toml)
+
+          # Apply the bump
+          bash scripts/bump-version.sh --execute
+
+          # Capture new version after the bump
+          NEW=$(awk '
+            /^\[workspace\.package\]/ { in_section=1; next }
+            /^\[/                     { in_section=0 }
+            in_section && /^version[[:space:]]*=/ {
+              match($0, /"([0-9]+\.[0-9]+\.[0-9]+)"/, arr)
+              if (arr[1] != "") { print arr[1]; exit }
+            }
+          ' Cargo.toml)
+
+          echo "old_version=$OLD" >> "$GITHUB_OUTPUT"
+          echo "new_version=$NEW" >> "$GITHUB_OUTPUT"
+
+      # ── Commit and push if anything changed ──────────────────────────────────
+      - name: Commit version bump
+        env:
+          OLD: ${{ steps.bump.outputs.old_version }}
+          NEW: ${{ steps.bump.outputs.new_version }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stage only the files the bump script touches; never stage unrelated
+          # working-tree changes that might exist on the branch.
+          git add \
+            Cargo.toml \
+            Cargo.lock \
+            CHANGELOG.md \
+            README.md \
+            "crates/*/Cargo.toml" \
+            "*.md" \
+            "*.yml" \
+            "*.yaml" \
+            "*.json" \
+            2>/dev/null || true
+
+          # Only commit if there is actually something staged
+          if git diff --cached --quiet; then
+            echo "Nothing to commit — version may already be $NEW"
+            exit 0
+          fi
+
+          git commit \
+            --message "chore(release): bump version $OLD → $NEW [skip ci]" \
+            --message "Automated patch version bump triggered by 'release:patch' label." \
+            --message "Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+
+      # ── Surface the result as a job summary ──────────────────────────────────
+      - name: Write job summary
+        if: always()
+        env:
+          OLD: ${{ steps.bump.outputs.old_version }}
+          NEW: ${{ steps.bump.outputs.new_version }}
+        run: |
+          echo "## Patch release bump" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| | Version |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Before | \`$OLD\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| After  | \`$NEW\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Files updated: \`Cargo.toml\`, \`Cargo.lock\`, \`CHANGELOG.md\`, \`README.md\`, matching \`*.md / *.yml / *.yaml / *.json\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Merge this PR to ship \`v$NEW\`. The release workflow fires on the resulting version tag." >> "$GITHUB_STEP_SUMMARY"
