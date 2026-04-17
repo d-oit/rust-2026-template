@@ -42,9 +42,9 @@ grep -E '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' <file> || true
 | Context | Instead of | Use |
 |---|---|---|
 | `Cargo.toml` authors | `authors = ["Name <email@example.com>"]` | `authors = ["Name"]` |
-| README contact | `contact@project.com` | GitHub Issues link |
-| CONTRIBUTING.md | `help@project.com` | `https://github.com/owner/repo/issues` |
-| Code of Conduct | `conduct@project.com` | "Report via GitHub Issues" |
+| README contact | `contact@example.com` | GitHub Issues link |
+| CONTRIBUTING.md | `help@example.com` | `https://github.com/owner/repo/issues` |
+| Code of Conduct | `conduct@example.com` | "Report via GitHub Issues" |
 | Examples in tests | `user@gmail.com` | `user@example.com` (test domain only) |
 
 ### 3. Rust-Specific Rules
@@ -63,7 +63,7 @@ authors = ["Dominik Oswald"]
 **README.md / CONTRIBUTING.md**
 ```markdown
 # Bad
-Contact: support@project.com
+Contact: support@example.com
 
 # Good
 Report issues: https://github.com/owner/repo/issues
@@ -106,7 +106,7 @@ fi
 
 **Never do:**
 - Add `authors = ["Name <email>"]` in `Cargo.toml`
-- Write `contact@project.com` in any markdown
+- Write `contact@example.com` in any markdown
 - Use real email addresses in examples
 - Include personal emails in `deny.toml` or CI configs
 
