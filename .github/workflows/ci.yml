@@ -50,6 +50,10 @@ jobs:
           cache-on-failure: true
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@v0.0.9
+      - name: Install mold linker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mold
       - name: Clippy (all targets, all features)
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
@@ -128,6 +132,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@v0.0.9
+      - name: Install mold linker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mold
       - name: Check MSRV
         run: cargo check --workspace
 

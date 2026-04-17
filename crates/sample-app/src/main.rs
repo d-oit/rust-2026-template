@@ -9,11 +9,14 @@
 //! - Logging with tracing
 //! - CLI with clap
 
+#![forbid(unsafe_code)]
 #![deny(missing_docs)]
 #![warn(clippy::all, clippy::pedantic, clippy::nursery)]
 
 use clap::Parser;
 use serde::{Deserialize, Serialize};
+use std::fmt::Write;
+use std::io::{BufReader, Read};
 use std::path::PathBuf;
 use thiserror::Error;
 use tracing::{error, info, warn};
@@ -21,12 +24,15 @@ use tracing::{error, info, warn};
 /// Custom error types for the application
 #[derive(Error, Debug)]
 pub enum AppError {
+    /// IO error from file system operations
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 
+    /// JSON serialization/deserialization error
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
 
+    /// Configuration error
     #[error("Configuration error: {0}")]
     Config(String),
 }
@@ -36,6 +42,7 @@ pub type Result<T> = std::result::Result<T, AppError>;
 
 /// Configuration for the application
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     /// Name of the application
     pub app_name: String,
@@ -61,7 +68,7 @@ impl Default for Config {
 #[command(about = "A sample application using rust-2026-template", long_about = None)]
 struct Args {
     /// Path to config file (optional)
-    #[arg(short, long)]
+    #[arg(long)]
     config: Option<PathBuf>,
 
     /// Enable verbose logging
@@ -75,17 +82,36 @@ struct Args {
 
 /// Load configuration from file or use defaults
 fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
-    match config_path {
-        Some(path) => {
-            info!("Loading config from: {:?}", path);
-            let contents = std::fs::read_to_string(&path)?;
-            let config: Config = serde_json::from_str(&contents)?;
-            Ok(config)
+    // Security: Check file size before reading to prevent DoS (memory exhaustion)
+    // Use a 1MB limit for configuration files
+    const MAX_CONFIG_SIZE: u64 = 1024 * 1024;
+
+    if let Some(path) = config_path {
+        info!("Loading config from: {}", path.display());
+
+        let file = std::fs::File::open(&path)?;
+        let metadata = file.metadata()?;
+
+        if !metadata.is_file() {
+            return Err(AppError::Config(format!(
+                "Config path is not a regular file: {}",
+                path.display()
+            )));
         }
-        None => {
-            info!("Using default configuration");
-            Ok(Config::default())
+
+        let file_size = metadata.len();
+        if file_size > MAX_CONFIG_SIZE {
+            return Err(AppError::Config(format!(
+                "Config file too large: {file_size} bytes (max {MAX_CONFIG_SIZE})"
+            )));
         }
+
+        let reader = BufReader::new(file.take(MAX_CONFIG_SIZE));
+        let config: Config = serde_json::from_reader(reader)?;
+        Ok(config)
+    } else {
+        info!("Using default configuration");
+        Ok(Config::default())
     }
 }
 
@@ -100,34 +126,58 @@ fn init_logging(verbose: bool) {
     tracing_subscriber::fmt()
         .with_max_level(level)
         .with_target(false)
+        // Disable thread metadata for CLI performance
+        .with_thread_ids(false)
+        .with_thread_names(false)
         .init();
 }
 
 /// Process items and return a result
-fn process_items(count: usize) -> Result<Vec<String>> {
-    info!("Processing {} items", count);
+fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
+    info!("Processing {} items (limit: {})", count, limit);
 
     if count == 0 {
         warn!("No items to process");
         return Ok(vec![]);
     }
 
-    if count > 1000 {
-        error!("Too many items requested: {}", count);
+    if count > limit {
+        error!("Too many items requested: {count} (limit: {limit})");
         return Err(AppError::Config(format!(
-            "Cannot process more than 1000 items, got {}",
-            count
+            "Cannot process more than {limit} items, got {count}"
         )));
     }
 
-    let items: Vec<String> = (1..=count).map(|i| format!("item-{:04}", i)).collect();
+    // Pre-allocate Vec and Strings for efficiency
+    // Bolt: Use manual digit extraction to avoid formatting macro overhead for the common case (i < 10000)
+    let mut items = Vec::with_capacity(count);
+    for i in 1..=count {
+        let mut s = String::with_capacity(9);
+        s.push_str("item-");
+        if i < 10000 {
+            // Fast path for 4-digit formatting with leading zeros
+            // Safety: i < 10000 ensures i / 1000 < 10, so cast to u8 is safe
+            #[allow(clippy::cast_possible_truncation)]
+            s.push((b'0' + (i / 1000) as u8) as char);
+            #[allow(clippy::cast_possible_truncation)]
+            s.push((b'0' + ((i / 100) % 10) as u8) as char);
+            #[allow(clippy::cast_possible_truncation)]
+            s.push((b'0' + ((i / 10) % 10) as u8) as char);
+            #[allow(clippy::cast_possible_truncation)]
+            s.push((b'0' + (i % 10) as u8) as char);
+        } else {
+            // Fallback for larger numbers (though current limit is 1000)
+            let _ = write!(s, "{i:04}");
+        }
+        items.push(s);
+    }
 
     info!("Successfully processed {} items", items.len());
     Ok(items)
 }
 
 /// Main application entry point
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
     // Parse CLI arguments
     let args = Args::parse();
@@ -142,12 +192,12 @@ async fn main() -> Result<()> {
     info!("App name: {}", config.app_name);
 
     // Process items
-    let items = process_items(args.count)?;
+    let items = process_items(args.count, config.max_items)?;
 
     // Print results
     println!("\nProcessed {} items:", items.len());
     for item in items.iter().take(5) {
-        println!("  - {}", item);
+        println!("  - {item}");
     }
     if items.len() > 5 {
         println!("  ... and {} more", items.len() - 5);
@@ -185,26 +235,26 @@ mod tests {
 
     #[test]
     fn test_process_items_zero() {
-        let result = process_items(0).unwrap();
+        let result = process_items(0, 100).unwrap();
         assert!(result.is_empty());
     }
 
     #[test]
     fn test_process_items_normal() {
-        let result = process_items(5).unwrap();
+        let result = process_items(5, 100).unwrap();
         assert_eq!(result.len(), 5);
         assert_eq!(result[0], "item-0001");
     }
 
     #[test]
     fn test_process_items_too_many() {
-        let result = process_items(1001);
+        let result = process_items(101, 100);
         assert!(result.is_err());
     }
 
     #[test]
     fn test_args_parsing() {
-        let args = Args::parse_from(&["sample-app", "--count", "5"]);
+        let args = Args::parse_from(["sample-app", "--count", "5"]);
         assert_eq!(args.count, 5);
     }
 }

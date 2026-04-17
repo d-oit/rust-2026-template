@@ -83,7 +83,7 @@ rust-2026-template/
 - **Clippy**: Zero warnings (`-D warnings`)
 - **Files**: ≤500 LOC
 - **Tests**: ≥80% coverage, `#[tokio::test]`
-- **Secrets**: Never hardcode, use `.env`
+- **Secrets**: Never hardcode, use `.env` or better env vars
 
 ## Cross-References
 

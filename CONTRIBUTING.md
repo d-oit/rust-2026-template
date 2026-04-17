@@ -1,0 +1,107 @@
+# Contributing to rust-2026-template
+
+Thank you for considering contributing! This is a generic Rust project template.
+
+## Quick Links
+
+- [Issues](https://github.com/d-oit/rust-2026-template/issues)
+- [Pull Requests](https://github.com/d-oit/rust-2026-template/pulls)
+- [Security Policy](SECURITY.md)
+
+## Development Setup
+
+### Prerequisites
+
+- Rust stable (see `rust-toolchain.toml` for exact version)
+- `cargo-nextest` — `cargo install cargo-nextest`
+- `cargo-deny` — `cargo install cargo-deny`
+- `cargo-audit` — `cargo install cargo-audit`
+
+### Clone and Build
+
+```bash
+git clone https://github.com/d-oit/rust-2026-template.git
+cd rust-2026-template
+cargo build
+```
+
+### Run Quality Gates Locally
+
+Always run before pushing:
+
+```bash
+bash scripts/quality-gates.sh
+```
+
+This runs: `cargo fmt --check`, `cargo clippy`, `cargo nextest run`, `cargo audit`, `cargo deny check`.
+
+## Making Changes
+
+### Branch Naming
+
+| Type | Pattern | Example |
+|---|---|---|
+| Feature | `feat/description` | `feat/add-async-support` |
+| Bug fix | `fix/description` | `fix/clippy-warnings` |
+| Docs | `docs/description` | `docs/update-readme` |
+| Refactor | `refactor/description` | `refactor/workspace-layout` |
+
+### Commit Messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat(crate-name): add feature X
+fix: resolve clippy warning in lib.rs
+docs: update AGENTS.md with new skill
+chore(deps): bump serde from 1.0.195 to 1.0.196
+```
+
+### Code Style
+
+- Format: `cargo fmt` (enforced by CI)
+- Lint: `cargo clippy -- -D warnings` (zero warnings policy)
+- Edition: Rust 2024
+- MSRV: 1.87 (see `rust-toolchain.toml`)
+
+### Tests
+
+- Use `cargo nextest run` for all tests
+- Unit tests live in `#[cfg(test)]` modules in source files
+- Integration tests live in `crates/<name>/tests/`
+- All public items must have doc tests or unit tests
+
+## Pull Request Process
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/my-feature`
+3. Make changes and run quality gates
+4. Commit using Conventional Commits format
+5. Push and open a PR against `main`
+6. Wait for CI to pass (all green required)
+7. Request review
+
+### PR Checklist
+
+- [ ] `cargo fmt --check` passes
+- [ ] `cargo clippy -- -D warnings` passes
+- [ ] `cargo nextest run` passes
+- [ ] `cargo audit` shows no vulnerabilities
+- [ ] `cargo deny check` passes
+- [ ] Documentation updated if API changed
+- [ ] `CHANGELOG.md` updated
+
+## Template-Specific Guidance
+
+This is a **generic Rust template**, not a standalone application. Changes should:
+
+- Remain generic and reusable for any Rust project
+- Not add application-specific logic
+- Keep the `example-crate` as a minimal, illustrative placeholder
+- Be documented in `CHANGELOG.md`
+
+## Reporting Issues
+
+Open an issue at: https://github.com/d-oit/rust-2026-template/issues
+
+For security vulnerabilities, see [SECURITY.md](SECURITY.md).
