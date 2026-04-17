@@ -6,8 +6,6 @@
 # Use mold linker for 2-5x faster link times on Linux.
 # Install: apt install mold  OR  cargo install mold
 [target.'cfg(target_os = "linux")']
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 # ─── Dev profile disk space optimization ────────────────────────────────────
 # Reduces target/ from ~5GB to ~2GB in large workspaces.

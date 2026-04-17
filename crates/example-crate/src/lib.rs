@@ -7,6 +7,7 @@
 //!
 //! Add this to your workspace member and start building!
 
+#![forbid(unsafe_code)]
 #![deny(missing_docs)]
 #![warn(clippy::all, clippy::pedantic, clippy::nursery)]
 
@@ -20,7 +21,12 @@
 /// ```
 #[must_use]
 pub fn greet(name: &str) -> String {
-    format!("Hello, {name}!")
+    // Bolt: Pre-allocate String to avoid reallocations and bypass format! macro overhead
+    let mut s = String::with_capacity(7 + name.len() + 1);
+    s.push_str("Hello, ");
+    s.push_str(name);
+    s.push('!');
+    s
 }
 
 #[cfg(test)]

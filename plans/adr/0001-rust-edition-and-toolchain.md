@@ -11,7 +11,7 @@ The choice affects language features, compilation behavior, and ecosystem compat
 
 ## Decision
 
-Use **Rust 2024 edition** with a **pinned stable toolchain** (1.85+) via `rust-toolchain.toml`.
+Use **Rust 2024 edition** with a **pinned stable toolchain** (1.87+) via `rust-toolchain.toml`.
 
 ## Rationale
 
