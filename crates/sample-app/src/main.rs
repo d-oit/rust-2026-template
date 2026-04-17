@@ -195,12 +195,19 @@ async fn main() -> Result<()> {
     let items = process_items(args.count)?;
 
     // Print results
-    println!("\nProcessed {} items:", items.len());
-    for item in items.iter().take(5) {
-        println!("  - {item}");
-    }
-    if items.len() > 5 {
-        println!("  ... and {} more", items.len() - 5);
+    // Bolt: Lock stdout to minimize locking overhead and syscalls for multiple prints
+    {
+        use std::io::Write;
+        let stdout = std::io::stdout();
+        let mut handle = stdout.lock();
+        let _ = writeln!(handle, "\nProcessed {} items:", items.len());
+        for item in items.iter().take(5) {
+            let _ = writeln!(handle, "  - {item}");
+        }
+        if items.len() > 5 {
+            let _ = writeln!(handle, "  ... and {} more", items.len() - 5);
+        }
+        let _ = handle.flush();
     }
 
     info!("Application completed successfully");
