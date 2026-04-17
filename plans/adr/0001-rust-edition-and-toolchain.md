@@ -1,7 +1,7 @@
 # ADR 0001: Rust Edition and Toolchain
 
 **Date**: 2025-01-01  
-**Status**: Accepted  
+**Status**: Accepted (updated 2026-04-17: toolchain bumped to 1.87)  
 **Deciders**: Template maintainers
 
 ## Context
@@ -11,7 +11,7 @@ The choice affects language features, compilation behavior, and ecosystem compat
 
 ## Decision
 
-Use **Rust 2024 edition** with a **pinned stable toolchain** (1.87+) via `rust-toolchain.toml`.
+Use **Rust 2024 edition** with a **pinned stable toolchain** (`1.87`) via `rust-toolchain.toml`.
 
 ## Rationale
 
@@ -20,11 +20,12 @@ Use **Rust 2024 edition** with a **pinned stable toolchain** (1.87+) via `rust-t
 - Stricter lifetime rules catch bugs earlier
 - Aligns with community best practices going forward
 
-### Pinned Stable Toolchain
+### Pinned Stable Toolchain (1.87)
 - Reproducible builds across all environments
 - `rust-toolchain.toml` is automatically respected by `rustup`
 - Avoids "works on my machine" issues from toolchain drift
 - nightly features are unstable; stable provides a guarantee
+- 1.87 is the current MSRV; bump `rust-toolchain.toml` and `Cargo.toml` `rust-version` together
 
 ### Why not nightly?
 - Nightly breaks periodically
