@@ -85,6 +85,8 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
     // Security: Check file size before reading to prevent DoS (memory exhaustion)
     // Use a 1MB limit for configuration files
     const MAX_CONFIG_SIZE: u64 = 1024 * 1024;
+    // Security: Limit max_items to prevent memory exhaustion during processing
+    const MAX_ALLOWED_ITEMS: usize = 10000;
 
     if let Some(path) = config_path {
         info!("Loading config from: {}", path.display());
@@ -107,7 +109,23 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
         }
 
         let reader = BufReader::new(file.take(MAX_CONFIG_SIZE));
-        let config: Config = serde_json::from_reader(reader)?;
+        let mut config: Config = serde_json::from_reader(reader)?;
+
+        // Security: Sanitize app_name to prevent log injection
+        config.app_name = config
+            .app_name
+            .chars()
+            .filter(|c| !c.is_control())
+            .collect();
+
+        // Security: Validate max_items to prevent OOM
+        if config.max_items > MAX_ALLOWED_ITEMS {
+            return Err(AppError::Config(format!(
+                "max_items {} exceeds limit of {MAX_ALLOWED_ITEMS}",
+                config.max_items
+            )));
+        }
+
         Ok(config)
     } else {
         info!("Using default configuration");
