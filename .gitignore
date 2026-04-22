@@ -52,6 +52,9 @@ default.profraw
 # WSL2 Windows line endings
 *.bat~
 
+# proptest regression files (auto-saved failing cases)
+.proptest-regressions/
+
 # cargo-audit advisory DB cache
 .cargo/advisory-db/
 .blackboxcli/

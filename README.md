@@ -139,6 +139,12 @@ Runs on every push to `main`/`develop` and all PRs:
 | MSRV Check | `cargo check` | Verify MSRV 1.87 compatibility |
 | CI Success | Gate | All jobs must pass before merge |
 
+## Testing Conventions
+
+Pure functions should be covered with property-based tests using `proptest`.
+See `crates/example-crate/src/lib.rs` for a working example.
+Regression files are saved to `.proptest-regressions/` (gitignored).
+
 ## Local Quality Gates
 
 ```bash
