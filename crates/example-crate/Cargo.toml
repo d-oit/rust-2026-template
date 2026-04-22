@@ -19,3 +19,4 @@ description = "Example crate in the rust-2026-template workspace"
 
 [dev-dependencies]
 # tokio-test = { workspace = true }
+proptest = { workspace = true }

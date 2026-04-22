@@ -72,6 +72,7 @@ rust-2026-template/
 - **Max 500 LOC** per source file - split when exceeded
 - **Zero clippy warnings** - fix, never suppress
 - **Async everywhere** - Tokio, no blocking in async paths
+- **Testing** - Use `proptest` for pure functions; `tokio::test` for async
 - **Error handling** - `thiserror` lib, `anyhow` bin
 - **No `unwrap()`** in library code
 - **Doc comments** on all public items (`///`)

@@ -43,3 +43,26 @@ mod tests {
         assert_eq!(greet(""), "Hello, !");
     }
 }
+
+#[cfg(test)]
+mod prop_tests {
+    use super::*;
+    use proptest::prelude::*;
+
+    proptest! {
+        /// Tests that `greet` always starts with "Hello, " and ends with "!" for a wide range of inputs.
+        #[test]
+        fn greet_always_starts_with_hello_and_ends_with_bang(name in "[a-zA-Z0-9 ]{0,50}") {
+            let result = greet(&name);
+            assert!(result.starts_with("Hello, "));
+            assert!(result.ends_with('!'));
+        }
+
+        /// Tests that the length of the resulting string is correctly calculated based on the input name length.
+        #[test]
+        fn greet_length_is_correct(name in ".*") {
+            let result = greet(&name);
+            assert_eq!(result.len(), 7 + name.len() + 1);
+        }
+    }
+}
