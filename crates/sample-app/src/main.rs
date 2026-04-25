@@ -40,14 +40,36 @@ pub enum AppError {
 /// Result type alias using our custom error
 pub type Result<T> = std::result::Result<T, AppError>;
 
+/// Supported log levels for the application
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum LogLevel {
+    /// Finest-grained informational events
+    Trace,
+    /// Fine-grained informational events that are most useful to debug an application
+    Debug,
+    /// Informational messages that highlight the progress of the application
+    Info,
+    /// Potentially harmful situations
+    Warn,
+    /// Error events that might still allow the application to continue running
+    Error,
+}
+
+impl Default for LogLevel {
+    fn default() -> Self {
+        Self::Info
+    }
+}
+
 /// Configuration for the application
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     /// Name of the application
     pub app_name: String,
-    /// Log level (trace, debug, info, warn, error)
-    pub log_level: String,
+    /// Log level for the application
+    pub log_level: LogLevel,
     /// Maximum number of items to process
     pub max_items: usize,
 }
@@ -56,7 +78,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             app_name: "sample-app".to_string(),
-            log_level: "info".to_string(),
+            log_level: LogLevel::default(),
             max_items: 100,
         }
     }
@@ -87,6 +109,8 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
     const MAX_CONFIG_SIZE: u64 = 1024 * 1024;
     // Security: Limit max_items to prevent memory exhaustion during processing
     const MAX_ALLOWED_ITEMS: usize = 10000;
+    // Security: Limit app_name length to prevent log-filling or resource exhaustion
+    const MAX_APP_NAME_LEN: usize = 64;
 
     if let Some(path) = config_path {
         info!("Loading config from: {}", path.display());
@@ -109,14 +133,23 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
         }
 
         let reader = BufReader::new(file.take(MAX_CONFIG_SIZE));
+
+        // Security: serde_json has a default recursion limit of 128 which
+        // provides protection against stack overflow DoS.
         let mut config: Config = serde_json::from_reader(reader)?;
 
-        // Security: Sanitize app_name to prevent log injection
-        config.app_name = config
-            .app_name
-            .chars()
-            .filter(|c| !c.is_control())
-            .collect();
+        // Security: Sanitize app_name and check length to prevent log injection and resource exhaustion.
+        // We check length during sanitization to avoid unnecessary allocations.
+        let mut sanitized_name = String::with_capacity(config.app_name.len().min(MAX_APP_NAME_LEN));
+        for c in config.app_name.chars().filter(|c| !c.is_control()) {
+            if sanitized_name.len() >= MAX_APP_NAME_LEN {
+                return Err(AppError::Config(format!(
+                    "app_name too long: exceeds maximum of {MAX_APP_NAME_LEN} bytes"
+                )));
+            }
+            sanitized_name.push(c);
+        }
+        config.app_name = sanitized_name;
 
         // Security: Validate max_items to prevent OOM
         if config.max_items > MAX_ALLOWED_ITEMS {
@@ -241,7 +274,7 @@ mod tests {
     fn test_config_default() {
         let config = Config::default();
         assert_eq!(config.app_name, "sample-app");
-        assert_eq!(config.log_level, "info");
+        assert_eq!(config.log_level, LogLevel::Info);
         assert_eq!(config.max_items, 100);
     }
 
@@ -249,7 +282,7 @@ mod tests {
     fn test_config_serialization() {
         let config = Config {
             app_name: "test".to_string(),
-            log_level: "debug".to_string(),
+            log_level: LogLevel::Debug,
             max_items: 50,
         };
 
@@ -257,6 +290,66 @@ mod tests {
         let decoded: Config = serde_json::from_str(&json).unwrap();
 
         assert_eq!(config.app_name, decoded.app_name);
+        assert_eq!(config.log_level, decoded.log_level);
+    }
+
+    #[test]
+    fn test_config_invalid_log_level() {
+        let json = r#"{
+            "app_name": "test",
+            "log_level": "invalid",
+            "max_items": 100
+        }"#;
+
+        let result: std::result::Result<Config, _> = serde_json::from_str(json);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_config_recursion_limit() {
+        // Create a deeply nested JSON that exceeds serde_json's default limit of 128
+        let mut json = String::from("1");
+        for _ in 0..150 {
+            json = format!("[{json}]");
+        }
+
+        // We use serde_json::Value to test the recursion limit specifically
+        let result: std::result::Result<serde_json::Value, _> = serde_json::from_str(&json);
+
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("recursion limit exceeded"));
+    }
+
+    #[test]
+    fn test_config_app_name_sanitization() {
+        // Let's just verify the sanitization logic
+        let name = String::from("test\napp\r");
+        let sanitized: String = name.chars().filter(|c| !c.is_control()).collect();
+        assert_eq!(sanitized, "testapp");
+    }
+
+    #[test]
+    fn test_load_config_app_name_too_long() {
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join("too_long_config.json");
+        let json = r#"{
+            "app_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "log_level": "info",
+            "max_items": 100
+        }"#;
+        std::fs::write(&file_path, json).unwrap();
+
+        let result = load_config(Some(file_path.clone()));
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("app_name too long")
+        );
+
+        let _ = std::fs::remove_file(file_path);
     }
 
     #[test]
