@@ -49,7 +49,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -74,7 +74,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -99,7 +99,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
       - name: Install cargo-audit
         uses: taiki-e/install-action@cargo-audit
       - name: Generate lockfile
@@ -131,7 +131,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.87
       - uses: Swatinem/rust-cache@v2
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
