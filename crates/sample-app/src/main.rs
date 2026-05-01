@@ -201,27 +201,39 @@ fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
 
     // Pre-allocate Vec and Strings for efficiency
     let mut items = Vec::with_capacity(count);
-    for i in 1..=count {
-        // Bolt: Account for 5 digits in "item-10000" to avoid reallocation
-        let mut s = String::with_capacity(if i < 10000 { 9 } else { 10 });
+
+    // Bolt: Split loop to remove branch and dynamic capacity check from hot loop
+    let fast_count = count.min(9999);
+    for i in 1..=fast_count {
+        let mut s = String::with_capacity(9);
         s.push_str("item-");
 
-        // Bolt: Use manual digit extraction to avoid formatting macro overhead
-        if i < 10000 {
-            // Fast path for 4-digit formatting with leading zeros
-            #[allow(clippy::cast_possible_truncation)]
-            s.push((b'0' + (i / 1000) as u8) as char);
-            #[allow(clippy::cast_possible_truncation)]
-            s.push((b'0' + ((i / 100) % 10) as u8) as char);
-            #[allow(clippy::cast_possible_truncation)]
-            s.push((b'0' + ((i / 10) % 10) as u8) as char);
-            #[allow(clippy::cast_possible_truncation)]
+        // Bolt: Optimized digit extraction (4 digits)
+        let q100 = i / 100;
+        let q10 = i / 10;
+        #[allow(clippy::cast_possible_truncation)]
+        {
+            s.push((b'0' + (q100 / 10) as u8) as char);
+            s.push((b'0' + (q100 % 10) as u8) as char);
+            s.push((b'0' + (q10 % 10) as u8) as char);
             s.push((b'0' + (i % 10) as u8) as char);
-        } else {
-            // Fallback for larger numbers (though current limit is 10000)
-            let _ = write!(s, "{i:04}");
         }
         items.push(s);
+    }
+
+    // Bolt: Handle boundary cases separately
+    if count >= 10000 {
+        let mut s = String::with_capacity(10);
+        s.push_str("item-10000");
+        items.push(s);
+
+        // Fallback for counts > 10000 if limit increases
+        for i in 10001..=count {
+            let mut s = String::with_capacity(10);
+            s.push_str("item-");
+            let _ = write!(s, "{i}");
+            items.push(s);
+        }
     }
 
     info!("Successfully processed {} items", items.len());
