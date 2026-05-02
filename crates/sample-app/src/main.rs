@@ -113,15 +113,22 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
     const MAX_APP_NAME_LEN: usize = 64;
 
     if let Some(path) = config_path {
-        info!("Loading config from: {}", path.display());
+        // Security: Sanitize path for logging and errors to prevent log injection.
+        // Replace control characters (like newlines) with '?' to keep logs safe.
+        let path_str = path.to_string_lossy();
+        let sanitized_path: String = path_str
+            .chars()
+            .map(|c| if c.is_control() { '?' } else { c })
+            .collect();
+
+        info!("Loading config from: {sanitized_path}");
 
         let file = std::fs::File::open(&path)?;
         let metadata = file.metadata()?;
 
         if !metadata.is_file() {
             return Err(AppError::Config(format!(
-                "Config path is not a regular file: {}",
-                path.display()
+                "Config path is not a regular file: {sanitized_path}"
             )));
         }
 
