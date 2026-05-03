@@ -1,3 +1,4 @@
+---
 # .github/workflows/release.yml
 # Automated release pipeline with cargo-dist
 # Triggered by pushing a version tag: git tag v0.1.0 && git push --tags
@@ -85,7 +86,8 @@ jobs:
         id: changelog
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          NOTES=$(awk "/^## \[$VERSION\]/,/^## \[/{if(/^## \[/ && !/^## \[$VERSION\]/)exit; print}" CHANGELOG.md | tail -n +2)
+          NOTES=$(awk "/^## \[$VERSION\]/,/^## \[/{if(/^## \[/ && !/^## \[$VERSION\]/)exit; \
+            print}" CHANGELOG.md | tail -n +2)
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
