@@ -38,7 +38,7 @@ jobs:
       - name: YAML Lint
         run: yamllint .
       - name: Markdown Lint
-        uses: davidanson/markdownlint-cli2-action@v19
+        uses: davidanson/markdownlint-cli2-action@v23
         with:
           globs: "**/*.md"
       - name: Commitlint
