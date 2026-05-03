@@ -68,21 +68,21 @@ skill-name/
 
 ### Testing & Evaluation
 
-5. **Design trigger eval queries** — Create ~20 realistic prompts (8-10 should-trigger, 8-10 should-not-trigger)
-6. **Vary should-trigger queries** along multiple axes: phrasing, explicitness, detail, complexity
-7. **Create strong should-not-trigger queries** — Use near-misses that share keywords but need something different
-8. **Run each query multiple times** — Model behavior is nondeterministic; run 3 times
-9. **Use train/validation splits** — ~60% train / ~40% validation
+1. **Design trigger eval queries** — Create ~20 realistic prompts (8-10 should-trigger, 8-10 should-not-trigger)
+2. **Vary should-trigger queries** along multiple axes: phrasing, explicitness, detail, complexity
+3. **Create strong should-not-trigger queries** — Use near-misses that share keywords but need something different
+4. **Run each query multiple times** — Model behavior is nondeterministic; run 3 times
+5. **Use train/validation splits** — ~60% train / ~40% validation
 
 ### The Optimization Loop
 
-10. **Evaluate on both sets** — Train results guide changes; validation tells if changes generalize
-11. **Identify failures in train set only** — Keep validation results hidden during iteration
-12. **Revise strategically:**
+1. **Evaluate on both sets** — Train results guide changes; validation tells if changes generalize
+2. **Identify failures in train set only** — Keep validation results hidden during iteration
+3. **Revise strategically:**
     - Should-trigger failing → broaden scope or add context
     - Should-not-trigger false-triggering → add specificity about what the skill does *not* do
-13. **Select best iteration by validation pass rate**
-14. **Check the 1024-character limit**
+4. **Select best iteration by validation pass rate**
+5. **Check the 1024-character limit**
 
 ---
 

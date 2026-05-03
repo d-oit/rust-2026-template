@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - `sample-app` binary crate: tokio, clap, serde/serde_json, tracing, thiserror, anyhow
   - CLI flags: `--count`, `--verbose`, `--config`
   - JSON config loading with 1 MB size guard and `#[serde(deny_unknown_fields)]`
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub issue templates: `bug_report.yml`, `feature_request.yml`
 
 ### Changed
+
 - Toolchain bumped from 1.85 to 1.87 (`rust-toolchain.toml` and `Cargo.toml` `rust-version`)
 - `tokio` features narrowed from `"full"` to `rt-multi-thread, macros, sync, time, fs`
 - `serde` pinned to `=1.0.194`, `serde_json` to `=1.0.140`, `insta` to `=1.40.0`
@@ -29,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI: mold linker installed for `clippy`, `test`, and `msrv` jobs
 
 ### Fixed
+
 - Missing doc comments on `AppError` enum variants
 - CLI short flag conflict (`-c` for `--count`)
 - Clippy warnings: `single_match_else`, `uninlined_format_args`, `needless_borrows_for_generic_args`
@@ -39,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-01-01
 
 ### Added
+
 - Initial release from rust-2026-template
 - Cargo workspace structure
 - CI/CD with GitHub Actions (fmt, clippy, nextest, audit, deny)

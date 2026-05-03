@@ -36,6 +36,7 @@ Each skill follows this structure:
 ## Usage by AI Agents
 
 When an AI agent needs to perform a task:
+
 1. Check this index for the relevant skill
 2. Follow the skill's steps exactly
 3. Report results against the success criteria
