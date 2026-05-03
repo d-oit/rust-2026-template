@@ -45,7 +45,7 @@ async-trait = "0.1"
 tokio-test = "0.4"
 proptest = "1"
 # Bolt: Pinned to =1.40.0 to avoid transitive dependency on banned `serde_core` via newer `serde`
-insta = { version = "=1.40.0", features = ["yaml"] }
+insta = { version = "=1.47.2", features = ["yaml"] }
 
 # ─── Build profiles ───────────────────────────────────────────────────────────
 # NOTE: Detailed dev profile settings are in .cargo/config.toml for WSL2/Linux
