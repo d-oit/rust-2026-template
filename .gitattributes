@@ -1,0 +1,24 @@
+# .gitattributes
+# Handle line endings automatically for files detected as text
+# and leave binary files untouched.
+* text=auto
+
+# Standard Rust files
+*.rs     text eol=lf
+*.toml   text eol=lf
+*.lock   text eol=lf -diff
+
+# Shell scripts
+*.sh     text eol=lf
+
+# Documentation
+*.md     text eol=lf
+LICENSE  text eol=lf
+
+# Configuration
+*.yaml   text eol=lf
+*.yml    text eol=lf
+*.json   text eol=lf
+.actrc   text eol=lf
+.gitignore text eol=lf
+.envrc   text eol=lf
