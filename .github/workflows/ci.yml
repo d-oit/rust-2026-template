@@ -40,7 +40,6 @@ jobs:
       - name: Markdown Lint
         uses: davidanson/markdownlint-cli2-action@v19
         with:
-          config: "markdownlint.jsonc"
           globs: "**/*.md"
       - name: Commitlint
         uses: wagoid/commitlint-github-action@v6
