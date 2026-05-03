@@ -25,6 +25,37 @@ concurrency:
 
 jobs:
   # ───────────────────────────────────────────────────
+  lint:
+    name: Lint (YAML, Markdown, Commits)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install yamllint
+        run: sudo apt-get update && sudo apt-get install -y yamllint
+      - name: YAML Lint
+        run: yamllint .
+      - name: Markdown Lint
+        uses: davidanson/markdownlint-cli2-action@v19
+        with:
+          globs: "**/*.md"
+      - name: Commitlint
+        uses: wagoid/commitlint-github-action@v6
+
+  # ───────────────────────────────────────────────────
+  gitleaks:
+    name: Secret Scan (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ───────────────────────────────────────────────────
   fmt:
     name: Format
     runs-on: ubuntu-latest
@@ -143,13 +174,15 @@ jobs:
   # Final gate - must pass for merge
   ci-success:
     name: CI Success
-    needs: [fmt, clippy, test, security, deny, msrv]
+    needs: [lint, gitleaks, fmt, clippy, test, security, deny, msrv]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check all jobs passed
         run: |
-          if [[  "${{ needs.fmt.result }}" != "success" ||
+          if [[  "${{ needs.lint.result }}" != "success" ||
+                 "${{ needs.gitleaks.result }}" != "success" ||
+                 "${{ needs.fmt.result }}" != "success" ||
                  "${{ needs.clippy.result }}" != "success" ||
                  "${{ needs.test.result }}" != "success" ||
                  "${{ needs.security.result }}" != "success" ||
