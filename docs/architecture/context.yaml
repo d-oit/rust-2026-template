@@ -1,3 +1,4 @@
+---
 # Repository LLM Context Template
 # This file provides structured context for LLM APIs to understand the codebase
 # Format: YAML (machine-optimized, minimal markup)

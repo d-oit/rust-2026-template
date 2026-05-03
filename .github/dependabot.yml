@@ -1,3 +1,4 @@
+---
 # Dependabot configuration
 # Keeps Rust dependencies and GitHub Actions up to date
 version: 2

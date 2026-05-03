@@ -1,3 +1,4 @@
+---
 # .github/workflows/patch-release-on-label.yml
 #
 # Trigger : PR labelled with `release:patch`
@@ -150,6 +151,8 @@ jobs:
           echo "| Before | \`$OLD\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| After  | \`$NEW\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Files updated: \`Cargo.toml\`, \`Cargo.lock\`, \`CHANGELOG.md\`, \`README.md\`, matching \`*.md / *.yml / *.yaml / *.json\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "Files updated: \`Cargo.toml\`, \`Cargo.lock\`, \`CHANGELOG.md\`, \
+            \`README.md\`, matching \`*.md / *.yml / *.yaml / *.json\`." >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> Merge this PR to ship \`v$NEW\`. The release workflow fires on the resulting version tag." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Merge this PR to ship \`v$NEW\`. \
+            The release workflow fires on the resulting version tag." >> "$GITHUB_STEP_SUMMARY"
