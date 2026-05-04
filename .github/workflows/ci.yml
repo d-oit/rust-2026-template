@@ -42,6 +42,7 @@ jobs:
         with:
           globs: "**/*.md"
       - name: Commitlint
+        if: github.actor != 'dependabot[bot]'
         uses: wagoid/commitlint-github-action@v6
 
   # ───────────────────────────────────────────────────
