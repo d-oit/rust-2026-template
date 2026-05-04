@@ -34,6 +34,7 @@
 | Debug | `debug-troubleshoot` | `RUST_LOG=debug cargo nextest run` |
 
 **Before using task tool:**
+
 1. Is there a skill in `.agents/skills/`? → Use it
 2. Is there a script in `scripts/`? → Use it
 3. Is this high-frequency? → Use Skill + CLI
@@ -42,6 +43,7 @@
 ## Token Efficiency
 
 **Tool Selection Priority (lowest token cost first):**
+
 1. **Glob** - File discovery
 2. **Grep** - Code search
 3. **Read** - File inspection

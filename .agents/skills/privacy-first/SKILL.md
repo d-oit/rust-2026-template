@@ -50,6 +50,7 @@ grep -E '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' <file> || true
 ### 3. Rust-Specific Rules
 
 **Cargo.toml**
+
 ```toml
 # Bad
 [package]
@@ -61,6 +62,7 @@ authors = ["Dominik Oswald"]
 ```
 
 **README.md / CONTRIBUTING.md**
+
 ```markdown
 # Bad
 Contact: support@example.com
@@ -70,6 +72,7 @@ Report issues: https://github.com/owner/repo/issues
 ```
 
 **Rust source code**
+
 - Never hardcode email addresses in `const`, `static`, or `fn` bodies
 - Use placeholder `example.com` domain only in `#[cfg(test)]` blocks
 - Keep `deny.toml` and CI configs free of personal email addresses
@@ -77,6 +80,7 @@ Report issues: https://github.com/owner/repo/issues
 ### 4. Exceptions (Allowed)
 
 The following are permitted and should NOT be flagged:
+
 - Test data in `tests/` or `#[cfg(test)]` using standard test domains:
   - `example.com`, `example.org`, `test.com`
 - URLs in documentation pointing to external services
@@ -105,12 +109,14 @@ fi
 ## Quick Reference
 
 **Never do:**
+
 - Add `authors = ["Name <email>"]` in `Cargo.toml`
 - Write `contact@example.com` in any markdown
 - Use real email addresses in examples
 - Include personal emails in `deny.toml` or CI configs
 
 **Always do:**
+
 - Use GitHub Issues URLs for support
 - Remove email from `Cargo.toml` authors field
 - Use test domains (`example.com`) only in `#[cfg(test)]` blocks

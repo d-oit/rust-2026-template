@@ -1,0 +1,10 @@
+[package]
+name = "hello-world-example"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[dependencies]
+example-crate = { path = "../../crates/example-crate", version = "0.1.0" }
+anyhow = "1.0"

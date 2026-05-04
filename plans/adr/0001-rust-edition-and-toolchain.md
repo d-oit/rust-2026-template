@@ -16,11 +16,13 @@ Use **Rust 2024 edition** with a **pinned stable toolchain** (`1.87`) via `rust-
 ## Rationale
 
 ### Rust 2024 Edition
+
 - Latest edition with improved ergonomics (async closures, `impl Trait` improvements)
 - Stricter lifetime rules catch bugs earlier
 - Aligns with community best practices going forward
 
 ### Pinned Stable Toolchain (1.87)
+
 - Reproducible builds across all environments
 - `rust-toolchain.toml` is automatically respected by `rustup`
 - Avoids "works on my machine" issues from toolchain drift
@@ -28,6 +30,7 @@ Use **Rust 2024 edition** with a **pinned stable toolchain** (`1.87`) via `rust-
 - 1.87 is the current MSRV; bump `rust-toolchain.toml` and `Cargo.toml` `rust-version` together
 
 ### Why not nightly?
+
 - Nightly breaks periodically
 - Production code needs stability
 - If nightly is needed for specific features, it should be explicitly scoped
@@ -35,11 +38,13 @@ Use **Rust 2024 edition** with a **pinned stable toolchain** (`1.87`) via `rust-
 ## Consequences
 
 ### Positive
+
 - Reproducible, deterministic builds
 - Clear upgrade path (bump version in `rust-toolchain.toml`)
 - CI and local environments stay in sync
 
 ### Negative
+
 - Must update `rust-toolchain.toml` manually for new Rust versions
 - Some cutting-edge nightly features unavailable
 
@@ -52,5 +57,6 @@ Use **Rust 2024 edition** with a **pinned stable toolchain** (`1.87`) via `rust-
 | No toolchain pin | Leads to inconsistent environments |
 
 ## References
+
 - [Rust Edition Guide](https://doc.rust-lang.org/edition-guide/)
 - [rust-toolchain.toml format](https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file)

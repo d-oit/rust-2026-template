@@ -1,0 +1,42 @@
+# .gitleaks.toml
+# Gitleaks configuration for secret scanning
+# For more information, see https://github.com/gitleaks/gitleaks
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''Cargo\.lock''',
+    '''package-lock\.json''',
+    '''go\.sum''',
+]
+
+[[rules]]
+description = "Generic API Key"
+id = "generic-api-key"
+regex = '''(?i)(api_key|apikey|secret|token|auth|key|password)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]'''
+entropy = 3.5
+keywords = ["api_key", "apikey", "secret", "token", "auth", "key", "password"]
+
+[[rules]]
+description = "GitHub Personal Access Token"
+id = "github-pat"
+regex = '''ghp_[a-zA-Z0-9]{36}'''
+keywords = ["ghp_"]
+
+[[rules]]
+description = "GitHub OAuth Access Token"
+id = "github-oauth"
+regex = '''gho_[a-zA-Z0-9]{36}'''
+keywords = ["gho_"]
+
+[[rules]]
+description = "GitHub App Token"
+id = "github-app-token"
+regex = '''(ghu|ghs)_[a-zA-Z0-9]{36}'''
+keywords = ["ghu_", "ghs_"]
+
+[[rules]]
+description = "GitHub Refresh Token"
+id = "github-refresh-token"
+regex = '''ghr_[a-zA-Z0-9]{76}'''
+keywords = ["ghr_"]

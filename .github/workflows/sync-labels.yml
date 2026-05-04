@@ -1,3 +1,4 @@
+---
 # .github/workflows/sync-labels.yml
 #
 # Runs scripts/learn-labels.sh to discover and create missing labels by
@@ -61,7 +62,7 @@ jobs:
           # workflow_dispatch sets github.event.inputs; schedule leaves it null.
           DAYS="${{ github.event.inputs.days || '90' }}"
           DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
-          echo "days=$DAYS"       >> "$GITHUB_OUTPUT"
+          echo "days=$DAYS" >> "$GITHUB_OUTPUT"
           echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
           echo "Lookback: $DAYS days | Dry-run: $DRY_RUN"
 
@@ -82,7 +83,8 @@ jobs:
           bash scripts/learn-labels.sh "${ARGS[@]}" | tee /tmp/learn-output.txt
 
           # Parse the SUMMARY line into step outputs
-          SUMMARY=$(grep '^SUMMARY:' /tmp/learn-output.txt || echo "SUMMARY: existing=0 candidates=0 created=0 skipped=0 stale=0")
+          SUMMARY=$(grep '^SUMMARY:' /tmp/learn-output.txt || \
+            echo "SUMMARY: existing=0 candidates=0 created=0 skipped=0 stale=0")
           parse() { echo "$SUMMARY" | grep -oP "(?<=${1}=)[0-9]+"; }
 
           echo "existing=$(parse existing)"     >> "$GITHUB_OUTPUT"
@@ -94,12 +96,12 @@ jobs:
       - name: Write job summary
         if: always()
         env:
-          DAYS:       ${{ steps.inputs.outputs.days }}
-          DRY_RUN:    ${{ steps.inputs.outputs.dry_run }}
-          EXISTING:   ${{ steps.sync.outputs.existing }}
+          DAYS: ${{ steps.inputs.outputs.days }}
+          DRY_RUN: ${{ steps.inputs.outputs.dry_run }}
+          EXISTING: ${{ steps.sync.outputs.existing }}
           CANDIDATES: ${{ steps.sync.outputs.candidates }}
-          CREATED:    ${{ steps.sync.outputs.created }}
-          STALE:      ${{ steps.sync.outputs.stale }}
+          CREATED: ${{ steps.sync.outputs.created }}
+          STALE: ${{ steps.sync.outputs.stale }}
         run: |
           {
             echo "## Label sync — $(date -u +%Y-%m-%d)"

@@ -102,6 +102,6 @@ This is a **generic Rust template**, not a standalone application. Changes shoul
 
 ## Reporting Issues
 
-Open an issue at: https://github.com/d-oit/rust-2026-template/issues
+Open an issue at: <https://github.com/d-oit/rust-2026-template/issues>
 
 For security vulnerabilities, see [SECURITY.md](SECURITY.md).

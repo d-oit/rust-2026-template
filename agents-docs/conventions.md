@@ -37,6 +37,7 @@ curl -s https://crates.io/api/v1/crates/<your-crate-name> | python3 -m json.tool
 ```
 
 **Best practice rules for crate names:**
+
 - Use `kebab-case` (hyphens, not underscores) for the crate name in `Cargo.toml` `[package] name`
 - Keep names short, descriptive, and unambiguous
 - Avoid squatting on generic names (e.g. `utils`, `helpers`, `core`)

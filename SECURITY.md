@@ -19,6 +19,7 @@ Report vulnerabilities by opening a
 [GitHub Security Advisory](https://github.com/d-oit/rust-2026-template/security/advisories/new).
 
 Please include:
+
 - A description of the vulnerability
 - Steps to reproduce
 - Potential impact
