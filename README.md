@@ -3,6 +3,7 @@
 [![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust 1.87+](https://img.shields.io/badge/rust-1.87%2B-orange.svg)](https://www.rust-lang.org)
+[![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
 
 Best practice 2026 Rust GitHub repository template with AI agent support, CI/CD, quality gates, and modern Rust tooling.
 
@@ -142,6 +143,17 @@ Runs on every push to `main`/`develop` and all PRs:
 ## Testing Conventions
 
 Pure functions should be covered with property-based tests using `proptest`.
+
+### Mutation Testing
+
+Mutation testing is used to verify the effectiveness of the test suite. Unlike code coverage which only measures which lines are executed, mutation testing ensures that the tests actually detect changes in behavior.
+
+- **Local Execution:** Run `cargo mutants --workspace --test-tool nextest`
+- **CI/CD:** A dedicated [Mutation Testing](.github/workflows/mutants.yml) workflow runs weekly and can be triggered manually.
+- **Reports:** Mutation reports are uploaded as GitHub Action artifacts. A surviving mutant indicates a gap in test coverage.
+
+Mutation testing is computationally expensive and is kept separate from the main CI pipeline to maintain fast PR feedback loops.
+
 See `crates/example-crate/src/lib.rs` for a working example.
 Regression files are saved to `.proptest-regressions/` (gitignored).
 

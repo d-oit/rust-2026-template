@@ -71,3 +71,10 @@ inherits = "release"
 [profile.bench]
 opt-level = 3
 debug = true
+
+# ─── cargo-mutants configuration ─────────────────────────────────────────────
+[workspace.metadata.cargo-mutants]
+# Skip example crates and generated code from mutation testing
+examine_re = [
+    "^crates/",
+]
