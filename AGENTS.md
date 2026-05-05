@@ -33,10 +33,10 @@ rust-2026-template/
 
 | Operation | Skill | Script/CLI |
 |-----------|-------|------------|
-| Build | `build-rust` | `cargo build --workspace` |
-| Format/Lint | `lint-rust` | `./scripts/code-quality.sh` |
-| Quality Gates | `lint-rust` | `./scripts/quality-gates.sh` |
-| Tests | `test-rust` | `cargo nextest run --all` |
+| Build | `build-rust` | `./scripts/build-rust.sh` |
+| Format/Lint | `code-quality` | `./scripts/code-quality.sh` |
+| Quality Gates | `code-quality` | `./scripts/quality-gates.sh` |
+| Tests | `test-runner` | `cargo nextest run --all` |
 
 **Before task tool:** 1) Skill in `.agents/skills/`? → Use it 2) Script in `scripts/`? → Use it 3) High-frequency? → Skill+CLI 4) Complex multi-agent? → task tool
 
@@ -96,8 +96,3 @@ rust-2026-template/
 | Workflow | `agents-docs/workflow.md` |
 | Architecture | `plans/adr/` |
 | Skills | `.agents/skills/` |
-
----
-
-> **Canonical Source of Truth**: This file is the primary instruction set for all AI agents.
-> Agent-specific files (CLAUDE.md, GEMINI.md, QWEN.md) reference this file.
