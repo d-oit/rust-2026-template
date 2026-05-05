@@ -1,186 +1,94 @@
-# rust-2026-template
+# Rust 2026 Template
 
 [![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust 1.87+](https://img.shields.io/badge/rust-1.87%2B-orange.svg)](https://www.rust-lang.org)
 
-Best practice 2026 Rust GitHub repository template with AI agent support, CI/CD, quality gates, and modern Rust tooling.
+A production-ready GitHub repository template for modern Rust development in 2026. This template provides a robust workspace foundation with pre-configured CI/CD, quality gates, security auditing, and native support for AI-assisted development.
 
-## Features
+## Who is this for?
 
-- **Workspace structure** — Multi-crate Cargo workspace with `crates/` layout; includes `example-crate` (library) and `sample-app` (binary)
-- **Rust 2024 edition** — MSRV 1.87, pinned via `rust-toolchain.toml`
-- **CI/CD pipeline** — GitHub Actions: format, clippy, nextest, security audit, cargo-deny, MSRV check, release
-- **AI agent support** — `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `QWEN.md`, `opencode.json`
-- **Agent skills** — `.agents/skills/` with 9 reusable skill files
-- **Quality gates** — `scripts/quality-gates.sh` (9 checks) and `scripts/code-quality.sh`
-- **Supply chain security** — `deny.toml` with cargo-deny v2; `cargo-audit` in CI
-- **Modern linting** — `.clippy.toml` with pedantic lints; zero-warnings policy
-- **Formatting** — `rustfmt.toml` with Rust 2024 edition settings
-- **WSL2/Linux optimizations** — mold linker, disk-space-optimized dev profile in `.cargo/config.toml`
-- **cargo-nextest** — `.config/nextest.toml` with `default` and `ci` profiles
-- **Architecture docs** — `plans/adr/`, `docs/architecture/context.yaml`, `agents-docs/`
+- **Developers** starting new production-grade Rust projects.
+- **Teams** wanting to enforce consistent quality standards across multiple crates.
+- **Maintainers** looking for a template with batteries-included CI/CD and security tooling.
+- **AI-Native Engineers** who want their repository to be immediately understandable by coding agents.
 
-## Quick Start
+## Key Features
 
-See **[QUICKSTART.md](QUICKSTART.md)** for the full setup guide.
+- **Modern Workspace Layout** — Multi-crate Cargo workspace using the `crates/` convention.
+- **Rust 2024 Edition** — Pre-configured for the latest language features with a pinned MSRV (1.87+).
+- **Strict Quality Gates** — Local and CI-enforced checks for formatting, linting, and testing.
+- **Supply Chain Security** — Integrated dependency auditing and license policy enforcement.
+- **Performance Optimized** — Configured for fast builds (mold linker) and efficient development.
+- **AI Agent Native** — First-class support for AI coding assistants with structured guidance and skill runbooks.
 
-1. Click **"Use this template"** on GitHub
-2. Check crates.io availability: `cargo search your-crate-name`
-3. Rename `crates/example-crate` to your crate name
-4. Update `Cargo.toml` workspace metadata
-5. Update agent instruction files with your project details
-6. Push to `main` — CI runs automatically
+## Included Tooling
 
-## Workspace Crates
+This template integrates best-in-class tools from the Rust ecosystem:
 
-| Crate | Type | Description |
-|---|---|---|
-| [`example-crate`](crates/example-crate/) | Library | Minimal library placeholder — rename and replace |
-| [`sample-app`](crates/sample-app/) | Binary | Full-featured app demonstrating tokio, clap, serde, tracing, thiserror |
-
-## Agent Skills
-
-All skills live in `.agents/skills/` and are compatible with Claude Code, OpenCode, Gemini CLI, and Qwen Code.
-
-| Skill | Purpose |
-|---|---|
-| [`build-rust`](.agents/skills/build-rust/) | Build Rust projects correctly |
-| [`lint-rust`](.agents/skills/lint-rust/) | Run clippy and formatting checks |
-| [`test-rust`](.agents/skills/test-rust/) | Run tests with cargo-nextest |
-| [`release-rust`](.agents/skills/release-rust/) | Safe release workflow for crates.io |
-| [`crates-io-name-check`](.agents/skills/crates-io-name-check/) | Verify crate name availability before publishing |
-| [`anti-ai-slop`](.agents/skills/anti-ai-slop/) | Audit and fix generic AI-generated Rust code patterns |
-| [`privacy-first`](.agents/skills/privacy-first/) | Prevent email/personal data from entering the codebase |
-| [`skill-creator`](.agents/skills/skill-creator/) | Create and optimize new agent skills |
-| [`skill-evaluator`](.agents/skills/skill-evaluator/) | Evaluate skill quality with structure checks |
-
-## AI Agent Integration
-
-| File | Agent |
-|---|---|
-| `AGENTS.md` | OpenAI Codex and compatible agents |
-| `CLAUDE.md` | Claude Code (Anthropic) |
-| `GEMINI.md` | Gemini CLI (Google) |
-| `QWEN.md` | Qwen Code |
-| `opencode.json` | OpenCode configuration |
-| `.agents/skills/` | Reusable skill runbooks |
+- **Testing**: `cargo-nextest` for faster, cleaner test execution and `proptest` for property-based testing.
+- **Linting**: High-severity `clippy` rules enabled by default in `.clippy.toml`.
+- **Security**: `cargo-audit` for vulnerability scanning and `cargo-deny` for dependency policy management.
+- **CI/CD**: Comprehensive GitHub Actions workflows for continuous integration and automated releases via `cargo-dist`.
+- **Scripts**: Helper scripts in `scripts/` for local development and release management.
 
 ## Repository Structure
 
-```
-rust-2026-template/
-├── .agents/
-│   ├── SKILLS.md            # Skills index
-│   └── skills/              # 9 AI agent skill files
-├── .cargo/
-│   └── config.toml          # Linker, dev profile, cargo aliases
-├── .config/
-│   └── nextest.toml         # nextest profiles (default, ci)
-├── .github/
-│   ├── ISSUE_TEMPLATE/      # Bug report + feature request templates
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   ├── dependabot.yml
-│   └── workflows/
-│       ├── ci.yml           # Format, clippy, test, audit, deny, MSRV
-│       └── release.yml      # Tag-triggered release with cargo-dist
-├── .vscode/
-│   └── settings.json        # rust-analyzer + WSL2 settings
-├── agents-docs/             # Agent reference docs
-│   ├── commands.md
-│   ├── conventions.md
-│   ├── structure.md
-│   └── workflow.md
-├── crates/
-│   ├── example-crate/       # Library placeholder
-│   └── sample-app/          # Binary: tokio, clap, serde, tracing
-├── docs/
-│   └── architecture/
-│       └── context.yaml
-├── plans/
-│   ├── GOAP_STATE.md        # AI agent world state
-│   └── adr/                 # Architecture Decision Records
-├── scripts/
-│   ├── code-quality.sh      # fmt | clippy | audit | check | fix
-│   ├── quality-gates.sh     # 9-step local quality gate runner
-│   └── release-manager.sh   # validate | prepare | publish
-├── src/
-│   └── lib.rs               # Workspace-level lib template stub
-├── .clippy.toml             # Clippy lint configuration
-├── .gitignore
-├── AGENTS.md                # AI agent instructions
-├── CHANGELOG.md
-├── CLAUDE.md
-├── CONTRIBUTING.md
-├── Cargo.toml               # Workspace manifest
-├── GEMINI.md
-├── LICENSE                  # MIT
-├── MIGRATION.md
-├── QUICKSTART.md
-├── QWEN.md
-├── SECURITY.md
-├── deny.toml                # cargo-deny v2 supply chain config
-├── opencode.json
-├── rust-toolchain.toml      # Pinned stable 1.87
-└── rustfmt.toml             # Rustfmt 2024 edition settings
+```text
+.
+├── .agents/             # AI agent skill definitions and runbooks
+├── .cargo/              # Cargo configuration (linker, profiles, aliases)
+├── .github/             # CI/CD workflows and GitHub templates
+├── crates/              # Workspace crates (libraries and applications)
+│   ├── example-crate/   # Template library crate
+│   └── sample-app/      # Template binary application
+├── docs/                # Project documentation
+├── plans/               # Architecture Decision Records (ADR) and roadmap
+├── scripts/             # Development and quality gate scripts
+├── AGENTS.md            # Canonical instructions for AI coding agents
+└── Cargo.toml           # Workspace manifest
 ```
 
-## CI Pipeline
+## Quick Start
 
-Runs on every push to `main`/`develop` and all PRs:
+1. **Use this template**: Click the "Use this template" button on GitHub to create your new repository.
+2. **Setup**: Follow the detailed guide in **[QUICKSTART.md](QUICKSTART.md)** to rename crates and configure metadata.
+3. **Verify**: Run the quality gates to ensure everything is set up correctly:
+   ```bash
+   bash scripts/quality-gates.sh
+   ```
 
-| Job | Tool | Purpose |
-|---|---|---|
-| Format | `cargo fmt` | Formatting check |
-| Clippy | `cargo clippy` | All targets, all features, `-D warnings` |
-| Test | `cargo nextest` | Tests + doc tests, CI profile |
-| Security Audit | `cargo audit` | Known vulnerability check |
-| Dependency Policy | `cargo deny` | License and supply chain checks |
-| MSRV Check | `cargo check` | Verify MSRV 1.87 compatibility |
-| CI Success | Gate | All jobs must pass before merge |
+## CI/CD and Quality Gates
 
-## Testing Conventions
+The project enforces a "zero-warning" policy. The CI pipeline runs on every push and pull request, covering:
 
-Pure functions should be covered with property-based tests using `proptest`.
-See `crates/example-crate/src/lib.rs` for a working example.
-Regression files are saved to `.proptest-regressions/` (gitignored).
+- **Format & Lint**: `cargo fmt` and `cargo clippy`.
+- **Test**: Workspace-wide testing with `cargo nextest`.
+- **Security**: Dependency vulnerability audit and license compliance.
+- **MSRV**: Verification against the Minimum Supported Rust Version.
 
-## Local Quality Gates
+## AI Agent Integration
 
-```bash
-# Run all 9 checks (mirrors CI)
-bash scripts/quality-gates.sh
+This repository is designed to be "Agent-Native." It includes `AGENTS.md` as a canonical source of truth for AI coding assistants (like Claude Code, Gemini CLI, or GitHub Copilot). These instructions help agents understand project conventions, use available tools correctly, and maintain high code quality.
 
-# Auto-fix formatting and clippy issues
-bash scripts/quality-gates.sh --fix
+## Customization Guidance
 
-# Individual operations
-./scripts/code-quality.sh fmt      # format
-./scripts/code-quality.sh clippy   # lint
-./scripts/code-quality.sh audit    # security audit
-./scripts/code-quality.sh check    # full CI parity
-```
+- **Renaming**: Use the instructions in `QUICKSTART.md` to rename the placeholder crates in `crates/`.
+- **Lints**: Adjust `.clippy.toml` if you need to customize linting rules.
+- **Security**: Update `deny.toml` to match your organization's license and dependency policies.
 
-## Cargo Aliases
+## Maintenance
 
-Defined in `.cargo/config.toml`:
-
-```bash
-cargo check-all     # cargo check --workspace --all-features
-cargo test-all      # cargo nextest run --workspace
-cargo fmt-check     # cargo fmt --all -- --check
-cargo lint          # cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo audit-check   # cargo deny check
-```
+- **Update Toolchain**: Update `rust-toolchain.toml` to bump the required Rust version.
+- **Dependency Updates**: Dependabot is configured to keep your dependencies up to date.
 
 ## Documentation
 
-- **[QUICKSTART.md](QUICKSTART.md)** — Setup guide
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** — Contribution process
-- **[SECURITY.md](SECURITY.md)** — Security policy and vulnerability reporting
-- **[MIGRATION.md](MIGRATION.md)** — Adopt template in existing projects / upgrade between versions
-- **[CHANGELOG.md](CHANGELOG.md)** — Version history
+- [QUICKSTART.md](QUICKSTART.md) — Initial setup and configuration.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Guidelines for contributing to the project.
+- [SECURITY.md](SECURITY.md) — Security policy and vulnerability reporting.
+- [AGENTS.md](AGENTS.md) — Canonical instructions for AI agents.
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
