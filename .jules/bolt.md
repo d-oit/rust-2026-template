@@ -12,3 +12,13 @@
 
 **Learning:** Recursive scans (like `grep -r`) in a Rust workspace are surprisingly expensive due to the `target/` directory, which often contains tens of thousands of build artifacts. Filtering results with `grep -v` after a full scan is a common anti-pattern that wastes significant I/O.
 **Action:** Always use `--exclude-dir=target` (and `.git`) in search commands to prevent the tool from even entering these directories. This can reduce scan times by 70% or more.
+
+## 2026-05-05 - [Documentation Architecture for Agent Performance]
+
+**Learning:** Mixing human-centric narrative with agent-specific technical instructions in a single README.md leads to "prompt spillover," where agents consume unnecessary tokens and may misinterpret conversational text as strict constraints.
+**Action:** Establish a clear separation: README.md for humans, AGENTS.md as the canonical technical source of truth for agents. Use thin wrappers in tool-specific files (CLAUDE.md, .cursor/rules.md, etc.) that point to AGENTS.md to minimize redundancy and prevent "prompt drift" across different AI assistants.
+
+## 2026-05-05 - [CI Rigidity in Documentation]
+
+**Learning:** Automated linting for documentation (markdownlint) and commit messages (commitlint) can block development if not accounted for in agent workflows. MD031 (blanks around fences) and body-max-line-length are common failure points.
+**Action:** Explicitly document CI-enforced documentation rules in AGENTS.md and conventions.md. Agents must verify documentation changes against local linting tools (npx markdownlint-cli2) and ensure commit bodies are properly wrapped to avoid build failures.

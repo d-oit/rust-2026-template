@@ -84,3 +84,16 @@ Detailed guidance is available in `agents-docs/`:
 - `agents-docs/conventions.md`: Coding standards and invariants.
 - `agents-docs/structure.md`: Deep dive into project layout.
 - `agents-docs/workflow.md`: Step-by-step development process.
+
+## CI & Linting Notes (CRITICAL)
+
+1. **Commit Messages**: Body lines MUST NOT exceed 100 characters (enforced by commitlint).
+2. **Markdown**: Fenced code blocks MUST be surrounded by blank lines (MD031).
+
+## Linting Verification
+
+Run before commit:
+
+```bash
+npx markdownlint-cli2 README.md AGENTS.md CLAUDE.md GEMINI.md QWEN.md .cursor/rules.md .claude/rules.md .gemini/rules.md .qwen/rules.md .windsurf/rules.md agents-docs/*.md
+```

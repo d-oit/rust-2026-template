@@ -6,7 +6,7 @@
 
 ### Code Quality
 
-- `is_linted`: true (CI — clippy passes with zero warnings, `-D warnings`)
+- `is_linted`: true (CI — clippy passes with zero warnings, -D warnings)
 - `is_formatted`: true (CI — `cargo fmt --all -- --check` passes)
 - `has_zero_warnings`: true (CI — clippy all targets, all features)
 - `is_semver_compliant`: false (not checked yet — run `cargo semver-checks`)
@@ -27,9 +27,10 @@
 ### Documentation
 
 - `has_context_yaml`: true (`docs/architecture/context.yaml`)
-- `has_agents_md`: true
+- `has_agents_md`: true (canonical instruction file)
 - `is_architecture_documented`: true (ADR 0001)
-- `readme_current`: true (updated to reflect two crates and all scripts)
+- `readme_current`: true (human-facing entry point, reflects crates and scripts)
+- `docs_separated`: true (clear split between human and agent documentation)
 
 ### Git
 
@@ -38,7 +39,7 @@
 
 ## Current Phase
 
-`Phase 0: Initialization` — CI pipeline verified and working, documentation updated
+`Phase 0: Initialization` — Documentation overhauled for human/agent clarity
 
 ## Active Blockers
 
@@ -46,9 +47,7 @@
 
 ## Recent Changes
 
-- Added `sample-app` binary crate (tokio, clap, serde, tracing, thiserror)
-- Added `scripts/release-manager.sh`
-- Fixed CI: installed mold linker for clippy, test, and MSRV jobs
-- Fixed CI: disabled sccache for cargo-deny job (runs in Docker)
-- Updated toolchain from 1.85 to 1.87
-- Updated all documentation to reflect current codebase
+- Overhauled documentation structure: README.md for humans, AGENTS.md for agents
+- Simplified agent reference files (CLAUDE.md, GEMINI.md, etc.)
+- Added CI/linting rules to AGENTS.md and conventions.md to prevent regressions
+- Fixed CI failures: MD031 markdown violation and commit message body length

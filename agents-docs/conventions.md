@@ -70,3 +70,8 @@ debug = false
 `feat(module): description`
 `fix(module): description`
 `chore(deps): update dependencies`
+
+## CI & Linting
+
+- **Commit Messages**: Body lines must be ≤ 100 characters.
+- **Markdown**: Fenced code blocks must have blank lines before and after.
