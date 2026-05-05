@@ -26,11 +26,11 @@
 
 | Operation | Skill | Script/CLI |
 |-----------|-------|------------|
-| Build | `build-rust` | `./scripts/build-rust.sh` |
-| Format/Lint | `code-quality` | `./scripts/code-quality.sh` |
-| Quality Gates | `code-quality` | `./scripts/quality-gates.sh` |
+| Build | `build-rust` | `cargo build --workspace` |
+| Format/Lint | `lint-rust` | `./scripts/code-quality.sh` |
+| Quality Gates | `lint-rust` | `./scripts/quality-gates.sh` |
 | CI Issues | `github-workflows` | `gh workflow list` |
-| Tests | `test-runner` | `cargo nextest run --all` |
+| Tests | `test-rust` | `cargo nextest run --all` |
 | Debug | `debug-troubleshoot` | `RUST_LOG=debug cargo nextest run` |
 
 **Before using task tool:**
