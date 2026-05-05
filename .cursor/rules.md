@@ -1,5 +1,7 @@
 # AI Agent Rules for Rust Workspace
 
+@AGENTS.md
+
 ## General Principles
 
 - Prefer `anyhow` for applications and `thiserror` for library error handling.
