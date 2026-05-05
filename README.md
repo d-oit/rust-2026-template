@@ -54,6 +54,7 @@ This template integrates best-in-class tools from the Rust ecosystem:
 1. **Use this template**: Click the "Use this template" button on GitHub to create your new repository.
 2. **Setup**: Follow the detailed guide in **[QUICKSTART.md](QUICKSTART.md)** to rename crates and configure metadata.
 3. **Verify**: Run the quality gates to ensure everything is set up correctly:
+
    ```bash
    bash scripts/quality-gates.sh
    ```
