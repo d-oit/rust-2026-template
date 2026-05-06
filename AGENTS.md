@@ -1,6 +1,7 @@
 # Agent Coding Guidelines
 
-> **2026 Best Practice Rust Template** - All AI agents read this file first.
+> **2026 Best Practice Rust Template** - This is the single canonical instruction file for all AI agents.
+> Root-level agent files (`CLAUDE.md`, `GEMINI.md`, `QWEN.md`, etc.) are thin wrappers that point here.
 
 ## Quick Reference
 
@@ -8,91 +9,86 @@
 |------|----------|
 | Build | `cargo build --workspace` |
 | Quality | `./scripts/code-quality.sh fmt\|clippy\|audit\|check` |
-| Tests | `cargo nextest run --all` |
+| Tests | `cargo nextest run --workspace` |
 | Quality Gates | `./scripts/quality-gates.sh` |
 
 ## Project Structure
 
-```
-rust-2026-template/
-├── .agents/skills/      # AI agent skill definitions
+```text
+.
+├── .agents/skills/      # AI agent skill definitions (canonical workflows)
 ├── .cargo/config.toml   # Cargo linker + profile config
 ├── .config/nextest.toml # nextest profiles
 ├── .github/workflows/   # CI/CD GitHub Actions
-├── scripts/             # Dev helper scripts
+├── scripts/             # Development and quality scripts
 ├── plans/adr/           # Architecture Decision Records
-├── AGENTS.md            # THIS FILE
-├── CLAUDE.md            # Claude: @AGENTS.md
-├── GEMINI.md            # Gemini: @AGENTS.md
+├── AGENTS.md            # THIS FILE (Canonical Guidance)
+├── CLAUDE.md            # Claude-specific reference (@AGENTS.md)
+├── GEMINI.md            # Gemini-specific reference (@AGENTS.md)
+├── QWEN.md              # Qwen-specific reference (@AGENTS.md)
 └── Cargo.toml           # Workspace manifest
 ```
 
-## Skill + CLI Pattern (CRITICAL)
+## Agent Skills (.agents/skills/)
 
-**ALWAYS use Skill + CLI first** for high-frequency ops:
+Specialized workflows are defined as "skills". Always consult the relevant skill's `SKILL.md` for detailed procedures.
 
-| Operation | Skill | Script/CLI |
-|-----------|-------|------------|
-| Build | `build-rust` | `./scripts/build-rust.sh` |
-| Format/Lint | `code-quality` | `./scripts/code-quality.sh` |
-| Quality Gates | `code-quality` | `./scripts/quality-gates.sh` |
-| Tests | `test-runner` | `cargo nextest run --all` |
-
-**Before task tool:** 1) Skill in `.agents/skills/`? → Use it 2) Script in `scripts/`? → Use it 3) High-frequency? → Skill+CLI 4) Complex multi-agent? → task tool
-
-## Token Efficiency
-
-1. **Glob** - File discovery (cheapest)
-2. **Grep** - Code search (cheap)
-3. **Read** - File inspection (medium)
-4. **Bash** - Shell commands (expensive - prefer scripts)
+| Skill | Purpose |
+|-------|---------|
+| `build-rust` | Optimized build procedures |
+| `lint-rust` | Formatting and static analysis workflows |
+| `test-rust` | Comprehensive testing with `nextest` and `proptest` |
+| `release-rust` | Safe crate release process |
+| `anti-ai-slop` | Auditing and fixing generic AI code patterns |
+| `privacy-first` | PII and data leakage prevention |
+| `crates-io-name-check` | Registry availability verification |
+| `skill-creator` | Guidelines for creating new agent skills |
+| `skill-evaluator` | Quality assessment of existing skills |
 
 ## Change Workflow
 
-1. Read existing code patterns
-2. Identify owner module + file
-3. Add/update tests first (TDD)
-4. `./scripts/code-quality.sh fmt`
-5. `cargo clippy --all -- -D warnings`
-6. `cargo nextest run -p <package>`
-7. `cargo nextest run --all`
-8. `./scripts/quality-gates.sh`
-9. Commit with conventional format
+1. **Discover:** Read existing code patterns and module structure.
+2. **Plan:** Identify affected files and required test coverage.
+3. **Test-First:** Add or update tests before implementing logic (TDD).
+4. **Implement:** Write code adhering to project conventions.
+5. **Quality Check:**
+   - `./scripts/code-quality.sh fmt`
+   - `./scripts/code-quality.sh clippy`
+   - `cargo nextest run --workspace`
+   - `./scripts/quality-gates.sh` (Final local validation)
+6. **Commit:** Use conventional commit format (e.g., `feat: ...`, `fix: ...`).
 
-## Required Checks Before Commit
+## Required Checks Before Submit
 
 - [ ] `cargo fmt --all -- --check`
 - [ ] `cargo clippy --workspace --tests -- -D warnings`
 - [ ] `cargo build --workspace`
-- [ ] `cargo nextest run --all`
+- [ ] `cargo nextest run --workspace`
 - [ ] `./scripts/quality-gates.sh`
 
 ## Code Conventions
 
-- **Max 500 LOC** per source file - split when exceeded
-- **Zero clippy warnings** - fix, never suppress
-- **Async everywhere** - Tokio, no blocking in async paths
-- **Testing** - Use `proptest` for pure functions; `tokio::test` for async
-- **Error handling** - `thiserror` lib, `anyhow` bin
-- **No `unwrap()`** in library code
-- **Doc comments** on all public items (`///`)
-- **Tests** - `#[tokio::test]` for async, AAA pattern
+- **File Size:** Max 500 LOC per source file; refactor into submodules if exceeded.
+- **Lints:** Zero `clippy` warnings allowed. Do not suppress warnings without extreme justification.
+- **Concurrency:** Prefer `tokio` for async logic. Avoid blocking calls in async contexts.
+- **Error Handling:** Use `thiserror` for libraries and `anyhow` for applications/binaries.
+- **Safety:** `#![forbid(unsafe_code)]` is strictly enforced. No `unwrap()` in library code.
+- **Documentation:** All public items must have `///` doc comments.
+- **Testing:** Use `proptest` for pure functions and `tokio::test` for async logic.
 
 ## Core Invariants
 
-- **Async**: Tokio runtime, no blocking (use `spawn_blocking`)
-- **Clippy**: Zero warnings (`-D warnings`)
-- **Files**: ≤500 LOC
-- **Tests**: ≥80% coverage, `#[tokio::test]`
-- **Secrets**: Never hardcode, use `.env` or better env vars
+- **Performance:** Use `mold` linker and optimized dev profiles (see `.cargo/config.toml`).
+- **Security:** Never hardcode secrets; use environment variables or a `.env` file.
+- **Privacy:** Adhere to the `privacy-first` skill to avoid leaking PII.
 
 ## Cross-References
 
 | Topic | Document |
 |-------|----------|
-| Commands | `agents-docs/commands.md` |
-| Structure | `agents-docs/structure.md` |
-| Conventions | `agents-docs/conventions.md` |
-| Workflow | `agents-docs/workflow.md` |
+| Detailed Commands | `agents-docs/commands.md` |
+| Code Structure | `agents-docs/structure.md` |
+| Coding Conventions | `agents-docs/conventions.md` |
+| Workflow Details | `agents-docs/workflow.md` |
 | Architecture | `plans/adr/` |
-| Skills | `.agents/skills/` |
+| Skills Directory | `.agents/skills/` |
