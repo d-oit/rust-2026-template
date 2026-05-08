@@ -3,7 +3,6 @@
 //! A comprehensive sample application demonstrating the rust-2026-template features.
 //!
 //! ## Features demonstrated:
-//! - Async runtime with tokio
 //! - Error handling with thiserror and anyhow
 //! - Serialization with serde
 //! - Logging with tracing
@@ -248,8 +247,7 @@ fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
 }
 
 /// Main application entry point
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     // Parse CLI arguments
     let args = Args::parse();
 
