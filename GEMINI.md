@@ -1,12 +1,11 @@
 @AGENTS.md
 
 <!-- Gemini CLI reads AGENTS.md directly via @-reference above.
-     Add Gemini-specific overrides below if needed. -->
+     See AGENTS.md for canonical repository guidance. -->
 
-## Gemini-Specific Notes
+## Gemini-Specific Tips
 
-- Use `google_web_search` for researching Rust crates and ecosystem updates
-- Prefer reading multiple files with parallel `ReadFile` calls
-- Always verify with `cargo check --workspace` before applying large refactors
-- For long-running builds: check `CARGO_BUILD_JOBS` env var for parallel limits
-- Use `./scripts/quality-gates.sh` as final validation before completing tasks
+- Use `google_web_search` to stay updated on the latest Rust ecosystem developments and crate documentation.
+- Leverage parallel `ReadFile` calls when inspecting multiple related files.
+- Always verify large-scale refactors with `cargo check --workspace` early in the process.
+- Use `./scripts/quality-gates.sh` as your final validation gate before completion.

@@ -3,7 +3,6 @@
 //! A comprehensive sample application demonstrating the rust-2026-template features.
 //!
 //! ## Features demonstrated:
-//! - Async runtime with tokio
 //! - Error handling with thiserror and anyhow
 //! - Serialization with serde
 //! - Logging with tracing
@@ -149,7 +148,9 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
         // We check length during sanitization to avoid unnecessary allocations.
         let mut sanitized_name = String::with_capacity(config.app_name.len().min(MAX_APP_NAME_LEN));
         for c in config.app_name.chars().filter(|c| !c.is_control()) {
-            if sanitized_name.len() >= MAX_APP_NAME_LEN {
+            // Security: Check if adding the next character would exceed the byte limit.
+            // Strings are UTF-8, so characters can be up to 4 bytes.
+            if sanitized_name.len() + c.len_utf8() > MAX_APP_NAME_LEN {
                 return Err(AppError::Config(format!(
                     "app_name too long: exceeds maximum of {MAX_APP_NAME_LEN} bytes"
                 )));
@@ -248,8 +249,7 @@ fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
 }
 
 /// Main application entry point
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     // Parse CLI arguments
     let args = Args::parse();
 
@@ -357,6 +357,33 @@ mod tests {
             "log_level": "info",
             "max_items": 100
         }"#;
+        std::fs::write(&file_path, json).unwrap();
+
+        let result = load_config(Some(file_path.clone()));
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("app_name too long")
+        );
+
+        let _ = std::fs::remove_file(file_path);
+    }
+
+    #[test]
+    fn test_load_config_app_name_multibyte_too_long() {
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join("multibyte_too_long_config.json");
+        // 63 'a's + '🦀' (4 bytes) = 67 bytes
+        let app_name = format!("{}🦀", "a".repeat(63));
+        let json = format!(
+            r#"{{
+            "app_name": "{app_name}",
+            "log_level": "info",
+            "max_items": 100
+        }}"#
+        );
         std::fs::write(&file_path, json).unwrap();
 
         let result = load_config(Some(file_path.clone()));
