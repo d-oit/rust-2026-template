@@ -54,7 +54,7 @@ jobs:
         continue-on-error: true  # Don't fail CI on surviving mutants; report instead
 
       - name: Upload mutation report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: mutants-report
