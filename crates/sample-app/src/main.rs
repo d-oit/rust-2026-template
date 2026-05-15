@@ -191,6 +191,17 @@ fn init_logging(verbose: bool) {
         .init();
 }
 
+/// Lookup table for two-digit formatting to improve performance in hot loops.
+static DIGITS_TABLE: [&str; 100] = [
+    "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15",
+    "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31",
+    "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47",
+    "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63",
+    "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79",
+    "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95",
+    "96", "97", "98", "99",
+];
+
 /// Process items and return a result
 fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
     info!("Processing {} items (limit: {})", count, limit);
@@ -212,20 +223,17 @@ fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
 
     // Bolt: Split loop to remove branch and dynamic capacity check from hot loop
     let fast_count = count.min(9999);
+
     for i in 1..=fast_count {
+        // Bolt: Use a lookup table for two-digit formatting to reduce division/remainder
+        // operations and improve string construction performance in the hot loop.
+        let idx1 = i / 100;
+        let idx2 = i % 100;
+
         let mut s = String::with_capacity(9);
         s.push_str("item-");
-
-        // Bolt: Optimized digit extraction (4 digits)
-        let q100 = i / 100;
-        let q10 = i / 10;
-        #[allow(clippy::cast_possible_truncation)]
-        {
-            s.push((b'0' + (q100 / 10) as u8) as char);
-            s.push((b'0' + (q100 % 10) as u8) as char);
-            s.push((b'0' + (q10 % 10) as u8) as char);
-            s.push((b'0' + (i % 10) as u8) as char);
-        }
+        s.push_str(DIGITS_TABLE[idx1]);
+        s.push_str(DIGITS_TABLE[idx2]);
         items.push(s);
     }
 
