@@ -101,6 +101,25 @@ struct Args {
     count: usize,
 }
 
+/// Returns true if the character is a safe, printable character.
+///
+/// This excludes standard control characters and Unicode bidirectional (Bidi)
+/// control characters which can be used for log injection.
+fn is_safe_char(c: char) -> bool {
+    if c.is_control() {
+        return false;
+    }
+
+    // Exclude Bidi control characters:
+    // - U+200E, U+200F: LRM, RLM
+    // - U+202A..=U+202E: LRE, RLE, PDF, LRO, RLO
+    // - U+2066..=U+2069: LRI, RLI, FSI, PDI
+    !matches!(
+        c,
+        '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}'
+    )
+}
+
 /// Load configuration from file or use defaults
 fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
     // Security: Check file size before reading to prevent DoS (memory exhaustion)
@@ -113,17 +132,17 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
 
     if let Some(path) = config_path {
         // Security: Sanitize path for logging and errors to prevent log injection.
-        // Replace control characters (like newlines) with '?' to keep logs safe.
+        // Replace unsafe characters (control, Bidi) with '?' to keep logs safe.
         let path_str = path.to_string_lossy();
         let sanitized_path: String = path_str
             .chars()
-            .map(|c| if c.is_control() { '?' } else { c })
+            .map(|c| if is_safe_char(c) { c } else { '?' })
             .collect();
 
         info!("Loading config from: {sanitized_path}");
 
-        let file = std::fs::File::open(&path)?;
-        let metadata = file.metadata()?;
+        // Security: Check metadata before opening to prevent hanging on FIFOs (DoS).
+        let metadata = std::fs::metadata(&path)?;
 
         if !metadata.is_file() {
             return Err(AppError::Config(format!(
@@ -131,6 +150,7 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
             )));
         }
 
+        let file = std::fs::File::open(&path)?;
         let file_size = metadata.len();
         if file_size > MAX_CONFIG_SIZE {
             return Err(AppError::Config(format!(
@@ -147,7 +167,7 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
         // Security: Sanitize app_name and check length to prevent log injection and resource exhaustion.
         // We check length during sanitization to avoid unnecessary allocations.
         let mut sanitized_name = String::with_capacity(config.app_name.len().min(MAX_APP_NAME_LEN));
-        for c in config.app_name.chars().filter(|c| !c.is_control()) {
+        for c in config.app_name.chars().filter(|c| is_safe_char(*c)) {
             // Security: Check if adding the next character would exceed the byte limit.
             // Strings are UTF-8, so characters can be up to 4 bytes.
             if sanitized_name.len() + c.len_utf8() > MAX_APP_NAME_LEN {
@@ -349,11 +369,36 @@ mod tests {
     }
 
     #[test]
+    fn test_is_safe_char() {
+        assert!(is_safe_char('a'));
+        assert!(is_safe_char(' '));
+        assert!(is_safe_char('🦀'));
+        assert!(!is_safe_char('\n'));
+        assert!(!is_safe_char('\r'));
+        assert!(!is_safe_char('\u{202e}')); // RLO (Bidi)
+        assert!(!is_safe_char('\u{2066}')); // LRI (Bidi)
+    }
+
+    #[test]
     fn test_config_app_name_sanitization() {
         // Let's just verify the sanitization logic
-        let name = String::from("test\napp\r");
-        let sanitized: String = name.chars().filter(|c| !c.is_control()).collect();
-        assert_eq!(sanitized, "testapp");
+        let name = String::from("test\napp\u{202e}r");
+        let sanitized: String = name.chars().filter(|c| is_safe_char(*c)).collect();
+        assert_eq!(sanitized, "testappr");
+    }
+
+    #[test]
+    fn test_load_config_from_directory() {
+        let temp_dir = std::env::temp_dir();
+        // Passing a directory instead of a file
+        let result = load_config(Some(temp_dir));
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("not a regular file")
+        );
     }
 
     #[test]
