@@ -42,7 +42,7 @@ jobs:
         with:
           globs: "**/*.md"
       - name: Commitlint
-        if: ${{ github.event_name == 'pull_request' && !endsWith(github.actor, '[bot]') }}
+        if: github.event_name == 'pull_request' && !endsWith(github.actor, '[bot]')
         uses: wagoid/commitlint-github-action@v6
 
   # ───────────────────────────────────────────────────
