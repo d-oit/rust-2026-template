@@ -22,7 +22,7 @@ echo "Generating llms-full.txt..."
 echo "Repository root: ${REPO_ROOT}"
 
 # Clear or create the output file
-> "${OUTPUT_FILE}"
+: > "${OUTPUT_FILE}"
 
 # Add header
 cat >> "${OUTPUT_FILE}" << 'EOF'
