@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # scripts/quality-gates.sh
+set -euo pipefail
 # Run all quality gates locally - mirrors CI pipeline
 # Usage: ./scripts/quality-gates.sh [--fix]
-
-set -euo pipefail
 
 FIX=false
 for arg in "$@"; do
@@ -141,7 +140,7 @@ fi
 # ============================================================
 info "[9/9] Scanning for potential secrets..."
 # Matches patterns like api_key = "..." with at least 16 characters in the secret
-SECRET_PATTERN='(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]'
+SECRET_PATTERN="(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]"
 EXCLUDE_DIR='--exclude-dir=.git --exclude-dir=target --exclude-dir=.agents'
 EXCLUDE_SECRET='example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN'
 

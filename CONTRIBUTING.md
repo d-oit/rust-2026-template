@@ -61,6 +61,7 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 
 - Format: `cargo fmt` (enforced by CI)
 - Lint: `cargo clippy -- -D warnings` (zero warnings policy)
+- Shell Lint: `shellcheck` for all scripts in `scripts/` (enforced by CI)
 - Edition: Rust 2024
 - MSRV: 1.87 (see `rust-toolchain.toml`)
 
@@ -90,6 +91,7 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - [ ] `cargo deny check` passes
 - [ ] Documentation updated if API changed
 - [ ] `CHANGELOG.md` updated
+- [ ] `shellcheck` passes for all shell scripts
 
 ## Template-Specific Guidance
 
