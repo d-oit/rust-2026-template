@@ -93,6 +93,22 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - [ ] `CHANGELOG.md` updated
 - [ ] `shellcheck` passes for all shell scripts
 
+## Release Process
+
+We use `cargo-release` for version management and `cargo-dist` for artifact generation.
+
+### Cutting a Release
+
+1.  Ensure you are on the `main` branch and it's up to date.
+2.  Run `cargo release <patch|minor|major>` to prepare the release.
+    - This will run quality gates (via `scripts/pre-release-hook.sh`), bump versions, update the changelog (via `git-cliff`), and create a tag.
+3.  Push the tag to trigger the GitHub Actions release workflow.
+
+```bash
+cargo release patch --execute
+git push --tags
+```
+
 ## Template-Specific Guidance
 
 This is a **generic Rust template**, not a standalone application. Changes should:

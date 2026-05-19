@@ -26,6 +26,13 @@ cp .config/nextest.toml your-project/.config/
 mkdir -p your-project/scripts
 cp scripts/quality-gates.sh your-project/scripts/
 chmod +x your-project/scripts/quality-gates.sh
+
+# Release engineering
+cp dist-workspace.toml your-project/
+cp release.toml your-project/
+cp cliff.toml your-project/
+cp scripts/pre-release-hook.sh your-project/scripts/
+chmod +x your-project/scripts/pre-release-hook.sh
 ```
 
 ### Step 2: Copy Agent Files

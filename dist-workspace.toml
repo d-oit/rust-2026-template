@@ -1,0 +1,20 @@
+[workspace]
+dist = "0.27.0"
+
+[dist]
+# The target platforms to build for
+cargo-dist-version = "0.27.0"
+ci = ["github"]
+install-updater = false
+tar-style = "xz"
+
+# Targets
+targets = [
+  "x86_64-unknown-linux-gnu",
+  "x86_64-apple-darwin",
+  "aarch64-apple-darwin",
+  "x86_64-pc-windows-msvc",
+]
+
+[dist.github-release]
+auto-publish = true

@@ -1,0 +1,9 @@
+# Configuration for cargo-release
+[workspace]
+consolidate-commits = true
+consolidate-pushes = true
+pre-release-hook = ["./scripts/pre-release-hook.sh"]
+
+[[package]]
+name = "rust-2026-template"
+tag-name = "v{{version}}"
