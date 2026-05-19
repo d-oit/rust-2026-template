@@ -58,6 +58,7 @@ The project enforces high standards through a multi-layered verification process
 - **Local Gates:** Run `./scripts/quality-gates.sh` before committing to mirror the CI checks locally.
 - **Mutation Testing:** Periodic runs of `cargo-mutants` verify that your tests actually catch bugs.
 - **Test Metrics:**
+
   | Metric | Value | Threshold |
   |--------|-------|-----------|
   | Test Count | 20 | 20 (min) |
