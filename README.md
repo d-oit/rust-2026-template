@@ -17,7 +17,7 @@ This template is designed for Rust developers who want to start new projects wit
 - **Workspace Layout:** Clean separation of concerns with a `crates/` directory for internal libraries and applications.
 - **Security First:** Pre-configured supply chain audits, secret scanning, and hardened configuration patterns.
 - **Performance Optimized:** Includes configurations for the `mold` linker and optimized development profiles.
-- **AI-Native:** First-class support for AI coding agents with specialized skills and canonical instruction sets.
+- **AI-Native:** First-class support for AI coding agents with specialized skills and canonical instruction sets. Includes `llms.txt` for machine-readable project context.
 
 ## Included Tooling
 
@@ -46,6 +46,7 @@ This template is designed for Rust developers who want to start new projects wit
 │   └── sample-app/      # Reference application implementing best practices
 ├── scripts/             # Automation scripts for quality gates and releases
 ├── AGENTS.md            # Canonical instructions for AI coding agents
+├── llms.txt             # LLM context file (machine-readable project overview)
 ├── Cargo.toml           # Workspace manifest
 └── QUICKSTART.md        # Comprehensive setup guide
 ```
