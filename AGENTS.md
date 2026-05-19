@@ -76,6 +76,20 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - **Documentation:** All public items must have `///` doc comments.
 - **Testing:** Use `proptest` for pure functions and `tokio::test` for async logic.
 
+## Test Quality Standards
+
+This project enforces test quality thresholds via `.test-quality.toml`:
+
+| Metric | Threshold | Enforcement |
+|--------|-----------|-------------|
+| Minimum test count | 20 tests | Checked in `quality-gates.sh` |
+| Test-to-source LOC ratio | 0.5 (50%) | Tracked for quality monitoring |
+| Maximum file size | 500 LOC | Checked in `quality-gates.sh` |
+| Line coverage | 70% | Enforced via CI (cargo-llvm-cov) |
+| Mutation score | 60% | Nightly CI runs (cargo-mutants) |
+
+Run `./scripts/quality-gates.sh` to verify all thresholds are met before committing.
+
 ## Core Invariants
 
 - **Performance:** Use `mold` linker and optimized dev profiles (see `.cargo/config.toml`).
