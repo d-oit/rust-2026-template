@@ -49,6 +49,17 @@ jobs:
         uses: wagoid/commitlint-github-action@v6
 
   # ───────────────────────────────────────────────────
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
+          severity: warning
+
   gitleaks:
     name: Secret Scan (Gitleaks)
     runs-on: ubuntu-latest
@@ -189,13 +200,14 @@ jobs:
   # Final gate - must pass for merge
   ci-success:
     name: CI Success
-    needs: [lint, gitleaks, fmt, clippy, test, security, deny, msrv]
+    needs: [lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, msrv]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check all jobs passed
         run: |
           if [[  "${{ needs.lint.result }}" != "success" ||
+                 "${{ needs.shellcheck.result }}" != "success" ||
                  "${{ needs.gitleaks.result }}" != "success" ||
                  "${{ needs.fmt.result }}" != "success" ||
                  "${{ needs.clippy.result }}" != "success" ||
