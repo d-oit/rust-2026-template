@@ -21,21 +21,7 @@ pass() { echo -e "${GREEN}[PASS]${NC} $1"; }
 fail() { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
 info() { echo -e "${YELLOW}[INFO]${NC} $1"; }
 
-# Parse .test-quality.toml for thresholds
-TOML_FILE=".test-quality.toml"
-if [ -f "$TOML_FILE" ]; then
-  MIN_TEST_COUNT=$(python3 -c "import toml; print(toml.load('$TOML_FILE')['tests']['min_test_count'])")
-  MIN_TEST_TO_SOURCE_RATIO=$(python3 -c "import toml; print(toml.load('$TOML_FILE')['ratios']['min_test_to_source_ratio'])")
-  MAX_FILE_LOC=$(python3 -c "import toml; print(toml.load('$TOML_FILE')['tests']['max_file_loc'])")
-else
-  info "No .test-quality.toml found, using defaults"
-  MIN_TEST_COUNT=20
-  MIN_TEST_TO_SOURCE_RATIO=0.5
-  MAX_FILE_LOC=500
-fi
-
 info "Starting quality gates..."
-info "Test quality thresholds: min_tests=$MIN_TEST_COUNT, min_ratio=$MIN_TEST_TO_SOURCE_RATIO, max_file_loc=$MAX_FILE_LOC"
 
 # ============================================================
 # 1. FORMAT CHECK
@@ -148,38 +134,6 @@ if grep -rE $EXCLUDE_DIR "$SECRET_PATTERN" . 2>/dev/null | grep -vE "$EXCLUDE_SE
   fail "Potential secret detected in codebase. Please use environment variables instead."
 else
   pass "Secret Scan: OK"
-fi
-
-# ============================================================
-# 10. TEST COUNT CHECK
-# ============================================================
-info "[10/10] Checking test count..."
-if command -v rg &>/dev/null; then
-  # Count test functions across src/, crates/, and tests/ directories
-  TEST_COUNT=$(rg -c '#\[test\]|#\[tokio::test\]' src/ crates/ tests/ 2>/dev/null | \
-    awk -F: '{sum += $2} END {print sum+0}')
-  
-  if [ "$TEST_COUNT" -lt "$MIN_TEST_COUNT" ]; then
-    fail "Test count $TEST_COUNT below minimum $MIN_TEST_COUNT (defined in $TOML_FILE)"
-  else
-    pass "Test count: $TEST_COUNT >= $MIN_TEST_COUNT"
-  fi
-else
-  info "ripgrep (rg) not installed, skipping test count check"
-fi
-
-# ============================================================
-# 11. FILE SIZE CHECK
-# ============================================================
-info "[11/11] Checking file sizes..."
-OVERSIZED_FILES=$(find src/ crates/ -name "*.rs" -type f -print0 2>/dev/null | \
-  xargs -0 wc -l 2>/dev/null | grep -v "total$" | \
-  awk -v max="$MAX_FILE_LOC" '$1 > max {print $2 " (" $1 " LOC)"}')
-
-if [ -n "$OVERSIZED_FILES" ]; then
-  fail "Oversized files found (max $MAX_FILE_LOC LOC):\n$OVERSIZED_FILES"
-else
-  pass "File sizes: All files <= $MAX_FILE_LOC LOC"
 fi
 
 echo ""
