@@ -1,0 +1,24 @@
+# .test-quality.toml
+# Minimum test quality thresholds for this codebase.
+# Enforced by scripts/quality-gates.sh
+
+[coverage]
+# Minimum line coverage percentage (enforced via cargo-llvm-cov)
+min_coverage = 70.0
+# Patch coverage for new code in PRs
+min_patch_coverage = 60.0
+
+[ratios]
+# Minimum ratio of test LOC to source LOC (0.0 - 1.0)
+min_test_to_source_ratio = 0.5
+
+[tests]
+# Minimum number of test functions across the workspace
+min_test_count = 20
+# Maximum source file size (lines) - enforced separately by clippy/scripts
+max_file_loc = 500
+
+[mutation]
+# Mutation testing thresholds (cargo-mutants)
+# Only enforced in nightly CI runs
+min_mutation_score = 60.0
