@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # scripts/learn-labels.sh
+set -euo pipefail
 #
 # Self-learning label sync for d-oit/rust-2026-template.
 #

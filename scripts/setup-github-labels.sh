@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # scripts/setup-github-labels.sh
+set -euo pipefail
 #
 # Creates the full label set for d-oit/rust-2026-template.
 # Includes all standard labels plus Rust-specific and release automation labels.
