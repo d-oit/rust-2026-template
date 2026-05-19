@@ -83,6 +83,17 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - **Security:** Never hardcode secrets; use environment variables or a `.env` file.
 - **Privacy:** Adhere to the `privacy-first` skill to avoid leaking PII.
 
+## Test Quality
+
+The project enforces automated test quality thresholds defined in `.test-quality.toml`.
+
+- **Coverage:** Minimum 70% line coverage and 60% patch coverage.
+- **Ratio:** Minimum 0.5 test-to-source LOC ratio (verified via `scripts/quality-gates.sh`).
+- **Minimum Tests:** At least 20 test functions must exist across the workspace.
+- **Mutation:** Minimum 60% mutation score (verified via `cargo-mutants` in CI).
+
+Agents should ensure that any new feature includes sufficient tests to maintain or improve these ratios.
+
 ## Cross-References
 
 | Topic | Document |

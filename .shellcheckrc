@@ -1,0 +1,7 @@
+# .shellcheckrc
+# Treat all scripts as bash unless they declare otherwise
+shell=bash
+# Disable SC2039 (local is not defined in POSIX sh) - we use bash
+disable=SC2039
+# Disable SC1091 - don't follow sourced files (too noisy for templates)
+disable=SC1091

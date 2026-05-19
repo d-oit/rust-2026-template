@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # scripts/bump-version.sh
+set -euo pipefail
 #
 # Canonical version source: [workspace.package] version in ./Cargo.toml
 #
