@@ -33,6 +33,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.2] - 2026-05-19
+
+### Added
+
+- Codecov configuration for coverage gate enforcement.
+- `cargo-dist` and `release.toml` for automated release engineering.
+- `llms.txt` and `llms-full.txt` as standard LLM context files.
+- `.test-quality.toml` for test quality enforcement (Step 10 in quality gates).
+- `.shellcheckrc` and shell script quality gate integrated into pre-commit and CI.
+- Enhanced `scripts/quality-gates.sh` with test quality and coverage checks.
+
+### Fixed
+
+- Empty link in `README.md` version badge causing markdownlint (MD042) failure.
+
+---
+
 ## [0.1.1] - 2026-05-16
 
 ### Added
@@ -84,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.2
 [0.1.1]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.1
 [0.1.0]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.0
