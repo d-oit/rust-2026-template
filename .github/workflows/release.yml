@@ -23,35 +23,29 @@ jobs:
   ci:
     uses: ./.github/workflows/ci.yml
 
-  # Build release binaries
+  # Build release binaries and create GitHub Release using cargo-dist
   dist:
-    name: Build Distribution
+    name: Build and Release
     needs: [ci]
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        include:
-          - runner: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-          - runner: macos-latest
-            target: x86_64-apple-darwin
-          - runner: macos-latest
-            target: aarch64-apple-darwin
-          - runner: windows-latest
-            target: x86_64-pc-windows-msvc
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
-      - name: Build release binary
-        run: cargo build --release --target ${{ matrix.target }}
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v7
+      - name: Install cargo-dist
+        uses: cargo-bins/cargo-binstall@main
+      - run: cargo binstall cargo-dist --no-confirm
+      - name: Run cargo-dist
+        run: cargo dist build --tag ${{ github.ref_name }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: binary-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/
+          files: target/distroot/**/*
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
 
   # Publish to crates.io
   publish:
@@ -60,41 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: crates-io
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      # OIDC Trusted Publishing (no token needed)
       - name: Publish crate
         run: cargo publish --no-verify
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
-  # Create GitHub Release
-  github-release:
-    name: Create GitHub Release
-    needs: [publish]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: Download all artifacts
-        uses: actions/download-artifact@v8
-        with:
-          path: artifacts/
-      - name: Extract release notes from CHANGELOG
-        id: changelog
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          NOTES=$(awk "/^## \[$VERSION\]/,/^## \[/{if(/^## \[/ && !/^## \[$VERSION\]/)exit; \
-            print}" CHANGELOG.md | tail -n +2)
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        with:
-          body: ${{ steps.changelog.outputs.notes }}
-          files: artifacts/**/*
-          draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}

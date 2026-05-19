@@ -58,13 +58,6 @@ The project enforces high standards through a multi-layered verification process
 - **CI Pipeline:** Automatically runs formatting checks, Clippy lints, tests, security audits (`cargo-audit`), and supply chain checks (`cargo-deny`) on every PR.
 - **Local Gates:** Run `./scripts/quality-gates.sh` before committing to mirror the CI checks locally.
 - **Mutation Testing:** Periodic runs of `cargo-mutants` verify that your tests actually catch bugs.
-- **Test Metrics:**
-
-  | Metric | Value | Threshold |
-  |--------|-------|-----------|
-  | Test Count | 20 | 20 (min) |
-  | Test/Source Ratio | 0.59 | 0.5 (min) |
-  | Line Coverage | ~70% | 70% (min) |
 
 ## Customization Guidance
 

@@ -1,0 +1,21 @@
+# Configuration for cargo-release
+[workspace]
+consolidate-commits = true
+consolidate-pushes = true
+pre-release-hook = ["./scripts/pre-release-hook.sh"]
+# Update changelog using git-cliff
+pre-release-replacements = [
+  {file = "CHANGELOG.md", search = "unreleased", replace = "{{version}}", min = 1},
+  {file = "CHANGELOG.md", search = "Unreleased", replace = "{{version}}", min = 1},
+]
+
+[changelog]
+# use git-cliff for changelog generation
+# we can call it in pre-release-hook.sh or here if cargo-release supports it directly
+# actually, better to handle it in pre-release-hook.sh
+# or use the [changelog] section if available in the version being used.
+# Let's add it to the pre-release-hook.sh for maximum flexibility.
+
+[[package]]
+name = "rust-2026-template"
+tag-name = "v{{version}}"
