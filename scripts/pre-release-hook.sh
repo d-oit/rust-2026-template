@@ -9,3 +9,11 @@ cd "$PROJECT_ROOT"
 echo "--- Running Pre-release Quality Gates ---"
 bash scripts/quality-gates.sh
 echo "--- Quality Gates Passed ---"
+
+if command -v git-cliff &> /dev/null; then
+    echo "--- Generating Changelog ---"
+    git-cliff --output CHANGELOG.md
+    echo "--- Changelog Updated ---"
+else
+    echo "--- git-cliff not found, skipping changelog generation ---"
+fi
