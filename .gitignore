@@ -58,3 +58,7 @@ default.profraw
 # cargo-audit advisory DB cache
 .cargo/advisory-db/
 .blackboxcli/
+
+
+# Auto-generated LLM context files
+llms-full.txt
