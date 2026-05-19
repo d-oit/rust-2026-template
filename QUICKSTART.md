@@ -43,7 +43,6 @@ The `sample-app` binary crate can be kept as a reference or renamed/removed as n
 ```bash
 # Required for tests
 cargo install cargo-nextest
-rustup component add llvm-tools-preview
 cargo install cargo-llvm-cov
 
 # Required for CI (supply chain checks)
