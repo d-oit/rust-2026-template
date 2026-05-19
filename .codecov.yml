@@ -16,7 +16,7 @@ comment:
   require_changes: true
 
 ignore:
-  - "examples/**"
-  - "benches/**"
-  - "tests/**"
+  - "**/examples/**"
+  - "**/benches/**"
+  - "**/tests/**"
   - "**/main.rs"           # Binary entry points
