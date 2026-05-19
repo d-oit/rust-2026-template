@@ -215,5 +215,37 @@ else
   fi
 fi
 
+# 3. Coverage validation (if cargo-llvm-cov is available)
+MIN_COVERAGE=$(get_toml_value "coverage.min_coverage")
+if [ -n "$MIN_COVERAGE" ] && command -v cargo-llvm-cov &>/dev/null; then
+  info "Checking code coverage (min: ${MIN_COVERAGE}%)..."
+  
+  # Generate coverage report
+  cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info >/dev/null 2>&1 || fail "Coverage generation failed"
+  
+  # Extract coverage percentage from lcov.info
+  if [ -f "lcov.info" ]; then
+    # Calculate coverage: (lines hit / total lines) * 100
+    LINES_HIT=$(grep -E "^DA:" lcov.info | grep -v ",0$" | wc -l)
+    TOTAL_LINES=$(grep -E "^DA:" lcov.info | wc -l)
+    
+    if [ "$TOTAL_LINES" -gt 0 ]; then
+      ACTUAL_COVERAGE=$(python3 -c "print(round(($LINES_HIT / $TOTAL_LINES) * 100, 2))")
+      COVERAGE_OK=$(python3 -c "print(1 if $ACTUAL_COVERAGE >= $MIN_COVERAGE else 0)")
+      
+      if [ "$COVERAGE_OK" -eq 0 ]; then
+        fail "Coverage ${ACTUAL_COVERAGE}% is below minimum ${MIN_COVERAGE}%"
+      fi
+      pass "Coverage: ${ACTUAL_COVERAGE}% (min: ${MIN_COVERAGE}%)"
+    else
+      info "No coverage data found, skipping coverage check"
+    fi
+  else
+    info "lcov.info not generated, skipping coverage check"
+  fi
+elif [ -n "$MIN_COVERAGE" ]; then
+  info "cargo-llvm-cov not installed, skipping coverage check (run: cargo install cargo-llvm-cov)"
+fi
+
 echo ""
 echo -e "${GREEN}All quality gates passed!${NC}"
