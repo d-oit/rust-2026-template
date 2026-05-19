@@ -26,6 +26,7 @@
 ├── CLAUDE.md            # Claude-specific reference (@AGENTS.md)
 ├── GEMINI.md            # Gemini-specific reference (@AGENTS.md)
 ├── QWEN.md              # Qwen-specific reference (@AGENTS.md)
+├── llms.txt             # LLM context file (machine-readable project overview)
 └── Cargo.toml           # Workspace manifest
 ```
 

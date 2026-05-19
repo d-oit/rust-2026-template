@@ -1,0 +1,124 @@
+# Rust 2026 Template
+
+> A production-ready Rust workspace template with modern tooling, CI/CD, and AI agent integration.
+
+## Project Overview
+
+This is a comprehensive Rust workspace template designed for 2026 best practices. It includes:
+- Multi-crate workspace structure
+- Integrated testing with nextest and proptest
+- Quality gates and CI/CD pipelines
+- AI agent skills and documentation
+- Security scanning and dependency auditing
+
+## Architecture
+
+```
+rust-2026-template/
+├── .agents/skills/          # AI agent skill definitions (canonical workflows)
+├── .cargo/config.toml       # Cargo linker + profile config
+├── .config/nextest.toml     # nextest profiles
+├── .github/workflows/       # CI/CD GitHub Actions
+├── scripts/                 # Development and quality scripts
+├── plans/adr/               # Architecture Decision Records
+├── crates/                  # Workspace member crates
+│   ├── example-crate/       # Library crate example
+│   └── sample-app/          # Binary application example
+├── examples/                # Example projects
+├── tests/                   # Integration tests
+├── AGENTS.md                # Canonical AI agent guidance
+├── Cargo.toml               # Workspace manifest
+└── README.md                # Project documentation
+```
+
+## Key Files
+
+### Documentation
+- `README.md` - Project overview and quick start
+- `AGENTS.md` - Canonical AI agent coding guidelines
+- `CONTRIBUTING.md` - Contribution guidelines
+- `QUICKSTART.md` - Quick start guide
+- `CHANGELOG.md` - Version history
+- `SECURITY.md` - Security policy
+
+### Configuration
+- `Cargo.toml` - Workspace manifest and dependencies
+- `rust-toolchain.toml` - Rust toolchain version
+- `rustfmt.toml` - Code formatting rules
+- `.clippy.toml` - Clippy linting configuration
+- `deny.toml` - Cargo deny configuration
+
+### AI Agent Skills
+- `.agents/skills/build-rust/` - Optimized build procedures
+- `.agents/skills/lint-rust/` - Formatting and static analysis
+- `.agents/skills/test-rust/` - Comprehensive testing workflows
+- `.agents/skills/release-rust/` - Safe crate release process
+- `.agents/skills/anti-ai-slop/` - Auditing generic AI patterns
+- `.agents/skills/privacy-first/` - PII prevention
+- `.agents/skills/crates-io-name-check/` - Registry verification
+
+## Development Commands
+
+### Build
+```bash
+cargo build --workspace
+```
+
+### Quality Checks
+```bash
+./scripts/code-quality.sh fmt      # Format code
+./scripts/code-quality.sh clippy   # Run linter
+./scripts/code-quality.sh audit    # Security audit
+./scripts/code-quality.sh check    # All checks
+```
+
+### Testing
+```bash
+cargo nextest run --workspace      # Run all tests
+cargo test --doc                   # Run doc tests
+```
+
+### Quality Gates
+```bash
+./scripts/quality-gates.sh         # Run all quality gates
+```
+
+### Release
+```bash
+./scripts/release-manager.sh       # Interactive release manager
+```
+
+## Code Conventions
+
+- **File Size:** Max 500 LOC per source file
+- **Lints:** Zero clippy warnings allowed
+- **Safety:** `#![forbid(unsafe_code)]` enforced
+- **Error Handling:** `thiserror` for libraries, `anyhow` for binaries
+- **Testing:** Use `proptest` for pure functions, `tokio::test` for async
+- **Documentation:** All public items require `///` doc comments
+
+## Workflow
+
+1. **Discover:** Read existing code patterns
+2. **Plan:** Identify affected files and test coverage
+3. **Test-First:** Add/update tests before implementation (TDD)
+4. **Implement:** Write code following conventions
+5. **Quality Check:** Run fmt, clippy, tests, quality gates
+6. **Commit:** Use conventional commit format
+
+## Required Checks Before Submit
+
+- [ ] `cargo fmt --all -- --check`
+- [ ] `cargo clippy --workspace --tests -- -D warnings`
+- [ ] `cargo build --workspace`
+- [ ] `cargo nextest run --workspace`
+- [ ] `./scripts/quality-gates.sh`
+
+## References
+
+- Agent Skills: `.agents/skills/`
+- Architecture Decisions: `plans/adr/`
+- Detailed Commands: `agents-docs/commands.md`
+- Code Structure: `agents-docs/structure.md`
+- Coding Conventions: `agents-docs/conventions.md`
+- Workflow Details: `agents-docs/workflow.md`
