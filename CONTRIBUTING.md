@@ -88,6 +88,7 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - [ ] `cargo nextest run` passes
 - [ ] `cargo audit` shows no vulnerabilities
 - [ ] `cargo deny check` passes
+- [ ] Coverage targets met (as defined in `.codecov.yml`)
 - [ ] Documentation updated if API changed
 - [ ] `CHANGELOG.md` updated
 

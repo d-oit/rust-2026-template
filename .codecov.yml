@@ -1,0 +1,21 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 70%          # Minimum acceptable
+        threshold: 2%        # Allowed drop per PR
+    patch:
+      default:
+        target: 60%          # New code coverage minimum
+        threshold: 5%
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: true
+
+ignore:
+  - "examples/**"
+  - "benches/**"
+  - "tests/**"
+  - "**/main.rs"           # Binary entry points

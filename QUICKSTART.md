@@ -43,6 +43,7 @@ The `sample-app` binary crate can be kept as a reference or renamed/removed as n
 ```bash
 # Required for tests
 cargo install cargo-nextest
+cargo install cargo-llvm-cov
 
 # Required for CI (supply chain checks)
 cargo install cargo-deny
@@ -88,6 +89,7 @@ Edit these files with your project details:
 | `AGENTS.md` | Project name, description, domain context |
 | `CLAUDE.md` | Project-specific overrides |
 | `README.md` | Replace template content with your project |
+| `CODECOV_TOKEN` | Add to GitHub Actions secrets for coverage reporting |
 | `SECURITY.md` | Your security contact / advisory link |
 | `CONTRIBUTING.md` | Your contribution process |
 
@@ -117,6 +119,7 @@ CI runs: format check, clippy, nextest, doc tests, security audit, cargo-deny, M
 | Clippy config | `.clippy.toml` | Pedantic lint rules |
 | Deny config | `deny.toml` | License and vulnerability policy |
 | Nextest config | `.config/nextest.toml` | Test profiles (default + ci) |
+| Codecov config | `.codecov.yml` | Coverage gate enforcement targets |
 | Cargo aliases | `.cargo/config.toml` | `check-all`, `test-all`, `lint`, etc. |
 
 ## Next Steps
