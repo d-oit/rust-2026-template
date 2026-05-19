@@ -99,10 +99,10 @@ We use `cargo-release` for version management and `cargo-dist` for artifact gene
 
 ### Cutting a Release
 
-1.  Ensure you are on the `main` branch and it's up to date.
-2.  Run `cargo release <patch|minor|major>` to prepare the release.
+1. Ensure you are on the `main` branch and it's up to date.
+2. Run `cargo release <patch|minor|major>` to prepare the release.
     - This will run quality gates (via `scripts/pre-release-hook.sh`), bump versions, update the changelog (via `git-cliff`), and create a tag.
-3.  Push the tag to trigger the GitHub Actions release workflow.
+3. Push the tag to trigger the GitHub Actions release workflow.
 
 ```bash
 cargo release patch --execute
