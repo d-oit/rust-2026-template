@@ -105,7 +105,14 @@ struct Args {
 ///
 /// This excludes standard control characters and Unicode bidirectional (Bidi)
 /// control characters which can be used for log injection.
+#[inline]
 fn is_safe_char(c: char) -> bool {
+    // Bolt: Fast path for ASCII printable characters (' ' to '~')
+    // to bypass complex Unicode and Bidi checks for common cases.
+    if matches!(c, ' '..='~') {
+        return true;
+    }
+
     if c.is_control() {
         return false;
     }
