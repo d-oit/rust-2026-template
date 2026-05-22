@@ -105,7 +105,14 @@ struct Args {
 ///
 /// This excludes standard control characters and Unicode bidirectional (Bidi)
 /// control characters which can be used for log injection.
+#[inline]
 fn is_safe_char(c: char) -> bool {
+    // Bolt: Fast path for ASCII printable characters (' ' to '~')
+    // to bypass complex Unicode and Bidi checks for common cases.
+    if matches!(c, ' '..='~') {
+        return true;
+    }
+
     if c.is_control() {
         return false;
     }
@@ -370,13 +377,24 @@ mod tests {
 
     #[test]
     fn test_is_safe_char() {
+        // ASCII printable
         assert!(is_safe_char('a'));
+        assert!(is_safe_char('1'));
         assert!(is_safe_char(' '));
+
+        // Non-ASCII printable
         assert!(is_safe_char('🦀'));
+        assert!(is_safe_char('ü'));
+
+        // ASCII control
         assert!(!is_safe_char('\n'));
         assert!(!is_safe_char('\r'));
-        assert!(!is_safe_char('\u{202e}')); // RLO (Bidi)
-        assert!(!is_safe_char('\u{2066}')); // LRI (Bidi)
+        assert!(!is_safe_char('\t'));
+
+        // Bidi control
+        assert!(!is_safe_char('\u{200e}')); // LRM
+        assert!(!is_safe_char('\u{202e}')); // RLO
+        assert!(!is_safe_char('\u{2066}')); // LRI
     }
 
     #[test]
