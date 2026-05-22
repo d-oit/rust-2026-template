@@ -377,13 +377,24 @@ mod tests {
 
     #[test]
     fn test_is_safe_char() {
+        // ASCII printable
         assert!(is_safe_char('a'));
+        assert!(is_safe_char('1'));
         assert!(is_safe_char(' '));
+
+        // Non-ASCII printable
         assert!(is_safe_char('🦀'));
+        assert!(is_safe_char('ü'));
+
+        // ASCII control
         assert!(!is_safe_char('\n'));
         assert!(!is_safe_char('\r'));
-        assert!(!is_safe_char('\u{202e}')); // RLO (Bidi)
-        assert!(!is_safe_char('\u{2066}')); // LRI (Bidi)
+        assert!(!is_safe_char('\t'));
+
+        // Bidi control
+        assert!(!is_safe_char('\u{200e}')); // LRM
+        assert!(!is_safe_char('\u{202e}')); // RLO
+        assert!(!is_safe_char('\u{2066}')); // LRI
     }
 
     #[test]
