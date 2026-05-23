@@ -117,13 +117,22 @@ fn is_safe_char(c: char) -> bool {
         return false;
     }
 
-    // Exclude Bidi control characters:
-    // - U+200E, U+200F: LRM, RLM
-    // - U+202A..=U+202E: LRE, RLE, PDF, LRO, RLO
-    // - U+2066..=U+2069: LRI, RLI, FSI, PDI
+    // Security: Exclude Bidi control, zero-width, and other invisible characters
+    // that can be used for log injection, obfuscation, or homograph attacks.
     !matches!(
         c,
-        '\u{200e}' | '\u{200f}' | '\u{061c}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}' | '\u{2028}' | '\u{2029}'
+        // Bidi control characters (U+200E, U+200F, U+061C, U+202A..=U+202E, U+2066..=U+2069)
+        '\u{200e}' | '\u{200f}' | '\u{061c}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}' |
+        // Line/Paragraph separators (U+2028, U+2029)
+        '\u{2028}' | '\u{2029}' |
+        // Soft Hyphen (U+00AD)
+        '\u{00ad}' |
+        // Zero-width characters (U+200B..=U+200D)
+        '\u{200b}'..='\u{200d}' |
+        // Invisible operators/formatters (U+2060..=U+2064)
+        '\u{2060}'..='\u{2064}' |
+        // Byte Order Mark (U+FEFF)
+        '\u{feff}'
     )
 }
 
@@ -376,7 +385,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_safe_char() {
+    fn test_is_safe_char_printable() {
         // ASCII printable
         assert!(is_safe_char('a'));
         assert!(is_safe_char('1'));
@@ -385,7 +394,10 @@ mod tests {
         // Non-ASCII printable
         assert!(is_safe_char('🦀'));
         assert!(is_safe_char('ü'));
+    }
 
+    #[test]
+    fn test_is_safe_char_unprintable() {
         // ASCII control
         assert!(!is_safe_char('\n'));
         assert!(!is_safe_char('\r'));
@@ -395,6 +407,18 @@ mod tests {
         assert!(!is_safe_char('\u{200e}')); // LRM
         assert!(!is_safe_char('\u{202e}')); // RLO
         assert!(!is_safe_char('\u{2066}')); // LRI
+
+        // Zero-width characters
+        assert!(!is_safe_char('\u{200b}')); // ZWSP
+        assert!(!is_safe_char('\u{200c}')); // ZWNJ
+        assert!(!is_safe_char('\u{200d}')); // ZWJ
+
+        // Invisible operators/formatters
+        assert!(!is_safe_char('\u{2060}')); // Word Joiner
+        assert!(!is_safe_char('\u{feff}')); // BOM
+
+        // Soft Hyphen
+        assert!(!is_safe_char('\u{00ad}'));
     }
 
     #[test]
