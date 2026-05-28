@@ -1,0 +1,38 @@
+{
+  "skill_name": "codacy",
+  "version": "1.0.0",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Codacy is blocking my PR #42 on d-o-hub/github-template-ai-agents. How do I see which issues are new?",
+      "expected_output": "Uses `codacy pull-request gh d-o-hub github-template-ai-agents 42 --output json` to fetch PR data and explains how to parse `newIssues`.",
+      "assertions": [
+        "Uses `codacy pull-request` with the correct org, repo, and PR number",
+        "Specifies `--output json`",
+        "Mentions the `newIssues` array in the output"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I have a false positive in my Rust code that Codacy is flagging. I have the JSON output. How do I ignore it?",
+      "expected_output": "Instructs the user to identify the numeric `resultDataId` and use the Cloud CLI `--ignore-issue` command.",
+      "assertions": [
+        "Mentions numeric `resultDataId` (not hash)",
+        "Uses `codacy pull-request` with `--ignore-issue`",
+        "Includes `--ignore-reason FalsePositive`"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Run Codacy analysis locally on this repo to check for duplication.",
+      "expected_output": "Uses `codacy-analysis analyze` and mentions it will pick up duplication via `jscpd`.",
+      "assertions": [
+        "Uses `codacy-analysis analyze`",
+        "Suggests checking the output for duplication issues"
+      ],
+      "files": []
+    }
+  ]
+}
