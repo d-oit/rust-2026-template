@@ -48,6 +48,7 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 | `skill-creator` | Guidelines for creating new agent skills |
 | `skill-evaluator` | Quality assessment of existing skills |
 | `codacy` | Codacy static analysis and PR triage workflows |
+| `dora-lead-time` | Measurement and interpretation of Change Lead Time |
 
 ## Change Workflow
 
@@ -93,6 +94,7 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - **Privacy:** Adhere to the `privacy-first` skill to avoid leaking PII.
 - **Context Files:** Regenerate `llms.txt` and `llms-full.txt` after significant architectural changes via `bash scripts/generate-llms-txt.sh`.
 - **Lint Phases:** The lint setup uses a phased approach. Promoted pedantic/nursery lints are Phase A (enabled now). Phase C lints (`missing_errors_doc`, `must_use_candidate`) should be flipped to `warn` before v1.0 release.
+- **DORA Metrics:** Change Lead Time (PR open → merge) is tracked in CI. Agents should aim for efficiency and label PRs with `agentic` to enable ROI tracking.
 
 ## Cross-References
 
