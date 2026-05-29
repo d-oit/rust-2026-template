@@ -2,8 +2,10 @@
 members = [
     "crates/*",
     "examples/*",
+    "benchmarks",
 ]
-resolver = "2"
+resolver = "3"
+exclude = ["fuzz"]
 
 [workspace.package]
 version = "0.1.1"
@@ -15,50 +17,121 @@ repository = "https://github.com/your-org/your-repo"
 homepage = "https://github.com/your-org/your-repo"
 documentation = "https://docs.rs/your-crate"
 readme = "README.md"
+include = [
+    "/src",
+    "/benches",
+    "/examples",
+    "/tests",
+    "/benchmarks",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "NOTICE",
+    "VERSION",
+]
+
+[package]
+name = "rust-2026-template"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "README.md"
+description = "A production-ready Rust workspace template with modern tooling, CI/CD, and AI agent integration"
+include = [
+    "/src",
+    "/benches",
+    "/examples",
+    "/tests",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "NOTICE",
+    "VERSION",
+]
+
+[dependencies]
+clap = { workspace = true, optional = true }
+anyhow = { workspace = true, optional = true }
+colored = { workspace = true, optional = true }
+libsql = { workspace = true, optional = true }
+rayon = { workspace = true, optional = true }
+
+[features]
+default = ["cli", "persistence"]
+cli = ["dep:clap", "dep:anyhow", "dep:colored"]
+persistence = ["dep:libsql"]
+parallel = ["dep:rayon"]
+wasm = []
+
+[lints.rust]
+missing_docs = "allow"
+unsafe_code = "forbid"
+dead_code = "allow"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "allow", priority = -1 }
+nursery = { level = "allow", priority = -1 }
+
+# Promoted from pedantic — correctness signals (Phase A)
+float_cmp = "warn"
+significant_drop_tightening = "warn"
+cast_precision_loss = "warn"
+cast_possible_truncation = "warn"
+redundant_clone = "warn"
+map_unwrap_or = "warn"
+unnecessary_map_or = "warn"
+
+# Promoted from nursery — free compile-time wins (Phase A)
+missing_const_for_fn = "warn"
+
+# Library DX lints — Phase C (flip to warn after docs stabilise)
+missing_errors_doc = "allow"
+must_use_candidate = "allow"
+
+# Justified allows for template hot-path patterns
+too_many_arguments = "allow"
+type_complexity = "allow"
+unwrap_used = "allow"
+expect_used = "allow"
+panic = "allow"
+print_stdout = "allow"
+print_stderr = "allow"
+cognitive_complexity = "allow"
 
 # ─── Workspace-wide dependency versions ───────────────────────────────────────
 [workspace.dependencies]
-# Async runtime
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs"] }
 tokio-util = { version = "0.7" }
-
-# Error handling
 thiserror = "2"
 anyhow = "1"
-
-# Serialization
-# Bolt: Pinned to =1.0.194 to avoid banned dependency `serde_core` (added in 1.0.222+)
 serde = { version = "=1.0.194", features = ["derive"] }
 serde_json = "=1.0.143"
-
-# Logging
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-
-# CLI
 clap = { version = "4", features = ["derive", "env"] }
-
-# Async traits
 async-trait = "0.1"
-
-# Testing
 tokio-test = "0.4"
 proptest = "1"
-# Bolt: Pinned to =1.40.0 to avoid transitive dependency on banned `serde_core` via newer `serde`
 insta = { version = "=1.47.2", features = ["yaml"] }
+colored = "3"
+libsql = { version = "0.9", default-features = false }
+rayon = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
 
 # ─── Build profiles ───────────────────────────────────────────────────────────
-# NOTE: Detailed dev profile settings are in .cargo/config.toml for WSL2/Linux
-# disk space optimization and fast linker configuration.
-
 [profile.dev]
 opt-level = 0
 
 [profile.release]
 opt-level = 3
-lto = "thin"
+lto = "fat"
 codegen-units = 1
-strip = "debuginfo"
+panic = "unwind"
+strip = "symbols"
 
 [profile.release-full]
 opt-level = 3
@@ -67,14 +140,12 @@ codegen-units = 1
 strip = true
 inherits = "release"
 
-# For benchmarks - optimized but with symbols
 [profile.bench]
 opt-level = 3
 debug = true
 
 # ─── cargo-mutants configuration ─────────────────────────────────────────────
 [workspace.metadata.cargo-mutants]
-# Skip example crates and generated code from mutation testing
 exclude_re = [
     "^examples/",
     "^src/generated/",
