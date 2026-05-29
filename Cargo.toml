@@ -62,7 +62,6 @@ default = ["cli", "persistence"]
 cli = ["dep:clap", "dep:anyhow", "dep:colored"]
 persistence = ["dep:libsql"]
 parallel = ["dep:rayon"]
-wasm = []
 
 [lints.rust]
 missing_docs = "allow"
@@ -135,7 +134,7 @@ strip = "symbols"
 opt-level = 3
 lto = true
 codegen-units = 1
-strip = true
+strip = "symbols"
 inherits = "release"
 
 [profile.bench]

@@ -71,7 +71,6 @@ The template demonstrates composable feature flags for pluggable backends:
 | `cli`   | CLI binary support (clap, anyhow, colored) | Yes |
 | `persistence` | Persistence backend (libsql) | Yes |
 | `parallel` | CPU parallelism (rayon) | No |
-| `wasm`  | WASM build target | No |
 
 ## Benchmarks
 
