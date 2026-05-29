@@ -199,7 +199,9 @@ jobs:
         run: cargo bench --workspace -- --output-format bencher 2>&1 | tee bench-output.txt
       - name: Parse and append bench results
         run: |
-          python3 scripts/parse_bench.py bench-output.txt ${{ github.sha }} $(date -u +%Y-%m-%dT%H:%M:%SZ) >> benchmarks/history.jsonl
+          python3 scripts/parse_bench.py bench-output.txt \
+            ${{ github.sha }} $(date -u +%Y-%m-%dT%H:%M:%SZ) \
+            >> benchmarks/history.jsonl
       - name: Upload benchmark history
         uses: actions/upload-artifact@v4
         with:
