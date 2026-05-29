@@ -12,6 +12,7 @@ on:
 permissions:
   contents: write
   packages: write
+  issues: write
   id-token: write  # for OIDC Trusted Publishing
 
 env:
@@ -61,3 +62,57 @@ jobs:
         run: cargo publish --no-verify
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  # Post-release health check (DORA FDRT)
+  post-release-check:
+    name: Post-Release Health Check
+    needs: [publish]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        id: build
+        run: cargo build --release --workspace
+
+      - name: Smoke test - verify binary runs
+        id: smoke
+        run: |
+          ./target/release/sample-app --version
+
+      - name: Record FDRT start time on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tagName = "${{ github.ref_name }}";
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Release ${tagName} failed post-release health check`,
+              body: [
+                '## Release Health Check Failed',
+                '',
+                `**Release:** ${tagName}`,
+                `**Failed at:** ${new Date().toISOString()}`,
+                `**Workflow run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                '',
+                '## Required Actions',
+                '1. Identify the regression (check workflow logs above)',
+                '2. Create a `hotfix/*` branch and fix the issue',
+                '3. Record recovery time by closing this issue with a comment: `Recovered at: YYYY-MM-DDTHH:MM:SSZ`',
+                '',
+                '## DORA FDRT Tracking',
+                'Time to detect: automatically recorded above.',
+                'Time to recover: close this issue when the hotfix is deployed.',
+                '',
+                'Labels: `hotfix`, `release-failure`'
+              ].join('\n'),
+              labels: ['hotfix', 'release-failure'],
+            });
+            core.setFailed(`Post-release check failed. Issue created: ${issue.data.html_url}`);

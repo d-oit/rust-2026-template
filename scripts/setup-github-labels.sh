@@ -103,6 +103,8 @@ label "ci: improvement"   "0075ca" "CI pipeline improvement or speed-up"
 label "release:patch"     "0e8a16" "Trigger: bump patch version on merge (automated)"
 label "release: breaking" "b60205" "Contains a breaking API change"
 label "release: skip"     "cccccc" "Exclude this PR from release notes"
+label "release-failure"   "dc2626" "Tracks a failed release — close when recovered (used for DORA FDRT)"
+label "hotfix"            "d73a4a" "Critical fix for a production issue"
 
 echo ""
 echo "All labels created successfully."

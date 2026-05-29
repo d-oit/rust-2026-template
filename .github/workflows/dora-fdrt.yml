@@ -1,0 +1,56 @@
+---
+name: DORA FDRT Recording
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  record-fdrt:
+    if: contains(github.event.issue.labels.*.name, 'release-failure')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Calculate FDRT
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const created = new Date(issue.created_at);
+            const closed = new Date(issue.closed_at);
+            const diffHours = ((closed - created) / 1000 / 60 / 60).toFixed(2);
+
+            core.summary
+              .addHeading('DORA Failed Deployment Recovery Time (FDRT)')
+              .addTable([
+                [{data: 'Metric', header: true}, {data: 'Value', header: true}],
+                ['Issue #', String(issue.number)],
+                ['Detected At', issue.created_at],
+                ['Recovered At', issue.closed_at],
+                ['FDRT (hours)', diffHours],
+              ])
+              .write();
+
+            console.log(`FDRT: ${diffHours} hours`);
+
+            const metric = {
+              date: new Date().toISOString().split('T')[0],
+              metric: "fdrt",
+              issue: issue.number,
+              detected_at: issue.created_at,
+              recovered_at: issue.closed_at,
+              fdrt_hours: parseFloat(diffHours)
+            };
+
+            const fs = require('fs');
+            fs.writeFileSync('dora-metrics.jsonl', JSON.stringify(metric) + '\n');
+
+      - name: Upload DORA Metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: dora-metrics-fdrt-${{ github.event.issue.number }}
+          path: dora-metrics.jsonl
