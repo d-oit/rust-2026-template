@@ -100,7 +100,8 @@ jobs:
                 '',
                 `**Release:** ${tagName}`,
                 `**Failed at:** ${new Date().toISOString()}`,
-                `**Workflow run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                `**Workflow run:** ${context.serverUrl}/${context.repo.owner}/` +
+                  `${context.repo.repo}/actions/runs/${context.runId}`,
                 '',
                 '## Required Actions',
                 '1. Identify the regression (check workflow logs above)',
