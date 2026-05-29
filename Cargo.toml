@@ -150,6 +150,16 @@ rmcp = { version = "=0.3.2", features = ["server", "macros"] }
 [profile.dev]
 opt-level = 0
 
+# Optimised release: maximum runtime performance at the cost of build time.
+# - lto = "fat"       — Full cross-crate link-time optimisation; slower builds,
+#                        smaller and faster binaries. Use "thin" for faster CI
+#                        iterations during development.
+# - codegen-units = 1 — Maximises inlining across modules; hurts parallelism.
+# - panic = "unwind"  — Keeps stack unwinding (required for catch_unwind in
+#                        libraries). Switch to "abort" for binaries when you
+#                        don't need panic handling — cuts binary size ~10 %.
+# - strip = "symbols" — Remove all symbol info; use "debuginfo" if you need
+#                        production backtraces.
 [profile.release]
 opt-level = 3
 lto = "fat"
@@ -157,6 +167,8 @@ codegen-units = 1
 panic = "unwind"
 strip = "symbols"
 
+# Alias for release with the same settings — kept for backward compatibility
+# with tooling that references "release-full".
 [profile.release-full]
 opt-level = 3
 lto = true
