@@ -27,6 +27,8 @@
 ├── GEMINI.md            # Gemini-specific reference (@AGENTS.md)
 ├── QWEN.md              # Qwen-specific reference (@AGENTS.md)
 ├── llms.txt             # LLM context file (machine-readable project overview)
+├── llms-full.txt        # Full LLM context (auto-generated)
+├── VERSION              # Plain-text version file (single source of truth)
 └── Cargo.toml           # Workspace manifest
 ```
 
@@ -74,7 +76,7 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - **Lints:** Zero `clippy` warnings allowed. Do not suppress warnings without extreme justification.
 - **Concurrency:** Prefer `tokio` for async logic. Avoid blocking calls in async contexts.
 - **Error Handling:** Use `thiserror` for libraries and `anyhow` for applications/binaries.
-- **Safety:** `#![forbid(unsafe_code)]` is strictly enforced. No `unwrap()` in library code.
+- **Safety:** `unsafe_code = "forbid"` is enforced at the manifest level. No `unwrap()` in library code.
 - **Documentation:** All public items must have `///` doc comments.
 - **Testing:** Use `proptest` for pure functions and `tokio::test` for async logic.
 
@@ -83,6 +85,8 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - **Performance:** Use `mold` linker and optimized dev profiles (see `.cargo/config.toml`).
 - **Security:** Never hardcode secrets; use environment variables or a `.env` file.
 - **Privacy:** Adhere to the `privacy-first` skill to avoid leaking PII.
+- **Context Files:** Regenerate `llms.txt` and `llms-full.txt` after significant architectural changes via `bash scripts/generate-llms-txt.sh`.
+- **Lint Phases:** The lint setup uses a phased approach. Promoted pedantic/nursery lints are Phase A (enabled now). Phase C lints (`missing_errors_doc`, `must_use_candidate`) should be flipped to `warn` before v1.0 release.
 
 ## Cross-References
 

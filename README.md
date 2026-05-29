@@ -58,9 +58,71 @@ This template is designed for Rust developers who want to start new projects wit
 
 The project enforces high standards through a multi-layered verification process:
 
-- **CI Pipeline:** Automatically runs formatting checks, Clippy lints, tests, security audits (`cargo-audit`), and supply chain checks (`cargo-deny`) on every PR.
+- **CI Pipeline:** Automatically runs formatting checks, Clippy lints, tests, security audits (`cargo-audit`), supply chain checks (`cargo-deny`), benchmarks compile-check, and VERSION consistency checks on every PR.
 - **Local Gates:** Run `./scripts/quality-gates.sh` before committing to mirror the CI checks locally.
 - **Mutation Testing:** Periodic runs of `cargo-mutants` verify that your tests actually catch bugs.
+
+## Feature Flags
+
+The template demonstrates composable feature flags for pluggable backends:
+
+| Feature | Description | Enabled by default |
+|---------|-------------|-------------------|
+| `cli`   | CLI binary support (clap, anyhow, colored) | Yes |
+| `persistence` | Persistence backend (libsql) | Yes |
+| `parallel` | CPU parallelism (rayon) | No |
+| `wasm`  | WASM build target | No |
+
+## Benchmarks
+
+The template provides a two-layer benchmark structure:
+
+- **`benches/`**: Standard Criterion harnesses at the crate root
+- **`benchmarks/`**: A separate workspace crate for complex, cross-crate benchmark suites
+
+Run benchmarks with:
+
+```bash
+cargo bench -p benchmarks
+```
+
+## Fuzz Testing
+
+A fuzz testing scaffold is included using `cargo-fuzz`:
+
+```bash
+# Install cargo-fuzz (nightly required)
+cargo install cargo-fuzz
+
+# Run fuzz targets
+cargo fuzz run fuzz_parse_input -- -max_total_time=30
+```
+
+The fuzzer runs weekly via GitHub Actions (`.github/workflows/fuzz.yml`).
+
+## AI Assistant Context Files
+
+This template ships structured context files for AI coding assistants:
+
+- **`llms.txt`**: Condensed project overview for token-efficient LLM context
+- **`llms-full.txt`**: Complete source context for deep analysis (auto-generated)
+
+Regenerate both files after significant architectural changes:
+
+```bash
+bash scripts/generate-llms-txt.sh
+```
+
+## VERSION File
+
+A `VERSION` file at the repo root serves as a plain-text single source of truth for tooling that can't easily parse TOML:
+
+```bash
+VERSION=$(cat VERSION)
+echo "Building version $VERSION"
+```
+
+The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to main.
 
 ## Customization Guidance
 

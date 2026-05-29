@@ -179,6 +179,54 @@ jobs:
       - uses: EmbarkStudios/cargo-deny-action@v2
 
   # ───────────────────────────────────────────────────
+  # Benchmarks compile-check
+  bench:
+    name: Benchmarks (compile-check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - name: Enable sccache
+        uses: mozilla-actions/sccache-action@v0.0.10
+      - name: Install mold linker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mold
+      - name: Compile-check benchmarks
+        run: cargo bench -p benchmarks --no-run
+
+  # ───────────────────────────────────────────────────
+  # VERSION consistency check
+  version-check:
+    name: VERSION consistency check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check VERSION matches Cargo.toml
+        run: |
+          VERSION=$(cat VERSION)
+          CARGO_VERSION=$(awk '
+            /^\[workspace\.package\]/ { in_section=1; next }
+            /^\[/                     { in_section=0 }
+            in_section && /^version[[:space:]]*=/ {
+              match($0, /"([0-9]+\.[0-9]+\.[0-9]+)"/, arr)
+              if (arr[1] != "") { print arr[1]; exit }
+            }
+          ' Cargo.toml)
+          if [ "$VERSION" != "$CARGO_VERSION" ]; then
+            echo "VERSION mismatch: VERSION=$VERSION, Cargo.toml=$CARGO_VERSION"
+            exit 1
+          fi
+          echo "VERSION ($VERSION) matches Cargo.toml"
+      - name: Check llms.txt is current
+        run: |
+          bash scripts/generate-llms-txt.sh
+          git diff --exit-code llms.txt || (echo "llms.txt is stale, run scripts/generate-llms-txt.sh" && exit 1)
+
+  # ───────────────────────────────────────────────────
   # Minimal versions check - ensures deps work with oldest allowed versions
   msrv:
     name: MSRV Check
@@ -200,7 +248,7 @@ jobs:
   # Final gate - must pass for merge
   ci-success:
     name: CI Success
-    needs: [lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, msrv]
+    needs: [lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -214,6 +262,8 @@ jobs:
                  "${{ needs.test.result }}" != "success" ||
                  "${{ needs.security.result }}" != "success" ||
                  "${{ needs.deny.result }}" != "success" ||
+                 "${{ needs.bench.result }}" != "success" ||
+                 "${{ needs.version-check.result }}" != "success" ||
                  "${{ needs.msrv.result }}" != "success" ]]; then
             echo "One or more CI jobs failed"
             exit 1
