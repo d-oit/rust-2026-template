@@ -79,6 +79,11 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - **Safety:** `unsafe_code = "forbid"` is enforced at the manifest level. No `unwrap()` in library code.
 - **Documentation:** All public items must have `///` doc comments.
 - **Testing:** Use `proptest` for pure functions and `tokio::test` for async logic.
+- **Lint Phases:** The lint setup uses a phased approach:
+  - **Phase A (Active):** High-signal lints enabled immediately: `float_cmp`, `significant_drop_tightening`, `cast_precision_loss`, `cast_possible_truncation`, `redundant_clone`, `map_unwrap_or`, `unnecessary_map_or`, `missing_const_for_fn`. Fix all warnings from these lints before merging.
+  - **Phase B:** Enable when codebase is stable enough to fix all violations systematically.
+  - **Phase C (Pre-release):** Enable `missing_errors_doc` and `must_use_candidate` before v1.0 public release or crates.io publish. Flip from `allow` to `warn` in `[lints.clippy]`.
+  - When adding new lints, always document the phase and rationale inline in `Cargo.toml`.
 
 ## Core Invariants
 
