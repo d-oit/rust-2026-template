@@ -105,5 +105,6 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 | Code Structure | `agents-docs/structure.md` |
 | Coding Conventions | `agents-docs/conventions.md` |
 | Workflow Details | `agents-docs/workflow.md` |
+| DORA Metrics | `agents-docs/dora-metrics.md` |
 | Architecture | `plans/adr/` |
 | Skills Directory | `.agents/skills/` |
