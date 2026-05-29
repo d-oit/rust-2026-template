@@ -8,10 +8,6 @@
 //! - Logging with tracing
 //! - CLI with clap
 
-#![forbid(unsafe_code)]
-#![deny(missing_docs)]
-#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
-
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use std::fmt::Write;

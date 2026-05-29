@@ -10,13 +10,7 @@ homepage.workspace = true
 documentation.workspace = true
 readme = "README.md"
 description = "Example crate in the rust-2026-template workspace"
+include = ["/src", "README.md", "LICENSE"]
 
 [dependencies]
-# Add workspace dependencies like:
-# tokio = { workspace = true }
-# serde = { workspace = true }
-# thiserror = { workspace = true }
-
-[dev-dependencies]
-# tokio-test = { workspace = true }
 proptest = { workspace = true }

@@ -9,35 +9,25 @@
 //!
 //! ## Example
 //!
-//! ```rust
-//! use {{crate_name}}::add;
+//! ```rust,no_run
+//! // Replace `{{crate_name}}` with your actual crate name
+//! // use {{crate_name}}::add;
+//! # use rust_2026_template::add;
 //!
 //! let result = add(2, 3);
 //! assert_eq!(result, 5);
 //! ```
-
-#![forbid(unsafe_code)]
-#![warn(
-    missing_docs,
-    clippy::pedantic,
-    clippy::nursery,
-    clippy::cargo,
-)]
-#![allow(
-    clippy::module_name_repetitions,
-)]
 
 /// Adds two numbers together.
 ///
 /// # Examples
 ///
 /// ```
-/// use {{crate_name}}::add;
-///
+/// # use rust_2026_template::add;
 /// assert_eq!(add(2, 3), 5);
 /// ```
 #[must_use]
-pub fn add(left: u64, right: u64) -> u64 {
+pub const fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 

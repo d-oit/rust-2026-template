@@ -10,6 +10,7 @@ homepage.workspace = true
 documentation.workspace = true
 readme = "README.md"
 description = "Sample application demonstrating the rust-2026-template"
+include = ["/src", "README.md", "LICENSE"]
 
 [[bin]]
 name = "sample-app"
