@@ -17,7 +17,8 @@ on:
 jobs:
   track-hotfix:
     if: |
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true &&
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.merged == true &&
        (contains(github.event.pull_request.labels.*.name, 'hotfix') ||
         contains(github.event.pull_request.labels.*.name, 'rework'))) ||
       (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/hotfix/'))
@@ -46,7 +47,8 @@ jobs:
             core.summary
               .addHeading('⚠️ Hotfix/Rework Detected')
               .addRaw(`This contribution is classified as a **${event.type}** ` +
-                     `and will count toward the **Change Failure Rate** DORA metric.`)
+                     `and will count toward the **Change Failure Rate** ` +
+                     `DORA metric.`)
               .write();
 
             const fs = require('fs');

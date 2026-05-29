@@ -36,14 +36,14 @@ jobs:
       - name: Detect Release Type
         id: release-type
         run: |
-          # Check if the tag or branch contains 'hotfix' or if the last commit message mentions it
-          if [[ "${{ github.ref }}" == *"hotfix"* ]] || \
-             git log --oneline -1 | grep -qi 'hotfix\|regression\|critical'; then
+          # Check if tag/branch or last commit message mentions hotfix/regression/critical
+          TAG_OR_BRANCH="${{ github.ref }}"
+          MSG=$(git log --oneline -1)
+          if [[ "$TAG_OR_BRANCH" == *"hotfix"* ]] || \
+             echo "$MSG" | grep -qi 'hotfix\|regression\|critical'; then
             echo "type=hotfix" >> $GITHUB_OUTPUT
-            echo "Release type: hotfix"
           else
             echo "type=regular" >> $GITHUB_OUTPUT
-            echo "Release type: regular"
           fi
 
       - uses: dtolnay/rust-toolchain@stable
@@ -68,11 +68,12 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const type = '${{ steps.release-type.outputs.type }}';
             const event = {
               date: new Date().toISOString().split('T')[0],
-              metric: '${{ steps.release-type.outputs.type == 'hotfix' && 'change_failure' || 'deployment' }}',
+              metric: type === 'hotfix' ? 'change_failure' : 'deployment',
               release: context.ref.replace('refs/tags/', ''),
-              type: '${{ steps.release-type.outputs.type }}',
+              type: type,
               triggered_by: context.actor,
             };
 
