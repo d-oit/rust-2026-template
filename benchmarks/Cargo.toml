@@ -1,0 +1,19 @@
+[package]
+name = "benchmarks"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[dependencies]
+rust-2026-template = { path = ".." }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[[bench]]
+name = "end_to_end"
+harness = false
+
+[[bench]]
+name = "memory_usage"
+harness = false
