@@ -6,5 +6,5 @@ publish = false
 license = "MIT"
 
 [dependencies]
-example-crate = { path = "../../crates/example-crate", version = "0.1.0" }
+example-crate = { path = "../../crates/example-crate", version = "0.0.0" }
 anyhow = "1.0"
