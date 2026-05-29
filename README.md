@@ -71,6 +71,10 @@ The template demonstrates composable feature flags for pluggable backends:
 | `cli`   | CLI binary support (clap, anyhow, colored) | Yes |
 | `persistence` | Persistence backend (libsql) | Yes |
 | `parallel` | CPU parallelism (rayon) | No |
+| `wasm` | WASM build target support | No |
+| `mcp` | MCP server support (requires cli) | No |
+| `tracing-json` | JSON tracing output | No |
+| `tracing-opentelemetry` | OpenTelemetry tracing backend | No |
 
 ## Benchmarks
 
