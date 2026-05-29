@@ -8,7 +8,7 @@ resolver = "3"
 exclude = ["fuzz"]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.0.0"
 edition = "2024"
 rust-version = "1.87"
 license = "MIT"
@@ -19,7 +19,6 @@ documentation = "https://docs.rs/your-crate"
 readme = "README.md"
 include = [
     "/src",
-    "/benches",
     "/examples",
     "/tests",
     "/benchmarks",
@@ -42,7 +41,6 @@ readme = "README.md"
 description = "A production-ready Rust workspace template with modern tooling, CI/CD, and AI agent integration"
 include = [
     "/src",
-    "/benches",
     "/examples",
     "/tests",
     "README.md",
@@ -148,5 +146,4 @@ debug = true
 [workspace.metadata.cargo-mutants]
 exclude_re = [
     "^examples/",
-    "^src/generated/",
 ]

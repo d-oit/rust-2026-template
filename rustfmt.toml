@@ -11,7 +11,7 @@ use_field_init_shorthand = true
 use_try_shorthand = true
 
 # Comments
-wrap_comments = true
+# Removed: wrap_comments = true — unstable option
 
 # Misc
 newline_style = "Unix"
