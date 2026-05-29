@@ -56,12 +56,32 @@ anyhow = { workspace = true, optional = true }
 colored = { workspace = true, optional = true }
 libsql = { workspace = true, optional = true }
 rayon = { workspace = true, optional = true }
+rmcp = { workspace = true, optional = true }
+tracing-opentelemetry = { workspace = true, optional = true }
+opentelemetry = { workspace = true, optional = true }
+tracing-subscriber = { workspace = true, optional = true }
+
+# Native-only heavy deps
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+
+# WASM-specific deps
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { workspace = true, optional = true }
+tokio = { workspace = true, features = ["rt", "macros"] }
+wasm-bindgen = { workspace = true, optional = true }
+wasm-bindgen-futures = { workspace = true, optional = true }
+console_error_panic_hook = { workspace = true, optional = true }
 
 [features]
 default = ["cli", "persistence"]
 cli = ["dep:clap", "dep:anyhow", "dep:colored"]
 persistence = ["dep:libsql"]
 parallel = ["dep:rayon"]
+wasm = []
+mcp = ["dep:rmcp", "cli"]
+tracing-json = ["tracing-subscriber/json"]
+tracing-opentelemetry = ["dep:tracing-opentelemetry", "dep:opentelemetry"]
 
 [lints.rust]
 missing_docs = "allow"
@@ -118,6 +138,13 @@ colored = "3"
 libsql = { version = "0.9", default-features = false }
 rayon = "1"
 criterion = { version = "0.5", features = ["html_reports"] }
+getrandom = { version = "0.4", features = ["wasm_js"] }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+console_error_panic_hook = "0.1"
+tracing-opentelemetry = "0.33"
+opentelemetry = "0.32"
+rmcp = { version = "=0.3.2", features = ["server", "macros"] }
 
 # ─── Build profiles ───────────────────────────────────────────────────────────
 [profile.dev]
