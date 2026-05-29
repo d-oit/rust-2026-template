@@ -8,10 +8,6 @@
 //! - Logging with tracing
 //! - CLI with clap
 
-#![forbid(unsafe_code)]
-#![deny(missing_docs)]
-#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
-
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use std::fmt::Write;
@@ -266,7 +262,7 @@ fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
         for (ones, o_str) in DIGITS_TABLE.iter().enumerate() {
             let i = tens * 100 + ones;
             if i == 0 {
-                continue;
+                continue; // continues inner loop; `break 'outer` below
             }
             if i > fast_count {
                 break 'outer;

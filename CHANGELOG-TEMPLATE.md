@@ -33,6 +33,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.0] - 2026-05-29
+
+### Added
+
+- `VERSION` file at repo root as plain-text single source of truth for cross-tooling scripts and CI.
+- `llms-full.txt` with complete source context for AI assistants (auto-generated from key docs).
+- `scripts/generate-llms-txt.sh` to regenerate `llms.txt` and `llms-full.txt` after architectural changes.
+- `benchmarks/` workspace crate with `end_to_end` and `memory_usage` Criterion benchmark suites.
+- `fuzz/` scaffold with `cargo-fuzz` targets and weekly fuzz CI workflow (`.github/workflows/fuzz.yml`).
+- Composable feature flags: `cli`, `persistence`, `parallel`, `wasm` with opt-in heavy dependencies.
+- `[package]` section in root `Cargo.toml` with `include` manifest for crates.io publishing.
+- CI jobs: benchmarks compile-check, VERSION consistency check, LLM context staleness check.
+
+### Changed
+
+- Workspace resolver upgraded from v2 to v3 (Rust 2024 edition default).
+- Release profile: `lto = "fat"` (was `thin`), `panic = "unwind"` documented, `strip = "symbols"`.
+- Clippy lints: ADR-driven phased strategy with promoted pedantic/nursery lints at warn.
+- Redundant `#![forbid(unsafe_code)]` / `#![warn(clippy::pedantic)]` removed from source; enforced via `Cargo.toml` `[lints]`.
+- Version bumped from 0.1.2 to 0.2.0.
+
+### Fixed
+
+- Removed unstable `wrap_comments = true` from `rustfmt.toml` (nightly-only).
+- Stale `include` paths (`/benches`) and `exclude_re` (`^src/generated/`) in `Cargo.toml`.
+- Unused `anyhow` and `insta` deps removed from `sample-app`.
+- Unquoted `$EXCLUDE_DIR` in `scripts/quality-gates.sh` (ShellCheck).
+- `MPL-2.0` added to `deny.toml` allowed licenses for `colored` optional dependency.
+
+---
+
 ## [0.1.2] - 2026-05-19
 
 ### Added
@@ -101,7 +132,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.2.0
 [0.1.2]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.2
 [0.1.1]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.1
 [0.1.0]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.0

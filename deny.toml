@@ -39,6 +39,7 @@ allow = [
   "Zlib",
   "BSL-1.0",
   "OpenSSL",
+  "MPL-2.0",
 ]
 # Exceptions for specific crates with special licenses
 # Uncomment and fill in when needed:

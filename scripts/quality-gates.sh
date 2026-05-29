@@ -130,7 +130,7 @@ SECRET_PATTERN="(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space
 EXCLUDE_DIR='--exclude-dir=.git --exclude-dir=target --exclude-dir=.agents'
 EXCLUDE_SECRET='example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN'
 
-if grep -rE $EXCLUDE_DIR "$SECRET_PATTERN" . 2>/dev/null | grep -vE "$EXCLUDE_SECRET"; then
+if grep -rE "$SECRET_PATTERN" $EXCLUDE_DIR . 2>/dev/null | grep -vE "$EXCLUDE_SECRET"; then
   fail "Potential secret detected in codebase. Please use environment variables instead."
 else
   pass "Secret Scan: OK"

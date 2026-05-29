@@ -35,6 +35,7 @@ dist/
 # cargo-fuzz artifacts
 fuzz/corpus/
 fuzz/artifacts/
+fuzz/coverage/
 
 # Flamegraph output
 flamegraph.svg
