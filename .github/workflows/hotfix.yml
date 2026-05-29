@@ -2,13 +2,13 @@
 # .github/workflows/hotfix.yml
 #
 # Track hotfix events for Change Failure Rate (CFR) DORA metric.
-# Triggered when 'hotfix' or 'rework' label is applied to a PR, or on hotfix/* branch pushes.
+# Records events when hotfix/rework PRs are merged or on hotfix/* branch pushes.
 
 name: Hotfix Tracking
 
 on:
   pull_request:
-    types: [labeled]
+    types: [closed]
     branches: [main]
   push:
     branches:
@@ -17,10 +17,10 @@ on:
 jobs:
   track-hotfix:
     if: |
-      (github.event_name == 'pull_request' &&
-       (contains(github.event.label.name, 'hotfix') || contains(github.event.label.name, 'rework'))) ||
-      (github.event_name == 'push' &&
-       startsWith(github.ref, 'refs/heads/hotfix/'))
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true &&
+       (contains(github.event.pull_request.labels.*.name, 'hotfix') ||
+        contains(github.event.pull_request.labels.*.name, 'rework'))) ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/hotfix/'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,10 +29,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const labels = context.payload.pull_request?.labels.map(l => l.name) || [];
+            const type = labels.includes('rework') ? 'rework' : 'hotfix';
+
             const event = {
               date: new Date().toISOString().split('T')[0],
               metric: 'change_failure',
-              type: context.payload.label?.name ?? 'hotfix',
+              type: type,
               pr: context.payload.pull_request?.number ?? null,
               branch: context.ref,
               triggered_by: context.actor,
@@ -42,7 +45,8 @@ jobs:
 
             core.summary
               .addHeading('⚠️ Hotfix/Rework Detected')
-              .addRaw(`This contribution is classified as a **${event.type}** and will count toward the **Change Failure Rate** DORA metric.`)
+              .addRaw(`This contribution is classified as a **${event.type}** ` +
+                     `and will count toward the **Change Failure Rate** DORA metric.`)
               .write();
 
             const fs = require('fs');

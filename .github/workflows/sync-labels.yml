@@ -71,8 +71,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh label create "hotfix" --color "e11d48" --description "Emergency fix for a failed release — counts toward Change Failure Rate" --force || true
-          gh label create "rework" --color "f97316" --description "Unplanned deployment to remediate a production issue" --force || true
+          gh label create "hotfix" --color "e11d48" \
+            --description "Emergency fix for a failed release — counts toward Change Failure Rate" || \
+          gh label edit "hotfix" --color "e11d48" \
+            --description "Emergency fix for a failed release — counts toward Change Failure Rate"
+          gh label create "rework" --color "f97316" \
+            --description "Unplanned deployment to remediate a production issue" || \
+          gh label edit "rework" --color "f97316" \
+            --description "Unplanned deployment to remediate a production issue"
 
       # ── Run the learning script ─────────────────────────────────────────────
       - name: Learn and sync labels
