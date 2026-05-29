@@ -119,6 +119,27 @@ This is a **generic Rust template**, not a standalone application. Changes shoul
 - Keep the `example-crate` as a minimal, illustrative placeholder
 - Be documented in `CHANGELOG.md`
 
+### Publishing to crates.io
+
+Every publishable crate **must** define an `include` whitelist in its `Cargo.toml`
+to prevent internal files (plans, agent docs, scripts, CI config) from ending up in
+the published package. The template already sets this up via `[workspace.package]`:
+
+```toml
+include = ["/src", "README.md", "LICENSE"]
+```
+
+When you create a new crate, verify the publish surface is correct:
+
+```bash
+cargo package --list -p your-crate
+```
+
+The output should **not** contain `plans/`, `agents-docs/`, `scripts/`, `.github/`,
+`.agents/`, or `.opencode/`. See
+[Cargo manifest include field](https://doc.rust-lang.org/cargo/reference/manifest.html#the-include-and-exclude-fields)
+for details.
+
 ## Reporting Issues
 
 Open an issue at: <https://github.com/d-oit/rust-2026-template/issues>

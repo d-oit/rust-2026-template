@@ -117,6 +117,10 @@ When using this template, always rename `example-crate` before first publish:
 - Rust toolchain pinned to `1.87` (was `1.85`)
 - `cargo-deny` v2 syntax in `deny.toml`
 - New required skills: `crates-io-name-check` in release workflow
+- **Release profile updated:** `lto` changed from `"thin"` to `"fat"` for maximum
+  runtime performance. `panic = "unwind"` and `strip = "symbols"` are now explicit.
+  If you had overridden the release profile, review your settings against the new
+  defaults. Use `lto = "thin"` during development for faster builds.
 
 ### v0.1.0
 
