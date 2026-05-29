@@ -17,7 +17,8 @@ feature-depth = 1
 version = 2
 # Deny crates with security vulnerabilities
 ignore = [
-  # Example: { id = "RUSTSEC-2023-0001", reason = "not affected by this" }
+  # paste is unmaintained but is a transitive dep of rmcp (MCP SDK); no replacement available yet
+  { id = "RUSTSEC-2024-0436", reason = "paste is a transitive dep of rmcp; no drop-in replacement" },
 ]
 
 # ============================================================
