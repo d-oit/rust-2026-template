@@ -260,17 +260,24 @@ fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
     // Bolt: Split loop to remove branch and dynamic capacity check from hot loop
     let fast_count = count.min(9999);
 
-    for i in 1..=fast_count {
-        // Bolt: Use a lookup table for two-digit formatting to reduce division/remainder
-        // operations and improve string construction performance in the hot loop.
-        let idx1 = i / 100;
-        let idx2 = i % 100;
+    // Bolt: Use nested loops to eliminate redundant division/remainder operations
+    // when accessing the DIGITS_TABLE in the hot loop.
+    'outer: for (tens, t_str) in DIGITS_TABLE.iter().enumerate() {
+        for (ones, o_str) in DIGITS_TABLE.iter().enumerate() {
+            let i = tens * 100 + ones;
+            if i == 0 {
+                continue;
+            }
+            if i > fast_count {
+                break 'outer;
+            }
 
-        let mut s = String::with_capacity(9);
-        s.push_str("item-");
-        s.push_str(DIGITS_TABLE[idx1]);
-        s.push_str(DIGITS_TABLE[idx2]);
-        items.push(s);
+            let mut s = String::with_capacity(9);
+            s.push_str("item-");
+            s.push_str(t_str);
+            s.push_str(o_str);
+            items.push(s);
+        }
     }
 
     // Bolt: Handle boundary cases separately
