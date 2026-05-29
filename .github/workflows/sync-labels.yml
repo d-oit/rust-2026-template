@@ -66,6 +66,14 @@ jobs:
           echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
           echo "Lookback: $DAYS days | Dry-run: $DRY_RUN"
 
+      # ── Ensure mandatory DORA labels exist ──────────────────────────────────
+      - name: Sync mandatory labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "hotfix" --color "e11d48" --description "Emergency fix for a failed release — counts toward Change Failure Rate" --force || true
+          gh label create "rework" --color "f97316" --description "Unplanned deployment to remediate a production issue" --force || true
+
       # ── Run the learning script ─────────────────────────────────────────────
       - name: Learn and sync labels
         id: sync
