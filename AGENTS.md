@@ -51,7 +51,7 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 
 ## Change Workflow
 
-1. **Discover:** Read existing code patterns and module structure.
+1. **Discover:** Read existing code patterns, module structure, and `ci-summary.md` to ensure a healthy baseline.
 2. **Plan:** Identify affected files and required test coverage.
 3. **Test-First:** Add or update tests before implementing logic (TDD).
 4. **Implement:** Write code adhering to project conventions.
@@ -69,6 +69,7 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - [ ] `cargo build --workspace`
 - [ ] `cargo nextest run --workspace`
 - [ ] `./scripts/quality-gates.sh`
+- [ ] Check `ci-summary.md` for current CI status
 
 ## Code Conventions
 
