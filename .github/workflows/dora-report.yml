@@ -2,8 +2,8 @@
 name: Monthly DORA Report
 on:
   schedule:
-    - cron: '0 0 * * 1' # Every Monday (to ensure it runs the first Monday)
-  workflow_dispatch: # Allow manual triggering
+    - cron: '0 0 * * 1'  # Every Monday (to ensure it runs the first Monday)
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   dora-report:

@@ -28,6 +28,7 @@ delivery performance metrics and three DORA agentic metrics from available data 
 ## Steps
 
 ### 1. Fetch Deployment Frequency data from GitHub API
+
 ```bash
 gh api "/repos/{owner}/{repo}/releases" --paginate \
   --jq '[.[] | {tag: .tag_name, published: .published_at}]' \
@@ -35,6 +36,7 @@ gh api "/repos/{owner}/{repo}/releases" --paginate \
 ```
 
 ### 2. Fetch PR Lead Time data
+
 ```bash
 gh api "/repos/{owner}/{repo}/pulls?state=closed&base=main" --paginate \
   --jq '[.[] | select(.merged_at != null) | {pr: .number, created: .created_at, merged: .merged_at}]' \
@@ -42,6 +44,7 @@ gh api "/repos/{owner}/{repo}/pulls?state=closed&base=main" --paginate \
 ```
 
 ### 3. Run the compute script
+
 ```bash
 python3 .agents/skills/dora-report/scripts/compute_dora.py \
   --releases /tmp/releases.json \
@@ -55,13 +58,16 @@ python3 .agents/skills/dora-report/scripts/compute_dora.py \
 ```
 
 ### 4. Review and commit the report
+
 ```bash
 git add DORA-REPORT.md
 git commit -m "docs(dora): update DORA-REPORT.md [skip ci]"
 ```
 
 ### 5. Log the report generation in metrics.jsonl
+
 Append to `.agents/metrics.jsonl`:
+
 ```bash
 echo '{"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","agent":"claude","skill":"dora-report","task_description":"Generated monthly DORA report","success":true,"human_interventions":0}' >> .agents/metrics.jsonl
 ```
