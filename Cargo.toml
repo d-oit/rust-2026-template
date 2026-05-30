@@ -50,6 +50,9 @@ include = [
     "VERSION",
 ]
 
+[lints]
+workspace = true
+
 [dependencies]
 clap = { workspace = true, optional = true }
 anyhow = { workspace = true, optional = true }
@@ -83,12 +86,12 @@ mcp = ["dep:rmcp", "cli"]
 tracing-json = ["tracing-subscriber/json"]
 tracing-opentelemetry = ["dep:tracing-opentelemetry", "dep:opentelemetry"]
 
-[lints.rust]
+[workspace.lints.rust]
 missing_docs = "allow"
 unsafe_code = "forbid"
 dead_code = "allow"
 
-[lints.clippy]
+[workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
 pedantic = { level = "allow", priority = -1 }
 nursery = { level = "allow", priority = -1 }
