@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "skills": [
+    {
+      "name": "dora-report",
+      "path": ".agents/skills/dora-report/SKILL.md",
+      "description": "Generate automated DORA and agentic metrics reports"
+    }
+  ]
+}

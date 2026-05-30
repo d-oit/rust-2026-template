@@ -48,6 +48,7 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 | `skill-creator` | Guidelines for creating new agent skills |
 | `skill-evaluator` | Quality assessment of existing skills |
 | `codacy` | Codacy static analysis and PR triage workflows |
+| `dora-report` | Automated DORA and agentic metrics reporting (run monthly) |
 
 ## Responding to Release Failures
 

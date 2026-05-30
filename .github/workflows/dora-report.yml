@@ -1,0 +1,63 @@
+---
+name: Monthly DORA Report
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Every Monday (to ensure it runs the first Monday)
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  dora-report:
+    # Only run on the first Monday of the month
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0 * * 1'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: '3.10'
+
+      - name: Fetch data from GitHub API
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "/repos/${{ github.repository }}/releases" --paginate \
+            --jq '[.[] | {tag: .tag_name, published: .published_at}]' \
+            > /tmp/releases.json
+          gh api "/repos/${{ github.repository }}/pulls?state=closed&base=main" --paginate \
+            --jq '[.[] | select(.merged_at != null) | {pr: .number, created: .created_at, merged: .merged_at}]' \
+            > /tmp/prs.json
+
+      - name: Generate DORA Report
+        run: |
+          # Handle missing files gracefully
+          touch .agents/metrics.jsonl dora-metrics.jsonl
+
+          python3 .agents/skills/dora-report/scripts/compute_dora.py \
+            --releases /tmp/releases.json \
+            --prs /tmp/prs.json \
+            --agent-metrics .agents/metrics.jsonl \
+            --dora-metrics dora-metrics.jsonl \
+            --template .agents/skills/dora-report/templates/DORA-REPORT.md.jinja \
+            --output DORA-REPORT.md \
+            --period-days 30 \
+            --repo ${{ github.repository }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c  # v6
+        with:
+          commit-message: "docs(dora): update DORA-REPORT.md [skip ci]"
+          title: "docs(dora): monthly DORA performance report update"
+          body: "Automated monthly DORA report generation."
+          branch: "automation/dora-report"
+          base: main
+          labels: |
+            agentic
+            documentation
