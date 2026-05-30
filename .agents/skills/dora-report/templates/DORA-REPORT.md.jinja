@@ -1,0 +1,31 @@
+# DORA Delivery Performance Report
+
+**Generated:** {{ timestamp }}
+**Period:** Last {{ period_days }} days
+**Repository:** {{ repo }}
+
+## Core DORA Metrics
+
+| Metric | Value | Tier |
+|---|---|---|
+| Deployment Frequency | {{ df.per_day }}/day ({{ df.count }} releases) | **{{ df.tier }}** |
+| Change Lead Time | {{ clt.avg_hours }} hours avg | **{{ clt.tier }}** |
+| Change Failure Rate | {{ cfr.rate * 100 }}% ({{ cfr.hotfixes }}/{{ cfr.total }}) | **{{ cfr.tier }}** |
+| Failed Deployment Recovery Time | {{ fdrt.avg_hours }} hours avg | **{{ fdrt.tier }}** |
+
+## Agentic Harness Metrics
+
+| Metric | Value |
+|---|---|
+| Total agent tasks | {{ am.total_tasks }} |
+| Agent success rate | {{ am.success_rate * 100 }}% |
+| Human intervention rate | {{ am.human_intervention_rate * 100 }}% |
+| Avg tokens per task | {{ am.avg_tokens }} |
+
+## DORA Tier Summary
+
+{{ overall_tier_badge }}
+
+## Trend: Last 3 Periods
+
+<!-- Table auto-generated from historical dora-metrics.jsonl -->

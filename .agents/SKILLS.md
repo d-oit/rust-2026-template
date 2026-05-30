@@ -16,6 +16,7 @@ Skills are self-contained and can be followed by Claude Code, Gemini CLI, OpenCo
 | `privacy-first` | [skills/privacy-first/SKILL.md](skills/privacy-first/SKILL.md) | Prevent email/personal data from entering the codebase |
 | `skill-creator` | [skills/skill-creator/SKILL.md](skills/skill-creator/SKILL.md) | Create and optimize new agent skills |
 | `skill-evaluator` | [skills/skill-evaluator/SKILL.md](skills/skill-evaluator/SKILL.md) | Evaluate skill quality with structure checks |
+| `dora-report` | [skills/dora-report/SKILL.md](skills/dora-report/SKILL.md) | Generate automated DORA and agentic metrics reports |
 
 ## Skill Format
 
