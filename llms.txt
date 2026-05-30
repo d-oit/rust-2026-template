@@ -49,6 +49,9 @@ rust-2026-template/
 - `rustfmt.toml` - Code formatting rules
 - `.clippy.toml` - Clippy linting configuration
 - `deny.toml` - Cargo deny configuration
+- `ci-summary.md` - Current CI health status for all jobs
+- `.agents/metrics.jsonl` - Agentic task completion history
+- `benchmarks/history.jsonl` - Performance benchmark history
 
 ### AI Agent Skills
 - `.agents/skills/build-rust/` - Optimized build procedures
@@ -115,6 +118,7 @@ cargo test --doc                   # Run doc tests
 - [ ] `cargo build --workspace`
 - [ ] `cargo nextest run --workspace`
 - [ ] `./scripts/quality-gates.sh`
+- [ ] Consult `ci-summary.md` for current CI health
 
 ## References
 

@@ -48,11 +48,10 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 | `skill-creator` | Guidelines for creating new agent skills |
 | `skill-evaluator` | Quality assessment of existing skills |
 | `codacy` | Codacy static analysis and PR triage workflows |
-| `dora-lead-time` | Measurement and interpretation of Change Lead Time |
 
 ## Change Workflow
 
-1. **Discover:** Read existing code patterns and module structure.
+1. **Discover:** Read existing code patterns, module structure, and `ci-summary.md` to ensure a healthy baseline.
 2. **Plan:** Identify affected files and required test coverage.
 3. **Test-First:** Add or update tests before implementing logic (TDD).
 4. **Implement:** Write code adhering to project conventions.
@@ -70,6 +69,7 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - [ ] `cargo build --workspace`
 - [ ] `cargo nextest run --workspace`
 - [ ] `./scripts/quality-gates.sh`
+- [ ] Check `ci-summary.md` for current CI status
 
 ## Code Conventions
 
@@ -93,9 +93,6 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - **Privacy:** Adhere to the `privacy-first` skill to avoid leaking PII.
 - **Context Files:** Regenerate `llms.txt` and `llms-full.txt` after significant architectural changes via `bash scripts/generate-llms-txt.sh`.
 - **Lint Phases:** The lint setup uses a phased approach. Promoted pedantic/nursery lints are Phase A (enabled now). Phase C lints (`missing_errors_doc`, `must_use_candidate`) should be flipped to `warn` before v1.0 release.
-- **DORA Metrics:** Change Lead Time (PR open → merge) and Change Failure Rate (CFR) are tracked in CI.
-  - Label PRs with `agentic` to enable ROI tracking.
-  - Apply the `hotfix` label when creating emergency fix PRs for production regressions. This helps track the Change Failure Rate.
 
 ## Cross-References
 
