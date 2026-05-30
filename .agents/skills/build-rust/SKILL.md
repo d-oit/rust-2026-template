@@ -64,6 +64,10 @@ cargo nextest run --all-features
 cargo test --doc --all-features
 ```
 
+### 8. Report metrics
+
+Call `metrics-reporter` skill.
+
 ## Success Criteria
 
 - `cargo check` exits 0 with no errors
@@ -95,6 +99,7 @@ See `.cargo/config.toml` for WSL2 disk optimization.
 - `test-rust` - Running the test suite
 - `lint-rust` - Deep lint analysis
 - `release-rust` - Creating releases
+- `metrics-reporter` - Mandatory task completion reporting
 
 ## References
 

@@ -42,6 +42,48 @@ patch).
 A "Hotfix Release" is any release marked with `metric: change_failure` and
 `type: hotfix` in the metrics log.
 
+## Agentic Metrics
+
+**Definition:** Measurement of AI agent performance, ROI, and human collaboration.
+**Tracking:** Logged to `.agents/metrics.jsonl` by agents upon task completion.
+**Workflow:** `.agents/skills/metrics-reporter/`
+
+### Schema
+
+Each record is a single-line JSON object (NDJSON):
+
+```json
+{
+  "timestamp": "2026-05-29T20:00:00Z",
+  "agent": "jules",
+  "skill": "build-rust",
+  "task_description": "Fix clippy warning in src/lib.rs",
+  "pr_number": 95,
+  "success": true,
+  "human_interventions": 0,
+  "tokens_used": 4200,
+  "duration_seconds": 45,
+  "code_reached_production": true,
+  "notes": ""
+}
+```
+
+### Field Definitions
+
+| Field | Type | Description |
+|---|---|---|
+| `timestamp` | ISO 8601 | When the task completed |
+| `agent` | string | Agent identifier (claude, gemini, qwen, jules, opencode) |
+| `skill` | string | Skill from `.agents/skills/` that was used |
+| `task_description` | string | Short description of the task |
+| `pr_number` | int \| null | Associated PR number if applicable |
+| `success` | bool | Did the agent complete the task without human override? |
+| `human_interventions` | int | Number of times a human corrected the agent output |
+| `tokens_used` | int \| null | Token count if available from the agent |
+| `duration_seconds` | int \| null | Task execution time |
+| `code_reached_production` | bool \| null | Whether the resulting code was merged to main |
+| `notes` | string | Free-form notes (e.g., reason for failure) |
+
 ## Measurement and AI Impact
 
 Following the **2025 DORA AI Report**, we actively monitor these metrics to

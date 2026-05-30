@@ -41,6 +41,26 @@ jobs:
         uses: davidanson/markdownlint-cli2-action@v19
         with:
           globs: "**/*.md"
+      - name: Validate agent metrics schema
+        run: |
+          if [ -f .agents/metrics.jsonl ]; then
+            while IFS= read -r line; do
+              if [ -n "$line" ]; then
+                echo "$line" | python3 -c "
+          import sys, json
+          try:
+              d = json.load(sys.stdin)
+              required = ['timestamp','agent','skill','success']
+              for f in required:
+                  assert f in d, f'Missing field: {f}'
+          except Exception as e:
+              print(f'Validation failed: {e}')
+              sys.exit(1)
+          " || exit 1
+              fi
+            done < .agents/metrics.jsonl
+            echo "Agent metrics validation OK"
+          fi
       - name: Commitlint
         if: >
           github.event_name == 'pull_request' &&

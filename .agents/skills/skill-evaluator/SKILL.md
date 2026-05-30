@@ -54,7 +54,15 @@ Flag these issues explicitly:
 - `evals/` exists but `evals/evals.json` is missing or invalid JSON
 - eval cases missing `id`, `prompt`, or `expected_output`
 
-### 2. Eval Review
+### 2. Quantitative Evaluation
+
+Consult `.agents/metrics.jsonl` to assess skill performance over time.
+Analyze trends in:
+- Success rate
+- Human intervention rate
+- Token usage and duration
+
+### 3. Eval Review
 
 Read `evals/evals.json` if present and assess whether each case is realistic.
 
@@ -71,7 +79,7 @@ Weak evals include:
 - purely subjective assertions
 - no evidence path for pass/fail
 
-### 3. Live Run
+### 4. Live Run
 
 Run at least one representative prompt from the eval set or create a focused ad hoc prompt.
 
@@ -82,7 +90,7 @@ For each live run:
 - produce the answer or output
 - grade against assertions with evidence
 
-### 4. Baseline Comparison
+### 5. Baseline Comparison
 
 When useful, rerun the same prompt without the skill or against a snapshot of the older skill.
 
@@ -93,7 +101,7 @@ Compare:
 - format compliance
 - time or token cost if available
 
-### 5. Verdict
+### 6. Verdict
 
 End with one of:
 

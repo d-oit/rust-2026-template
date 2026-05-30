@@ -29,6 +29,10 @@ cargo test --doc --all-features
 cargo llvm-cov nextest --all-features --workspace --html
 ```
 
+### 4. Report metrics
+
+Call `metrics-reporter` skill.
+
 ## Test Organization
 
 ```
@@ -45,7 +49,7 @@ benches/            # Criterion benchmarks
 
 ## Related Skills
 
-- `build-rust`, `lint-rust`, `release-rust`
+- `build-rust`, `lint-rust`, `release-rust`, `metrics-reporter`
 
 ## References
 
