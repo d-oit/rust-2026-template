@@ -105,6 +105,25 @@ If you see an open issue with label `release-failure`:
 - **Context Files:** Regenerate `llms.txt` and `llms-full.txt` after significant architectural changes via `bash scripts/generate-llms-txt.sh`.
 - **Lint Phases:** The lint setup uses a phased approach. Promoted pedantic/nursery lints are Phase A (enabled now). Phase C lints (`missing_errors_doc`, `must_use_candidate`) should be flipped to `warn` before v1.0 release.
 
+## Agentic Metrics Reporting
+
+After completing any task, append a JSON record to `.agents/metrics.jsonl`.
+This is mandatory for all skills and enables DORA agentic harness observability.
+
+### Minimal append command (bash)
+
+```bash
+cat >> .agents/metrics.jsonl << EOF
+{"timestamp":"$(date -u +%Y-%m-%dT%H:%M:%SZ)","agent":"jules","skill":"build-rust","task_description":"...","success":true,"human_interventions":0}
+EOF
+```
+
+### When to set `human_interventions > 0`
+
+- A human had to correct, rewrite, or revert agent-produced code
+- The PR required a fixup commit after agent submission
+- A review comment explicitly called out an agent error
+
 ## Cross-References
 
 | Topic | Document |
