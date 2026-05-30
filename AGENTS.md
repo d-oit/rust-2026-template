@@ -49,6 +49,16 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 | `skill-evaluator` | Quality assessment of existing skills |
 | `codacy` | Codacy static analysis and PR triage workflows |
 
+## Responding to Release Failures
+
+If you see an open issue with label `release-failure`:
+1. This is the **highest priority** task. Stop other work.
+2. Read the workflow logs linked in the issue body.
+3. Create a `hotfix/fix-description` branch.
+4. Apply the minimal fix required to restore functionality.
+5. Open a PR with label `hotfix` (see issue #99 for CFR tracking).
+6. After the PR is merged and re-release succeeds, close the `release-failure` issue with comment: `Recovered at: YYYY-MM-DDTHH:MM:SSZ. FDRT: X.X hours`.
+
 ## Change Workflow
 
 1. **Discover:** Read existing code patterns, module structure, and `ci-summary.md` to ensure a healthy baseline.
@@ -98,6 +108,7 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 
 | Topic | Document |
 |-------|----------|
+| DORA Metrics | `docs/dora-metrics.md` |
 | Detailed Commands | `agents-docs/commands.md` |
 | Code Structure | `agents-docs/structure.md` |
 | Coding Conventions | `agents-docs/conventions.md` |
