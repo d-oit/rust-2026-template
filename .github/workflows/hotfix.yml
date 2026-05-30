@@ -1,0 +1,61 @@
+---
+# .github/workflows/hotfix.yml
+#
+# Track hotfix events for Change Failure Rate (CFR) DORA metric.
+# Records events when hotfix/rework PRs are merged or on hotfix/* branch pushes.
+
+name: Hotfix Tracking
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  push:
+    branches:
+      - 'hotfix/**'
+
+jobs:
+  track-hotfix:
+    if: |
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.merged == true &&
+       (contains(github.event.pull_request.labels.*.name, 'hotfix') ||
+        contains(github.event.pull_request.labels.*.name, 'rework'))) ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/hotfix/'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Record Hotfix Event
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request?.labels.map(l => l.name) || [];
+            const type = labels.includes('rework') ? 'rework' : 'hotfix';
+
+            const event = {
+              date: new Date().toISOString().split('T')[0],
+              metric: 'change_failure',
+              type: type,
+              pr: context.payload.pull_request?.number ?? null,
+              branch: context.ref,
+              triggered_by: context.actor,
+            };
+
+            console.log('Hotfix/Rework event recorded:', JSON.stringify(event));
+
+            core.summary
+              .addHeading('⚠️ Hotfix/Rework Detected')
+              .addRaw(`This contribution is classified as a **${event.type}** ` +
+                     `and will count toward the **Change Failure Rate** ` +
+                     `DORA metric.`)
+              .write();
+
+            const fs = require('fs');
+            fs.writeFileSync('dora-metrics.jsonl', JSON.stringify(event) + '\n');
+
+      - name: Upload DORA Metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: dora-metrics-hotfix-${{ github.run_id }}
+          path: dora-metrics.jsonl

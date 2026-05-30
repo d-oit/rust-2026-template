@@ -93,7 +93,9 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 - **Privacy:** Adhere to the `privacy-first` skill to avoid leaking PII.
 - **Context Files:** Regenerate `llms.txt` and `llms-full.txt` after significant architectural changes via `bash scripts/generate-llms-txt.sh`.
 - **Lint Phases:** The lint setup uses a phased approach. Promoted pedantic/nursery lints are Phase A (enabled now). Phase C lints (`missing_errors_doc`, `must_use_candidate`) should be flipped to `warn` before v1.0 release.
-- **DORA Metrics:** Change Lead Time (PR open → merge) is tracked in CI. Agents should aim for efficiency and label PRs with `agentic` to enable ROI tracking.
+- **DORA Metrics:** Change Lead Time (PR open → merge) and Change Failure Rate (CFR) are tracked in CI.
+  - Label PRs with `agentic` to enable ROI tracking.
+  - Apply the `hotfix` label when creating emergency fix PRs for production regressions. This helps track the Change Failure Rate.
 
 ## Cross-References
 
@@ -103,5 +105,6 @@ Specialized workflows are defined as "skills". Always consult the relevant skill
 | Code Structure | `agents-docs/structure.md` |
 | Coding Conventions | `agents-docs/conventions.md` |
 | Workflow Details | `agents-docs/workflow.md` |
+| DORA Metrics | `agents-docs/dora-metrics.md` |
 | Architecture | `plans/adr/` |
 | Skills Directory | `.agents/skills/` |
