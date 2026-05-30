@@ -12,8 +12,5 @@ readme = "README.md"
 description = "Example crate in the rust-2026-template workspace"
 include = ["/src", "README.md", "LICENSE"]
 
-[lints]
-workspace = true
-
 [dev-dependencies]
 proptest = { workspace = true }
