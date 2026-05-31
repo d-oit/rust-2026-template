@@ -1,7 +1,7 @@
 [toolchain]
 # Pin stable toolchain for reproducible builds.
 # Update regularly: https://releases.rs/
-channel = "1.87"
+channel = "1.88"
 components = [
     "rustfmt",
     "clippy",
