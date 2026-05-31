@@ -17,6 +17,9 @@
 ```text
 .
 ├── .agents/skills/      # AI agent skill definitions (canonical workflows)
+├── .agents/events/      # Per-task event files (conflict-free, append-only)
+├── .agents/aggregated/  # CI-generated metrics summaries (do not hand-edit)
+├── .agents/context/     # Shared workflow state for multi-agent coordination
 ├── .cargo/config.toml   # Cargo linker + profile config
 ├── .config/nextest.toml # nextest profiles
 ├── .github/workflows/   # CI/CD GitHub Actions
@@ -35,6 +38,7 @@
 ## Agent Skills (.agents/skills/)
 
 Specialized workflows are defined as "skills". Always consult the relevant skill's `SKILL.md` for detailed procedures.
+For multi-agent orchestration, skill chaining, and handoff protocol, see **[`.agents/ORCHESTRATION.md`](.agents/ORCHESTRATION.md)**.
 
 | Skill | Purpose |
 |-------|---------|
@@ -107,15 +111,43 @@ If you see an open issue with label `release-failure`:
 
 ## Agentic Metrics Reporting
 
-After completing any task, append a JSON record to `.agents/metrics.jsonl`.
-This is mandatory for all skills and enables DORA agentic harness observability.
+After completing any task, write a **per-event JSON file** to `.agents/events/`. This is conflict-free and supports multiple agents, multiple skills, and multiple tasks running in parallel.
 
-### Minimal append command (bash)
+> ⚠️ **Deprecated:** Do not append directly to `.agents/metrics.jsonl`. That pattern causes Git merge conflicts when multiple agents work in parallel. Use event files instead.
+
+### Write an event file (bash)
 
 ```bash
-cat >> .agents/metrics.jsonl << EOF
-{"timestamp":"$(date -u +%Y-%m-%dT%H:%M:%SZ)","agent":"jules","skill":"build-rust","task_description":"...","success":true,"human_interventions":0}
+# Required: AGENT_NAME, TASK_ID, SKILL_NAME
+# Optional: WORKFLOW_ID, PARENT_TASK_ID, AGENT_TYPE, SKILL_VERSION, PR_NUMBER, NOTES
+
+EVENT_DIR=".agents/events/$(date -u +%Y/%m/%d)"
+mkdir -p "${EVENT_DIR}"
+EVENT_FILE="${EVENT_DIR}/$(date -u +%Y-%m-%dT%H-%M-%SZ)-${AGENT_NAME:-unknown}-${TASK_ID:-$(date -u +%s)}.json"
+
+cat > "${EVENT_FILE}" <<EOF
+{
+  "event_id": "$(date -u +%s)-${AGENT_NAME:-unknown}",
+  "task_id": "${TASK_ID:-$(date -u +%s)}",
+  "parent_task_id": ${PARENT_TASK_ID:-null},
+  "workflow_id": ${WORKFLOW_ID:-null},
+  "agent_id": "${AGENT_NAME:-unknown}",
+  "agent_type": "${AGENT_TYPE:-unknown}",
+  "skill": "${SKILL_NAME:-unknown}",
+  "skill_version": "${SKILL_VERSION:-0.0.0}",
+  "status": "${STATUS:-success}",
+  "started_at": "${STARTED_AT:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}",
+  "finished_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "success": ${SUCCESS:-true},
+  "human_interventions": ${HUMAN_INTERVENTIONS:-0},
+  "git_branch": "$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)",
+  "git_sha": "$(git rev-parse --short HEAD 2>/dev/null || echo unknown)",
+  "pr_number": ${PR_NUMBER:-null},
+  "artifacts": [],
+  "notes": "${NOTES:-}"
+}
 EOF
+echo "Event written: ${EVENT_FILE}"
 ```
 
 ### When to set `human_interventions > 0`
@@ -124,10 +156,18 @@ EOF
 - The PR required a fixup commit after agent submission
 - A review comment explicitly called out an agent error
 
+### Aggregating metrics (CI)
+
+Run `bash scripts/aggregate-metrics.sh` in CI after merging to rebuild
+`.agents/aggregated/metrics.jsonl` and `.agents/aggregated/daily-summary.json` from all event files.
+These files are **generated output** — never hand-edit them.
+
 ## Cross-References
 
 | Topic | Document |
 |-------|----------|
+| Multi-Agent Orchestration | `.agents/ORCHESTRATION.md` |
+| Workflow State | `.agents/context/workflow-state.json` |
 | DORA Metrics | `docs/dora-metrics.md` |
 | Detailed Commands | `agents-docs/commands.md` |
 | Code Structure | `agents-docs/structure.md` |

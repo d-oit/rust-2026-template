@@ -21,39 +21,85 @@ Skills are self-contained and can be followed by Claude Code, Gemini CLI, OpenCo
 
 ## Skill Format
 
-Each skill follows this structure:
+Each skill **must** follow this full structure. Sections marked with `*` are required for multi-agent compatibility.
 
 ```markdown
 # Skill: <name>
+
+---
+version: <semver e.g. 1.0.0>             # * required
+agents: [claude-code, gemini-cli, ...]   # * required — list of validated agents
+---
+
 ## Purpose
 ## Trigger Conditions
 ## Prerequisites
+
+## Input Schema                          # * required
+<!-- Structured inputs this skill expects from the calling agent or workflow context. -->
+<!-- Always include: workflow_id, task_id, parent_task_id. Add skill-specific fields below. -->
+
+## Output Schema                         # * required
+<!-- Structured result this skill emits for downstream agents. -->
+<!-- Always include: success, status, artifacts[], next_skill (optional). -->
+
 ## Steps
 ## Success Criteria
 ## Common Issues
+
+## Agent Compatibility                   # * required
+<!-- | agent | min_version | notes | -->
+
 ## Related Skills
 ## References
 ```
+
+### Common Envelope Fields
+
+All skills share these standard fields in Input/Output schemas:
+
+| Field | Type | Direction | Description |
+|-------|------|-----------|-------------|
+| `workflow_id` | `string\|null` | in + out | Groups related tasks across agents |
+| `task_id` | `string` | in + out | Unique ID for this invocation |
+| `parent_task_id` | `string\|null` | in | ID of the triggering task |
+| `agent_id` | `string` | out | Agent that ran this skill |
+| `skill` | `string` | out | Skill name (matches directory name) |
+| `skill_version` | `string` | out | Semver version of SKILL.md used |
+| `success` | `bool` | out | Overall outcome |
+| `status` | `enum` | out | `success` \| `failure` \| `partial` |
+| `artifacts` | `string[]` | out | File paths or URLs produced |
+| `next_skill` | `string\|null` | out | Recommended next skill in chain |
+| `notes` | `string` | out | Human-readable result summary |
 
 ## Usage by AI Agents
 
 When an AI agent needs to perform a task:
 
-1. Check this index for the relevant skill
-2. Follow the skill's steps exactly
-3. Report results against the success criteria
-4. Escalate to the user if common issues can't be resolved
+1. Read [`.agents/ORCHESTRATION.md`](ORCHESTRATION.md) to understand current workflow phase and pending skills.
+2. Check this index for the relevant skill.
+3. Read [`.agents/context/workflow-state.json`](context/workflow-state.json) to get `workflow_id` and `task_id` context.
+4. Follow the skill's **Input Schema → Steps → Output Schema** exactly.
+5. Write a per-event file under `.agents/events/YYYY/MM/DD/` (see [ORCHESTRATION.md § Event File Format](ORCHESTRATION.md#event-file-format)).
+6. Update `.agents/context/workflow-state.json` with result and `pending_skill`.
+7. Report results against the Success Criteria.
+8. Escalate to the user if Common Issues cannot be resolved.
+
+> ⚠️ **Never append directly to `.agents/metrics.jsonl`** — that file is deprecated.
+> Use per-event files under `.agents/events/` instead. See ORCHESTRATION.md.
 
 ## Adding New Skills
 
 1. Create a new directory: `.agents/skills/<skill-name>/`
-2. Add `SKILL.md` following the format above
-3. Update this index
-4. Reference the skill in `AGENTS.md` if applicable
+2. Add `SKILL.md` following the **full format above**, including `version`, `agents` frontmatter, `Input Schema`, `Output Schema`, and `Agent Compatibility`.
+3. Update this index table.
+4. Reference the skill in `AGENTS.md` and in [`ORCHESTRATION.md`](ORCHESTRATION.md) if it belongs in a pipeline.
 
 ## Related Files
 
 - [AGENTS.md](../AGENTS.md) — General agent guidelines
+- [ORCHESTRATION.md](ORCHESTRATION.md) — Multi-agent coordination, skill chains, handoff protocol
+- [context/workflow-state.json](context/workflow-state.json) — Live workflow state (read before acting)
 - [CLAUDE.md](../CLAUDE.md) — Claude-specific instructions
 - [GEMINI.md](../GEMINI.md) — Gemini-specific instructions
 - [agents-docs/workflow.md](../agents-docs/workflow.md) — Skill + CLI usage pattern
