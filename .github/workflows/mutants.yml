@@ -3,6 +3,20 @@
 name: Mutation Testing
 
 on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'crates/**'
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'crates/**'
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * 1'  # Weekly Monday 03:00 UTC
@@ -23,7 +37,7 @@ jobs:
     name: cargo-mutants
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6
 
       - uses: dtolnay/rust-toolchain@stable
 

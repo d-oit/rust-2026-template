@@ -137,7 +137,7 @@ insta = { version = "=1.47.2", features = ["yaml"] }
 colored = "3"
 libsql = { version = "0.9", default-features = false }
 rayon = "1"
-criterion = { version = "0.8", features = ["html_reports"] }
+criterion = { version = "0.5", features = ["html_reports"] }
 getrandom = { version = "0.4", features = ["wasm_js"] }
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
