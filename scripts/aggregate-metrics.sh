@@ -12,15 +12,15 @@ set -euo pipefail
 
 EVENTS_DIR=".agents/events"
 AGGREGATED_DIR=".agents/aggregated"
-OUTPUT_FILE="${AGGREGATED_DIR}/metrics.jsonl"
-SUMMARY_FILE="${AGGREGATED_DIR}/daily-summary.json"
+export OUTPUT_FILE="${AGGREGATED_DIR}/metrics.jsonl"
+export SUMMARY_FILE="${AGGREGATED_DIR}/daily-summary.json"
 
 mkdir -p "${AGGREGATED_DIR}"
 
 echo "[aggregate-metrics] Scanning ${EVENTS_DIR} for event files..."
 
-# Reset output file
-> "${OUTPUT_FILE}"
+# Reset output file (SC2188 fix: use `: >` instead of bare `>`)
+: > "${OUTPUT_FILE}"
 
 # Find all event JSON files, sort chronologically by path (YYYY/MM/DD/timestamp prefix)
 EVENT_COUNT=0
@@ -38,7 +38,7 @@ done < <(find "${EVENTS_DIR}" -name '*.json' ! -name '.gitkeep' -print0 | sort -
 
 echo "[aggregate-metrics] ${EVENT_COUNT} events aggregated, ${INVALID_COUNT} skipped."
 
-# Build summary with Python
+# Build summary with Python (reads OUTPUT_FILE and SUMMARY_FILE from env)
 python3 - <<'PYEOF'
 import json, os
 from datetime import datetime, timezone
