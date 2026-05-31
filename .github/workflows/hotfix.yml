@@ -27,7 +27,7 @@ jobs:
       contents: read
     steps:
       - name: Record Hotfix Event
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             const labels = context.payload.pull_request?.labels.map(l => l.name) || [];
@@ -55,7 +55,7 @@ jobs:
             fs.writeFileSync('dora-metrics.jsonl', JSON.stringify(event) + '\n');
 
       - name: Upload DORA Metrics
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: dora-metrics-hotfix-${{ github.run_id }}
           path: dora-metrics.jsonl

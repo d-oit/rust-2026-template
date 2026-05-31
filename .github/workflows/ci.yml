@@ -14,9 +14,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
-  # Reduce cargo index update noise
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
-  # Enable sccache for faster builds
   RUSTC_WRAPPER: sccache
   SCCACHE_GHA_ENABLED: "true"
 
@@ -26,8 +24,73 @@ concurrency:
 
 jobs:
   # ───────────────────────────────────────────────────
+  # Path filtering to optimize CI execution
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      heavy: ${{ steps.filter.outputs.heavy }}
+      agents: ${{ steps.filter.outputs.agents }}
+      workflows: ${{ steps.filter.outputs.workflows }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36  # v3.0.2
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'crates/**'
+              - 'src/**'
+              - 'examples/**'
+              - 'tests/**'
+              - 'benchmarks/**'
+              - 'fuzz/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'rust-toolchain.toml'
+            heavy:
+              - 'crates/**'
+              - 'src/**'
+              - 'examples/**'
+              - 'benchmarks/**'
+              - 'fuzz/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'rust-toolchain.toml'
+            agents:
+              - 'AGENTS.md'
+              - 'CLAUDE.md'
+              - 'GEMINI.md'
+              - 'QWEN.md'
+              - 'agents-docs/**'
+              - 'scripts/validate-agent-entrypoints.sh'
+            workflows:
+              - '.github/workflows/**'
+
+  # ───────────────────────────────────────────────────
+  validate-agents:
+    name: Validate Agent Entrypoints
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.agents == 'true' ||
+      needs.changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Run agent validator
+        run: ./scripts/validate-agent-entrypoints.sh
+
+  # ───────────────────────────────────────────────────
   lint:
     name: Lint (YAML, Markdown, Commits)
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.agents == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -71,6 +134,12 @@ jobs:
   # ───────────────────────────────────────────────────
   shellcheck:
     name: ShellCheck
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.agents == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -82,30 +151,44 @@ jobs:
 
   gitleaks:
     name: Secret Scan (Gitleaks)
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v3
+      - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ───────────────────────────────────────────────────
   fmt:
     name: Format
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
-      - name: Check formatting
+      - name: Run rustfmt
         run: cargo fmt --all -- --check
 
-  # ───────────────────────────────────────────────────
   clippy:
     name: Clippy
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -127,13 +210,16 @@ jobs:
   # ───────────────────────────────────────────────────
   test:
     name: Test
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        # Uncomment for cross-platform CI:
-        # os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - uses: dtolnay/rust-toolchain@stable
@@ -168,6 +254,11 @@ jobs:
   # ───────────────────────────────────────────────────
   security:
     name: Security Audit
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -189,8 +280,12 @@ jobs:
   # ───────────────────────────────────────────────────
   deny:
     name: Dependency Policy (cargo-deny)
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
-    # Disable sccache globally for this job - cargo-deny action runs in Docker without sccache
     env:
       RUSTC_WRAPPER: ""
       SCCACHE_GHA_ENABLED: "false"
@@ -199,9 +294,13 @@ jobs:
       - uses: EmbarkStudios/cargo-deny-action@v2
 
   # ───────────────────────────────────────────────────
-  # Benchmarks run and record history
   bench:
     name: Benchmarks
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.heavy == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -229,9 +328,14 @@ jobs:
           path: benchmarks/history.jsonl
 
   # ───────────────────────────────────────────────────
-  # VERSION consistency check
   version-check:
     name: VERSION consistency check
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.agents == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -257,9 +361,13 @@ jobs:
           git diff --exit-code llms.txt || (echo "llms.txt is stale, run scripts/generate-llms-txt.sh" && exit 1)
 
   # ───────────────────────────────────────────────────
-  # Minimal versions check - ensures deps work with oldest allowed versions
   msrv:
     name: MSRV Check
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.heavy == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -275,10 +383,9 @@ jobs:
         run: cargo check --workspace
 
   # ───────────────────────────────────────────────────
-  # Final gate - must pass for merge
   ci-success:
     name: CI Success
-    needs: [lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv]
+    needs: [validate-agents, lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv]
     runs-on: ubuntu-latest
     if: always()
     permissions:
@@ -306,6 +413,7 @@ jobs:
             "commit": "${{ github.sha }}",
             "branch": "${{ github.ref_name }}",
             "jobs": {
+              "validate-agents": "${{ needs.validate-agents.result }}",
               "lint": "${{ needs.lint.result }}",
               "shellcheck": "${{ needs.shellcheck.result }}",
               "gitleaks": "${{ needs.gitleaks.result }}",
@@ -324,10 +432,26 @@ jobs:
 
       - name: Update CI summary markdown
         run: |
-          STATUS_LINT="${{ needs.lint.result == 'success' && '✅ success' || '❌ failed' }}"
-          STATUS_TEST="${{ needs.test.result == 'success' && '✅ success' || '❌ failed' }}"
-          STATUS_SECURITY="${{ needs.security.result == 'success' && '✅ success' || '❌ failed' }}"
-          STATUS_BENCH="${{ needs.bench.result == 'success' && '✅ success' || '❌ failed' }}"
+          if [[ "${{ needs.lint.result }}" == "success" || "${{ needs.lint.result }}" == "skipped" ]]; then
+            STATUS_LINT="✅ success"
+          else
+            STATUS_LINT="❌ failed"
+          fi
+          if [[ "${{ needs.test.result }}" == "success" || "${{ needs.test.result }}" == "skipped" ]]; then
+            STATUS_TEST="✅ success"
+          else
+            STATUS_TEST="❌ failed"
+          fi
+          if [[ "${{ needs.security.result }}" == "success" || "${{ needs.security.result }}" == "skipped" ]]; then
+            STATUS_SECURITY="✅ success"
+          else
+            STATUS_SECURITY="❌ failed"
+          fi
+          if [[ "${{ needs.bench.result }}" == "success" || "${{ needs.bench.result }}" == "skipped" ]]; then
+            STATUS_BENCH="✅ success"
+          else
+            STATUS_BENCH="❌ failed"
+          fi
 
           cat > ci-summary.md << EOF
           # CI Status Summary
@@ -372,18 +496,24 @@ jobs:
 
       - name: Check all jobs passed
         run: |
-          if [[  "${{ needs.lint.result }}" != "success" ||
-                 "${{ needs.shellcheck.result }}" != "success" ||
-                 "${{ needs.gitleaks.result }}" != "success" ||
-                 "${{ needs.fmt.result }}" != "success" ||
-                 "${{ needs.clippy.result }}" != "success" ||
-                 "${{ needs.test.result }}" != "success" ||
-                 "${{ needs.security.result }}" != "success" ||
-                 "${{ needs.deny.result }}" != "success" ||
-                 "${{ needs.bench.result }}" != "success" ||
-                 "${{ needs.version-check.result }}" != "success" ||
-                 "${{ needs.msrv.result }}" != "success" ]]; then
-            echo "One or more CI jobs failed"
-            exit 1
-          fi
-          echo "All CI jobs passed!"
+          results=(
+            "${{ needs.validate-agents.result }}"
+            "${{ needs.lint.result }}"
+            "${{ needs.shellcheck.result }}"
+            "${{ needs.gitleaks.result }}"
+            "${{ needs.fmt.result }}"
+            "${{ needs.clippy.result }}"
+            "${{ needs.test.result }}"
+            "${{ needs.security.result }}"
+            "${{ needs.deny.result }}"
+            "${{ needs.bench.result }}"
+            "${{ needs.version-check.result }}"
+            "${{ needs.msrv.result }}"
+          )
+          for res in "${results[@]}"; do
+            if [[ "$res" == "failure" || "$res" == "cancelled" ]]; then
+              echo "One or more critical CI jobs failed or were cancelled"
+              exit 1
+            fi
+          done
+          echo "All CI jobs passed or were correctly skipped!"
