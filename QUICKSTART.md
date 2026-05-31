@@ -4,7 +4,7 @@ Get a new Rust project running in under 5 minutes.
 
 ## Prerequisites
 
-- Rust stable via [rustup](https://rustup.rs/) — toolchain pinned to 1.87 in `rust-toolchain.toml`
+- Rust stable via [rustup](https://rustup.rs/) — toolchain pinned to 1.88 in `rust-toolchain.toml`
 - Git 2.30+
 - Optional: `cargo-nextest`, `cargo-deny`, `cargo-audit` for full quality gates
 

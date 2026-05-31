@@ -72,6 +72,6 @@ rust-2026-template/
 ├── deny.toml                # cargo-deny v2 supply chain config
 ├── flake.nix                # Nix flake (optional)
 ├── opencode.json            # OpenCode configuration
-├── rust-toolchain.toml      # Pinned stable 1.87
+├── rust-toolchain.toml      # Pinned stable 1.88
 └── rustfmt.toml             # Rustfmt 2024 edition settings
 ```

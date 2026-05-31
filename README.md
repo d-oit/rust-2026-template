@@ -3,7 +3,7 @@
 [![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/d-oit/rust-2026-template/branch/main/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Rust 1.87+](https://img.shields.io/badge/rust-1.87%2B-orange.svg)](https://www.rust-lang.org)
+[![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)](https://www.rust-lang.org)
 [![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
 [![Template Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG-TEMPLATE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -16,7 +16,7 @@ This template is designed for Rust developers who want to start new projects wit
 
 ## Key Features
 
-- **Rust 2024 Edition:** Leverages the latest language features and idioms with an MSRV of 1.87.
+- **Rust 2024 Edition:** Leverages the latest language features and idioms with an MSRV of 1.88.
 - **Workspace Layout:** Clean separation of concerns with a `crates/` directory for internal libraries and applications.
 - **Security First:** Pre-configured supply chain audits, secret scanning, and hardened configuration patterns.
 - **Performance Optimized:** Includes configurations for the `mold` linker and optimized development profiles.

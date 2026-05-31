@@ -63,7 +63,7 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - Lint: `cargo clippy -- -D warnings` (zero warnings policy)
 - Shell Lint: `shellcheck` for all scripts in `scripts/` (enforced by CI)
 - Edition: Rust 2024
-- MSRV: 1.87 (see `rust-toolchain.toml`)
+- MSRV: 1.88 (see `rust-toolchain.toml`)
 
 ### Tests
 
