@@ -144,7 +144,7 @@ wasm-bindgen-futures = "0.4"
 console_error_panic_hook = "0.1"
 tracing-opentelemetry = "0.33"
 opentelemetry = "0.32"
-rmcp = { version = "=0.3.2", features = ["server", "macros"] }
+rmcp = { version = "=1.4.0", features = ["server", "macros"] }
 
 # ─── Build profiles ───────────────────────────────────────────────────────────
 [profile.dev]
