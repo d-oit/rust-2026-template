@@ -10,7 +10,7 @@ exclude = ["fuzz"]
 [workspace.package]
 version = "0.0.0"
 edition = "2024"
-rust-version = "1.87"
+rust-version = "1.88"
 license = "MIT"
 authors = ["Your Name"]
 repository = "https://github.com/your-org/your-repo"
@@ -144,7 +144,7 @@ wasm-bindgen-futures = "0.4"
 console_error_panic_hook = "0.1"
 tracing-opentelemetry = "0.33"
 opentelemetry = "0.32"
-rmcp = { version = "=0.3.2", features = ["server", "macros"] }
+rmcp = { version = "=1.7.0", features = ["server", "macros"] }
 
 # ─── Build profiles ───────────────────────────────────────────────────────────
 [profile.dev]
