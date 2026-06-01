@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - uses: dtolnay/rust-toolchain@stable
       - name: Cache cargo tools
-        uses: actions/cache@0c45773b623bec8c7b759ec73ef93cc18ad5da22  # v4
+        uses: actions/cache@d63032d8471da9282361732e4d0d48f95c47792d  # v4
         with:
           path: ~/.cargo/bin
           key: cargo-doc-tools-v1
