@@ -33,6 +33,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.1] - 2026-05-31
+
+### Added
+
+- `validate-agents` CI job with entrypoint validation script.
+- `agent-doc-flow.md` documentation for assistant entrypoint model.
+- ADR 0002: CI optimization and agent validation.
+
+### Changed
+
+- Rust toolchain bumped from 1.87 to 1.88.
+- CI jobs gated on file changes via `dorny/paths-filter`.
+- CI status handling for skipped jobs via `netlify/ci-status`.
+- `rmcp` dependency bumped from 0.3.2 to 1.7.0.
+- `criterion` dependency bumped from 0.5.1 to 0.8.2.
+- `actions/checkout` bumped from 4.3.1 to 6.0.2.
+- `actions/setup-python` bumped from 5.6.0 to 6.2.0.
+- `gitleaks/gitleaks-action` bumped from v2 to v3.
+- `peter-evans/create-pull-request` bumped from 6.1.0 to 8.1.1.
+- `fuzz.yml` and `mutants.yml` updated for path-gated triggers.
+- `CHANGELOG.md` reset to clean template skeleton.
+
+### Fixed
+
+- Clippy `uninlined-format-args` lint under rustc 1.88.
+- Documentation badges and MSRV references updated across all docs.
+
+---
+
 ## [0.2.0] - 2026-05-29
 
 ### Added
@@ -132,7 +161,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.2.1
 [0.2.0]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.2.0
 [0.1.2]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.2
 [0.1.1]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.1

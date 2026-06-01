@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)](https://www.rust-lang.org)
 [![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
-[![Template Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG-TEMPLATE.md)
+[![Template Version](https://img.shields.io/badge/version-0.2.1-blue)](CHANGELOG-TEMPLATE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 A high-performance, security-hardened GitHub repository template for modern Rust development. This template integrates the Rust 2024 edition, advanced CI/CD pipelines, and AI-native workflows to accelerate building robust applications.
