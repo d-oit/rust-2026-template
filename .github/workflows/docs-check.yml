@@ -10,16 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Cache cargo tools
-        uses: actions/cache@d63032d8471da9282361732e4d0d48f95c47792d  # v4
+      - uses: dtolnay/rust-toolchain@e87a1d924ca251d18778625fa60533ebf718872e
         with:
-          path: ~/.cargo/bin
-          key: cargo-doc-tools-v1
+          toolchain: stable
+      - uses: Swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae  # v2
       - name: Install doc tools
-        run: |
-          command -v cargo-sync-readme || cargo install cargo-sync-readme
-          command -v cargo-doc2readme  || cargo install cargo-doc2readme --locked
+        uses: taiki-e/install-action@0e01fba457a41753716a44549591456209b53e8d
+        with:
+          tool: cargo-sync-readme,cargo-doc2readme
       - name: Check README sync
         run: cargo sync-readme --check
       - name: Regenerate pattern docs

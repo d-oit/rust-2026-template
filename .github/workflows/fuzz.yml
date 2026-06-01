@@ -33,8 +33,10 @@ jobs:
       RUSTUP_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: dtolnay/rust-toolchain@nightly
-      - uses: taiki-e/install-action@v2
+      - uses: dtolnay/rust-toolchain@5b842231ba77f5c045dba54ac5560fed2db780e2
+        with:
+          toolchain: nightly
+      - uses: taiki-e/install-action@0e01fba457a41753716a44549591456209b53e8d
         with:
           tool: cargo-fuzz
       - run: cargo fuzz run fuzz_parse_input -- -max_total_time=${{ inputs.duration || 300 }}
