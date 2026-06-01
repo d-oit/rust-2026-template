@@ -65,6 +65,11 @@ deny = [
   # { name = "openssl", reason = "use rustls instead" },
   { name = "zmij", reason = "Suspicious non-standard dependency of serde_json" },
   { name = "serde_core", reason = "Suspicious non-standard dependency of serde" },
+
+  # Prevent domain/core crates from depending on entry-point crates.
+  # Add specific crate name pairs as the workspace grows.
+  # [[bans.deny]]
+  # Example: name = "your-crate-cli", wrappers = ["your-crate-core"]
 ]
 # Allow certain duplicate versions that are unavoidable
 skip = [

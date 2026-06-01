@@ -1,0 +1,27 @@
+name: Docs sync check
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: cargo-doc-tools-v1
+      - name: Install doc tools
+        run: |
+          command -v cargo-sync-readme || cargo install cargo-sync-readme
+          command -v cargo-doc2readme  || cargo install cargo-doc2readme --locked
+      - name: Check README sync
+        run: cargo sync-readme --check
+      - name: Regenerate pattern docs
+        run: make docs
+      - name: Assert no diff
+        run: git diff --exit-code docs/patterns/

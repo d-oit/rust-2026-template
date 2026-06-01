@@ -1,0 +1,9 @@
+[package]
+name = "example-registry-pattern"
+version.workspace = true
+edition.workspace = true
+description = "Template pattern: registry-based handler dispatch"
+publish = false
+
+[dependencies]
+thiserror = { workspace = true }
