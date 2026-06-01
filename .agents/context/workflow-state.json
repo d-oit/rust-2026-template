@@ -1,0 +1,19 @@
+{
+  "_comment": "Shared workflow state for multi-agent coordination. Written by agents after each skill execution. Read before invoking any skill.",
+  "workflow_id": null,
+  "started_at": null,
+  "last_updated_at": null,
+  "current_phase": null,
+  "active_skill": null,
+  "last_build_status": null,
+  "last_lint_result": null,
+  "last_test_result": null,
+  "pending_skill": null,
+  "git_branch": null,
+  "git_sha": null,
+  "pr_number": null,
+  "agents": [],
+  "completed_skills": [],
+  "failed_skills": [],
+  "notes": ""
+}
