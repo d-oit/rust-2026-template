@@ -36,7 +36,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@5b842231ba77f5c045dba54ac5560fed2db780e2
         with:
           toolchain: nightly
-      - uses: taiki-e/install-action@0e01fba457a41753716a44549591456209b53e8d
+      - uses: taiki-e/install-action@e49978b799e49ff429d162b7a30601a569ab6538  # v2
         with:
           tool: cargo-fuzz
       - run: cargo fuzz run fuzz_parse_input -- -max_total_time=${{ inputs.duration || 300 }}
