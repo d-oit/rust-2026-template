@@ -1,3 +1,4 @@
+---
 name: Docs sync check
 on:
   pull_request:
