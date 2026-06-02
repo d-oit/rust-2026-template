@@ -35,7 +35,7 @@ jobs:
       workflows: ${{ steps.filter.outputs.workflows }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36  # v3.0.2
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590  # v3.0.3
         id: filter
         with:
           filters: |
@@ -234,7 +234,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mold
       - name: Install cargo-nextest and llvm-cov
-        uses: taiki-e/install-action@e49978b799e49ff429d162b7a30601a569ab6538  # v2
+        uses: taiki-e/install-action@6887963ccf37a9ddcd8c5fa4baeb3e1e5fd61fa1  # v2
         with:
           tool: cargo-nextest,cargo-llvm-cov
       - name: Build workspace
@@ -268,7 +268,7 @@ jobs:
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@v0.0.10
       - name: Install cargo-audit
-        uses: taiki-e/install-action@e49978b799e49ff429d162b7a30601a569ab6538  # v2
+        uses: taiki-e/install-action@6887963ccf37a9ddcd8c5fa4baeb3e1e5fd61fa1  # v2
         with:
           tool: cargo-audit
       - name: Generate lockfile
