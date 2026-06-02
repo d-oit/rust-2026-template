@@ -65,3 +65,4 @@ cargo run -p sample-app -- --config config.json
 ./scripts/release-manager.sh validate --execute
 cargo release [patch|minor|major]
 ```
+
