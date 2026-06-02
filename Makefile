@@ -1,4 +1,4 @@
-.PHONY: all docs docs-check ci fmt clippy test build
+.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools
 
 all: ci
 
@@ -16,7 +16,11 @@ test:
 build:
 	cargo build --workspace
 
-docs: ## Auto-generate docs/patterns/ from rustdoc comments
+install-doc-tools: ## Install pinned versions of doc generation tools (run once)
+	cargo install cargo-sync-readme --version 1.1.0
+	cargo install cargo-doc2readme --version 0.4.0
+
+docs: ## Auto-generate docs/patterns/ from rustdoc comments (run install-doc-tools first)
 	mkdir -p docs/patterns
 	cargo sync-readme
 	cargo doc2readme -p example-storage-pattern --out docs/patterns/trait-only-storage.md

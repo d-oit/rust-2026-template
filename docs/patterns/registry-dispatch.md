@@ -17,7 +17,7 @@ central `match` tree.
 ### Trade-offs vs `match`
 
 ||`match`|Registry|
-|-|-------|--------|
+|--|-------|--------|
 |Compile-time exhaustiveness|✅|❌|
 |Runtime extensibility|❌|✅|
 |Independent handler tests|harder|easy|
