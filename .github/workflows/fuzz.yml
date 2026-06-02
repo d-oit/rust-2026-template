@@ -32,9 +32,14 @@ jobs:
     env:
       RUSTUP_TOOLCHAIN: nightly
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
-      - uses: dtolnay/rust-toolchain@nightly
-      - uses: taiki-e/install-action@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
+        with:
+          toolchain: nightly
+      - uses: taiki-e/install-action@e49978b799e49ff429d162b7a30601a569ab6538  # v2
         with:
           tool: cargo-fuzz
-      - run: cargo fuzz run fuzz_parse_input -- -max_total_time=${{ inputs.duration || 300 }}
+      - run: >
+          cargo fuzz run fuzz_parse_input
+          --target x86_64-unknown-linux-gnu
+          -- -max_total_time=${{ inputs.duration || 300 }}

@@ -8,11 +8,32 @@
 [![Template Version](https://img.shields.io/badge/version-0.2.1-blue)](CHANGELOG-TEMPLATE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-A high-performance, security-hardened GitHub repository template for modern Rust development. This template integrates the Rust 2024 edition, advanced CI/CD pipelines, and AI-native workflows to accelerate building robust applications.
+<!-- cargo-sync-readme start -->
+
+A production-ready Rust workspace template with modern tooling, CI/CD,
+and AI agent integration.
 
 ## Overview
 
 This template is designed for Rust developers who want to start new projects with best practices baked in. It provides a modular workspace structure, comprehensive quality gates, and built-in support for AI-assisted development.
+
+## Features
+
+- **Rust 2024 Edition:** Leverages the latest language features and idioms with an MSRV of 1.88.
+- **Workspace Layout:** Clean separation of concerns with a `crates/` directory for internal libraries and applications.
+- **Security First:** Pre-configured supply chain audits, secret scanning, and hardened configuration patterns.
+- **Performance Optimized:** Includes configurations for the `mold` linker and optimized development profiles.
+- **AI-Native:** First-class support for AI coding agents with specialized skills and canonical instruction sets. Includes `llms.txt` for machine-readable project context.
+
+## Example
+
+```rust,no_run
+
+let result = add(2, 3);
+assert_eq!(result, 5);
+```
+
+<!-- cargo-sync-readme end -->
 
 ## Key Features
 

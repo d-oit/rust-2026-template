@@ -1,0 +1,19 @@
+[package]
+name = "example-storage-pattern"
+version.workspace = true
+edition.workspace = true
+description = "Template pattern: trait-only storage layer with swappable backends"
+publish = false
+
+[features]
+default = []
+sqlite = ["dep:rusqlite"]
+mock = []
+
+[dependencies]
+rusqlite = { version = "0.32", optional = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

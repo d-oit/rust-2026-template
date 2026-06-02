@@ -119,6 +119,18 @@ print_stdout = "allow"
 print_stderr = "allow"
 cognitive_complexity = "allow"
 
+# ─── Workspace crate layering ────────────────────────────────────────────────
+# Dependencies flow strictly left-to-right (upward only):
+#
+#   *-types / *-domain
+#       └─→  *-core / *-logic
+#                └─→  *-adapters / *-backends
+#                         └─→  *-cli / *-bin
+#
+# No crate may depend on a crate to its right in this chain.
+# Violations are caught by `cargo deny` (see deny.toml).
+# ─────────────────────────────────────────────────────────────────────────────
+
 # ─── Workspace-wide dependency versions ───────────────────────────────────────
 [workspace.dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs"] }
