@@ -127,8 +127,7 @@ jobs:
       - name: Commitlint
         if: >
           github.event_name == 'pull_request' &&
-          !endsWith(github.actor, '[bot]') &&
-          github.event.sender.type != 'Bot'
+          !contains(github.actor, '[bot]')
         uses: wagoid/commitlint-github-action@v6
 
   # ───────────────────────────────────────────────────

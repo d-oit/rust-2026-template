@@ -10,6 +10,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - minor
+          - patch
 
   # GitHub Actions - weekly updates
   - package-ecosystem: github-actions
@@ -17,3 +22,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      actions:
+        update-types:
+          - minor
+          - patch
