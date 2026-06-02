@@ -39,4 +39,4 @@ jobs:
       - uses: taiki-e/install-action@e49978b799e49ff429d162b7a30601a569ab6538  # v2
         with:
           tool: cargo-fuzz
-      - run: cargo fuzz run fuzz_parse_input -- -max_total_time=${{ inputs.duration || 300 }}
+      - run: cargo fuzz run fuzz_parse_input --target x86_64-unknown-linux-gnu -- -max_total_time=${{ inputs.duration || 300 }}
