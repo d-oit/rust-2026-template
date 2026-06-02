@@ -9,21 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `.gitignore` guardrail rules to block root dummy/test/data files.
-- `schema/` directory for JSON Schema definitions with reference example.
-- `config/profiles/` pattern for profile-based runtime configuration.
-- Upgraded `.codacy.yml` to full `.codacy/` directory for richer tool configuration.
-- `reports/` directory convention for generated HTML review and analysis output.
-- Workspace layering convention (documented in `docs/architecture.md` and `Cargo.toml`).
-- `example-storage-pattern` crate demonstrating trait-only storage layer.
-- `example-registry-pattern` crate demonstrating extensible handler dispatch.
-- Automated documentation toolchain using `cargo-sync-readme` and `cargo-doc2readme`.
-- `Makefile` with `docs`, `docs-check`, and `ci` targets.
-- `docs-check.yml` CI workflow for automated documentation enforcement.
+- for new features.
 
 ### Changed
 
-- `README.md` now automatically synced from `src/lib.rs` crate-level documentation.
+- for changes in existing functionality.
 
 ### Deprecated
 
@@ -40,6 +30,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - in case of vulnerabilities.
+
+---
+
+## [0.2.2] - 2026-06-02
+
+### Added
+
+- `.gitignore` guardrail rules to block root dummy/test/data files.
+- `schema/` directory for JSON Schema definitions with reference example.
+- `config/profiles/` pattern for profile-based runtime configuration.
+- Upgraded `.codacy.yml` to full `.codacy/` directory for richer tool configuration.
+- `reports/` directory convention for generated HTML review and analysis output.
+- Workspace layering convention (documented in `docs/architecture.md` and `Cargo.toml`).
+- `example-storage-pattern` crate demonstrating trait-only storage layer.
+- `example-registry-pattern` crate demonstrating extensible handler dispatch.
+- Automated documentation toolchain using `cargo-sync-readme` and `cargo-doc2readme`.
+- `Makefile` with `docs`, `docs-check`, and `ci` targets.
+- `docs-check.yml` CI workflow for automated documentation enforcement.
+
+### Changed
+
+- `README.md` now automatically synced from `src/lib.rs` crate-level documentation.
 
 ---
 
@@ -171,9 +183,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.2.1...HEAD
-[0.2.1]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.2.1
-[0.2.0]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.2.0
-[0.1.2]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.2
-[0.1.1]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.1
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/d-oit/rust-2026-template/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/d-oit/rust-2026-template/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/d-oit/rust-2026-template/compare/v0.1.2...v0.2.0
+[0.1.2]: https://github.com/d-oit/rust-2026-template/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/d-oit/rust-2026-template/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.0
