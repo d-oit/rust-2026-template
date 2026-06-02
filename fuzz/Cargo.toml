@@ -7,6 +7,8 @@ edition = "2024"
 [package.metadata]
 cargo-fuzz = true
 
+[workspace]
+
 [dependencies]
 libfuzzer-sys = "0.4"
 rust-2026-template = { path = ".." }

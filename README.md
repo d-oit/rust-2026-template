@@ -63,11 +63,16 @@ assert_eq!(result, 5);
 .
 ├── .agents/             # AI agent specialized skills and workflow definitions
 ├── .cargo/              # Cargo configuration (linker, profiles, aliases)
+├── .codacy/             # Codacy static analysis and agent review configs
 ├── .github/             # GitHub Actions workflows and issue templates
 ├── agents-docs/         # Detailed documentation for AI agents
+├── config/              # Profile-based runtime configuration
+│   └── profiles/        # Environment-specific JSON configs (default.json, etc.)
 ├── crates/              # Workspace members (libraries and applications)
 │   ├── example-crate/   # Placeholder library crate
 │   └── sample-app/      # Reference application implementing best practices
+├── reports/             # Generated HTML review and analysis output (ignored)
+├── schema/              # JSON Schema definitions for config/API contracts
 ├── scripts/             # Automation scripts for quality gates and releases
 ├── AGENTS.md            # Canonical instructions for AI coding agents
 ├── llms.txt             # LLM context file (machine-readable project overview)
@@ -136,6 +141,14 @@ Regenerate both files after significant architectural changes:
 ```bash
 bash scripts/generate-llms-txt.sh
 ```
+
+## Output Artifacts
+
+The project uses several directories for generated artifacts and documentation:
+
+- **`reports/`**: Standardized directory for generated HTML reports (coverage, audit, benchmarks). This directory is git-ignored by default.
+- **`ci-status.json` / `ci-summary.md`**: Machine-readable and human-friendly CI health baselines.
+- **`target/`**: Rust build artifacts.
 
 ## VERSION File
 

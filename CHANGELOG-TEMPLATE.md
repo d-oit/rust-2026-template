@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `.gitignore` guardrail rules to block root dummy/test/data files.
+- `schema/` directory for JSON Schema definitions with reference example.
+- `config/profiles/` pattern for profile-based runtime configuration.
+- Upgraded `.codacy.yml` to full `.codacy/` directory for richer tool configuration.
+- `reports/` directory convention for generated HTML review and analysis output.
 - Workspace layering convention (documented in `docs/architecture.md` and `Cargo.toml`).
 - `example-storage-pattern` crate demonstrating trait-only storage layer.
 - `example-registry-pattern` crate demonstrating extensible handler dispatch.

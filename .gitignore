@@ -28,9 +28,13 @@ criterion/
 .env
 .env.local
 .env.*.local
+config/profiles/local.json
 
 # cargo-dist artifacts
 dist/
+
+# Generated reports
+/reports/
 
 # cargo-fuzz artifacts
 fuzz/corpus/
@@ -51,6 +55,12 @@ default.profraw
 *.tmp
 *.bak
 *.orig
+*.log
+
+# Guardrail: block dummy/test/data files from root
+/dummy_*
+/test_*
+/data_*
 
 # WSL2 Windows line endings
 *.bat~
