@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- for new features.
+- Workspace layering convention (documented in `docs/architecture.md` and `Cargo.toml`).
+- `example-storage-pattern` crate demonstrating trait-only storage layer.
+- `example-registry-pattern` crate demonstrating extensible handler dispatch.
+- Automated documentation toolchain using `cargo-sync-readme` and `cargo-doc2readme`.
+- `Makefile` with `docs`, `docs-check`, and `ci` targets.
+- `docs-check.yml` CI workflow for automated documentation enforcement.
 
 ### Changed
 
-- for changes in existing functionality.
+- `README.md` now automatically synced from `src/lib.rs` crate-level documentation.
 
 ### Deprecated
 
