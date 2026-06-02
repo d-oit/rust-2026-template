@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- for new features.
+- Backported high-priority patterns from `do-movie-radio-play`:
+  - `.gitignore` guardrail rules to block root dummy/test/data files.
+  - `schema/` directory for JSON Schema definitions with reference example.
+  - `config/profiles/` pattern for profile-based runtime configuration.
+  - Upgraded `.codacy.yml` to full `.codacy/` directory for richer tool configuration.
+  - `reports/` directory convention for generated HTML review and analysis output.
 
 ### Changed
 

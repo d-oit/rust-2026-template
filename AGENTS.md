@@ -51,7 +51,7 @@ For multi-agent orchestration, skill chaining, and handoff protocol, see **[`.ag
 | `crates-io-name-check` | Registry availability verification |
 | `skill-creator` | Guidelines for creating new agent skills |
 | `skill-evaluator` | Quality assessment of existing skills |
-| `codacy` | Codacy static analysis and PR triage workflows |
+| `codacy` | Codacy static analysis and PR triage workflows (see `.codacy/` for tool configs) |
 | `dora-report` | Automated DORA and agentic metrics reporting (run monthly) |
 
 ## Responding to Release Failures

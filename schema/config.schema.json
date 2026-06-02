@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Config",
+  "type": "object",
+  "properties": {
+    "log_level": {
+      "type": "string",
+      "enum": ["trace", "debug", "info", "warn", "error"],
+      "default": "info"
+    },
+    "max_items": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000,
+      "default": 100
+    }
+  },
+  "required": ["log_level", "max_items"],
+  "additionalProperties": false
+}

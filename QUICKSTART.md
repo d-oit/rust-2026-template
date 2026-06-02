@@ -88,6 +88,8 @@ Edit these files with your project details:
 | `crates/*/Cargo.toml` | `name`, `description` |
 | `AGENTS.md` | Project name, description, domain context |
 | `CLAUDE.md` | Project-specific overrides |
+| `config/profiles/default.json` | Application configuration defaults |
+| `schema/config.schema.json` | JSON Schema for configuration validation |
 | `README.md` | Replace template content with your project |
 | `CODECOV_TOKEN` | Add to GitHub Actions secrets for coverage reporting |
 | `SECURITY.md` | Your security contact / advisory link |
