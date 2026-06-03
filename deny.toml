@@ -60,13 +60,10 @@ wildcards = "deny"
 # Deny workspace default members being listed explicitly
 highlight = "all"
 # Deny known problematic crates
-deny = [
-  # Old unmaintained openssl bindings
-  # { name = "openssl", reason = "use rustls instead" },
-  { name = "zmij", reason = "Suspicious non-standard dependency of serde_json" },
-  { name = "serde_core", reason = "Suspicious non-standard dependency of serde" },
+deny = [    # Old unmaintained openssl bindings
+    # { name = "openssl", reason = "use rustls instead" },
 
-  # Prevent domain/core crates from depending on entry-point crates.
+    # Prevent domain/core crates from depending on entry-point crates.
   # Add specific crate name pairs as the workspace grows.
   # [[bans.deny]]
   # Example: name = "your-crate-cli", wrappers = ["your-crate-core"]
