@@ -2,8 +2,25 @@
 name: Docs sync check
 on:
   pull_request:
+    paths:
+      - 'docs/**'
+      - 'crates/**'
+      - 'src/**'
+      - 'README.md'
+      - 'agents-docs/**'
+      - 'Makefile'
   push:
     branches: [main]
+    paths:
+      - 'docs/**'
+      - 'crates/**'
+      - 'src/**'
+      - 'README.md'
+      - 'agents-docs/**'
+      - 'Makefile'
+
+permissions:
+  contents: read
 
 jobs:
   docs:

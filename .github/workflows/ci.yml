@@ -11,6 +11,9 @@ on:
     branches: [main, develop]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
@@ -101,7 +104,7 @@ jobs:
       - name: YAML Lint
         run: yamllint .
       - name: Markdown Lint
-        uses: davidanson/markdownlint-cli2-action@v19
+        uses: davidanson/markdownlint-cli2-action@05f32210e84442804257b2a6f20b273450ec8265  # v19
         with:
           globs: "**/*.md"
       - name: Validate agent metrics schema
@@ -128,7 +131,7 @@ jobs:
         if: >
           github.event_name == 'pull_request' &&
           !contains(github.actor, '[bot]')
-        uses: wagoid/commitlint-github-action@v6
+        uses: wagoid/commitlint-github-action@f133a0d95090ef2609192b4a21f54e20af819ea9  # v6
 
   # ───────────────────────────────────────────────────
   shellcheck:
@@ -143,7 +146,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca  # master
         with:
           scandir: './scripts'
           severity: warning
@@ -160,7 +163,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc  # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -198,7 +201,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.10
+        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -228,7 +231,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.10
+        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -244,7 +247,7 @@ jobs:
       - name: Run doc tests
         run: cargo test --workspace --doc
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354  # v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./lcov.info
@@ -266,7 +269,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.10
+        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
       - name: Install cargo-audit
         uses: taiki-e/install-action@6887963ccf37a9ddcd8c5fa4baeb3e1e5fd61fa1  # v2
         with:
@@ -292,7 +295,7 @@ jobs:
       SCCACHE_GHA_ENABLED: "false"
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: EmbarkStudios/cargo-deny-action@v2
+      -        uses: EmbarkStudios/cargo-deny-action@8f84122a46a358a27cb0625d85ad60ab436a1b87  # v2
 
   # ───────────────────────────────────────────────────
   bench:
@@ -310,7 +313,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.10
+        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -377,7 +380,7 @@ jobs:
           toolchain: "1.88"
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32  # v2
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@v0.0.10
+        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -392,11 +395,11 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     permissions:
-      contents: write
+      contents: write  # needed to persist CI status files to main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Download benchmark history
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v4
         with:
           name: benchmark-history
           path: benchmark-history-artifact

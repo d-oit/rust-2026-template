@@ -66,7 +66,7 @@ jobs:
                 '> ⚠️ **HOTFIX RELEASE** — counts toward Change Failure Rate' || '' }}
 
       - name: Record Release Metric
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
         with:
           script: |
             const type = '${{ steps.release-type.outputs.type }}';
@@ -82,7 +82,7 @@ jobs:
             fs.writeFileSync('dora-metrics.jsonl', JSON.stringify(event) + '\n');
 
       - name: Upload DORA Metrics
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: dora-metrics-release-${{ github.ref_name }}
           path: dora-metrics.jsonl
