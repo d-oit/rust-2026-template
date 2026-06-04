@@ -35,13 +35,18 @@ assert_eq!(result, 5);
 
 <!-- cargo-sync-readme end -->
 
-## Key Features
+## Documentation Map
 
-- **Rust 2024 Edition:** Leverages the latest language features and idioms with an MSRV of 1.88.
-- **Workspace Layout:** Clean separation of concerns with a `crates/` directory for internal libraries and applications.
-- **Security First:** Pre-configured supply chain audits, secret scanning, and hardened configuration patterns.
-- **Performance Optimized:** Includes configurations for the `mold` linker and optimized development profiles.
-- **AI-Native:** First-class support for AI coding agents with specialized skills and canonical instruction sets. Includes `llms.txt` for machine-readable project context.
+This repository uses a layered documentation strategy to serve both human developers and AI agents:
+
+| Layer | File / Directory | Audience | Purpose |
+|-------|------------------|----------|---------|
+| **Human Onboarding** | `README.md` | Developers | High-level project overview and feature set |
+| **Human Setup** | `QUICKSTART.md` | Developers | Step-by-step first-run project setup |
+| **Agent Contract** | `AGENTS.md` | AI Agents | Canonical rules and instructions for coding agents |
+| **Agent Skills** | `.agents/skills/` | AI Agents | Executable task knowledge and workflow procedures |
+| **Machine Context** | `llms.txt` | LLMs | Token-efficient project context for LLMs |
+| **Tool Adapters** | `CLAUDE.md`, `QWEN.md` | Specific Tools | Tool-specific harness deltas and entry points |
 
 ## Included Tooling
 
@@ -106,41 +111,25 @@ The template demonstrates composable feature flags for pluggable backends:
 
 The template provides a two-layer benchmark structure:
 
-- **`benches/`**: Standard Criterion harnesses at the crate root
-- **`benchmarks/`**: A separate workspace crate for complex, cross-crate benchmark suites
+- **`benches/`**: Standard Criterion harnesses at the crate root.
+- **`benchmarks/`**: A separate workspace crate for complex, cross-crate benchmark suites.
 
-Run benchmarks with:
-
-```bash
-cargo bench -p benchmarks
-```
+See **[QUICKSTART.md](QUICKSTART.md)** for detailed benchmark and performance testing instructions.
 
 ## Fuzz Testing
 
-A fuzz testing scaffold is included using `cargo-fuzz`:
+A fuzz testing scaffold is included using `cargo-fuzz`. The fuzzer runs weekly via GitHub Actions.
 
-```bash
-# Install cargo-fuzz (nightly required)
-cargo install cargo-fuzz
-
-# Run fuzz targets
-cargo fuzz run fuzz_parse_input -- -max_total_time=30
-```
-
-The fuzzer runs weekly via GitHub Actions (`.github/workflows/fuzz.yml`).
+See the **Advanced Testing** section in **[QUICKSTART.md](QUICKSTART.md)** for local usage instructions.
 
 ## AI Assistant Context Files
 
-This template ships structured context files for AI coding assistants:
+This template ships structured context files for AI coding assistants. These files help agents understand the project structure and rules quickly.
 
-- **`llms.txt`**: Condensed project overview for token-efficient LLM context
-- **`llms-full.txt`**: Complete source context for deep analysis (auto-generated)
+- **`llms.txt`**: Condensed project overview for token-efficient LLM context.
+- **`llms-full.txt`**: Complete source context for deep analysis (auto-generated).
 
-Regenerate both files after significant architectural changes:
-
-```bash
-bash scripts/generate-llms-txt.sh
-```
+See **[AGENTS.md](AGENTS.md)** for instructions on maintaining and using these context files.
 
 ## Output Artifacts
 
@@ -152,7 +141,9 @@ The project uses several directories for generated artifacts and documentation:
 
 ## VERSION File
 
-A `VERSION` file at the repo root serves as the initial version for projects generated from this template. It provides a plain-text source for tooling that can't easily parse TOML:
+A `VERSION` file at the repo root serves as a plain-text single source of truth for tooling that can't easily parse TOML.
+
+> **Versioning note:** `VERSION` is the generated project starter version; `CHANGELOG-TEMPLATE.md` is internal to the template - see #135.
 
 ```bash
 VERSION=$(cat VERSION)
