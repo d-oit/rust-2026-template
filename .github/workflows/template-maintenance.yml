@@ -43,7 +43,8 @@ jobs:
       - name: Check Template Evolution badge
         run: |
           # Extract version from README badge
-          BADGE_VERSION=$(grep -oP '\[!\[Template Evolution\]\(https://img.shields.io/badge/evolution-\K[0-9]+\.[0-9]+\.[0-9]+' README.md || true)
+          BADGE_URL='\[!\[Template Evolution\](https://img.shields.io/badge/evolution-'
+          BADGE_VERSION=$(grep -oP "${BADGE_URL}\K[0-9]+\.[0-9]+\.[0-9]+" README.md || true)
           if [ -z "$BADGE_VERSION" ]; then
             echo "Could not find 'Template Evolution' badge in README.md or it has no version"
             exit 1
