@@ -124,6 +124,22 @@ CI runs: format check, clippy, nextest, doc tests, security audit, cargo-deny, M
 | Codecov config | `.codecov.yml` | Coverage gate enforcement targets |
 | Cargo aliases | `.cargo/config.toml` | `check-all`, `test-all`, `lint`, etc. |
 
+## Advanced Testing
+
+### Fuzz Testing
+
+A fuzz testing scaffold is included using `cargo-fuzz`. This is particularly useful for testing parsers and complex logic against randomized input.
+
+```bash
+# Install cargo-fuzz (nightly required)
+cargo install cargo-fuzz
+
+# Run a specific fuzz target
+cargo fuzz run fuzz_parse_input -- -max_total_time=30
+```
+
+The fuzzer is also configured to run weekly via GitHub Actions.
+
 ## Next Steps
 
 - Read `AGENTS.md` to understand how AI coding assistants are configured
