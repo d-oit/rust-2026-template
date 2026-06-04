@@ -2,13 +2,14 @@
 
 > A production-ready Rust workspace template with modern tooling, CI/CD, and AI agent integration.
 >
-> For complete source context, see llms-full.txt
+> This file is auto-generated. For complete source context, see llms-full.txt.
+> Last generated: 2026-06-04 10:54:27 UTC
 
 ## Project Overview
 
 This is a comprehensive Rust workspace template designed for 2026 best practices. It includes a multi-crate workspace structure, integrated testing with nextest, and specialized AI agent support.
 
-## Documentation Layers
+## Documentation Map
 
 - **README.md**: Human-first project overview and feature set.
 - **QUICKSTART.md**: Step-by-step setup and developer onboarding.
