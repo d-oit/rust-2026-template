@@ -2,6 +2,9 @@
 name: Fuzz
 
 on:
+  # Scheduled: weekly fuzz run (Tier 3 — heavy)
+  # Manual: workflow_dispatch for ad-hoc runs with configurable duration
+  # PR trigger removed — fuzzing is too expensive for every PR.
   push:
     branches: [main, develop]
     paths:
@@ -10,21 +13,16 @@ on:
       - 'fuzz/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'crates/**'
-      - 'src/**'
-      - 'fuzz/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
   schedule:
-    - cron: "0 2 * * 0"
+    - cron: "0 2 * * 0"  # Weekly Sunday 02:00 UTC
   workflow_dispatch:
     inputs:
       duration:
         description: "Fuzz duration in seconds"
         default: "300"
+
+permissions:
+  contents: read
 
 jobs:
   fuzz:
@@ -32,8 +30,8 @@ jobs:
     env:
       RUSTUP_TOOLCHAIN: nightly
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
         with:
           toolchain: nightly
       - uses: taiki-e/install-action@6887963ccf37a9ddcd8c5fa4baeb3e1e5fd61fa1  # v2

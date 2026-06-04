@@ -6,7 +6,10 @@ on:
 
 jobs:
   record-fdrt:
-    if: contains(github.event.issue.labels.*.name, 'release-failure')
+    # Template-only: skip in generated repos
+    if: >-
+      github.repository == 'd-oit/rust-2026-template' &&
+      contains(github.event.issue.labels.*.name, 'release-failure')
     runs-on: ubuntu-latest
     permissions:
       contents: read

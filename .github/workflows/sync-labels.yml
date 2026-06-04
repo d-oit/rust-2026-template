@@ -46,6 +46,8 @@ jobs:
     name: Learn & sync labels
     runs-on: ubuntu-latest
 
+    # Template-only: skip in generated repos
+    if: github.repository == 'd-oit/rust-2026-template'
     steps:
       # ── Checkout (needed for git log commit-message analysis) ───────────────
       - name: Checkout
