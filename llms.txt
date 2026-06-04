@@ -3,7 +3,7 @@
 > A production-ready Rust workspace template with modern tooling, CI/CD, and AI agent integration.
 >
 > This file is auto-generated. For complete source context, see llms-full.txt.
-> Last generated: 2026-06-04 11:54:29 UTC
+> Version: 0.0.0
 
 ## Project Overview
 

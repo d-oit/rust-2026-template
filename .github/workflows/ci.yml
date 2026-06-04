@@ -362,11 +362,7 @@ jobs:
       - name: Check llms.txt is current
         run: |
           bash scripts/generate-llms-txt.sh
-          # Strip the "Last generated" timestamp line before comparing,
-          # since the timestamp changes on every regeneration.
-          FILTER='s/^> Last generated:.*$//'
-          diff <(sed "$FILTER" llms.txt) <(git show HEAD:llms.txt | sed "$FILTER") \
-            || (echo "llms.txt is stale, run scripts/generate-llms-txt.sh" && exit 1)
+          git diff --exit-code llms.txt || (echo "llms.txt is stale, run scripts/generate-llms-txt.sh" && exit 1)
 
   # ───────────────────────────────────────────────────
   msrv:
