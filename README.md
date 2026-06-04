@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)](https://www.rust-lang.org)
 [![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
-[![Template Version](https://img.shields.io/badge/version-0.2.2-blue)](CHANGELOG-TEMPLATE.md)
+[![Template Evolution](https://img.shields.io/badge/evolution-0.2.2-blue)](CHANGELOG-TEMPLATE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <!-- cargo-sync-readme start -->
@@ -147,10 +147,21 @@ A `VERSION` file at the repo root serves as a plain-text single source of truth 
 
 ```bash
 VERSION=$(cat VERSION)
-echo "Building version $VERSION"
+echo "Initializing project at version $VERSION"
 ```
 
-The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to main.
+**Note:** This file is for the generated project's versioning lifecycle. It is *not* used to track the internal evolution of the template itself (see [Template Internals](#template-internals)).
+
+The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to ensure consistency within the generated project.
+
+## Template Internals
+
+This repository maintains a clear separation between template-maintenance metadata and downstream project metadata:
+
+- **`CHANGELOG-TEMPLATE.md`**: Internal history and versioning for the template repository itself.
+- **`VERSION` / `CHANGELOG.md`**: Starter files for the new project created from the template.
+
+Downstream consumers can safely ignore or delete `CHANGELOG-TEMPLATE.md` after the project has been initialized.
 
 ## Customization Guidance
 

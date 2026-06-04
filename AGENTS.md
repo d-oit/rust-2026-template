@@ -31,7 +31,7 @@
 ├── QWEN.md              # Qwen-specific reference (@AGENTS.md)
 ├── llms.txt             # LLM context file (machine-readable project overview)
 ├── llms-full.txt        # Full LLM context (auto-generated)
-├── VERSION              # Plain-text version file (single source of truth)
+├── VERSION              # Project starter version (initial value for generated repos)
 └── Cargo.toml           # Workspace manifest
 ```
 

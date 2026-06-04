@@ -332,8 +332,8 @@ jobs:
           path: benchmarks/history.jsonl
 
   # ───────────────────────────────────────────────────
-  version-check:
-    name: VERSION consistency check
+  project-version-consistency:
+    name: Project Version Consistency
     needs: [changes]
     if: >
       github.event_name != 'pull_request' ||
@@ -342,7 +342,8 @@ jobs:
       needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Reusable project version check
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Check VERSION matches Cargo.toml
         run: |
           VERSION=$(cat VERSION)
@@ -391,7 +392,19 @@ jobs:
   # ───────────────────────────────────────────────────
   ci-success:
     name: CI Success
-    needs: [validate-agents, lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv]
+    needs:
+      - validate-agents
+      - lint
+      - shellcheck
+      - gitleaks
+      - fmt
+      - clippy
+      - test
+      - security
+      - deny
+      - bench
+      - project-version-consistency
+      - msrv
     runs-on: ubuntu-latest
     if: always()
     permissions:
@@ -429,7 +442,7 @@ jobs:
               "security": "${{ needs.security.result }}",
               "deny": "${{ needs.deny.result }}",
               "bench": "${{ needs.bench.result }}",
-              "version-check": "${{ needs.version-check.result }}",
+              "project-version-consistency": "${{ needs.project-version-consistency.result }}",
               "msrv": "${{ needs.msrv.result }}"
             },
             "overall": "${{ job.status }}"
@@ -513,7 +526,7 @@ jobs:
             "${{ needs.security.result }}"
             "${{ needs.deny.result }}"
             "${{ needs.bench.result }}"
-            "${{ needs.version-check.result }}"
+            "${{ needs.project-version-consistency.result }}"
             "${{ needs.msrv.result }}"
           )
           for res in "${results[@]}"; do

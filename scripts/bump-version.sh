@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
 # scripts/bump-version.sh
+#
+# Bumps the PROJECT version. This is the version for the generated project,
+# not the internal evolution version of the template itself.
+#
 set -euo pipefail
 #
 # Canonical version source: [workspace.package] version in ./Cargo.toml
 #
 # What this script updates:
-#   1. Cargo.toml          — [workspace.package] version = "X.Y.Z"
-#   2. Cargo.lock          — regenerated via `cargo update --workspace`
-#   3. CHANGELOG.md        — promotes [Unreleased] to [X.Y.Z] and inserts a
+#   1. VERSION             — plain-text version "X.Y.Z"
+#   2. Cargo.toml          — [workspace.package] version = "X.Y.Z"
+#   3. Cargo.lock          — regenerated via `cargo update --workspace`
+#   4. CHANGELOG.md        — promotes [Unreleased] to [X.Y.Z] and inserts a
 #                            fresh [Unreleased] header; updates diff links
-#   4. README.md           — badge URL containing the old version string
-#   5. Any *.md / *.toml / *.yml / *.yaml / *.json file that contains an
+#   5. README.md           — badge URL containing the old version string
+#   6. Any *.md / *.toml / *.yml / *.yaml / *.json file that contains an
 #      explicit "version = \"OLD\"" or "version: OLD" line that matches the
 #      workspace version exactly (skips dependency version lines)
 #
@@ -96,9 +101,9 @@ sedi() {
 }
 
 apply() {
-  # apply <description> <file> <sed-expression>
-  local desc="$1" file="$2" expr="$3"
-  if grep -qE "${expr//\//\\/}" "$file" 2>/dev/null; then
+  # apply <description> <file> <sed-expression> <search-pattern>
+  local desc="$1" file="$2" expr="$3" pattern="${4:-$CURRENT_VERSION}"
+  if grep -qE "$pattern" "$file" 2>/dev/null; then
     if $EXECUTE; then
       sedi "$expr" "$file"
       ok "Updated  $file  ($desc)"
@@ -108,16 +113,29 @@ apply() {
   fi
 }
 
-# ── 1. Cargo.toml — workspace.package version ────────────────────────────────
+# ── 1. VERSION file ──────────────────────────────────────────────────────────
+# Explicitly update the plain-text VERSION file.
+VERSION_FILE="$ROOT/VERSION"
+if [[ -f "$VERSION_FILE" ]]; then
+  if $EXECUTE; then
+    echo "$NEXT_VERSION" > "$VERSION_FILE"
+    ok "Updated  $VERSION_FILE  ($CURRENT_VERSION → $NEXT_VERSION)"
+  else
+    warn "Would update  $VERSION_FILE  ($CURRENT_VERSION → $NEXT_VERSION)"
+  fi
+fi
+
+# ── 2. Cargo.toml — workspace.package version ────────────────────────────────
 # Only replaces the version line that is inside [workspace.package]; the awk
 # approach above confirmed it exists. We use a targeted sed that matches the
 # exact quoted version string on a line starting with `version`.
 apply \
   "[workspace.package] version" \
   "$CARGO_TOML" \
-  "s/^\\(version[[:space:]]*=[[:space:]]*\\)\"${CURRENT_VERSION}\"/\\1\"${NEXT_VERSION}\"/"
+  "s/^\\(version[[:space:]]*=[[:space:]]*\\)\"${CURRENT_VERSION}\"/\\1\"${NEXT_VERSION}\"/" \
+  "^version[[:space:]]*=[[:space:]]*\"${CURRENT_VERSION}\""
 
-# ── 2. Any crate Cargo.toml with a standalone (non-workspace) version line ───
+# ── 3. Any crate Cargo.toml with a standalone (non-workspace) version line ───
 # Workspace members use `version.workspace = true`, so this only fires for
 # crates that pin their own version explicitly.
 while IFS= read -r -d '' toml; do
@@ -125,10 +143,11 @@ while IFS= read -r -d '' toml; do
   apply \
     "standalone package version" \
     "$toml" \
-    "s/^\\(version[[:space:]]*=[[:space:]]*\\)\"${CURRENT_VERSION}\"/\\1\"${NEXT_VERSION}\"/"
+    "s/^\\(version[[:space:]]*=[[:space:]]*\\)\"${CURRENT_VERSION}\"/\\1\"${NEXT_VERSION}\"/" \
+    "^version[[:space:]]*=[[:space:]]*\"${CURRENT_VERSION}\""
 done < <(find "$ROOT/crates" -name "Cargo.toml" -print0 2>/dev/null)
 
-# ── 3. CHANGELOG.md — promote [Unreleased] and insert fresh header ───────────
+# ── 4. CHANGELOG.md — promote [Unreleased] and insert fresh header ───────────
 CHANGELOG="$ROOT/CHANGELOG.md"
 TODAY=$(date -u +%Y-%m-%d)
 
@@ -159,18 +178,27 @@ ${NEW_LINK}" "$CHANGELOG"
   fi
 fi
 
-# ── 4. README.md — version badge and any explicit version strings ─────────────
+# ── 5. README.md — project version strings ────────────────────────────────────
 README="$ROOT/README.md"
 if [[ -f "$README" ]]; then
-  # Badge: rust-1.87%2B style URLs are toolchain badges, not crate version —
-  # skip those. Only replace bare version strings like "0.1.0".
+  # Matches project version badges: [!badge](.../badge/version-0.1.0-blue)
+  # Does NOT match template evolution badges: [!badge](.../badge/evolution-0.2.2-blue)
   apply \
-    "version string" \
+    "version badge" \
     "$README" \
-    "s/${CURRENT_VERSION}/${NEXT_VERSION}/g"
+    "s/badge\/version-${CURRENT_VERSION}/badge\/version-${NEXT_VERSION}/g" \
+    "badge/version-${CURRENT_VERSION}"
+
+  # Also handle generic version strings but avoid common false positives.
+  # This targets "version 0.1.0" or similar in text.
+  apply \
+    "version text" \
+    "$README" \
+    "s/version ${CURRENT_VERSION}/version ${NEXT_VERSION}/g" \
+    "version ${CURRENT_VERSION}"
 fi
 
-# ── 5. Broad scan: *.md, *.yml, *.yaml, *.json outside target/ and .git/ ─────
+# ── 6. Broad scan: *.md, *.yml, *.yaml, *.json outside target/ and .git/ ─────
 # Matches lines of the form:
 #   version: "0.1.0"   (YAML)
 #   version = "0.1.0"  (TOML / shell)
@@ -186,18 +214,17 @@ while IFS= read -r -d '' file; do
   [[ "$file" == "$CHANGELOG" ]] && continue
   [[ "$file" == "$README" ]] && continue
   # Skip workflow files that reference the version only in comments
-  if grep -qE "$VERSION_LINE_PATTERN" "$file" 2>/dev/null; then
-    apply \
-      "version line" \
-      "$file" \
-      "s/\\(^[[:space:]]*\\(\"version\"\\|version\\)[[:space:]]*[:=][[:space:]]*\\)\"${CURRENT_VERSION}\"/\\1\"${NEXT_VERSION}\"/"
-  fi
+  apply \
+    "version line" \
+    "$file" \
+    "s/\\(^[[:space:]]*\\(\"version\"\\|version\\)[[:space:]]*[:=][[:space:]]*\\)\"${CURRENT_VERSION}\"/\\1\"${NEXT_VERSION}\"/" \
+    "$VERSION_LINE_PATTERN"
 done < <(find "$ROOT" \
   \( -path "$ROOT/target" -o -path "$ROOT/.git" \) -prune \
   -o \( -name "*.md" -o -name "*.yml" -o -name "*.yaml" -o -name "*.json" \) \
   -print0)
 
-# ── 6. Regenerate Cargo.lock ──────────────────────────────────────────────────
+# ── 7. Regenerate Cargo.lock ──────────────────────────────────────────────────
 if $EXECUTE; then
   info "Regenerating Cargo.lock..."
   cargo update --workspace --quiet
