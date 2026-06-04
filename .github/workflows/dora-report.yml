@@ -7,8 +7,10 @@ on:
 
 jobs:
   dora-report:
-    # Only run on the first Monday of the month
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0 * * 1'
+    # Only run on the first Monday of the month; template-only: skip in generated repos
+    if: >-
+      github.repository == 'd-oit/rust-2026-template' &&
+      (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0 * * 1')
     runs-on: ubuntu-latest
     permissions:
       contents: write
