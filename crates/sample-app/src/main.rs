@@ -10,6 +10,7 @@
 
 use clap::Parser;
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 use std::fmt::Write;
 use std::io::{BufReader, Read};
 use std::path::PathBuf;
@@ -102,7 +103,8 @@ struct Args {
 /// This excludes standard control characters and Unicode bidirectional (Bidi)
 /// control characters which can be used for log injection.
 #[inline]
-fn is_safe_char(c: char) -> bool {
+#[must_use]
+pub fn is_safe_char(c: char) -> bool {
     // Bolt: Fast path for ASCII printable characters (' ' to '~')
     // to bypass complex Unicode and Bidi checks for common cases.
     if matches!(c, ' '..='~') {
@@ -132,8 +134,32 @@ fn is_safe_char(c: char) -> bool {
     )
 }
 
+/// Sanitizes a string by replacing unsafe characters with '?'.
+///
+/// Returns a `Cow::Borrowed` if no changes were needed, avoiding unnecessary allocations.
+#[must_use]
+pub fn sanitize_str(s: &str) -> Cow<'_, str> {
+    let mut chars = s.char_indices();
+    while let Some((idx, c)) = chars.next() {
+        if !is_safe_char(c) {
+            let mut result = String::with_capacity(s.len());
+            result.push_str(&s[..idx]);
+            result.push('?');
+            for (_, c) in chars {
+                if is_safe_char(c) {
+                    result.push(c);
+                } else {
+                    result.push('?');
+                }
+            }
+            return Cow::Owned(result);
+        }
+    }
+    Cow::Borrowed(s)
+}
+
 /// Load configuration from file or use defaults
-fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
+pub fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
     // Security: Check file size before reading to prevent DoS (memory exhaustion)
     // Use a 1MB limit for configuration files
     const MAX_CONFIG_SIZE: u64 = 1024 * 1024;
@@ -146,10 +172,7 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
         // Security: Sanitize path for logging and errors to prevent log injection.
         // Replace unsafe characters (control, Bidi) with '?' to keep logs safe.
         let path_str = path.to_string_lossy();
-        let sanitized_path: String = path_str
-            .chars()
-            .map(|c| if is_safe_char(c) { c } else { '?' })
-            .collect();
+        let sanitized_path = sanitize_str(&path_str);
 
         info!("Loading config from: {sanitized_path}");
 
@@ -207,7 +230,7 @@ fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
 }
 
 /// Initialize logging with tracing
-fn init_logging(verbose: bool) {
+pub fn init_logging(verbose: bool) {
     let level = if verbose {
         tracing::Level::DEBUG
     } else {
@@ -235,7 +258,7 @@ static DIGITS_TABLE: [&str; 100] = [
 ];
 
 /// Process items and return a result
-fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
+pub fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
     info!("Processing {} items (limit: {})", count, limit);
 
     if count == 0 {
@@ -296,7 +319,7 @@ fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
 }
 
 /// Main application entry point
-fn main() -> Result<()> {
+pub fn main() -> Result<()> {
     // Parse CLI arguments
     let args = Args::parse();
 
