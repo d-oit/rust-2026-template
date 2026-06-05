@@ -6,6 +6,7 @@ edition = "2024"
 
 [dependencies]
 rust-2026-template = { path = ".." }
+sample-app = { path = "../crates/sample-app" }
 
 [dev-dependencies]
 criterion = { workspace = true }
@@ -16,4 +17,9 @@ harness = false
 
 [[bench]]
 name = "memory_usage"
+harness = false
+
+[[bench]]
+name = "sanitization"
+path = "benches/sanitization_bench.rs"
 harness = false
