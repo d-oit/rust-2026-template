@@ -12,6 +12,9 @@ readme = "README.md"
 description = "Sample application demonstrating the rust-2026-template"
 include = ["/src", "README.md", "LICENSE"]
 
+[lints]
+workspace = true
+
 [lib]
 name = "sample_app"
 path = "src/main.rs"

@@ -5,5 +5,8 @@ edition.workspace = true
 description = "Template pattern: registry-based handler dispatch"
 publish = false
 
+[lints]
+workspace = true
+
 [dependencies]
 thiserror = { workspace = true }
