@@ -54,6 +54,14 @@ For multi-agent orchestration, skill chaining, and handoff protocol, see **[`.ag
 | `codacy` | Codacy static analysis and PR triage workflows (see `.codacy/` for tool configs) |
 | `dora-report` | Automated DORA and agentic metrics reporting (run monthly) |
 
+## Session Bootstrap
+
+The repository includes a `SessionStart` hook to auto-inject project context at the start of an agent session. This helps agents orient themselves quickly without manual discovery.
+
+- **Hook:** `hooks/session-start.sh`
+- **Config:** `docflow.json`
+- **Integration:** Registered in `.claude/settings.json` for Claude.
+
 ## Responding to Release Failures
 
 If you see an open issue with label `release-failure`:
