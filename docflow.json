@@ -1,0 +1,5 @@
+{
+  "docs_root": "docs",
+  "changelog": "CHANGELOG.md",
+  "hook": "hooks/session-start.sh"
+}
