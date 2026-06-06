@@ -5,6 +5,9 @@ edition.workspace = true
 description = "Template pattern: trait-only storage layer with swappable backends"
 publish = false
 
+[lints]
+workspace = true
+
 [features]
 default = []
 sqlite = ["dep:rusqlite"]

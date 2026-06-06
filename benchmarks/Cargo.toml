@@ -4,6 +4,9 @@ version = "0.0.0"
 publish = false
 edition = "2024"
 
+[lints]
+workspace = true
+
 [dependencies]
 rust-2026-template = { path = ".." }
 sample-app = { path = "../crates/sample-app" }
