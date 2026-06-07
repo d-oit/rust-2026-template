@@ -34,7 +34,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
         with:
           toolchain: nightly
-      - uses: taiki-e/install-action@6887963ccf37a9ddcd8c5fa4baeb3e1e5fd61fa1  # v2
+      - uses: taiki-e/install-action@56545b37b57562edd73171cb6c62cc509db4c34e  # v2
         with:
           tool: cargo-fuzz
       - run: >
