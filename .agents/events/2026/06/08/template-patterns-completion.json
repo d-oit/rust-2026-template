@@ -1,0 +1,33 @@
+{
+  "task": "Create reusable pattern templates",
+  "outcome": "completed",
+  "created_files": [
+    "crates/mcp-server-template/Cargo.toml",
+    "crates/mcp-server-template/src/lib.rs",
+    "crates/mcp-server-template/src/tool.rs",
+    "crates/mcp-server-template/src/tools.rs",
+    "crates/mcp-server-template/README.md",
+    "crates/actor-runtime-template/Cargo.toml",
+    "crates/actor-runtime-template/src/lib.rs",
+    "crates/actor-runtime-template/src/actor.rs",
+    "crates/actor-runtime-template/src/supervisor.rs",
+    "crates/actor-runtime-template/README.md",
+    "crates/checkpoint-template/Cargo.toml",
+    "crates/checkpoint-template/src/lib.rs",
+    "crates/checkpoint-template/src/migration.rs",
+    "crates/checkpoint-template/src/storage.rs",
+    "crates/checkpoint-template/README.md",
+    "crates/hybrid-storage-template/Cargo.toml",
+    "crates/hybrid-storage-template/src/lib.rs",
+    "crates/hybrid-storage-template/src/backends/mod.rs",
+    "crates/hybrid-storage-template/src/backends/kv.rs",
+    "crates/hybrid-storage-template/src/backends/sqlite.rs",
+    "crates/hybrid-storage-template/README.md",
+    "plans/adr/0003-template-crate-patterns.md"
+  ],
+  "tests_added": 13,
+  "files_modified": [
+    "scripts/quality-gates.sh"
+  ],
+  "human_interventions": 0
+}
