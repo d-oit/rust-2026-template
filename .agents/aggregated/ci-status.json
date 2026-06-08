@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-06-08T10:49:55Z",
+  "commit": "249bcbf8a67e7b5f5ab6e726ebddf8ac23756cd2",
+  "branch": "main",
+  "jobs": {
+    "validate-agents": "success",
+    "lint": "success",
+    "shellcheck": "success",
+    "gitleaks": "success",
+    "fmt": "success",
+    "clippy": "success",
+    "test": "success",
+    "security": "success",
+    "deny": "success",
+    "bench": "success",
+    "version-check": "success",
+    "msrv": "success"
+  },
+  "overall": "success"
+}
