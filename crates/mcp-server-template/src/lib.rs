@@ -111,6 +111,19 @@ impl McpServer {
         };
         tool.handle(request).await.map_err(ServerError::Tool)
     }
+
+    /// Initialize all registered tools.
+    pub async fn init(&self) -> Result<(), ServerError> {
+        let tool_names: Vec<_> = self.list_tools().await;
+        for name in &tool_names {
+            let tool = {
+                let tools = self.tools.read().await;
+                tools.get(name.as_str()).cloned().unwrap().clone()
+            };
+            tool.init().await?;
+        }
+        Ok(())
+    }
 }
 
 impl Default for McpServer {
@@ -159,5 +172,42 @@ mod tests {
         let request = ToolRequest::new(Value::String("hello world".to_string()));
         let response = server.execute_tool("echo", request).await.unwrap();
         assert_eq!(response.result, Value::String("hello world".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_execute_calc_tool_add() {
+        let server = McpServer::new();
+        server.register(CalcTool).await.unwrap();
+
+        let request = ToolRequest::new(serde_json::json!({"op": "add", "a": 2.0, "b": 3.0}));
+        let response = server.execute_tool("calc", request).await.unwrap();
+        assert!(response.success);
+        assert_eq!(
+            response.result,
+            Value::Number(serde_json::Number::from_f64(5.0).unwrap())
+        );
+    }
+
+    #[tokio::test]
+    async fn test_tool_init() {
+        let server = McpServer::new();
+        server.register(EchoTool).await.unwrap();
+        server.register(CalcTool).await.unwrap();
+
+        server.init().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_tool_request_with_metadata() {
+        let request = ToolRequest::new(Value::String("test".to_string()))
+            .with_metadata(Value::String("meta".to_string()));
+        assert!(request.metadata.is_some());
+    }
+
+    #[tokio::test]
+    async fn test_tool_response_failure() {
+        let response = ToolResponse::failure("error message".to_string());
+        assert!(!response.success);
+        assert_eq!(response.result, Value::String("error message".to_string()));
     }
 }

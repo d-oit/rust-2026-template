@@ -32,19 +32,16 @@ use serde_json::Value;
 use std::path::Path;
 use std::time::SystemTime;
 use thiserror::Error;
-use tracing::{info, warn};
+use tracing::info;
 
 pub use migration::MigrationError;
-pub use storage::FileStorage;
+use storage::FileStorage;
 
-/// Checkpoint metadata for versioning.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Checkpoint header stored with each checkpoint file.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CheckpointHeader {
-    /// Schema version.
     pub version: u32,
-    /// When the checkpoint was created.
     pub created_at: SystemTime,
-    /// Application name for namespacing.
     pub app_name: String,
 }
 
@@ -138,10 +135,7 @@ impl<T: Storable> CheckpointManager<T> {
     pub async fn load(&self) -> Result<Option<T>, CheckpointError> {
         let (header, data) = match self.storage.load().await {
             Ok(v) => v,
-            Err(e) => {
-                warn!("No checkpoint found: {}", e);
-                return Ok(None);
-            }
+            Err(_) => return Ok(None),
         };
 
         // Handle version mismatch
@@ -156,5 +150,45 @@ impl<T: Storable> CheckpointManager<T> {
             .map_err(|e| CheckpointError::Serialization(e.to_string()))?;
 
         Ok(Some(state))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::TempDir;
+
+    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+    struct TestState {
+        value: u32,
+    }
+
+    impl Storable for TestState {
+        fn version() -> u32 {
+            1
+        }
+    }
+
+    #[tokio::test]
+    async fn test_checkpoint_manager_save_load() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("test.ckpt");
+
+        let mut manager = CheckpointManager::new(&path);
+        let state = TestState { value: 42 };
+
+        manager.save(&state).await.unwrap();
+        let loaded = manager.load().await.unwrap();
+        assert_eq!(loaded, Some(state));
+    }
+
+    #[tokio::test]
+    async fn test_checkpoint_manager_not_found() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("nonexistent.ckpt");
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await.unwrap();
+        assert!(result.is_none());
     }
 }

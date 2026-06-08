@@ -1,6 +1,7 @@
 //! Checkpoint storage backends.
 
 use super::CheckpointHeader;
+pub use super::MigrationError;
 use std::path::PathBuf;
 use std::time::SystemTime;
 use tokio::fs;

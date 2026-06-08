@@ -137,3 +137,49 @@ pub trait ActorState: Send + Sync + Clone + 'static {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_restart_strategy_backoff() {
+        let strategy = RestartStrategy::Backoff {
+            initial: Duration::from_millis(100),
+            max: Duration::from_millis(1000),
+            max_retries: 3,
+        };
+
+        let first = strategy.next_backoff(0).unwrap();
+        assert_eq!(first, Duration::from_millis(100));
+
+        let second = strategy.next_backoff(1).unwrap();
+        assert_eq!(second, Duration::from_millis(200));
+    }
+
+    #[test]
+    fn test_restart_strategy_never_returns_none() {
+        let strategy = RestartStrategy::Never;
+        assert!(strategy.next_backoff(0).is_none());
+    }
+
+    #[test]
+    fn test_backoff_at_max_retries_returns_none() {
+        let strategy = RestartStrategy::Backoff {
+            initial: Duration::from_millis(100),
+            max: Duration::from_millis(1000),
+            max_retries: 1,
+        };
+        assert!(strategy.next_backoff(1).is_none());
+    }
+
+    #[derive(Debug, Clone)]
+    struct CustomState;
+    impl ActorState for CustomState {}
+
+    #[test]
+    fn test_actor_state_validate() {
+        let state = CustomState;
+        assert!(state.validate().is_ok());
+    }
+}

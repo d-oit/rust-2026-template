@@ -3,8 +3,6 @@
 #[cfg(feature = "sqlite")]
 pub mod sqlite;
 
-pub mod kv;
-
 use crate::StorageError;
 
 /// Memory backend for testing.
@@ -54,5 +52,23 @@ impl crate::Backend for MemoryBackend {
             .filter(|k| k.starts_with(prefix))
             .cloned()
             .collect())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Backend;
+
+    #[tokio::test]
+    async fn test_list_keys() {
+        let backend = MemoryBackend::new();
+        backend.set("user:1", "a").await.unwrap();
+        backend.set("user:2", "b").await.unwrap();
+        backend.set("config:x", "c").await.unwrap();
+
+        let mut keys = backend.list_keys("user:").await.unwrap();
+        keys.sort();
+        assert_eq!(keys, vec!["user:1", "user:2"]);
     }
 }

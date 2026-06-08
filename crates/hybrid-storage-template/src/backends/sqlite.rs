@@ -34,3 +34,20 @@ impl crate::Backend for SqliteBackend {
         Ok(Vec::new())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Backend;
+
+    #[tokio::test]
+    async fn test_sqlite_backend_placeholder() {
+        let backend = SqliteBackend::new("file::memory:?cache=shared")
+            .await
+            .unwrap();
+        assert!(backend.get("test").await.unwrap().is_none());
+        assert!(backend.set("test", "value").await.is_ok());
+        assert!(!backend.delete("test").await.unwrap());
+        assert!(backend.list_keys("").await.unwrap().is_empty());
+    }
+}

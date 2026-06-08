@@ -155,4 +155,35 @@ mod tests {
         let result = actor.receive(msg).await.unwrap();
         assert_eq!(result, Lifecycle::Stopped);
     }
+
+    #[tokio::test]
+    async fn test_actor_process() {
+        let state = TestState { count: 0 };
+        let mut actor = Actor::new(state);
+        let msg = ActorMessage::Process("test work".to_string());
+        let result = actor.receive(msg).await.unwrap();
+        assert_eq!(result, Lifecycle::Started);
+    }
+
+    #[tokio::test]
+    async fn test_actor_ping() {
+        let state = TestState { count: 0 };
+        let mut actor = Actor::new(state);
+        let (tx, mut rx) = mpsc::channel::<()>(1);
+        let msg = ActorMessage::Ping { respond_to: tx };
+        let result = actor.receive(msg).await.unwrap();
+        assert_eq!(result, Lifecycle::Started);
+        let _ = rx.recv().await;
+    }
+
+    #[tokio::test]
+    async fn test_actor_runtime() {
+        let state = TestState { count: 0 };
+        let (tx, rx) = mpsc::channel::<ActorMessage<TestState>>(1);
+        let handle = tokio::spawn(async { Actor::new(state).run(rx).await });
+
+        tx.send(ActorMessage::Stop).await.unwrap();
+        let result = handle.await.unwrap();
+        assert_eq!(result, Lifecycle::Stopped);
+    }
 }

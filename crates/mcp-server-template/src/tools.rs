@@ -17,6 +17,13 @@ impl Tool for EchoTool {
         "Returns the input exactly as received"
     }
 
+    fn validate(&self, input: &Value) -> Result<(), ToolError> {
+        if input.is_null() {
+            return Err(ToolError::InvalidInput("Input cannot be null".to_string()));
+        }
+        Ok(())
+    }
+
     async fn handle(&self, request: ToolRequest) -> Result<ToolResponse, ToolError> {
         Ok(ToolResponse::success(request.input))
     }
