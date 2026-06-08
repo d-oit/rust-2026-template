@@ -95,15 +95,7 @@ Edit these files with your project details:
 | `SECURITY.md` | Your security contact / advisory link |
 | `CONTRIBUTING.md` | Your contribution process |
 
-### 7. Template Cleanup (Optional)
-
-This template includes internal maintenance files that are not needed for your project. You can safely remove them:
-
-```bash
-rm CHANGELOG-TEMPLATE.md
-```
-
-## 8. Push and Watch CI Pass
+## 7. Push and Watch CI Pass
 
 ```bash
 git add -A

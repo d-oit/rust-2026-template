@@ -132,6 +132,8 @@ jobs:
           github.event_name == 'pull_request' &&
           !contains(github.actor, '[bot]')
         uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed  # v6
+        with:
+          configFile: ./commitlint.config.cjs
 
   # ───────────────────────────────────────────────────
   shellcheck:
@@ -320,20 +322,22 @@ jobs:
           sudo apt-get install -y mold
       - name: Run benchmarks
         run: cargo bench --workspace -- --output-format bencher 2>&1 | tee bench-output.txt
-      - name: Parse and append bench results
+      - name: Parse and save bench results
         run: |
+          BENCH_DIR="benchmarks/events/$(date -u +%Y/%m/%d)"
+          mkdir -p "${BENCH_DIR}"
           python3 scripts/parse_bench.py bench-output.txt \
             ${{ github.sha }} $(date -u +%Y-%m-%dT%H:%M:%SZ) \
-            >> benchmarks/history.jsonl
-      - name: Upload benchmark history
+            > "${BENCH_DIR}/${{ github.sha }}.jsonl"
+      - name: Upload benchmark events
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: benchmark-history
-          path: benchmarks/history.jsonl
+          name: benchmark-events
+          path: benchmarks/events/
 
   # ───────────────────────────────────────────────────
-  project-version-consistency:
-    name: Project Version Consistency
+  version-check:
+    name: VERSION consistency check
     needs: [changes]
     if: >
       github.event_name != 'pull_request' ||
@@ -342,8 +346,7 @@ jobs:
       needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Reusable project version check
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Check VERSION matches Cargo.toml
         run: |
           VERSION=$(cat VERSION)
@@ -392,41 +395,24 @@ jobs:
   # ───────────────────────────────────────────────────
   ci-success:
     name: CI Success
-    needs:
-      - validate-agents
-      - lint
-      - shellcheck
-      - gitleaks
-      - fmt
-      - clippy
-      - test
-      - security
-      - deny
-      - bench
-      - project-version-consistency
-      - msrv
+    needs: [validate-agents, lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv]
     runs-on: ubuntu-latest
     if: always()
     permissions:
       contents: write  # needed to persist CI status files to main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - name: Download benchmark history
+      - name: Download benchmark events
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v4
         with:
-          name: benchmark-history
-          path: benchmark-history-artifact
+          name: benchmark-events
+          path: benchmarks/events
         continue-on-error: true
-
-      - name: Sync benchmark history
-        run: |
-          if [ -f benchmark-history-artifact/history.jsonl ]; then
-            cp benchmark-history-artifact/history.jsonl benchmarks/history.jsonl
-          fi
 
       - name: Write CI status summary
         run: |
-          cat > ci-status.json << EOF
+          mkdir -p .agents/aggregated
+          cat > .agents/aggregated/ci-status.json << EOF
           {
             "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "commit": "${{ github.sha }}",
@@ -442,7 +428,7 @@ jobs:
               "security": "${{ needs.security.result }}",
               "deny": "${{ needs.deny.result }}",
               "bench": "${{ needs.bench.result }}",
-              "project-version-consistency": "${{ needs.project-version-consistency.result }}",
+              "version-check": "${{ needs.version-check.result }}",
               "msrv": "${{ needs.msrv.result }}"
             },
             "overall": "${{ job.status }}"
@@ -472,7 +458,7 @@ jobs:
             STATUS_BENCH="❌ failed"
           fi
 
-          cat > ci-summary.md << EOF
+          cat > .agents/aggregated/ci-summary.md << EOF
           # CI Status Summary
 
           **Last updated:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -500,16 +486,16 @@ jobs:
         with:
           name: ci-status
           path: |
-            ci-status.json
-            ci-summary.md
+            .agents/aggregated/ci-status.json
+            .agents/aggregated/ci-summary.md
 
       - name: Persist CI data to main
         if: github.ref == 'refs/heads/main' && always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ci-summary.md benchmarks/history.jsonl ci-status.json
-          git commit -m "chore: update CI status and benchmark history [skip ci]" || true
+          git add .agents/aggregated/ benchmarks/events/
+          git commit -m "chore: update CI status and benchmark events [skip ci]" || true
           git push origin main
         continue-on-error: true
 
@@ -526,7 +512,7 @@ jobs:
             "${{ needs.security.result }}"
             "${{ needs.deny.result }}"
             "${{ needs.bench.result }}"
-            "${{ needs.project-version-consistency.result }}"
+            "${{ needs.version-check.result }}"
             "${{ needs.msrv.result }}"
           )
           for res in "${results[@]}"; do
