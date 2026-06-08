@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)](https://www.rust-lang.org)
 [![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
-[![Template Evolution](https://img.shields.io/badge/evolution-0.2.2-blue)](CHANGELOG-TEMPLATE.md)
+[![Template Version](https://img.shields.io/badge/version-0.2.2-blue)](CHANGELOG-TEMPLATE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <!-- cargo-sync-readme start -->
@@ -41,12 +41,10 @@ This repository uses a layered documentation strategy to serve both human develo
 
 | Layer | File / Directory | Audience | Purpose |
 |-------|------------------|----------|---------|
-| **Human Onboarding** | `README.md` | Developers | High-level project overview and feature set |
-| **Human Setup** | `QUICKSTART.md` | Developers | Step-by-step first-run project setup |
-| **Agent Contract** | `AGENTS.md` | AI Agents | Canonical rules and instructions for coding agents |
-| **Agent Skills** | `.agents/skills/` | AI Agents | Executable task knowledge and workflow procedures |
-| **Machine Context** | `llms.txt` | LLMs | Token-efficient project context for LLMs |
-| **Tool Adapters** | `CLAUDE.md`, `QWEN.md` | Specific Tools | Tool-specific harness deltas and entry points |
+| **Human Onboarding** | `README.md`, `QUICKSTART.md` | Humans | High-level project overview and setup |
+| **Agent Contract** | `AGENTS.md` | AI Agents | Canonical rules and project contract (SSOT) |
+| **Reusable Procedures** | `.agents/skills/` | AI Agents | Step-by-step executable task knowledge |
+| **Tool Adapters** | `CLAUDE.md`, `.cursorrules`, etc. | Specific Tools | Tool-specific deltas and harness quirks |
 
 ## Included Tooling
 
@@ -136,7 +134,7 @@ See **[AGENTS.md](AGENTS.md)** for instructions on maintaining and using these c
 The project uses several directories for generated artifacts and documentation:
 
 - **`reports/`**: Standardized directory for generated HTML reports (coverage, audit, benchmarks). This directory is git-ignored by default.
-- **`ci-status.json` / `ci-summary.md`**: Machine-readable and human-friendly CI health baselines.
+- **`.agents/aggregated/`**: Machine-readable and human-friendly CI health baselines.
 - **`target/`**: Rust build artifacts.
 
 ## VERSION File
@@ -147,21 +145,10 @@ A `VERSION` file at the repo root serves as a plain-text single source of truth 
 
 ```bash
 VERSION=$(cat VERSION)
-echo "Initializing project at version $VERSION"
+echo "Building version $VERSION"
 ```
 
-**Note:** This file is for the generated project's versioning lifecycle. It is *not* used to track the internal evolution of the template itself (see [Template Internals](#template-internals)).
-
-The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to ensure consistency within the generated project.
-
-## Template Internals
-
-This repository maintains a clear separation between template-maintenance metadata and downstream project metadata:
-
-- **`CHANGELOG-TEMPLATE.md`**: Internal history and versioning for the template repository itself.
-- **`VERSION` / `CHANGELOG.md`**: Starter files for the new project created from the template.
-
-Downstream consumers can safely ignore or delete `CHANGELOG-TEMPLATE.md` after the project has been initialized.
+The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to main.
 
 ## Customization Guidance
 

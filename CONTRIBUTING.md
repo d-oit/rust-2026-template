@@ -91,8 +91,7 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - [ ] `cargo deny check` passes
 - [ ] Coverage targets met (as defined in `.codecov.yml`)
 - [ ] Documentation updated if API changed
-- [ ] `CHANGELOG.md` updated (for project-facing changes)
-- [ ] `CHANGELOG-TEMPLATE.md` updated (for template-internal changes)
+- [ ] `CHANGELOG.md` updated
 - [ ] `shellcheck` passes for all shell scripts
 
 ## Release Process
@@ -101,27 +100,15 @@ We use `cargo-release` for version management and `cargo-dist` for artifact gene
 
 ### Cutting a Release
 
-Releases in this repository follow two different lifecycles:
-
-#### 1. Project Releases (for generated projects)
-These releases use `VERSION`, `Cargo.toml`, and `CHANGELOG.md`.
-
-1. Run `cargo release <patch|minor|major>` to prepare the release.
-    - This will run quality gates (via `scripts/pre-release-hook.sh`), bump versions in `Cargo.toml` and `VERSION`, update `CHANGELOG.md` (via `git-cliff`), and create a tag.
-2. Push the tag to trigger the GitHub Actions release workflow.
+1. Ensure you are on the `main` branch and it's up to date.
+2. Run `cargo release <patch|minor|major>` to prepare the release.
+    - This will run quality gates (via `scripts/pre-release-hook.sh`), bump versions, update the changelog (via `git-cliff`), and create a tag.
+3. Push the tag to trigger the GitHub Actions release workflow.
 
 ```bash
 cargo release patch --execute
 git push --tags
 ```
-
-#### 2. Template Releases (internal template evolution)
-These releases track changes to the template itself and are documented in `CHANGELOG-TEMPLATE.md`.
-
-1. Update the `Template Evolution` version badge in `README.md`.
-2. Add a new version entry in `CHANGELOG-TEMPLATE.md`.
-3. Commit and tag with the template version (e.g., `git tag template-v0.2.3`).
-4. **Note:** Template releases do *not* typically change the project `VERSION` or `Cargo.toml` version, as those represent the starter state for new projects.
 
 ## Template-Specific Guidance
 
@@ -130,7 +117,7 @@ This is a **generic Rust template**, not a standalone application. Changes shoul
 - Remain generic and reusable for any Rust project
 - Not add application-specific logic
 - Keep the `example-crate` as a minimal, illustrative placeholder
-- Be documented in `CHANGELOG-TEMPLATE.md`
+- Be documented in `CHANGELOG.md`
 
 ### Publishing to crates.io
 

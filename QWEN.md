@@ -1,4 +1,6 @@
-@AGENTS.md
+# Qwen Adapter
+# Canonical project rules live in AGENTS.md (max 200 LOC)
+# This file contains ONLY tool-specific differences
+# Do not duplicate repo-wide instructions here
 
-<!-- Qwen Code reads AGENTS.md directly via @-reference above.
-     See AGENTS.md for canonical repository guidance. -->
+@AGENTS.md

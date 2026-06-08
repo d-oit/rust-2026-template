@@ -1,7 +1,6 @@
-# Changelog Template (Template Evolution)
+# Changelog Template
 
-This file documents notable changes to the **rust-2026-template** repository itself.
-For the changelog of projects generated from this template, see `CHANGELOG.md`.
+All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

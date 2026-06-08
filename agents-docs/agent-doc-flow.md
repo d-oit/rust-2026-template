@@ -1,32 +1,46 @@
 # Agent Documentation Flow
 
-This repository follows a **single-source-of-truth** model for agent guidance. All canonical instructions for AI agents are centralized in `AGENTS.md`.
+This repository follows a **3-layer canonical documentation model** to ensure AI agents have high-fidelity, non-redundant project context.
 
-## Canonical Model
+## 1. Canonical Agent Contract (`AGENTS.md`)
 
-- **Primary Source**: `AGENTS.md` (root directory)
-- **Thin References**: `CLAUDE.md`, `GEMINI.md`, `QWEN.md` (root directory)
+- **Role**: Single Source of Truth (SSOT).
+- **Contents**: All repo-wide rules, coding constraints, security invariants, quality gates, and high-level workflows.
+- **Constraint**: Must be kept under 200 lines of code (LOC) to remain token-efficient.
 
-### Thin Reference Specification
+## 2. Reusable Procedures (`.agents/skills/`)
 
-Assistant-specific entrypoints (like `CLAUDE.md`) must be regular files starting with the following directive:
+- **Role**: Executable task knowledge.
+- **Contents**: Step-by-step runbooks for specific tasks (e.g., `release-rust`, `lint-rust`).
+- **Usage**: Referenced by name in `AGENTS.md` and tool adapters.
 
-```text
-@AGENTS.md
+## 3. Tool Adapters (`CLAUDE.md`, `.cursorrules`, etc.)
+
+- **Role**: Platform-specific deltas.
+- **Contents**: Hardware/harness differences, unique tool integrations, and context-loading quirks.
+- **Syntax**: Uses `@AGENTS.md` to point to the canonical contract.
+
+### Standard Header
+
+Each tool adapter must include this standard header:
+
+```markdown
+# <Tool> Adapter
+# Canonical project rules live in AGENTS.md (max 200 LOC)
+# This file contains ONLY tool-specific differences
+# Do not duplicate repo-wide instructions here
 ```
-
-This directive tells the respective assistant to read the main guidance file. These files may contain additional assistant-specific tips and tool usage guidelines that are not common to all agents.
 
 ## Validation
 
 CI automatically validates the integrity of agent entrypoints. The validation script `scripts/validate-agent-entrypoints.sh` ensures:
 
-1. Required assistant files exist.
-2. They contain exactly the minimal forwarding content.
-3. No duplicated instruction content is introduced outside of `AGENTS.md`.
+1. Required tool files exist.
+2. They follow the thin adapter pattern (starting with `@AGENTS.md`).
+3. No duplicated project-wide instruction content is introduced outside of `AGENTS.md`.
 
 ## Maintainer Guidance
 
-- **To update agent guidance**: Edit `AGENTS.md` directly.
-- **To add a new assistant**: Create a new `<ASSISTANT>.md` file in the root containing exactly `@AGENTS.md` and add it to the `AGENT_FILES` list in `scripts/validate-agent-entrypoints.sh`.
-- **Portability**: We use regular files with a text directive instead of filesystem symlinks. This ensures compatibility across all operating systems, git configurations, and archive/export workflows where symlinks might be broken or lost.
+- **To update project rules**: Edit `AGENTS.md`.
+- **To add a workflow**: Create a new skill in `.agents/skills/`.
+- **To add a tool**: Create a new adapter file (e.g., `MYTOOL.md`) and register it in `scripts/validate-agent-entrypoints.sh`.

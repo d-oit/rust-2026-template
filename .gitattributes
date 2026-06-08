@@ -22,3 +22,6 @@ LICENSE  text eol=lf
 .actrc   text eol=lf
 .gitignore text eol=lf
 .envrc   text eol=lf
+
+# Conflict Mitigation for append-only files
+*.jsonl merge=union

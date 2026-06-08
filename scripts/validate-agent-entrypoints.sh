@@ -2,44 +2,56 @@
 set -euo pipefail
 
 # scripts/validate-agent-entrypoints.sh
-# Validates that assistant-specific entrypoints follow the reference model.
+# Validates that assistant-specific entrypoints follow the 3-layer model.
 
+# Root-level adapters
 AGENT_FILES=("CLAUDE.md" "GEMINI.md" "QWEN.md")
-EXPECTED_PREFIX="@AGENTS.md"
+# Subdirectory adapters
+SUB_ADAPTERS=(".claude/rules.md" ".cursor/rules.md" ".gemini/rules.md" ".qwen/rules.md" ".windsurf/rules.md" ".opencode/rules/rust-rules.md")
+
+EXPECTED_REF="@AGENTS.md"
 EXIT_CODE=0
 
 echo "Checking agent entrypoints..."
 
-for file in "${AGENT_FILES[@]}"; do
+for file in "${AGENT_FILES[@]}" "${SUB_ADAPTERS[@]}"; do
     if [[ ! -f "$file" ]]; then
-        echo "❌ Error: Required agent entrypoint '$file' is missing."
+        echo "❌ Error: Required agent adapter '$file' is missing."
         EXIT_CODE=1
         continue
     fi
 
-    # Check if file starts with @AGENTS.md
-    FIRST_LINE=$(head -n 1 "$file")
-
-    if [[ "$FIRST_LINE" == "$EXPECTED_PREFIX" ]]; then
-        echo "✅ $file follows the reference model (starts with $EXPECTED_PREFIX)."
-
-        # Check if the file contains only approved content or at least doesn't duplicate common guidelines
-        # We check for basic existence of content after the prefix
-        if [[ $(wc -l < "$file") -gt 1 ]]; then
-             echo "   (Note: $file contains assistant-specific instructions)"
-        fi
+    # Check if file contains @AGENTS.md
+    if grep -q "$EXPECTED_REF" "$file"; then
+        echo "✅ $file follows the reference model (contains $EXPECTED_REF)."
     else
-        echo "❌ Error: $file is not a valid agent entrypoint."
-        echo "Expected first line to be: '$EXPECTED_PREFIX'"
-        echo "Actual first line was: '$FIRST_LINE'"
+        echo "❌ Error: $file is not a valid agent adapter."
+        echo "Expected file to contain: '$EXPECTED_REF'"
+        EXIT_CODE=1
+    fi
+
+    # Check for the standard header
+    if grep -q "Canonical project rules live in AGENTS.md" "$file"; then
+        echo "✅ $file has the standard header."
+    else
+        echo "❌ Error: $file is missing the standard adapter header."
         EXIT_CODE=1
     fi
 done
 
+# Check AGENTS.md line count
+AGENTS_LOC=$(wc -l < AGENTS.md)
+if [[ "$AGENTS_LOC" -le 200 ]]; then
+    echo "✅ AGENTS.md length ($AGENTS_LOC) is within the 200 LOC limit."
+else
+    echo "❌ Error: AGENTS.md is too long ($AGENTS_LOC lines). Must be <= 200."
+    EXIT_CODE=1
+fi
+
 if [[ $EXIT_CODE -eq 0 ]]; then
     echo "All agent entrypoints are valid."
 else
-    echo "Validation failed. Please ensure assistant-specific files start with '@AGENTS.md'."
+    echo "Validation failed."
 fi
 
 # Return exit code
