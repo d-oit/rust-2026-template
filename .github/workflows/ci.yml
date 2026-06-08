@@ -201,7 +201,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
+        uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696  # v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -231,7 +231,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
+        uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696  # v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -269,7 +269,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
+        uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696  # v0.0.10
       - name: Install cargo-audit
         uses: taiki-e/install-action@56545b37b57562edd73171cb6c62cc509db4c34e  # v2
         with:
@@ -313,7 +313,7 @@ jobs:
         with:
           cache-on-failure: true
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
+        uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696  # v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
@@ -381,7 +381,7 @@ jobs:
           toolchain: "1.88"
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32  # v2
       - name: Enable sccache
-        uses: mozilla-actions/sccache-action@1583d6b38d7be47f593cb472781bbb21cab4321e  # v0.0.10
+        uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696  # v0.0.10
       - name: Install mold linker
         run: |
           sudo apt-get update
