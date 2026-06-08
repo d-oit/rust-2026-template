@@ -1,0 +1,34 @@
+[package]
+name = "hybrid-storage-template"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Hybrid storage template with SQL + KV backends and caching"
+readme = "README.md"
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+tracing = { workspace = true }
+
+# Optional backends
+libsql = { workspace = true, optional = true }
+redb = "1"
+
+[features]
+default = ["sqlite"]
+sqlite = ["dep:libsql"]
+kv = []
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+tempfile = "3"
