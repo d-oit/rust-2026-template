@@ -104,14 +104,16 @@ struct Args {
 /// control characters which can be used for log injection.
 #[inline]
 #[must_use]
-pub fn is_safe_char(c: char) -> bool {
+pub const fn is_safe_char(c: char) -> bool {
     // Bolt: Fast path for ASCII printable characters (' ' to '~')
     // to bypass complex Unicode and Bidi checks for common cases.
     if matches!(c, ' '..='~') {
         return true;
     }
 
-    if c.is_control() {
+    // Bolt: Faster control character check using range instead of is_control().
+    // is_control checks for U+0000..=U+001F, U+007F, and U+0080..=U+009F.
+    if matches!(c, '\u{0000}'..='\u{001F}' | '\u{007F}'..='\u{009F}') {
         return false;
     }
 
@@ -139,23 +141,35 @@ pub fn is_safe_char(c: char) -> bool {
 /// Returns a `Cow::Borrowed` if no changes were needed, avoiding unnecessary allocations.
 #[must_use]
 pub fn sanitize_str(s: &str) -> Cow<'_, str> {
-    let mut chars = s.char_indices();
-    while let Some((idx, c)) = chars.next() {
-        if !is_safe_char(c) {
-            let mut result = String::with_capacity(s.len());
-            result.push_str(&s[..idx]);
+    // Bolt: Fast path byte-scan for ASCII printable strings.
+    // Skips UTF-8 decoding for the common case where the string is already clean.
+    let bytes = s.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        let b = bytes[i];
+        if !(0x20..=0x7E).contains(&b) {
+            break;
+        }
+        i += 1;
+    }
+
+    if i == bytes.len() {
+        return Cow::Borrowed(s);
+    }
+
+    // Slow path: character-by-character processing for Unicode or unsafe characters.
+    let mut result = String::with_capacity(s.len());
+    result.push_str(&s[..i]);
+
+    let chars = s[i..].char_indices();
+    for (_, c) in chars {
+        if is_safe_char(c) {
+            result.push(c);
+        } else {
             result.push('?');
-            for (_, c) in chars {
-                if is_safe_char(c) {
-                    result.push(c);
-                } else {
-                    result.push('?');
-                }
-            }
-            return Cow::Owned(result);
         }
     }
-    Cow::Borrowed(s)
+    Cow::Owned(result)
 }
 
 /// Load configuration from file or use defaults
