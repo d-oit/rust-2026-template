@@ -109,6 +109,8 @@ impl McpServer {
                 .ok_or_else(|| ServerError::ToolNotFound(name.to_string()))?
                 .clone()
         };
+
+        tool.validate(&request.input)?;
         tool.handle(request).await.map_err(ServerError::Tool)
     }
 
@@ -118,7 +120,10 @@ impl McpServer {
         for name in &tool_names {
             let tool = {
                 let tools = self.tools.read().await;
-                tools.get(name.as_str()).cloned().unwrap().clone()
+                tools
+                    .get(name.as_str())
+                    .cloned()
+                    .ok_or_else(|| ServerError::Init(format!("Tool {} missing during init", name)))?
             };
             tool.init().await?;
         }

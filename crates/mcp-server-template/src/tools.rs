@@ -43,13 +43,36 @@ impl Tool for CalcTool {
     }
 
     fn validate(&self, input: &Value) -> Result<(), ToolError> {
-        if !input.is_object() {
-            return Err(ToolError::InvalidInput("Expected object".to_string()));
+        let obj = input
+            .as_object()
+            .ok_or_else(|| ToolError::InvalidInput("Expected object".to_string()))?;
+
+        let op = obj
+            .get("op")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| ToolError::InvalidInput("Missing or invalid 'op' field".to_string()))?;
+
+        match op {
+            "add" | "sub" | "mul" | "div" => {}
+            _ => {
+                return Err(ToolError::InvalidInput(format!(
+                    "Unsupported operation: {op}"
+                )))
+            }
         }
-        let obj = input.as_object().unwrap();
-        if !obj.contains_key("op") || !obj.contains_key("a") || !obj.contains_key("b") {
-            return Err(ToolError::InvalidInput("Missing op, a, or b".to_string()));
+
+        if !obj.get("a").map_or(false, |v| v.is_number()) {
+            return Err(ToolError::InvalidInput(
+                "Missing or invalid 'a' field".to_string(),
+            ));
         }
+
+        if !obj.get("b").map_or(false, |v| v.is_number()) {
+            return Err(ToolError::InvalidInput(
+                "Missing or invalid 'b' field".to_string(),
+            ));
+        }
+
         Ok(())
     }
 
@@ -87,8 +110,27 @@ impl Tool for CalcTool {
             _ => return Err(ToolError::InvalidInput(format!("Unknown operation: {op}"))),
         };
 
-        Ok(ToolResponse::success(Value::Number(
-            serde_json::Number::from_f64(result).unwrap(),
-        )))
+        let result_num = serde_json::Number::from_f64(result)
+            .ok_or_else(|| ToolError::Execution("Result is not a finite number".to_string()))?;
+
+        Ok(ToolResponse::success(Value::Number(result_num)))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_calc_no_panic_on_overflow() {
+        let tool = CalcTool;
+        let request = ToolRequest::new(serde_json::json!({
+            "op": "mul",
+            "a": 1e308,
+            "b": 1e308
+        }));
+        let result = tool.handle(request).await;
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("not a finite number"));
     }
 }
