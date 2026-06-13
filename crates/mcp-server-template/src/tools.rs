@@ -57,17 +57,17 @@ impl Tool for CalcTool {
             _ => {
                 return Err(ToolError::InvalidInput(format!(
                     "Unsupported operation: {op}"
-                )))
+                )));
             }
         }
 
-        if !obj.get("a").map_or(false, |v| v.is_number()) {
+        if !obj.get("a").is_some_and(|v| v.is_number()) {
             return Err(ToolError::InvalidInput(
                 "Missing or invalid 'a' field".to_string(),
             ));
         }
 
-        if !obj.get("b").map_or(false, |v| v.is_number()) {
+        if !obj.get("b").is_some_and(|v| v.is_number()) {
             return Err(ToolError::InvalidInput(
                 "Missing or invalid 'b' field".to_string(),
             ));
@@ -131,6 +131,11 @@ mod tests {
         }));
         let result = tool.handle(request).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("not a finite number"));
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("not a finite number")
+        );
     }
 }
