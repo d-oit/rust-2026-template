@@ -131,7 +131,12 @@ mod tests {
         }));
         let result = tool.handle(request).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("not a finite number"));
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("not a finite number")
+        );
     }
 
     #[tokio::test]
@@ -146,7 +151,11 @@ mod tests {
         // Missing op
         let res = tool.validate(&serde_json::json!({"a": 1, "b": 2}));
         assert!(res.is_err());
-        assert!(res.unwrap_err().to_string().contains("Missing or invalid 'op'"));
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Missing or invalid 'op'")
+        );
 
         // Invalid op type
         let res = tool.validate(&serde_json::json!({"op": 1, "a": 1, "b": 2}));
@@ -155,12 +164,20 @@ mod tests {
         // Unsupported operation
         let res = tool.validate(&serde_json::json!({"op": "pow", "a": 1, "b": 2}));
         assert!(res.is_err());
-        assert!(res.unwrap_err().to_string().contains("Unsupported operation"));
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Unsupported operation")
+        );
 
         // Missing 'a'
         let res = tool.validate(&serde_json::json!({"op": "add", "b": 2}));
         assert!(res.is_err());
-        assert!(res.unwrap_err().to_string().contains("Missing or invalid 'a'"));
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Missing or invalid 'a'")
+        );
 
         // Invalid 'a' type
         let res = tool.validate(&serde_json::json!({"op": "add", "a": "1", "b": 2}));
@@ -169,7 +186,11 @@ mod tests {
         // Missing 'b'
         let res = tool.validate(&serde_json::json!({"op": "add", "a": 1}));
         assert!(res.is_err());
-        assert!(res.unwrap_err().to_string().contains("Missing or invalid 'b'"));
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Missing or invalid 'b'")
+        );
     }
 
     #[tokio::test]
