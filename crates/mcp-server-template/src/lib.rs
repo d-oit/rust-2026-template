@@ -120,9 +120,10 @@ impl McpServer {
         for name in &tool_names {
             let tool = {
                 let tools = self.tools.read().await;
-                tools.get(name.as_str()).cloned().ok_or_else(|| {
-                    ServerError::Init(format!("Tool {name} missing during init"))
-                })?
+                tools
+                    .get(name.as_str())
+                    .cloned()
+                    .ok_or_else(|| ServerError::Init(format!("Tool {name} missing during init")))?
             };
             tool.init().await?;
         }
