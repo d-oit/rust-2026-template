@@ -1,0 +1,12 @@
+# <type>(<scope>): <short summary — max 72 chars>
+#
+# Body (optional) — wrap ALL lines at 100 characters or less
+# Explain WHY this change is necessary, not just WHAT it does.
+#
+# Footer (optional) — wrap ALL lines at 100 characters or less
+# Refs: #<issue>  |  Closes: #<issue>  |  BREAKING CHANGE: <description>
+#
+# Conventional Commit types: feat, fix, docs, style, refactor,
+# perf, test, build, ci, chore, revert
+#
+# body-max-line-length: 100 characters (enforced by commitlint)

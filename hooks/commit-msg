@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# commit-msg: validate commit message with commitlint before it is accepted.
+# Install via: bash scripts/setup-hooks.sh
+set -euo pipefail
+
+MSG_FILE="$1"
+
+if command -v npx &>/dev/null; then
+  npx --yes commitlint --edit "$MSG_FILE"
+else
+  echo "[commit-msg] WARNING: npx not found, skipping commitlint validation."
+  echo "[commit-msg] Install Node.js to enable local commit message validation."
+fi

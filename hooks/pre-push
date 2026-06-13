@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# pre-push: run quality gates before every push.
+# Install via: bash scripts/setup-hooks.sh
+set -euo pipefail
+
+echo "[pre-push] Running cargo fmt check..."
+if ! cargo fmt --all -- --check; then
+  echo "[pre-push] FAILED: Unformatted Rust code detected."
+  echo "[pre-push] Run: cargo fmt --all  then re-commit and push."
+  exit 1
+fi
+
+echo "[pre-push] Running full quality gates..."
+if ! bash scripts/quality-gates.sh; then
+  echo "[pre-push] FAILED: quality-gates.sh did not pass."
+  exit 1
+fi
+
+echo "[pre-push] All checks passed."
