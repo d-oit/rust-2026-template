@@ -131,11 +131,57 @@ mod tests {
         }));
         let result = tool.handle(request).await;
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("not a finite number")
-        );
+        assert!(result.unwrap_err().to_string().contains("not a finite number"));
+    }
+
+    #[tokio::test]
+    async fn test_calc_validation_errors() {
+        let tool = CalcTool;
+
+        // Not an object
+        let res = tool.validate(&serde_json::json!(123));
+        assert!(res.is_err());
+        assert!(res.unwrap_err().to_string().contains("Expected object"));
+
+        // Missing op
+        let res = tool.validate(&serde_json::json!({"a": 1, "b": 2}));
+        assert!(res.is_err());
+        assert!(res.unwrap_err().to_string().contains("Missing or invalid 'op'"));
+
+        // Invalid op type
+        let res = tool.validate(&serde_json::json!({"op": 1, "a": 1, "b": 2}));
+        assert!(res.is_err());
+
+        // Unsupported operation
+        let res = tool.validate(&serde_json::json!({"op": "pow", "a": 1, "b": 2}));
+        assert!(res.is_err());
+        assert!(res.unwrap_err().to_string().contains("Unsupported operation"));
+
+        // Missing 'a'
+        let res = tool.validate(&serde_json::json!({"op": "add", "b": 2}));
+        assert!(res.is_err());
+        assert!(res.unwrap_err().to_string().contains("Missing or invalid 'a'"));
+
+        // Invalid 'a' type
+        let res = tool.validate(&serde_json::json!({"op": "add", "a": "1", "b": 2}));
+        assert!(res.is_err());
+
+        // Missing 'b'
+        let res = tool.validate(&serde_json::json!({"op": "add", "a": 1}));
+        assert!(res.is_err());
+        assert!(res.unwrap_err().to_string().contains("Missing or invalid 'b'"));
+    }
+
+    #[tokio::test]
+    async fn test_calc_division_by_zero() {
+        let tool = CalcTool;
+        let request = ToolRequest::new(serde_json::json!({
+            "op": "div",
+            "a": 10.0,
+            "b": 0.0
+        }));
+        let res = tool.handle(request).await;
+        assert!(res.is_err());
+        assert!(res.unwrap_err().to_string().contains("Division by zero"));
     }
 }
