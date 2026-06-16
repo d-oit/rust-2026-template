@@ -28,24 +28,36 @@ impl MemoryBackend {
 #[async_trait::async_trait]
 impl crate::Backend for MemoryBackend {
     async fn get(&self, key: &str) -> Result<Option<String>, StorageError> {
-        let data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
-        Ok(data.get(key).cloned())
+        Ok(self
+            .data
+            .lock()
+            .map_err(|_| StorageError::Poisoned)?
+            .get(key)
+            .cloned())
     }
 
     async fn set(&self, key: &str, value: &str) -> Result<(), StorageError> {
-        let mut data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
-        data.insert(key.to_string(), value.to_string());
+        self.data
+            .lock()
+            .map_err(|_| StorageError::Poisoned)?
+            .insert(key.to_string(), value.to_string());
         Ok(())
     }
 
     async fn delete(&self, key: &str) -> Result<bool, StorageError> {
-        let mut data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
-        Ok(data.remove(key).is_some())
+        Ok(self
+            .data
+            .lock()
+            .map_err(|_| StorageError::Poisoned)?
+            .remove(key)
+            .is_some())
     }
 
     async fn list_keys(&self, prefix: &str) -> Result<Vec<String>, StorageError> {
-        let data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
-        Ok(data
+        Ok(self
+            .data
+            .lock()
+            .map_err(|_| StorageError::Poisoned)?
             .keys()
             .filter(|k| k.starts_with(prefix))
             .cloned()
