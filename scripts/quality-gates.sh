@@ -12,7 +12,6 @@ cd "$REPO_ROOT" || exit 1
 # --- Configuration ---
 readonly GIT_EXCLUDE="./.git/*"
 readonly MAX_LINES_PER_SOURCE_FILE=500
-readonly GITHUB_EVENT_PR='pull_request'
 
 # --- Parse arguments ---
 FIX=false
@@ -49,10 +48,6 @@ DETECTED_LANGUAGES=()
 # Determine context
 GITHUB_EVENT="${GITHUB_EVENT:-${GITHUB_EVENT_NAME:-}}"
 GITHUB_REF="${GITHUB_REF:-}"
-ON_MAIN_BRANCH=false
-if [[ "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == "refs/heads/master" ]]; then
-  ON_MAIN_BRANCH=true
-fi
 
 printf "Running quality gate...\n\n"
 

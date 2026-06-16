@@ -13,7 +13,6 @@ CLI_SKILL_DIRS=(
 )
 
 FAILED=0
-WARNINGS=0
 
 # Colors (disabled in CI)
 if [[ -t 1 ]] && [[ "${FORCE_COLOR:-}" != "0" ]]; then
