@@ -15,6 +15,7 @@ This is a comprehensive Rust workspace template designed for 2026 best practices
 - **QUICKSTART.md**: Step-by-step setup and developer onboarding.
 - **AGENTS.md**: Canonical rules and instructions for coding agents.
 - **.agents/skills/**: Executable task knowledge and workflows.
+- **.agents/context/**: Cross-repo context for derived repositories.
 - **llms.txt**: Token-efficient project context (this file).
 
 ## Architecture
@@ -38,6 +39,10 @@ rust-2026-template/
 - `rust-toolchain.toml`: Pinned toolchain (1.88+)
 - `ci-summary.md`: Current CI health status (in .agents/ci/)
 - `deny.toml`: Security and license policy
+
+### Cross-Repo Context
+- `.agents/context/external-repos.json`: Linked repositories and their agent context
+- `.agents/context/shared-conventions.md`: Conventions that apply across all derived repos
 
 ### AI Agent Skills
 - `build-rust`, `lint-rust`, `test-rust`, `release-rust`

@@ -71,6 +71,15 @@ The repository includes a `SessionStart` hook to auto-inject project context at 
 - **Config:** `docflow.json`
 - **Integration:** Registered in `.claude/settings.json` for Claude.
 
+## Cross-Repo Context
+
+Derived repositories should check `.agents/context/` for shared conventions and related repository links.
+
+- **`.agents/context/external-repos.json`**: Links to related repos and their agent context URLs
+- **`.agents/context/shared-conventions.md`**: Cross-repo coding conventions (commit format, branch naming, PR requirements)
+
+**Merge precedence**: Local repo instructions > imported context > template defaults.
+
 ## Coding Conventions
 
 ### Rust & Concurrency
