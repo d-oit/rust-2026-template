@@ -4,16 +4,16 @@
     {
       "id": 1,
       "prompt": "Generate the monthly DORA report",
-      "expected_output": "Fetches deployment and PR data from GitHub API, runs compute script, generates DORA-REPORT.md",
+      "expected_output": "Fetches deployment and PR data from GitHub API, runs compute script, generates reports/DORA-REPORT.md",
       "files": [],
       "assertions": ["Fetches releases from GitHub API", "Fetches merged PRs with lead time data", "Generates all four core DORA metrics"]
     },
     {
       "id": 2,
       "prompt": "What's our current DORA performance?",
-      "expected_output": "Reads existing DORA-REPORT.md, summarizes metrics, identifies improvement areas",
+      "expected_output": "Reads existing reports/DORA-REPORT.md, summarizes metrics, identifies improvement areas",
       "files": [],
-      "assertions": ["Reads DORA-REPORT.md if exists", "Summarizes Deployment Frequency", "Identifies Lead Time for Changes"]
+      "assertions": ["Reads reports/DORA-REPORT.md if exists", "Summarizes Deployment Frequency", "Identifies Lead Time for Changes"]
     },
     {
       "id": 3,

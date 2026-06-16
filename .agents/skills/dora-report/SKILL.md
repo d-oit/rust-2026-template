@@ -53,7 +53,7 @@ python3 .agents/skills/dora-report/scripts/compute_dora.py \
   --agent-metrics .agents/metrics.jsonl \
   --dora-metrics dora-metrics.jsonl \
   --template .agents/skills/dora-report/templates/DORA-REPORT.md.jinja \
-  --output DORA-REPORT.md \
+  --output reports/DORA-REPORT.md \
   --period-days 30 \
   --repo $(git remote get-url origin | sed 's/.*github.com[:\/]\(.*\)\.git/\1/')
 ```
@@ -61,8 +61,8 @@ python3 .agents/skills/dora-report/scripts/compute_dora.py \
 ### 4. Review and commit the report
 
 ```bash
-git add DORA-REPORT.md
-git commit -m "docs(dora): update DORA-REPORT.md [skip ci]"
+git add reports/DORA-REPORT.md
+git commit -m "docs(dora): update reports/DORA-REPORT.md [skip ci]"
 ```
 
 ### 5. Log the report generation in metrics.jsonl
@@ -74,7 +74,7 @@ echo '{"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","agent":"claude","skill":"
 ```
 
 ## Success Criteria
-- `DORA-REPORT.md` is generated with up-to-date metrics.
+- `reports/DORA-REPORT.md` is generated with up-to-date metrics.
 - All four core DORA metrics and three agentic metrics are populated.
 - The report is committed to the repository.
 - The activity is logged in `.agents/metrics.jsonl`.

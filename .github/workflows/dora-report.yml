@@ -48,14 +48,14 @@ jobs:
             --agent-metrics .agents/metrics.jsonl \
             --dora-metrics dora-metrics.jsonl \
             --template .agents/skills/dora-report/templates/DORA-REPORT.md.jinja \
-            --output DORA-REPORT.md \
+            --output reports/DORA-REPORT.md \
             --period-days 30 \
             --repo ${{ github.repository }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c  # v6
         with:
-          commit-message: "docs(dora): update DORA-REPORT.md [skip ci]"
+          commit-message: "docs(dora): update reports/DORA-REPORT.md [skip ci]"
           title: "docs(dora): monthly DORA performance report update"
           body: "Automated monthly DORA report generation."
           branch: "automation/dora-report"
