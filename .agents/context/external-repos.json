@@ -1,10 +1,35 @@
 {
   "version": "1.0",
-  "skills": [
+  "description": "Cross-repo context for AI agents working in this repository",
+  "last_verified": "2026-06-16",
+  "related_repos": [
     {
-      "name": "dora-report",
-      "path": ".agents/skills/dora-report/SKILL.md",
-      "description": "Generate automated DORA and agentic metrics reports"
+      "name": "rust-2026-template",
+      "url": "https://github.com/d-oit/rust-2026-template",
+      "relationship": "parent-template",
+      "agent_context_url": "https://raw.githubusercontent.com/d-oit/rust-2026-template/main/AGENTS.md",
+      "llms_txt_url": "https://raw.githubusercontent.com/d-oit/rust-2026-template/main/llms.txt",
+      "description": "Source template for this repository. Agents should check here for skill updates.",
+      "pinned_ref": "main",
+      "last_verified": "2026-06-16",
+      "trust_level": "high"
+    }
+  ],
+  "shared_skills": [
+    {
+      "skill": "build-rust",
+      "canonical_source": "d-oit/rust-2026-template/.agents/skills/build-rust/",
+      "override_local": false
+    },
+    {
+      "skill": "lint-rust",
+      "canonical_source": "d-oit/rust-2026-template/.agents/skills/lint-rust/",
+      "override_local": false
+    },
+    {
+      "skill": "test-rust",
+      "canonical_source": "d-oit/rust-2026-template/.agents/skills/test-rust/",
+      "override_local": false
     }
   ]
 }

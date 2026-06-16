@@ -16,13 +16,24 @@ A skill extends agent capabilities with specialized knowledge, workflows, and to
 
 ## Core Loop
 
-1. **Capture intent** - What should the skill do? When should it trigger?
-2. **Write draft** - Create SKILL.md with frontmatter and instructions
-3. **Create test cases** - Realistic prompts users would actually say
-4. **Run evals** - Test with-skill vs baseline (or old version)
-5. **Review results** - Use eval-viewer for human review + benchmarks
-6. **Iterate** - Improve based on feedback until satisfied
-7. **Optimize description** - Fine-tune frontmatter for better triggering
+1. **Check upstream** - Read `.agents/context/external-repos.json` to see if the skill already exists in a parent template
+2. **Capture intent** - What should the skill do? When should it trigger?
+3. **Write draft** - Create SKILL.md with frontmatter and instructions
+4. **Create test cases** - Realistic prompts users would actually say
+5. **Run evals** - Test with-skill vs baseline (or old version)
+6. **Review results** - Use eval-viewer for human review + benchmarks
+7. **Iterate** - Improve based on feedback until satisfied
+8. **Optimize description** - Fine-tune frontmatter for better triggering
+
+---
+
+## Before Creating a New Skill
+
+1. Check `.agents/context/external-repos.json` for related repositories
+2. Read the `shared_skills` list to see if the skill already exists upstream
+3. If the skill exists upstream with `override_local: false`, use the canonical version via symlink
+4. If the skill exists but needs local customization, copy it and document overrides in `.agents/context/README.md`
+5. Only create a genuinely new skill if no upstream equivalent exists
 
 ---
 

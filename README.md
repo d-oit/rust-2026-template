@@ -65,6 +65,8 @@ This repository uses a layered documentation strategy to serve both human develo
 ```text
 .
 ├── .agents/             # AI agent specialized skills and workflow definitions
+│   ├── context/         # Cross-repo context for derived repositories
+│   └── skills/          # Executable task knowledge and canonical workflows
 ├── .cargo/              # Cargo configuration (linker, profiles, aliases)
 ├── .codacy/             # Codacy static analysis and agent review configs
 ├── .github/             # GitHub Actions workflows and issue templates
