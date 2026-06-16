@@ -1,6 +1,7 @@
 ---
 name: skill-creator
 description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
+category: meta
 license: MIT
 metadata:
   author: d-oit
@@ -118,3 +119,17 @@ Store in `evals/evals.json`:
 - `references/best-practices.md` - Best practices for skill creators
 - `references/evaluating-skills.md` - Evaluating skill output quality
 - `references/schemas.md` - JSON structures for evals.json, grading.json
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "The skill works, I don't need evals." | Without evals, you can't prove the skill works or detect regressions. |
+| "I'll write evals later." | Later never happens. Write evals alongside the skill. |
+| "My description is fine." | Bad descriptions cause false triggers or missed activations. Test them. |
+
+## Red Flags
+
+- [ ] Creating a skill without `evals/evals.json`
+- [ ] Description longer than 1024 characters
+- [ ] No test cases that verify the skill triggers correctly

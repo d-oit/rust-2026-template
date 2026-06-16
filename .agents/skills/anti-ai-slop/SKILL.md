@@ -7,6 +7,7 @@ description: >
   Triggers: "this looks AI-generated", "too much boilerplate", "meaningless names",
   "over-abstracted", "audit my code", "humanize this", "why is this so verbose",
   "remove unnecessary abstractions", "fix docs", "anti-pattern review".
+category: code-quality
 license: MIT
 metadata:
   author: d-oit
@@ -122,3 +123,17 @@ Always **name the problem** before fixing it.
 - **Docs are contracts.** If it can fail or panic, document it. No exceptions.
 - **Flat is better than deep.** One layer of abstraction does more than three thin ones.
 - **Zero-cost means earned.** Don't add generics for flexibility you won't use.
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "This pattern is common in production Rust." | Common doesn't mean correct. Evaluate each abstraction on its own merits. |
+| "The AI generated reasonable-looking code." | Reasonable-looking code can hide real issues. Audit systematically, not superficially. |
+| "It's just a wrapper struct — harmless." | Every abstraction has a cost. If it adds no behavior, it adds confusion. |
+
+## Red Flags
+
+- [ ] Finding `mod utils` or `mod common` in the codebase
+- [ ] More than one error type per module
+- [ ] `#[doc = "Creates a new Foo."]` on `fn new_foo()` (zero information gain)

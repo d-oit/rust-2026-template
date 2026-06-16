@@ -1,38 +1,26 @@
 {
   "skill_name": "codacy",
-  "version": "1.0.0",
   "evals": [
     {
       "id": 1,
-      "prompt": "Codacy is blocking my PR #42 on d-o-hub/github-template-ai-agents. How do I see which issues are new?",
-      "expected_output": "Uses `codacy pull-request gh d-o-hub github-template-ai-agents 42 --output json` to fetch PR data and explains how to parse `newIssues`.",
-      "assertions": [
-        "Uses `codacy pull-request` with the correct org, repo, and PR number",
-        "Specifies `--output json`",
-        "Mentions the `newIssues` array in the output"
-      ],
-      "files": []
+      "prompt": "Codacy is blocking my PR, how do I fix it?",
+      "expected_output": "Fetches PR analysis, categorizes issues as false positives or real, provides triage workflow",
+      "files": [],
+      "assertions": ["Uses codacy pull-request command to fetch analysis", "Distinguishes false positives from real issues", "Provides suppression commands for false positives"]
     },
     {
       "id": 2,
-      "prompt": "I have a false positive in my Rust code that Codacy is flagging. I have the JSON output. How do I ignore it?",
-      "expected_output": "Instructs the user to identify the numeric `resultDataId` and use the Cloud CLI `--ignore-issue` command.",
-      "assertions": [
-        "Mentions numeric `resultDataId` (not hash)",
-        "Uses `codacy pull-request` with `--ignore-issue`",
-        "Includes `--ignore-reason FalsePositive`"
-      ],
-      "files": []
+      "prompt": "How do I suppress a false positive in Codacy?",
+      "expected_output": "Explains numeric resultDataId requirement, shows --ignore-issue command with reason",
+      "files": [],
+      "assertions": ["Uses numeric resultDataId, not hash IDs", "Requires --ignore-reason flag", "Shows correct CLI command syntax"]
     },
     {
       "id": 3,
-      "prompt": "Run Codacy analysis locally on this repo to check for duplication.",
-      "expected_output": "Uses `codacy-analysis analyze` and mentions it will pick up duplication via `jscpd`.",
-      "assertions": [
-        "Uses `codacy-analysis analyze`",
-        "Suggests checking the output for duplication issues"
-      ],
-      "files": []
+      "prompt": "Run Codacy analysis locally",
+      "expected_output": "Shows codacy-analysis init and analyze commands, notes local tool limitations",
+      "files": [],
+      "assertions": ["Shows initialization command", "Shows analysis command with --pr flag", "Notes limited local tool support for Rust"]
     }
   ]
 }

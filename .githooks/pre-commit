@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Pre-commit hook: runs quality gates before allowing commits.
+# Configure with: git config core.hooksPath .githooks
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT" || exit 1
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+FAILED=0
+
+printf "${YELLOW}Running pre-commit quality checks...${NC}\n\n"
+
+# Only check staged .rs files
+STAGED_RS=$(git diff --cached --name-only --diff-filter=ACM -- '*.rs' 2>/dev/null)
+if [[ -z "$STAGED_RS" ]]; then
+  printf "${GREEN}No staged .rs files — skipping Rust checks.${NC}\n"
+  exit 0
+fi
+
+# Format check on staged files
+printf "Checking formatting...\n"
+if ! echo "$STAGED_RS" | xargs rustfmt --check 2>/dev/null; then
+  printf "${RED}  ✗ Formatting issues found. Run: cargo fmt --all${NC}\n"
+  FAILED=1
+else
+  printf "${GREEN}  ✓ Format OK${NC}\n"
+fi
+
+# Clippy on workspace (can't check staged files only)
+printf "Running clippy...\n"
+if ! cargo clippy --all-targets --all-features -- -D warnings >/dev/null 2>&1; then
+  printf "${RED}  ✗ Clippy warnings found. Run: cargo clippy --all-targets --all-features -- -D warnings${NC}\n"
+  FAILED=1
+else
+  printf "${GREEN}  ✓ Clippy OK${NC}\n"
+fi
+
+# Privacy check (email scan on staged files)
+printf "Checking for email addresses...\n"
+EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+EXCLUDE_PATTERN='example\.com|example\.org|test\.com'
+
+EMAIL_HITS=$(echo "$STAGED_RS" | xargs grep -lE "$EMAIL_PATTERN" 2>/dev/null | grep -vE "$EXCLUDE_PATTERN" || true)
+if [[ -n "$EMAIL_HITS" ]]; then
+  printf "${RED}  ✗ Email addresses detected in staged files:${NC}\n"
+  echo "$EMAIL_HITS"
+  FAILED=1
+else
+  printf "${GREEN}  ✓ Privacy OK${NC}\n"
+fi
+
+# Secret scan on staged files
+printf "Scanning for secrets...\n"
+SECRET_PATTERN="(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]"
+EXCLUDE_SECRET='GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree'
+
+SECRET_HITS=$(echo "$STAGED_RS" | xargs grep -lE "$SECRET_PATTERN" 2>/dev/null | grep -vE "$EXCLUDE_SECRET" || true)
+if [[ -n "$SECRET_HITS" ]]; then
+  printf "${RED}  ✗ Potential secrets detected in staged files:${NC}\n"
+  echo "$SECRET_HITS"
+  FAILED=1
+else
+  printf "${GREEN}  ✓ Secret scan OK${NC}\n"
+fi
+
+printf "\n"
+if [[ $FAILED -ne 0 ]]; then
+  printf "${RED}Pre-commit checks FAILED. Fix issues above before committing.${NC}\n"
+  printf "To bypass (not recommended): git commit --no-verify\n"
+  exit 1
+fi
+
+printf "${GREEN}All pre-commit checks passed.${NC}\n"
+exit 0

@@ -1,3 +1,18 @@
+---
+name: lint-rust
+description: >
+  Run comprehensive linting and static analysis on Rust code including clippy,
+  format check, security audit, supply chain, and unused dependencies.
+  Use before committing, during CI, or when reviewing code quality.
+  Triggers: "lint rust", "clippy", "static analysis", "code quality".
+category: rust
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  tags: rust lint clippy audit deny machete
+---
+
 # Skill: lint-rust
 
 ## Purpose
@@ -63,6 +78,20 @@ cargo machete
 - `build-rust` - Building the project
 - `test-rust` - Running tests
 - `release-rust` - Release preparation
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "Clippy passes, so the code is clean." | Clippy alone doesn't check licenses, security, or unused deps. Run the full suite. |
+| "cargo audit shows no advisories, we're safe." | Audit only checks known advisories. Also run cargo-deny for license compliance. |
+| "I'll skip machete — unused deps aren't a big deal." | Unused deps increase compile time and attack surface. Remove them. |
+
+## Red Flags
+
+- [ ] Running only `cargo clippy` without `cargo fmt --check`
+- [ ] Skipping `cargo audit` or `cargo deny` in CI
+- [ ] Ignoring `-D warnings` flag (allows warnings to accumulate)
 
 ## References
 

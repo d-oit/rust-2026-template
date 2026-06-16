@@ -1,0 +1,26 @@
+{
+  "skill_name": "goap-agent",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Plan and implement a new feature with multiple components",
+      "expected_output": "Decomposes into sub-goals, maps dependencies, selects execution strategy, coordinates agents",
+      "files": [],
+      "assertions": ["Creates task decomposition", "Maps dependencies between components", "Selects parallel/sequential strategy"]
+    },
+    {
+      "id": 2,
+      "prompt": "This is a complex task spanning multiple modules, help me plan it",
+      "expected_output": "Analyzes the problem, creates ADR if needed, decomposes into atomic tasks",
+      "files": [],
+      "assertions": ["Identifies cross-module dependencies", "Creates execution plan with quality gates", "Uses plans/ folder for state"]
+    },
+    {
+      "id": 3,
+      "prompt": "Coordinate multiple agents to refactor the codebase",
+      "expected_output": "Assigns agents to independent refactoring tasks, monitors progress, validates results",
+      "files": [],
+      "assertions": ["Assigns agents based on task type", "Ensures independent tasks run in parallel", "Validates each agent's output"]
+    }
+  ]
+}

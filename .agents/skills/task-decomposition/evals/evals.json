@@ -1,0 +1,26 @@
+{
+  "skill_name": "task-decomposition",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Break down this feature request into actionable tasks",
+      "expected_output": "Creates goal hierarchy, maps dependencies, assigns priorities and complexity estimates",
+      "files": [],
+      "assertions": ["Creates 3-7 atomic tasks", "Maps sequential/parallel dependencies", "Assigns P0/P1/P2 priorities"]
+    },
+    {
+      "id": 2,
+      "prompt": "I need to implement caching across multiple crates",
+      "expected_output": "Decomposes by layer (types, logic, API, tests), identifies cross-crate dependencies",
+      "files": [],
+      "assertions": ["Uses layer-based pattern for Rust", "Identifies crate boundaries", "Includes testing tasks"]
+    },
+    {
+      "id": 3,
+      "prompt": "Plan the steps to fix this complex bug",
+      "expected_output": "Uses problem-solution pattern: reproduce, diagnose, design, fix, verify, prevent",
+      "files": [],
+      "assertions": ["Follows problem-solution pattern", "Includes verification step", "Adds prevention/regression test"]
+    }
+  ]
+}

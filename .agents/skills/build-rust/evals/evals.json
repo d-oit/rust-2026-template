@@ -1,0 +1,26 @@
+{
+  "skill_name": "build-rust",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build this Rust project and fix any issues",
+      "expected_output": "Runs cargo check, cargo build, cargo clippy, cargo fmt, and reports results with fixes",
+      "files": [],
+      "assertions": ["Runs cargo check --all-targets --all-features", "Runs cargo clippy with -D warnings", "Runs cargo fmt --check"]
+    },
+    {
+      "id": 2,
+      "prompt": "My cargo build is failing on WSL2",
+      "expected_output": "Diagnoses common WSL2 issues: target/ on Windows filesystem, missing build-essential, linker errors",
+      "files": [],
+      "assertions": ["Checks if target/ is on Linux filesystem", "Suggests build-essential if linker missing", "References .cargo/config.toml for WSL2 optimization"]
+    },
+    {
+      "id": 3,
+      "prompt": "Run the full CI pipeline locally",
+      "expected_output": "Executes format check, clippy, build, tests (nextest), doc tests in sequence",
+      "files": [],
+      "assertions": ["Runs cargo fmt --check before clippy", "Uses cargo-nextest if available", "Runs doc tests separately"]
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 ---
 name: dora-report
 description: Generate a DORA-REPORT.md for this repository by computing the five core DORA software delivery performance metrics and three DORA agentic metrics from available data sources. Use this when asked to generate a DORA report or assess delivery performance.
+category: metrics
 license: MIT
 metadata:
   author: d-oit
@@ -77,3 +78,17 @@ echo '{"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","agent":"claude","skill":"
 - All four core DORA metrics and three agentic metrics are populated.
 - The report is committed to the repository.
 - The activity is logged in `.agents/metrics.jsonl`.
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "We shipped a lot of features, so DORA must be good." | DORA measures flow efficiency, not volume. Ship fast but measure lead time. |
+| "Our MTTR is low because we roll back quickly." | Rollback isn't recovery. Recovery means the fix is deployed and working. |
+| "Manual deployment is fine for our team size." | Manual deployment is the #1 blocker for Deployment Frequency improvement. |
+
+## Red Flags
+
+- [ ] Running DORA report less than monthly (trends need data points)
+- [ ] Ignoring Lead Time for Changes (the hardest metric to improve)
+- [ ] Not tracking human_interventions in metrics (hides true agent performance)
