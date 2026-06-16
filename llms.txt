@@ -36,7 +36,7 @@ rust-2026-template/
 ### Configuration & Health
 - `Cargo.toml`: Workspace manifest
 - `rust-toolchain.toml`: Pinned toolchain (1.88+)
-- `ci-summary.md`: Current CI health status (in .agents/aggregated/)
+- `ci-summary.md`: Current CI health status (in .agents/ci/)
 - `deny.toml`: Security and license policy
 
 ### AI Agent Skills

@@ -36,7 +36,7 @@ dist/
 # Generated reports (keep DORA-REPORT.md tracked)
 # /reports/
 
-# Stale CI status files (use .agents/aggregated/ instead)
+# Stale CI status files (use .agents/ci/ instead)
 /ci-status.json
 /ci-summary.md
 

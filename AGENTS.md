@@ -97,7 +97,7 @@ The repository includes a `SessionStart` hook to auto-inject project context at 
 
 ## Change Workflow
 
-1. **Discover:** Read code patterns, module structure, and `.agents/aggregated/ci-summary.md`.
+1. **Discover:** Read code patterns, module structure, and `.agents/ci/ci-summary.md`.
 2. **Plan:** Identify affected files and required test coverage.
 3. **Test-First:** Add or update tests before logic implementation.
 4. **Implement:** Write code adhering to conventions.

@@ -332,14 +332,14 @@ printf "\n"
 # 11. CI STATUS ARTIFACT
 # ============================================================
 info "Checking CI status artifact..."
-if [[ -f ".agents/aggregated/ci-status.json" ]]; then
-  if python3 -c "import json; json.load(open('.agents/aggregated/ci-status.json'))" 2>/dev/null; then
+if [[ -f ".agents/ci/ci-status.json" ]]; then
+  if python3 -c "import json; json.load(open('.agents/ci/ci-status.json'))" 2>/dev/null; then
     pass "CI status artifact: valid JSON"
   else
     warn "CI status artifact: invalid JSON"
   fi
 else
-  warn "CI status artifact not found (.agents/aggregated/ci-status.json)"
+  warn "CI status artifact not found (.agents/ci/ci-status.json)"
 fi
 printf "\n"
 
