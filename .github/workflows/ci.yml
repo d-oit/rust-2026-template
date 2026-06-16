@@ -239,7 +239,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mold
       - name: Install cargo-nextest and llvm-cov
-        uses: taiki-e/install-action@56545b37b57562edd73171cb6c62cc509db4c34e  # v2
+        uses: taiki-e/install-action@7a79fe8c3a13344501c80d99cae481c1c9085912  # v2
         with:
           tool: cargo-nextest,cargo-llvm-cov
       - name: Build workspace
@@ -273,7 +273,7 @@ jobs:
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696  # v0.0.10
       - name: Install cargo-audit
-        uses: taiki-e/install-action@56545b37b57562edd73171cb6c62cc509db4c34e  # v2
+        uses: taiki-e/install-action@7a79fe8c3a13344501c80d99cae481c1c9085912  # v2
         with:
           tool: cargo-audit
       - name: Generate lockfile
