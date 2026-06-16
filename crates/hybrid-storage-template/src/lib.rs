@@ -52,6 +52,10 @@ pub enum StorageError {
     /// Backend error.
     #[error("Backend error: {0}")]
     Backend(String),
+
+    /// Mutex poisoned (thread panicked while holding lock).
+    #[error("Internal lock poisoned")]
+    Poisoned,
 }
 
 /// Backend trait for storage implementations.
