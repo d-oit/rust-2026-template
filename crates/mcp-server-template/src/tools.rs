@@ -43,13 +43,36 @@ impl Tool for CalcTool {
     }
 
     fn validate(&self, input: &Value) -> Result<(), ToolError> {
-        if !input.is_object() {
-            return Err(ToolError::InvalidInput("Expected object".to_string()));
+        let obj = input
+            .as_object()
+            .ok_or_else(|| ToolError::InvalidInput("Expected object".to_string()))?;
+
+        let op = obj
+            .get("op")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| ToolError::InvalidInput("Missing or invalid 'op' field".to_string()))?;
+
+        match op {
+            "add" | "sub" | "mul" | "div" => {}
+            _ => {
+                return Err(ToolError::InvalidInput(format!(
+                    "Unsupported operation: {op}"
+                )));
+            }
         }
-        let obj = input.as_object().unwrap();
-        if !obj.contains_key("op") || !obj.contains_key("a") || !obj.contains_key("b") {
-            return Err(ToolError::InvalidInput("Missing op, a, or b".to_string()));
+
+        if !obj.get("a").is_some_and(|v| v.is_number()) {
+            return Err(ToolError::InvalidInput(
+                "Missing or invalid 'a' field".to_string(),
+            ));
         }
+
+        if !obj.get("b").is_some_and(|v| v.is_number()) {
+            return Err(ToolError::InvalidInput(
+                "Missing or invalid 'b' field".to_string(),
+            ));
+        }
+
         Ok(())
     }
 
@@ -87,8 +110,99 @@ impl Tool for CalcTool {
             _ => return Err(ToolError::InvalidInput(format!("Unknown operation: {op}"))),
         };
 
-        Ok(ToolResponse::success(Value::Number(
-            serde_json::Number::from_f64(result).unwrap(),
-        )))
+        let result_num = serde_json::Number::from_f64(result)
+            .ok_or_else(|| ToolError::Execution("Result is not a finite number".to_string()))?;
+
+        Ok(ToolResponse::success(Value::Number(result_num)))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_calc_no_panic_on_overflow() {
+        let tool = CalcTool;
+        let request = ToolRequest::new(serde_json::json!({
+            "op": "mul",
+            "a": 1e308,
+            "b": 1e308
+        }));
+        let result = tool.handle(request).await;
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("not a finite number")
+        );
+    }
+
+    #[tokio::test]
+    async fn test_calc_validation_errors() {
+        let tool = CalcTool;
+
+        // Not an object
+        let res = tool.validate(&serde_json::json!(123));
+        assert!(res.is_err());
+        assert!(res.unwrap_err().to_string().contains("Expected object"));
+
+        // Missing op
+        let res = tool.validate(&serde_json::json!({"a": 1, "b": 2}));
+        assert!(res.is_err());
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Missing or invalid 'op'")
+        );
+
+        // Invalid op type
+        let res = tool.validate(&serde_json::json!({"op": 1, "a": 1, "b": 2}));
+        assert!(res.is_err());
+
+        // Unsupported operation
+        let res = tool.validate(&serde_json::json!({"op": "pow", "a": 1, "b": 2}));
+        assert!(res.is_err());
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Unsupported operation")
+        );
+
+        // Missing 'a'
+        let res = tool.validate(&serde_json::json!({"op": "add", "b": 2}));
+        assert!(res.is_err());
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Missing or invalid 'a'")
+        );
+
+        // Invalid 'a' type
+        let res = tool.validate(&serde_json::json!({"op": "add", "a": "1", "b": 2}));
+        assert!(res.is_err());
+
+        // Missing 'b'
+        let res = tool.validate(&serde_json::json!({"op": "add", "a": 1}));
+        assert!(res.is_err());
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Missing or invalid 'b'")
+        );
+    }
+
+    #[tokio::test]
+    async fn test_calc_division_by_zero() {
+        let tool = CalcTool;
+        let request = ToolRequest::new(serde_json::json!({
+            "op": "div",
+            "a": 10.0,
+            "b": 0.0
+        }));
+        let res = tool.handle(request).await;
+        assert!(res.is_err());
+        assert!(res.unwrap_err().to_string().contains("Division by zero"));
     }
 }
