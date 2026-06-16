@@ -49,14 +49,27 @@ pub mod mock {
     impl Backend for MockBackend {
         type Error = MockError;
         async fn get(&self, key: &str) -> Result<Option<String>, MockError> {
-            Ok(self.0.lock().unwrap().get(key).cloned())
+            Ok(self
+                .0
+                .lock()
+                .map_err(|_| MockError("mutex poisoned".into()))?
+                .get(key)
+                .cloned())
         }
         async fn set(&self, key: &str, value: &str) -> Result<(), MockError> {
-            self.0.lock().unwrap().insert(key.into(), value.into());
+            self.0
+                .lock()
+                .map_err(|_| MockError("mutex poisoned".into()))?
+                .insert(key.into(), value.into());
             Ok(())
         }
         async fn delete(&self, key: &str) -> Result<bool, MockError> {
-            Ok(self.0.lock().unwrap().remove(key).is_some())
+            Ok(self
+                .0
+                .lock()
+                .map_err(|_| MockError("mutex poisoned".into()))?
+                .remove(key)
+                .is_some())
         }
     }
 }
