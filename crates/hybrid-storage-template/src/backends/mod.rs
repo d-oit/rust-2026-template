@@ -28,26 +28,24 @@ impl MemoryBackend {
 #[async_trait::async_trait]
 impl crate::Backend for MemoryBackend {
     async fn get(&self, key: &str) -> Result<Option<String>, StorageError> {
-        Ok(self.data.lock().unwrap().get(key).cloned())
+        let data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
+        Ok(data.get(key).cloned())
     }
 
     async fn set(&self, key: &str, value: &str) -> Result<(), StorageError> {
-        self.data
-            .lock()
-            .unwrap()
-            .insert(key.to_string(), value.to_string());
+        let mut data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
+        data.insert(key.to_string(), value.to_string());
         Ok(())
     }
 
     async fn delete(&self, key: &str) -> Result<bool, StorageError> {
-        Ok(self.data.lock().unwrap().remove(key).is_some())
+        let mut data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
+        Ok(data.remove(key).is_some())
     }
 
     async fn list_keys(&self, prefix: &str) -> Result<Vec<String>, StorageError> {
-        Ok(self
-            .data
-            .lock()
-            .unwrap()
+        let data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
+        Ok(data
             .keys()
             .filter(|k| k.starts_with(prefix))
             .cloned()
