@@ -5,6 +5,7 @@ description: >
   Use when user asks to "prevent emails", "remove personal data", "privacy check",
   "no email", or when writing/editing any Rust code, Cargo.toml, config, or documentation files.
   Also triggers during code review, quality gate checks, or when adding contact information.
+category: security
 license: MIT
 compatibility: Works with Claude Code, OpenCode, and similar agents. No external dependencies.
 metadata:
@@ -121,3 +122,17 @@ fi
 - Remove email from `Cargo.toml` authors field
 - Use test domains (`example.com`) only in `#[cfg(test)]` blocks
 - Link to `SECURITY.md` for vulnerability reporting
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "It's just a test email, not real." | Test emails in non-test code set a bad precedent. Use `example.com` only in `#[cfg(test)]`. |
+| "The email is in a comment, not code." | Comments are copied. Emails in comments end up in copy-paste across the codebase. |
+| "We need a contact email somewhere." | Use GitHub Issues URLs, not personal emails. |
+
+## Red Flags
+
+- [ ] Email addresses in `Cargo.toml` authors field
+- [ ] Personal emails in `README.md` or `CONTRIBUTING.md`
+- [ ] Real emails in Rust source code (not in `#[cfg(test)]` blocks)

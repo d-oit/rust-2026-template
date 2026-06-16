@@ -1,3 +1,18 @@
+---
+name: crates-io-name-check
+description: >
+  Verify that a new Rust crate name is available and appropriate on crates.io
+  before committing to it. Use when creating a new crate, starting a new Rust project,
+  or before the first cargo publish.
+  Triggers: "check crate name", "is name taken", "crates.io available", "new crate".
+category: rust
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  tags: rust crates naming publish
+---
+
 # Skill: crates-io-name-check
 
 ## Purpose
@@ -78,6 +93,20 @@ crates/
 The template includes a placeholder crate `crates/example-crate/`. When you replace
 it with your real crate, **rename both the directory and the `[package] name`** in
 `Cargo.toml`, and run this skill to verify availability before your first commit.
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "The name sounds fine, I don't need to check." | Names are permanent on crates.io. Verify before first publish. |
+| "I'll rename later if needed." | Renaming a published crate breaks all downstream users. |
+| "Similar names are fine." | Confusingly similar names lead to typosquatting and user confusion. |
+
+## Red Flags
+
+- [ ] Publishing without checking name availability first
+- [ ] Using generic names like `utils`, `helpers`, `common`
+- [ ] Ignoring similar existing crate names that could confuse users
 
 ## References
 

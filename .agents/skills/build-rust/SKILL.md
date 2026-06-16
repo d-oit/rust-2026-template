@@ -1,3 +1,18 @@
+---
+name: build-rust
+description: >
+  Compile, test, and verify Rust projects following 2026 best practices.
+  Use when asked to build, compile, or check a Rust project, when CI/CD pipeline
+  needs build steps, or when investigating build failures.
+  Triggers: "build rust", "compile project", "cargo build", "check rust".
+category: rust
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  tags: rust build cargo compile ci
+---
+
 # Skill: build-rust
 
 ## Purpose
@@ -93,6 +108,20 @@ See `.cargo/config.toml` for WSL2 disk optimization.
 
 **Symptom**: `error: linker 'cc' not found`  
 **Fix**: `sudo apt-get install build-essential`
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "cargo build passes, so the code is correct." | Build success doesn't mean tests pass or lints are clean. Run the full pipeline. |
+| "I'll skip clippy pedantic lints to save time." | Pedantic lints catch real issues. Run them in CI at minimum. |
+| "Just use cargo test, nextest isn't installed." | Install nextest for parallel test execution — it's significantly faster. |
+
+## Red Flags
+
+- [ ] Skipping `--all-features` in clippy/test commands (hides feature-gated bugs)
+- [ ] Using `cargo build` without `--all-targets` (misses test/bench compilation errors)
+- [ ] Running `cargo fmt` without `--check` in CI (format drift goes unnoticed)
 
 ## Related Skills
 

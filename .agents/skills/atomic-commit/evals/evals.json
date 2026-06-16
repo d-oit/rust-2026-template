@@ -1,0 +1,26 @@
+{
+  "skill_name": "atomic-commit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Commit my changes and create a PR",
+      "expected_output": "Runs quality gate, creates conventional commit, pushes, creates PR, verifies CI",
+      "files": [],
+      "assertions": ["Runs quality gate before commit", "Uses conventional commit format", "Creates PR with gh CLI"]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to submit this code safely with rollback capability",
+      "expected_output": "Executes atomic workflow with rollback on failure at each phase",
+      "files": [],
+      "assertions": ["Validates before commit", "Has rollback mechanism", "Verifies CI after push"]
+    },
+    {
+      "id": 3,
+      "prompt": "Dry run the commit process to check for issues",
+      "expected_output": "Runs all validation checks without committing or pushing",
+      "files": [],
+      "assertions": ["Runs cargo fmt check", "Runs clippy", "Does not modify git state"]
+    }
+  ]
+}

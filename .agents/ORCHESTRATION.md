@@ -137,6 +137,7 @@ echo "Event written: ${EVENT_FILE}"
 - Each event file has a **unique path** (timestamp + agent + task-id). Two concurrent agents never write to the same file.
 - `workflow-state.json` is updated sequentially within a single workflow. For independent parallel workflows, use separate workflow IDs.
 - `.agents/aggregated/metrics.jsonl` is **generated output** — rebuilt by `scripts/aggregate-metrics.sh` in CI, never hand-edited.
+- `.agents/ci/ci-status.json` and `.agents/ci/ci-summary.md` are **generated output** — rebuilt by CI workflow, never hand-edited.
 - Event files under `.agents/events/` are **append-only immutable** — once written, never edited or deleted.
 
 ## Related Files

@@ -1,3 +1,18 @@
+---
+name: release-rust
+description: >
+  Create and publish a new release of the Rust project. Handles version bumping,
+  changelog, tagging, and GitHub Release creation via CI.
+  Use when preparing a release, tagging a version, or publishing to crates.io.
+  Triggers: "release", "publish crate", "new version", "bump version".
+category: rust
+license: MIT
+metadata:
+  author: d-oit
+  version: "1.0"
+  tags: rust release publish crates semantic-versioning
+---
+
 # Skill: release-rust
 
 ## Purpose
@@ -73,6 +88,20 @@ Pushing a tag triggers `.github/workflows/release.yml`:
 - Release with binaries created
 - CHANGELOG updated
 - Crate name verified unique on crates.io (first publish)
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "I'll skip the pre-release checks to save time." | Publishing broken code breaks downstream users. Always run the full check suite. |
+| "The changelog can be updated after release." | Users read the changelog to understand what changed. Update it before tagging. |
+| "I'll just push the tag directly." | Use `git tag -a` with a message. Tags without messages are unhelpful in history. |
+
+## Red Flags
+
+- [ ] Pushing a tag without running pre-release checks
+- [ ] Bumping the version without updating CHANGELOG.md
+- [ ] Publishing to crates.io without verifying crate name availability
 
 ## References
 

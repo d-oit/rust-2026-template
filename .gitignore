@@ -33,8 +33,12 @@ config/profiles/local.json
 # cargo-dist artifacts
 dist/
 
-# Generated reports
-/reports/
+# Generated reports (keep DORA-REPORT.md tracked)
+# /reports/
+
+# Stale CI status files (use .agents/ci/ instead)
+/ci-status.json
+/ci-summary.md
 
 # cargo-fuzz artifacts
 fuzz/corpus/

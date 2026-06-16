@@ -1,0 +1,26 @@
+{
+  "skill_name": "self-fix-loop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My CI is failing, fix it automatically",
+      "expected_output": "Monitors CI, diagnoses failures, applies fixes, retries until green",
+      "files": [],
+      "assertions": ["Identifies failed CI checks", "Applies targeted fixes", "Retries until all pass"]
+    },
+    {
+      "id": 2,
+      "prompt": "Keep retrying until the build passes",
+      "expected_output": "Runs the self-fix loop with max retries, pauses on repeated failures",
+      "files": [],
+      "assertions": ["Respects max retry limit", "Diagnoses root cause on repeated failures", "Reports final status"]
+    },
+    {
+      "id": 3,
+      "prompt": "The tests keep failing intermittently, what should I do?",
+      "expected_output": "Identifies flaky tests, suggests isolation or skip, runs loop with diagnostics",
+      "files": [],
+      "assertions": ["Distinguishes flaky from real failures", "Suggests test isolation strategy", "Reports failure patterns"]
+    }
+  ]
+}

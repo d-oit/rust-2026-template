@@ -1,6 +1,7 @@
 ---
 name: skill-evaluator
 description: "Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usage spot checks. Use when you need to check a skill, add evals, benchmark a skill, validate outputs against assertions, or compare current skill behavior against a baseline."
+category: meta
 license: MIT
 metadata:
   author: d-oit
@@ -154,3 +155,17 @@ PASS | NEEDS_WORK | FAIL — <one-sentence summary>
 ## References
 
 - `references/evaluating-skills.md` — condensed eval workflow and grading guidance
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "The skill works fine, no need to evaluate." | Unvalidated skills drift. Regular evaluation catches regressions early. |
+| "One eval case is enough." | One case can't cover edge scenarios. Aim for 3+ diverse evals per skill. |
+| "I'll use subjective grading." | Subjective grading is unreliable. Use concrete, checkable assertions. |
+
+## Red Flags
+
+- [ ] Evaluating a skill without a clear GOAL (structure check / eval review / live run)
+- [ ] Using vague assertions like "the output is good"
+- [ ] Not comparing against a baseline when measuring improvement

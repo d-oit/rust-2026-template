@@ -8,16 +8,18 @@
 | Task | Command |
 |------|----------|
 | Build | `cargo build --workspace` |
-| Quality | `./scripts/code-quality.sh fmt\|clippy\|audit\|check` |
+| Quality | `./scripts/quality-gates.sh` |
 | Tests | `cargo nextest run --workspace` |
-| Quality Gates | `./scripts/quality-gates.sh` |
+| Setup | `./scripts/bootstrap.sh` |
+| Diagnostics | `./scripts/doctor.sh` |
 
 ## Project Structure
 
-- `.agents/skills/`: Executable task knowledge and canonical workflows.
+- `.agents/skills/`: Executable task knowledge and canonical workflows (16 skills).
 - `crates/`: Workspace members (libraries and applications).
 - `scripts/`: Development, quality, and release automation.
 - `plans/adr/`: Architecture Decision Records.
+- `.githooks/`: Pre-commit quality enforcement.
 - `AGENTS.md`: THIS FILE (Canonical Project Contract).
 
 ## Agent Skills (.agents/skills/)
@@ -26,16 +28,40 @@ Consult the relevant skill's `SKILL.md` for detailed procedures.
 
 | Skill | Purpose |
 |-------|---------|
-| `build-rust` | Optimized build (uses `mold` if available) |
-| `lint-rust` | Formatting and static analysis (zero clippy warnings) |
-| `test-rust` | Comprehensive testing (nextest, proptest, fuzzing) |
-| `release-rust` | Safe crate release process |
-| `anti-ai-slop` | Auditing and fixing generic AI code patterns |
-| `privacy-first` | PII and data leakage prevention (scripts/quality-gates.sh) |
+| **Rust** | |
+| `build-rust` | Optimized build with mold, cargo check/build/clippy |
+| `lint-rust` | Formatting, clippy, audit, deny, machete |
+| `test-rust` | Comprehensive testing (nextest, coverage, proptest) |
+| `release-rust` | Safe crate release with crates.io verification |
 | `crates-io-name-check` | Registry name availability verification |
+| **Workflow** | |
+| `atomic-commit` | Validate → commit → push → PR → verify CI |
+| `self-fix-loop` | Auto-fix CI failures until green |
+| `goap-agent` | Complex multi-step task planning and coordination |
+| `task-decomposition` | Break down tasks into atomic goals |
+| **Quality & Meta** | |
+| `anti-ai-slop` | Auditing and fixing generic AI code patterns |
+| `privacy-first` | PII and data leakage prevention |
 | `codacy` | Codacy static analysis and PR triage |
+| `skill-creator` | Create and optimize skills |
+| `skill-evaluator` | Validate skill quality and performance |
+| **Metrics** | |
 | `metrics-reporter` | Recording agent task completion (per-task) |
 | `dora-report` | Aggregated DORA and metrics reporting (monthly) |
+
+## Multi-Agent Support
+
+Skill symlinks are managed automatically. After cloning, run:
+
+```bash
+./scripts/bootstrap.sh    # One-command setup
+./scripts/doctor.sh        # Environment diagnostics
+```
+
+CLI-specific directories read from `.agents/skills/` via symlinks:
+- `.claude/skills/` → Claude Code
+- `.qwen/skills/` → Qwen Code
+- `.gemini/`, `.opencode/`, `.windsurf/` → Read directly
 
 ## Session Bootstrap
 
@@ -71,7 +97,7 @@ The repository includes a `SessionStart` hook to auto-inject project context at 
 
 ## Change Workflow
 
-1. **Discover:** Read code patterns, module structure, and `.agents/aggregated/ci-summary.md`.
+1. **Discover:** Read code patterns, module structure, and `.agents/ci/ci-summary.md`.
 2. **Plan:** Identify affected files and required test coverage.
 3. **Test-First:** Add or update tests before logic implementation.
 4. **Implement:** Write code adhering to conventions.

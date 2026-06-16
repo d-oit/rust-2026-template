@@ -19,4 +19,4 @@ The skill computes:
 
 ## Automation
 
-A GitHub Actions workflow is configured to run this skill on the first Monday of every month, ensuring the `DORA-REPORT.md` in the root directory is always current.
+A GitHub Actions workflow is configured to run this skill on the first Monday of every month, ensuring the `reports/DORA-REPORT.md` is always current.

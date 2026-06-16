@@ -1,6 +1,7 @@
 ---
 name: codacy
 description: Use Codacy static analysis CLIs to query PR analysis, triage issues, suppress false positives, and run local analysis. Use when Codacy blocks a PR, when asked to fix Codacy issues, suppress false positives, query PR quality data, or integrate Codacy into CI/CD workflows. Also use when the user mentions "Codacy", "static analysis check", "code quality gate", or "Codacy is failing".
+category: quality-gates
 license: MIT
 metadata:
   author: d-oit

@@ -134,7 +134,7 @@ See **[AGENTS.md](AGENTS.md)** for instructions on maintaining and using these c
 The project uses several directories for generated artifacts and documentation:
 
 - **`reports/`**: Standardized directory for generated HTML reports (coverage, audit, benchmarks). This directory is git-ignored by default.
-- **`.agents/aggregated/`**: Machine-readable and human-friendly CI health baselines.
+- **`.agents/ci/`**: CI health status artifacts (ci-status.json, ci-summary.md).
 - **`target/`**: Rust build artifacts.
 
 ## VERSION File

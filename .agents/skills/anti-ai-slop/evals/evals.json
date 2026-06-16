@@ -1,0 +1,26 @@
+{
+  "skill_name": "anti-ai-slop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit this Rust code for AI slop patterns",
+      "expected_output": "Identifies specific anti-patterns with named categories (Structural/Surface/Cosmetic) and provides concrete rewrites",
+      "files": [],
+      "assertions": ["Output names specific pattern categories", "Provides concrete replacement code", "Explains the Rust principle behind each fix"]
+    },
+    {
+      "id": 2,
+      "prompt": "This code looks AI-generated, can you fix it?",
+      "expected_output": "Runs through code structure, error handling, documentation, and naming anti-pattern checklists",
+      "files": [],
+      "assertions": ["Checks all four pattern categories", "Prioritizes structural fixes over cosmetic", "Uses the Positive Doctrine as a guide"]
+    },
+    {
+      "id": 3,
+      "prompt": "Why is this verbose? Can you simplify?",
+      "expected_output": "Identifies over-engineered abstractions, unnecessary wrapper structs, or builder patterns on small structs",
+      "files": [],
+      "assertions": ["Names the specific anti-pattern found", "Provides a simpler alternative", "Explains why the simpler version is better"]
+    }
+  ]
+}
