@@ -3,6 +3,11 @@
 # Configure with: git config core.hooksPath .githooks
 set -uo pipefail
 
+# Ensure cargo/rustfmt are available
+if [[ -f "$HOME/.cargo/env" ]]; then
+  source "$HOME/.cargo/env"
+fi
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 
@@ -23,6 +28,23 @@ STAGED_YAML=$(git diff --cached --name-only --diff-filter=ACM -- '*.yml' '*.yaml
 if [[ -z "$STAGED_RS" && -z "$STAGED_TOML" && -z "$STAGED_YAML" ]]; then
   printf "${GREEN}No staged .rs, .toml, or .yaml files — skipping checks.${NC}\n"
   exit 0
+fi
+
+# LOC limit check on staged .rs files (max 500 lines)
+MAX_LINES=500
+if [[ -n "$STAGED_RS" ]]; then
+  printf "Checking line counts (max %d)...\n" "$MAX_LINES"
+  for f in $STAGED_RS; do
+    if [[ -f "$f" ]]; then
+      lines=$(wc -l < "$f" 2>/dev/null || echo 0)
+      if [[ "$lines" -gt "$MAX_LINES" ]]; then
+        printf "  ${RED}✗ %s: %d lines (max %d)${NC}\n" "$f" "$lines" "$MAX_LINES"
+        FAILED=1
+      else
+        printf "  ${GREEN}✓ %s OK (%d lines)${NC}\n" "$f" "$lines"
+      fi
+    fi
+  done
 fi
 
 # TOML validation

@@ -33,6 +33,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2026-06-17
+
+### Added
+
+- `issue-triage` skill for reading open issues (GitHub/GitLab), categorizing by type and effort, and coordinating batch implementation.
+- GitLab support to `atomic-commit` and `self-fix-loop` skills.
+- GitLab platform auto-detection in `issue-triage` skill.
+- Folder symlinks for `.claude/skills/` and `.qwen/skills/` for multi-CLI agent support.
+- Cross-repo agent context via `.agents/context/` with `external-repos.json` and `shared-conventions.md`.
+
+### Fixed
+
+- `MIGRATION.md` version references corrected.
+- Removed unused `async-trait` dependency.
+- Moved `CHANGELOG-TEMPLATE` to `.template/` directory.
+- Poisoned mutex handling in `MockBackend` for MCP security hardening.
+- Clippy `significant-drop-tightening` warning resolved.
+- Markdown lint issues and missing skill references resolved.
+
+---
+
 ## [0.2.3] - 2026-06-08
 
 ### Added
@@ -192,7 +213,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/d-oit/rust-2026-template/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/d-oit/rust-2026-template/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/d-oit/rust-2026-template/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/d-oit/rust-2026-template/compare/v0.2.0...v0.2.1
