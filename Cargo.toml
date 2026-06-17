@@ -145,7 +145,7 @@ serde_json = "1.0.150"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 clap = { version = "4", features = ["derive", "env"] }
-async-trait = "0.1"
+async-trait = "0.1" # Required for dyn Trait + async fn (not yet native in Rust 2024)
 tokio-test = "0.4"
 proptest = "1"
 insta = { version = "=1.47.2", features = ["yaml"] }

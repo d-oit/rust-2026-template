@@ -68,11 +68,11 @@ Ensure your workspace `Cargo.toml` has at minimum:
 
 ```toml
 [workspace]
-resolver = "2"
+resolver = "3"
 
 [workspace.package]
 edition = "2024"
-rust-version = "1.87"
+rust-version = "1.88"
 ```
 
 ### Step 5: Update .gitignore
