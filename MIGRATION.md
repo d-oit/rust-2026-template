@@ -97,28 +97,33 @@ Key additions: `/target`, `*.swp`, `.direnv/`, `.envrc`.
 ### Migration Steps
 
 1. **Update `Cargo.toml`:**
+
    ```toml
    edition = "2024"
    resolver = "3"
    ```
 
 2. **Run the automated fixer:**
+
    ```bash
    cargo fix --edition
    ```
 
 3. **Rename any `gen` identifiers:**
+
    ```bash
    grep -rn '\bgen\b' --include='*.rs' src/ crates/
    ```
 
 4. **Review RPIT lifetime changes:**
+
    ```bash
    # Check for functions returning impl Trait
    grep -rn '-> impl ' --include='*.rs' src/ crates/
    ```
 
 5. **Add unsafe blocks inside unsafe functions:**
+
    ```rust
    // Before (2021):
    unsafe fn do_thing(ptr: *mut i32) {
@@ -132,6 +137,7 @@ Key additions: `/target`, `*.swp`, `.direnv/`, `.envrc`.
    ```
 
 6. **Verify:**
+
    ```bash
    cargo check --workspace --all-features
    cargo clippy --workspace --all-features -- -D warnings

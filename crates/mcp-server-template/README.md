@@ -77,7 +77,7 @@ impl Tool for MyTool {
 | Tool | Description | Input |
 |------|-------------|-------|
 | `EchoTool` | Returns input as-is | Any JSON value |
-| `CalcTool` | Basic arithmetic | `{"op": "add"|"sub"|"mul"|"div", "a": f64, "b": f64}` |
+| `CalcTool` | Basic arithmetic | Object with `op`, `a`, `b` fields |
 
 ## Architecture
 
