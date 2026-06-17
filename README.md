@@ -49,7 +49,7 @@ This repository uses a layered documentation strategy to serve both human develo
 ## Included Tooling
 
 - **Testing:** `cargo-nextest` for faster test execution and `proptest` for property-based testing.
-- **Quality Assurance:** `cargo-mutants` for mutation testing and `clippy` with a zero-warnings policy.
+- **Quality Assurance:** `cargo-mutants` for mutation testing and `clippy` with a zero-warnings policy. Mutation testing verifies that your tests actually catch injected code changes.
 - **CI/CD:** Multi-stage GitHub Actions for linting, testing, security audits, and automated releases.
 - **Local Workflows:** Helper scripts for running the entire quality gate pipeline locally.
 

@@ -126,6 +126,31 @@ CI runs: format check, clippy, nextest, doc tests, security audit, cargo-deny, M
 
 ## Advanced Testing
 
+### Mutation Testing
+
+The template includes `cargo-mutants` for verifying that your tests actually catch bugs. Mutation testing injects small code changes (mutants) and checks if your test suite detects them.
+
+```bash
+# Install cargo-mutants
+cargo install cargo-mutants
+
+# Run mutation tests (takes several minutes)
+cargo mutants --workspace
+
+# Run against a specific file
+cargo mutants --file src/lib.rs
+
+# Filter by pattern
+cargo mutants -m "if.*None"
+```
+
+**Understanding results:**
+- **Caught** — Your tests detected the mutation (good!)
+- **Survived** — The mutation wasn't detected (tests need improvement)
+- **Timeout** — Mutant took too long to test (usually not a concern)
+
+CI runs mutation testing weekly and on pushes to `main`. Check `.github/workflows/mutants.yml` for the schedule.
+
 ### Fuzz Testing
 
 A fuzz testing scaffold is included using `cargo-fuzz`. This is particularly useful for testing parsers and complex logic against randomized input.
@@ -146,3 +171,23 @@ The fuzzer is also configured to run weekly via GitHub Actions.
 - Read `CONTRIBUTING.md` before making changes
 - Check `MIGRATION.md` if adopting this template in an existing project
 - See `agents-docs/conventions.md` for coding conventions enforced by agents
+
+## Cross-Repo Context
+
+If you're using this template across multiple repositories, the `.agents/context/` directory enables cross-repo agent context sharing:
+
+| File | Purpose |
+|------|---------|
+| `.agents/context/external-repos.json` | Links to related repos and their agent context URLs |
+| `.agents/context/shared-conventions.md` | Conventions that apply across all derived repos |
+
+**Configuration for your org:**
+
+1. Edit `.agents/context/external-repos.json` to add your related repositories
+2. Update `.agents/context/shared-conventions.md` with org-wide rules
+3. Agents in derived repos will automatically discover and apply these conventions
+
+**Merge precedence** (when instructions conflict):
+1. Local repo instructions (AGENTS.md, .agents/skills/) — highest
+2. Imported context (.agents/context/) — secondary
+3. Template defaults (upstream rust-2026-template) — fallback only

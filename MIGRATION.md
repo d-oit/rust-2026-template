@@ -82,6 +82,69 @@ Key additions: `/target`, `*.swp`, `.direnv/`, `.envrc`.
 
 ---
 
+## Migrating from Rust 2021 to 2024 Edition
+
+### Key Changes
+
+| Change | Impact | Action |
+|--------|--------|--------|
+| `gen` is now a reserved keyword | Code using `gen` as an identifier won't compile | Rename `gen` variables/functions |
+| RPIT lifetime capture rules changed | `-> impl Trait` now captures all in-scope lifetimes by default | Usually backwards-compatible; review `+ 'a` bounds |
+| `unsafe_op_in_unsafe_fn` is deny-by-default | `unsafe fn` bodies must use explicit `unsafe` blocks | Add `unsafe { }` inside `unsafe fn` if needed |
+| `#[cfg(version)]` syntax stabilized | Can use `#[cfg(version("1.85"))]` | No action needed |
+| Gen blocks (`gen { }`) | Unstable feature, not affected by `gen` keyword reservation | No action needed for stable |
+
+### Migration Steps
+
+1. **Update `Cargo.toml`:**
+   ```toml
+   edition = "2024"
+   resolver = "3"
+   ```
+
+2. **Run the automated fixer:**
+   ```bash
+   cargo fix --edition
+   ```
+
+3. **Rename any `gen` identifiers:**
+   ```bash
+   grep -rn '\bgen\b' --include='*.rs' src/ crates/
+   ```
+
+4. **Review RPIT lifetime changes:**
+   ```bash
+   # Check for functions returning impl Trait
+   grep -rn '-> impl ' --include='*.rs' src/ crates/
+   ```
+
+5. **Add unsafe blocks inside unsafe functions:**
+   ```rust
+   // Before (2021):
+   unsafe fn do_thing(ptr: *mut i32) {
+       *ptr = 42;
+   }
+
+   // After (2024):
+   unsafe fn do_thing(ptr: *mut i32) {
+       unsafe { *ptr = 42; }
+   }
+   ```
+
+6. **Verify:**
+   ```bash
+   cargo check --workspace --all-features
+   cargo clippy --workspace --all-features -- -D warnings
+   ```
+
+### Resources
+
+- [Rust 2024 Edition Guide](https://doc.rust-lang.org/edition-guide/rust-2024/)
+- [RFC 3501: Edition 2024](https://rust-lang.github.io/rfcs/3501-edition-2024.html)
+- [Rust 1.85.0 Announcement](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0/)
+
+---
+
 ## Template Version Upgrades
 
 ### Upgrading from v0.x to v0.2+

@@ -17,55 +17,120 @@ printf "${YELLOW}Running pre-commit quality checks...${NC}\n\n"
 
 # Only check staged .rs files
 STAGED_RS=$(git diff --cached --name-only --diff-filter=ACM -- '*.rs' 2>/dev/null)
-if [[ -z "$STAGED_RS" ]]; then
-  printf "${GREEN}No staged .rs files — skipping Rust checks.${NC}\n"
+STAGED_TOML=$(git diff --cached --name-only --diff-filter=ACM -- '*.toml' 2>/dev/null)
+STAGED_YAML=$(git diff --cached --name-only --diff-filter=ACM -- '*.yml' '*.yaml' 2>/dev/null)
+
+if [[ -z "$STAGED_RS" && -z "$STAGED_TOML" && -z "$STAGED_YAML" ]]; then
+  printf "${GREEN}No staged .rs, .toml, or .yaml files — skipping checks.${NC}\n"
   exit 0
 fi
 
+# TOML validation
+if [[ -n "$STAGED_TOML" ]]; then
+  printf "Checking TOML syntax...\n"
+  for f in $STAGED_TOML; do
+    if command -v python3 >/dev/null 2>&1; then
+      if ! python3 -c "
+import sys
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+with open(sys.argv[1], 'rb') as fh:
+    tomllib.load(fh)
+" "$f" 2>/dev/null; then
+        printf "  ${RED}✗ TOML syntax error in: %s${NC}\n" "$f"
+        FAILED=1
+      else
+        printf "  ${GREEN}✓ %s OK${NC}\n" "$f"
+      fi
+    elif command -v taplo >/dev/null 2>&1; then
+      if ! taplo check "$f" 2>/dev/null; then
+        printf "  ${RED}✗ TOML syntax error in: %s${NC}\n" "$f"
+        FAILED=1
+      else
+        printf "  ${GREEN}✓ %s OK${NC}\n" "$f"
+      fi
+    else
+      printf "  ${YELLOW}! Skipping TOML check for %s (no python3 or taplo found)${NC}\n" "$f"
+    fi
+  done
+fi
+
+# YAML validation
+if [[ -n "$STAGED_YAML" ]]; then
+  printf "Checking YAML syntax...\n"
+  for f in $STAGED_YAML; do
+    if command -v python3 >/dev/null 2>&1; then
+      if ! python3 -c "
+import sys
+import yaml
+with open(sys.argv[1]) as fh:
+    yaml.safe_load(fh)
+" "$f" 2>/dev/null; then
+        printf "  ${RED}✗ YAML syntax error in: %s${NC}\n" "$f"
+        FAILED=1
+      else
+        printf "  ${GREEN}✓ %s OK${NC}\n" "$f"
+      fi
+    else
+      printf "  ${YELLOW}! Skipping YAML check for %s (python3 not found)${NC}\n" "$f"
+    fi
+  done
+fi
+
 # Format check on staged files
-printf "Checking formatting...\n"
-if ! echo "$STAGED_RS" | xargs rustfmt --check 2>/dev/null; then
-  printf "${RED}  ✗ Formatting issues found. Run: cargo fmt --all${NC}\n"
-  FAILED=1
-else
-  printf "${GREEN}  ✓ Format OK${NC}\n"
+if [[ -n "$STAGED_RS" ]]; then
+  printf "Checking formatting...\n"
+  if ! echo "$STAGED_RS" | xargs rustfmt --check 2>/dev/null; then
+    printf "${RED}  ✗ Formatting issues found. Run: cargo fmt --all${NC}\n"
+    FAILED=1
+  else
+    printf "${GREEN}  ✓ Format OK${NC}\n"
+  fi
 fi
 
 # Clippy on workspace (can't check staged files only)
-printf "Running clippy...\n"
-if ! cargo clippy --all-targets --all-features -- -D warnings >/dev/null 2>&1; then
-  printf "${RED}  ✗ Clippy warnings found. Run: cargo clippy --all-targets --all-features -- -D warnings${NC}\n"
-  FAILED=1
-else
-  printf "${GREEN}  ✓ Clippy OK${NC}\n"
+if [[ -n "$STAGED_RS" ]]; then
+  printf "Running clippy...\n"
+  if ! cargo clippy --all-targets --all-features -- -D warnings >/dev/null 2>&1; then
+    printf "${RED}  ✗ Clippy warnings found. Run: cargo clippy --all-targets --all-features -- -D warnings${NC}\n"
+    FAILED=1
+  else
+    printf "${GREEN}  ✓ Clippy OK${NC}\n"
+  fi
 fi
 
 # Privacy check (email scan on staged files)
-printf "Checking for email addresses...\n"
-EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-EXCLUDE_PATTERN='example\.com|example\.org|test\.com'
+if [[ -n "$STAGED_RS" ]]; then
+  printf "Checking for email addresses...\n"
+  EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+  EXCLUDE_PATTERN='example\.com|example\.org|test\.com'
 
-EMAIL_HITS=$(echo "$STAGED_RS" | xargs grep -lE "$EMAIL_PATTERN" 2>/dev/null | grep -vE "$EXCLUDE_PATTERN" || true)
-if [[ -n "$EMAIL_HITS" ]]; then
-  printf "${RED}  ✗ Email addresses detected in staged files:${NC}\n"
-  echo "$EMAIL_HITS"
-  FAILED=1
-else
-  printf "${GREEN}  ✓ Privacy OK${NC}\n"
+  EMAIL_HITS=$(echo "$STAGED_RS" | xargs grep -lE "$EMAIL_PATTERN" 2>/dev/null | grep -vE "$EXCLUDE_PATTERN" || true)
+  if [[ -n "$EMAIL_HITS" ]]; then
+    printf "${RED}  ✗ Email addresses detected in staged files:${NC}\n"
+    echo "$EMAIL_HITS"
+    FAILED=1
+  else
+    printf "${GREEN}  ✓ Privacy OK${NC}\n"
+  fi
 fi
 
 # Secret scan on staged files
-printf "Scanning for secrets...\n"
-SECRET_PATTERN="(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]"
-EXCLUDE_SECRET='GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree'
+if [[ -n "$STAGED_RS" ]]; then
+  printf "Scanning for secrets...\n"
+  SECRET_PATTERN="(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]"
+  EXCLUDE_SECRET='GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree'
 
-SECRET_HITS=$(echo "$STAGED_RS" | xargs grep -lE "$SECRET_PATTERN" 2>/dev/null | grep -vE "$EXCLUDE_SECRET" || true)
-if [[ -n "$SECRET_HITS" ]]; then
-  printf "${RED}  ✗ Potential secrets detected in staged files:${NC}\n"
-  echo "$SECRET_HITS"
-  FAILED=1
-else
-  printf "${GREEN}  ✓ Secret scan OK${NC}\n"
+  SECRET_HITS=$(echo "$STAGED_RS" | xargs grep -lE "$SECRET_PATTERN" 2>/dev/null | grep -vE "$EXCLUDE_SECRET" || true)
+  if [[ -n "$SECRET_HITS" ]]; then
+    printf "${RED}  ✗ Potential secrets detected in staged files:${NC}\n"
+    echo "$SECRET_HITS"
+    FAILED=1
+  else
+    printf "${GREEN}  ✓ Secret scan OK${NC}\n"
+  fi
 fi
 
 printf "\n"
