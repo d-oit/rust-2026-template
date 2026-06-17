@@ -15,7 +15,7 @@
 
 ## Project Structure
 
-- `.agents/skills/`: Executable task knowledge and canonical workflows (16 skills).
+- `.agents/skills/`: Executable task knowledge and canonical workflows.
 - `crates/`: Workspace members (libraries and applications).
 - `scripts/`: Development, quality, and release automation.
 - `plans/adr/`: Architecture Decision Records.
@@ -24,31 +24,16 @@
 
 ## Agent Skills (.agents/skills/)
 
-Consult the relevant skill's `SKILL.md` for detailed procedures.
+The skills index is **auto-generated** from skill frontmatter. Do not edit the table below manually.
 
-| Skill | Purpose |
-|-------|---------|
-| **Rust** | |
-| `build-rust` | Optimized build with mold, cargo check/build/clippy |
-| `lint-rust` | Formatting, clippy, audit, deny, machete |
-| `test-rust` | Comprehensive testing (nextest, coverage, proptest) |
-| `release-rust` | Safe crate release with crates.io verification |
-| `crates-io-name-check` | Registry name availability verification |
-| **Workflow** | |
-| `atomic-commit` | Validate → commit → push → PR → verify CI |
-| `self-fix-loop` | Auto-fix CI failures until green |
-| `goap-agent` | Complex multi-step task planning and coordination |
-| `task-decomposition` | Break down tasks into atomic goals |
-| `issue-triage` | Read all open issues, categorize, batch implement in single PR |
-| **Quality & Meta** | |
-| `anti-ai-slop` | Auditing and fixing generic AI code patterns |
-| `privacy-first` | PII and data leakage prevention |
-| `codacy` | Codacy static analysis and PR triage |
-| `skill-creator` | Create and optimize skills |
-| `skill-evaluator` | Validate skill quality and performance |
-| **Metrics** | |
-| `metrics-reporter` | Recording agent task completion (per-task) |
-| `dora-report` | Aggregated DORA and metrics reporting (monthly) |
+**Regenerate after adding/modifying skills:**
+
+```bash
+bash scripts/generate-skills-md.sh
+```
+
+<!-- AUTO-GENERATED: see .agents/SKILLS.md for full table -->
+Consult `.agents/SKILLS.md` for the complete skills index, or read individual skill docs at `.agents/skills/<name>/SKILL.md`.
 
 ## Multi-Agent Support
 

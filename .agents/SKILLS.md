@@ -9,3 +9,20 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | Skill | Path | Description |
 |-------|------|-------------|
 | `anti-ai-slop` | [skills/anti-ai-slop/SKILL.md](skills/anti-ai-slop/SKILL.md) | Apply this skill when auditing, writing, or reviewing Rust code to avoid generic |
+| `atomic-commit` | [skills/atomic-commit/SKILL.md](skills/atomic-commit/SKILL.md) | Atomic git workflow - validates, commits, pushes, creates PR/MR, and verifies CI |
+| `build-rust` | [skills/build-rust/SKILL.md](skills/build-rust/SKILL.md) | Compile, test, and verify Rust projects following 2026 best practices. |
+| `codacy` | [skills/codacy/SKILL.md](skills/codacy/SKILL.md) | Use Codacy static analysis CLIs to query PR analysis, triage issues, suppress false positives, and r |
+| `crates-io-name-check` | [skills/crates-io-name-check/SKILL.md](skills/crates-io-name-check/SKILL.md) | Verify that a new Rust crate name is available and appropriate on crates.io |
+| `dora-report` | [skills/dora-report/SKILL.md](skills/dora-report/SKILL.md) | Generate a DORA-REPORT.md for this repository by computing the five core DORA software delivery perf |
+| `goap-agent` | [skills/goap-agent/SKILL.md](skills/goap-agent/SKILL.md) | Invoke for complex multi-step tasks requiring intelligent planning and |
+| `issue-triage` | [skills/issue-triage/SKILL.md](skills/issue-triage/SKILL.md) | Read all open issues (GitHub/GitLab), categorize by type and effort, plan |
+| `lint-rust` | [skills/lint-rust/SKILL.md](skills/lint-rust/SKILL.md) | Run comprehensive linting and static analysis on Rust code including clippy, |
+| `metrics-reporter` | [skills/metrics-reporter/SKILL.md](skills/metrics-reporter/SKILL.md) | Record agentic task completion via event files for DORA observability. |
+| `privacy-first` | [skills/privacy-first/SKILL.md](skills/privacy-first/SKILL.md) | Prevent email addresses and personal data from entering the codebase. |
+| `release-rust` | [skills/release-rust/SKILL.md](skills/release-rust/SKILL.md) | Create and publish a new release of the Rust project. Handles version bumping, |
+| `self-fix-loop` | [skills/self-fix-loop/SKILL.md](skills/self-fix-loop/SKILL.md) | Self-learning fix loop - commit, push, monitor CI, auto-fix failures using |
+| `skill-creator` | [skills/skill-creator/SKILL.md](skills/skill-creator/SKILL.md) | Create new skills, modify and improve existing skills, and measure skill performance. Use when users |
+| `skill-evaluator` | [skills/skill-evaluator/SKILL.md](skills/skill-evaluator/SKILL.md) | Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usa |
+| `task-decomposition` | [skills/task-decomposition/SKILL.md](skills/task-decomposition/SKILL.md) | Break down complex tasks into atomic, actionable goals with clear dependencies |
+| `test-rust` | [skills/test-rust/SKILL.md](skills/test-rust/SKILL.md) | Run the complete test suite for a Rust project including unit tests, |
+
