@@ -115,6 +115,7 @@ Phase 7: REPORT
 ## Categorization Rules
 
 ### By Type
+
 | Label Pattern | Category | Implementation Approach |
 |---------------|----------|------------------------|
 | `feature`, `enhancement` | Feature | New code + tests + docs |
@@ -124,6 +125,7 @@ Phase 7: REPORT
 | `security` | Security | Audit + fix + verify |
 
 ### By Effort
+
 | Signal | Effort | Batch Strategy |
 |--------|--------|----------------|
 | < 50 LOC change | Trivial | Batch with any other issue |

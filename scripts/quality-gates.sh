@@ -291,10 +291,10 @@ fi
 # ============================================================
 info "Checking for email addresses (privacy-first)..."
 EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target|\.opencode'
+EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target|\.opencode|\.mimocode'
 
 if grep -rE "$EMAIL_PATTERN" \
-  --exclude-dir=.git --exclude-dir=target --exclude-dir=.opencode \
+  --exclude-dir=.git --exclude-dir=target --exclude-dir=.opencode --exclude-dir=.mimocode \
   . 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
   fail "Email address detected in codebase"
 else

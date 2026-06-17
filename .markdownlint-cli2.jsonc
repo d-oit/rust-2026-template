@@ -13,5 +13,11 @@
     "MD041": false,
     "MD047": false,
     "MD060": false
-  }
+  },
+  "ignores": [
+    "node_modules/**",
+    ".mimocode/**",
+    ".claude/skills/**",
+    ".qwen/skills/**"
+  ]
 }

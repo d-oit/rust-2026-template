@@ -25,4 +25,3 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `skill-evaluator` | [skills/skill-evaluator/SKILL.md](skills/skill-evaluator/SKILL.md) | Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usa |
 | `task-decomposition` | [skills/task-decomposition/SKILL.md](skills/task-decomposition/SKILL.md) | Break down complex tasks into atomic, actionable goals with clear dependencies |
 | `test-rust` | [skills/test-rust/SKILL.md](skills/test-rust/SKILL.md) | Run the complete test suite for a Rust project including unit tests, |
-
