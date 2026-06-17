@@ -8,7 +8,7 @@ measure software delivery performance and stability.
 
 **Definition:** The time it takes for a commit to get into production.
 **Tracking:** Measured from PR creation to merge into the `main` branch.
-**Workflow:** `.github/workflows/dora-lead-time.yml`
+**Workflow:** `.github/workflows/dora-report.yml`
 
 ## Change Failure Rate (CFR)
 

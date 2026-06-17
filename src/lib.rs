@@ -10,7 +10,7 @@
 //! - **Rust 2024 Edition:** Leverages the latest language features and idioms with an MSRV of 1.88.
 //! - **Workspace Layout:** Clean separation of concerns with a `crates/` directory for internal libraries and applications.
 //! - **Security First:** Pre-configured supply chain audits, secret scanning, and hardened configuration patterns.
-//! - **Performance Optimized:** Includes configurations for the `mold` linker and optimized development profiles.
+//! - **Performance Optimized:** Optimized dev profiles with reduced debug artifacts and disk space savings.
 //! - **AI-Native:** First-class support for AI coding agents with specialized skills and canonical instruction sets. Includes `llms.txt` for machine-readable project context.
 //!
 //! ## Example

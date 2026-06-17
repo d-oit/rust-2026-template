@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)](https://www.rust-lang.org)
 [![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
-[![Template Version](https://img.shields.io/badge/version-0.2.3-blue)](.template/CHANGELOG-TEMPLATE.md)
+[![Template Version](https://img.shields.io/badge/version-0.3.0-blue)](.template/CHANGELOG-TEMPLATE.md#030---2026-06-17)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <!-- cargo-sync-readme start -->
@@ -22,7 +22,7 @@ This template is designed for Rust developers who want to start new projects wit
 - **Rust 2024 Edition:** Leverages the latest language features and idioms with an MSRV of 1.88.
 - **Workspace Layout:** Clean separation of concerns with a `crates/` directory for internal libraries and applications.
 - **Security First:** Pre-configured supply chain audits, secret scanning, and hardened configuration patterns.
-- **Performance Optimized:** Includes configurations for the `mold` linker and optimized development profiles.
+- **Performance Optimized:** Optimized dev profiles with reduced debug artifacts and disk space savings.
 - **AI-Native:** First-class support for AI coding agents with specialized skills and canonical instruction sets. Includes `llms.txt` for machine-readable project context.
 
 ## Example
@@ -74,7 +74,13 @@ This repository uses a layered documentation strategy to serve both human develo
 ├── config/              # Profile-based runtime configuration
 │   └── profiles/        # Environment-specific JSON configs (default.json, etc.)
 ├── crates/              # Workspace members (libraries and applications)
+│   ├── actor-runtime-template/
+│   ├── checkpoint-template/
 │   ├── example-crate/   # Placeholder library crate
+│   ├── example-registry-pattern/
+│   ├── example-storage-pattern/
+│   ├── hybrid-storage-template/
+│   ├── mcp-server-template/
 │   └── sample-app/      # Reference application implementing best practices
 ├── reports/             # Generated HTML review and analysis output (ignored)
 ├── schema/              # JSON Schema definitions for config/API contracts
@@ -99,8 +105,8 @@ The template demonstrates composable feature flags for pluggable backends:
 
 | Feature | Description | Enabled by default |
 |---------|-------------|-------------------|
-| `cli`   | CLI binary support (clap, anyhow, colored) | Yes |
-| `persistence` | Persistence backend (libsql) | Yes |
+| `cli`   | CLI binary support (clap, anyhow, colored) | No |
+| `persistence` | Persistence backend (libsql) | No |
 | `parallel` | CPU parallelism (rayon) | No |
 | `wasm` | WASM build target support | No |
 | `mcp` | MCP server support (requires cli) | No |
@@ -109,10 +115,7 @@ The template demonstrates composable feature flags for pluggable backends:
 
 ## Benchmarks
 
-The template provides a two-layer benchmark structure:
-
-- **`benches/`**: Standard Criterion harnesses at the crate root.
-- **`benchmarks/`**: A separate workspace crate for complex, cross-crate benchmark suites.
+The template provides a dedicated `benchmarks/` workspace crate with Criterion benchmark suites (`end_to_end`, `memory_usage`).
 
 See **[QUICKSTART.md](QUICKSTART.md)** for detailed benchmark and performance testing instructions.
 

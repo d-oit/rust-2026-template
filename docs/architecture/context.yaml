@@ -4,17 +4,21 @@
 # Format: YAML (machine-optimized, minimal markup)
 
 metadata:
-  project_name: "your_project_name"
-  description: "Short description of the project"
+  project_name: "rust-2026-template"
+  description: >-
+    A production-ready Rust workspace template with modern tooling,
+    CI/CD, and AI agent integration
   format_version: "1.0"
-  last_updated: 2026-03-14
+  last_updated: 2026-06-17
 
 mission:
-  statement: "Clear mission statement of the project"
+  statement: >-
+    Provide a production-ready Rust workspace template with best
+    practices, CI/CD, and AI agent support baked in
   scope:
-    - Core feature 1
-    - Core feature 2
-    - Core feature 3
+    - Workspace template with composable feature flags
+    - CI/CD pipeline with tiered quality gates
+    - AI agent skills and canonical instruction sets
 
 constraints:
   hard:

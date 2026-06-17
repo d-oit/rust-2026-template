@@ -1,0 +1,184 @@
+use super::*;
+
+#[test]
+fn test_config_default() {
+    let config = Config::default();
+    assert_eq!(config.app_name, "sample-app");
+    assert_eq!(config.log_level, LogLevel::Info);
+    assert_eq!(config.max_items, 100);
+}
+
+#[test]
+fn test_config_serialization() {
+    let config = Config {
+        app_name: "test".to_string(),
+        log_level: LogLevel::Debug,
+        max_items: 50,
+    };
+
+    let json = serde_json::to_string(&config).unwrap();
+    let decoded: Config = serde_json::from_str(&json).unwrap();
+
+    assert_eq!(config.app_name, decoded.app_name);
+    assert_eq!(config.log_level, decoded.log_level);
+}
+
+#[test]
+fn test_config_invalid_log_level() {
+    let json = r#"{
+        "app_name": "test",
+        "log_level": "invalid",
+        "max_items": 100
+    }"#;
+
+    let result: std::result::Result<Config, _> = serde_json::from_str(json);
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_config_recursion_limit() {
+    let mut json = String::from("1");
+    for _ in 0..150 {
+        json = format!("[{json}]");
+    }
+
+    let result: std::result::Result<serde_json::Value, _> = serde_json::from_str(&json);
+
+    assert!(result.is_err());
+    let err_msg = result.unwrap_err().to_string();
+    assert!(err_msg.contains("recursion limit exceeded"));
+}
+
+#[test]
+fn test_is_safe_char_printable() {
+    assert!(is_safe_char('a'));
+    assert!(is_safe_char('1'));
+    assert!(is_safe_char(' '));
+    assert!(is_safe_char('🦀'));
+    assert!(is_safe_char('ü'));
+}
+
+#[test]
+fn test_is_safe_char_unprintable() {
+    assert!(!is_safe_char('\n'));
+    assert!(!is_safe_char('\r'));
+    assert!(!is_safe_char('\t'));
+    assert!(!is_safe_char('\u{200e}'));
+    assert!(!is_safe_char('\u{202e}'));
+    assert!(!is_safe_char('\u{2066}'));
+    assert!(!is_safe_char('\u{200b}'));
+    assert!(!is_safe_char('\u{200c}'));
+    assert!(!is_safe_char('\u{200d}'));
+    assert!(!is_safe_char('\u{2060}'));
+    assert!(!is_safe_char('\u{feff}'));
+    assert!(!is_safe_char('\u{00ad}'));
+}
+
+#[test]
+fn test_config_app_name_sanitization() {
+    let name = String::from("test\napp\u{202e}r");
+    let sanitized: String = name.chars().filter(|c| is_safe_char(*c)).collect();
+    assert_eq!(sanitized, "testappr");
+}
+
+#[test]
+fn test_load_config_from_directory() {
+    let temp_dir = std::env::temp_dir();
+    let result = load_config(Some(temp_dir));
+    assert!(result.is_err());
+    assert!(
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("not a regular file")
+    );
+}
+
+#[test]
+fn test_load_config_app_name_too_long() {
+    let temp_dir = std::env::temp_dir();
+    let file_path = temp_dir.join("too_long_config.json");
+    let json = r#"{
+        "app_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "log_level": "info",
+        "max_items": 100
+    }"#;
+    std::fs::write(&file_path, json).unwrap();
+
+    let result = load_config(Some(file_path.clone()));
+    assert!(result.is_err());
+    assert!(
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("app_name too long")
+    );
+
+    let _ = std::fs::remove_file(file_path);
+}
+
+#[test]
+fn test_load_config_app_name_multibyte_too_long() {
+    let temp_dir = std::env::temp_dir();
+    let file_path = temp_dir.join("multibyte_too_long_config.json");
+    let app_name = format!("{}🦀", "a".repeat(63));
+    let json = format!(
+        r#"{{
+        "app_name": "{app_name}",
+        "log_level": "info",
+        "max_items": 100
+    }}"#
+    );
+    std::fs::write(&file_path, json).unwrap();
+
+    let result = load_config(Some(file_path.clone()));
+    assert!(result.is_err());
+    assert!(
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("app_name too long")
+    );
+
+    let _ = std::fs::remove_file(file_path);
+}
+
+#[test]
+fn test_config_deny_unknown_fields() {
+    let json = r#"{
+        "app_name": "test",
+        "log_level": "info",
+        "max_items": 100,
+        "unknown_field": "oops"
+    }"#;
+
+    let result: std::result::Result<Config, _> = serde_json::from_str(json);
+    assert!(result.is_err());
+    let err = result.unwrap_err().to_string();
+    assert!(err.contains("unknown field `unknown_field`"));
+}
+
+#[test]
+fn test_process_items_zero() {
+    let result = process_items(0, 100).unwrap();
+    assert!(result.is_empty());
+}
+
+#[test]
+fn test_process_items_normal() {
+    let result = process_items(5, 100).unwrap();
+    assert_eq!(result.len(), 5);
+    assert_eq!(result[0], "item-0001");
+}
+
+#[test]
+fn test_process_items_too_many() {
+    let result = process_items(101, 100);
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_args_parsing() {
+    let args = Args::parse_from(["sample-app", "--count", "5"]);
+    assert_eq!(args.count, 5);
+}

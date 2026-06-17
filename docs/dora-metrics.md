@@ -22,7 +22,7 @@ FDRT measures how long it takes to recover from a failed deployment — from the
 Change Lead Time measures the time it takes for a commit to get into production. In this repository, it is measured as the time from PR creation to PR merge into the `main` branch.
 
 **How it works:**
-1. `.github/workflows/dora-lead-time.yml` triggers on PR merge.
+1. The DORA report workflow (`.github/workflows/dora-report.yml`) computes lead time from PR metadata.
 2. It calculates the difference between `merged_at` and `created_at`.
 3. Results are recorded in `dora-metrics.jsonl`.
 

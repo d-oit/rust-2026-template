@@ -9,7 +9,7 @@ jobs for scheduled runs or manual dispatch, reducing CI cost and PR cycle time.
 | Tier | Jobs | Trigger |
 |------|------|---------|
 | **1 — Fast required** | fmt, clippy, test, audit, deny, lint, shellcheck, gitleaks, version-check, validate-agents | Every PR and push (path-scoped) |
-| **2 — Conditional** | bench, msrv, coverage (inside test), docs-check | Path-scoped: only when Rust code, benchmarks, fuzz targets, or docs change |
+| **2 — Conditional** | bench, msrv, coverage (inside test) | Path-scoped: only when Rust code, benchmarks, or fuzz targets change |
 | **3 — Scheduled / heavy** | mutation testing, fuzzing | Weekly schedule + `workflow_dispatch` (manual) |
 | **4 — Release only** | dist, publish, post-release health check | Tag push (`v*.*.*`) |
 | **5 — Template maintenance** | sync-labels, DORA report, DORA FDRT, patch-release-on-label, hotfix tracking | Schedule, label, or issue events |
@@ -47,7 +47,9 @@ These jobs run only when the affected paths match:
 
 - **bench** — compiles and runs benchmarks (`heavy` or `workflows` paths)
 - **msrv** — checks minimum supported Rust version (`heavy` or `workflows` paths)
-- **docs-check** — verifies README sync and pattern docs (`docs/**`, `crates/**`, `src/**`, `README.md`, `agents-docs/**`)
+
+> **Note:** Docs sync checking is handled by a separate workflow
+> (`.github/workflows/docs-check.yml`), not by `ci.yml`.
 
 ## Tier 3 — Scheduled / heavy
 
