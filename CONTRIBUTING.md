@@ -119,6 +119,15 @@ This is a **generic Rust template**, not a standalone application. Changes shoul
 - Keep the `example-crate` as a minimal, illustrative placeholder
 - Be documented in `CHANGELOG.md`
 
+### Cross-Repo Context
+
+If your organization uses this template across multiple repos, configure `.agents/context/` to share conventions and skill sources:
+
+- `external-repos.json` — Links to related repositories for agent discovery
+- `shared-conventions.md` — Cross-repo coding standards (commits, branches, quality)
+
+Agents in derived repos automatically apply these shared conventions. See `QUICKSTART.md` for setup instructions.
+
 ### Publishing to crates.io
 
 Every publishable crate **must** define an `include` whitelist in its `Cargo.toml`

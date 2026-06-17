@@ -54,37 +54,32 @@ include = [
 workspace = true
 
 [dependencies]
-clap = { workspace = true, optional = true }
-anyhow = { workspace = true, optional = true }
-colored = { workspace = true, optional = true }
-libsql = { workspace = true, optional = true }
-rayon = { workspace = true, optional = true }
-rmcp = { workspace = true, optional = true }
-tracing-opentelemetry = { workspace = true, optional = true }
-opentelemetry = { workspace = true, optional = true }
-tracing-subscriber = { workspace = true, optional = true }
-
-# Native-only heavy deps
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
-
-# WASM-specific deps
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { workspace = true, optional = true }
-tokio = { workspace = true, features = ["rt", "macros"] }
-wasm-bindgen = { workspace = true, optional = true }
-wasm-bindgen-futures = { workspace = true, optional = true }
-console_error_panic_hook = { workspace = true, optional = true }
+# Root crate has no runtime dependencies — src/lib.rs only provides an
+# example `add()` function.  Workspace-level optional deps (clap, libsql,
+# rayon, rmcp, etc.) live in [workspace.dependencies] and are consumed by
+# crates/sample-app and crates/*-template directly.
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"], optional = true }
 
 [features]
-default = ["cli", "persistence"]
-cli = ["dep:clap", "dep:anyhow", "dep:colored"]
-persistence = ["dep:libsql"]
-parallel = ["dep:rayon"]
+default = []
+# These features are provided as a demonstration of workspace-level feature
+# flags.  Enable them to pull in optional workspace dependencies through
+# the root crate, or enable them directly in the crate that needs them.
+#
+# cli             - CLI binary support (clap, anyhow, colored)
+# persistence     - SQL persistence backend (libsql)
+# parallel        - CPU parallelism via rayon
+# wasm            - WASM build target support
+# mcp             - MCP server support (requires cli)
+# tracing-json    - JSON tracing output
+# tracing-opentelemetry - OpenTelemetry tracing backend
+cli = ["dep:tokio"]
+persistence = []
+parallel = []
 wasm = []
-mcp = ["dep:rmcp", "cli"]
-tracing-json = ["tracing-subscriber/json"]
-tracing-opentelemetry = ["dep:tracing-opentelemetry", "dep:opentelemetry"]
+mcp = ["cli"]
+tracing-json = []
+tracing-opentelemetry = []
 
 [workspace.lints.rust]
 missing_docs = "allow"

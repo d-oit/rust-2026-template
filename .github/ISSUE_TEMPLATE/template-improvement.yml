@@ -1,0 +1,51 @@
+---
+name: Template Improvement
+description: Suggest changes to the rust-2026-template itself
+title: "[template]: "
+labels: ["template", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement to the template!
+        This is for changes to the template itself, not issues in repos created from it.
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - CI/CD workflow
+        - Agent skills
+        - Documentation
+        - Crate/pattern template
+        - Script/automation
+        - Configuration
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: "What should be changed and why?"
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      placeholder: "How should this be implemented?"
+  - type: textarea
+    id: template-version
+    attributes:
+      label: Template Version
+      placeholder: "e.g., v0.2.3 (check VERSION file)"
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues
+          required: true
+        - label: This is about the template, not a downstream repo
+          required: true

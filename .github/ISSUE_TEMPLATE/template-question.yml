@@ -1,0 +1,42 @@
+---
+name: Template Question
+description: Get help using the rust-2026-template
+title: "[question]: "
+labels: ["question", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask a question about using the rust-2026-template.
+        For bugs in repos created from the template, use the Bug Report template instead.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      placeholder: "What do you need help with?"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      placeholder: "What have you already tried? Any relevant configuration?"
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      value: |
+        - OS:
+        - Rust: (rustc --version)
+        - Template version: (check VERSION file)
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues
+          required: true
+        - label: I read QUICKSTART.md and CONTRIBUTING.md
+          required: false

@@ -1,38 +1,47 @@
 # MCP Server Template
 
-A template crate demonstrating Model Context Protocol (MCP) server integration with dynamic tool registration.
+> Model Context Protocol (MCP) server integration with dynamic tool registration and dispatch.
 
-## Usage
+## When to use
 
-Add to your `Cargo.toml`:
+- Building MCP-compatible servers that expose tools to AI agents
+- Creating plugin systems with runtime tool registration
+- Systems needing JSON Schema-based input validation for tool calls
 
-```toml
-[dependencies]
-mcp-server-template = { path = "../mcp-server-template" }
-```
+## Quick start
 
-## Basic Setup
+```rust,ignore
+use mcp_server_template::{McpServer, Tool, ToolRequest, ToolResponse, ToolError};
+use async_trait::async_trait;
+use serde_json::Value;
 
-```rust
-use mcp_server_template::{McpServer, EchoTool, CalcTool};
+struct GreetTool;
+
+#[async_trait]
+impl Tool for GreetTool {
+    fn name(&self) -> &'static str { "greet" }
+    fn description(&self) -> &'static str { "Greets a user by name" }
+
+    async fn handle(&self, request: ToolRequest) -> Result<ToolResponse, ToolError> {
+        let name = request.input.as_str().unwrap_or("World");
+        Ok(ToolResponse::success(Value::String(format!("Hello, {name}!"))))
+    }
+}
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server = McpServer::new();
+    server.register(GreetTool).await?;
+    server.init().await?;
 
-    // Register tools
-    server.register(EchoTool).await?;
-    server.register(CalcTool).await?;
-
-    // List available tools
     let tools = server.list_tools().await;
-    println!("Available tools: {:?}", tools);
+    println!("Available tools: {tools:?}");
 
-    // Execute a tool
-    let request = serde_json::json!({"message": "hello"});
-    let response = server.execute_tool("echo", request.into()).await?;
-    println!("Result: {:?}", response.result);
-
+    let response = server.execute_tool(
+        "greet",
+        ToolRequest::new(Value::String("Rust".into())),
+    ).await?;
+    println!("Result: {}", response.result);
     Ok(())
 }
 ```
@@ -41,7 +50,7 @@ async fn main() -> anyhow::Result<()> {
 
 Implement the `Tool` trait:
 
-```rust
+```rust,ignore
 use mcp_server_template::{Tool, ToolRequest, ToolResponse, ToolError};
 use async_trait::async_trait;
 
@@ -49,24 +58,30 @@ pub struct MyTool;
 
 #[async_trait]
 impl Tool for MyTool {
-    fn name(&self) -> &'static str {
-        "my_tool"
-    }
+    fn name(&self) -> &'static str { "my_tool" }
+    fn description(&self) -> &'static str { "Does something useful" }
 
-    fn description(&self) -> &'static str {
-        "Does something useful"
+    fn validate(&self, input: &serde_json::Value) -> Result<(), ToolError> {
+        // Optional: validate input before handle() runs
+        Ok(())
     }
 
     async fn handle(&self, request: ToolRequest) -> Result<ToolResponse, ToolError> {
-        // Your implementation here
         Ok(ToolResponse::success(serde_json::json!({"status": "ok"})))
     }
 }
 ```
 
+## Built-in Tools
+
+| Tool | Description | Input |
+|------|-------------|-------|
+| `EchoTool` | Returns input as-is | Any JSON value |
+| `CalcTool` | Basic arithmetic | Object with `op`, `a`, `b` fields |
+
 ## Architecture
 
-- `McpServer` - Main server type with tool registry
-- `Tool` trait - Define tools with name/description/handle
-- `ToolRequest/ToolResponse` - JSON-based I/O types
-- `ToolError` - Error handling for tools
+- **`McpServer`** — Registry-based tool dispatch with async RwLock
+- **`Tool`** trait — `name()`, `description()`, `validate()`, `handle()`, `init()`
+- **`ToolRequest`** / **`ToolResponse`** — JSON-based I/O with optional metadata
+- **`ToolError`** — Typed errors: `InvalidInput`, `Execution`, `Validation`

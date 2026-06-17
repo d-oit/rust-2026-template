@@ -1,48 +1,61 @@
 # Hybrid Storage Template
 
-A template crate demonstrating hybrid storage with backend abstraction and SQL/KV implementations.
+> Feature-gated storage backends (SQL, KV, memory) with a unified trait abstraction.
 
-## Usage
+## When to use
 
-Add to your `Cargo.toml`:
+- Applications needing pluggable storage backends (SQLite, redb, in-memory)
+- Systems requiring a consistent API across different storage technologies
+- Testing scenarios with in-memory backends that mirror production storage
 
-```toml
-[dependencies]
-hybrid-storage-template = { path = "../hybrid-storage-template", features = ["kv"] }
-```
+## Quick start
 
-## Features
-
-- **Backend trait**: Abstract storage interface (get, set, delete, list_keys)
-- **MemoryBackend**: In-memory storage for testing
-- **KvBackend**: Persistent KV store (requires `kv` feature)
-- **SqliteBackend**: SQL backend (requires `sqlite` feature)
-
-## Basic Setup
-
-```rust
-use hybrid_storage_template::{HybridStorage, backends::MemoryBackend};
+```rust,ignore
+use hybrid_storage_template::{HybridStorage, Backend, backends::MemoryBackend};
 use std::sync::Arc;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let storage = HybridStorage::new(Arc::new(MemoryBackend::new()));
 
-    // Set and get
-    storage.set("key", "value").await?;
-    let value = storage.get("key").await?;
+    storage.set("user:1", "Alice").await?;
+    let value = storage.get("user:1").await?;
+    println!("Got: {:?}", value);
 
-    // List with prefix
     let keys = storage.list_keys("user:").await?;
+    println!("User keys: {:?}", keys);
 
-    // Delete
-    storage.delete("key").await?;
-
+    storage.delete("user:1").await?;
     Ok(())
 }
 ```
 
 ## Feature Flags
 
-- `kv` - Enable KV backend support
-- `sqlite` - Enable SQLite backend support
+| Feature | Backend | Dependency | Default |
+|---------|---------|------------|---------|
+| `sqlite` | `SqliteBackend` | `libsql` | Yes |
+| `kv` | `KvBackend` | `redb` | No |
+| — | `MemoryBackend` | None (always available) | — |
+
+```toml
+[dependencies]
+hybrid-storage-template = { features = ["sqlite", "kv"] }
+```
+
+## Architecture
+
+- **`Backend`** — Async trait: `get`, `set`, `delete`, `list_keys`
+- **`HybridStorage`** — Wraps a primary `Arc<dyn Backend>`
+- **`MemoryBackend`** — In-memory HashMap for testing
+- **`SqliteBackend`** — libSQL/Turso backend (requires `sqlite` feature)
+- **`KvBackend`** — redb persistent key-value store (requires `kv` feature)
+
+## Testing
+
+```rust,ignore
+// Use MemoryBackend for fast, isolated tests
+let storage = HybridStorage::default();
+storage.set("key", "value").await.unwrap();
+assert_eq!(storage.get("key").await.unwrap(), Some("value".into()));
+```
