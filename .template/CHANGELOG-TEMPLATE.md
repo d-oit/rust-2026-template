@@ -33,6 +33,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.2] - 2026-06-17
+
+### Added
+
+- `/update-template-changelog` custom command for automated changelog updates from git history.
+
+---
+
+## [0.3.1] - 2026-06-17
+
+### Added
+
+- `verify-actions` skill with evals for CI action SHA verification.
+- Pre-commit hook with line count check (max 500 LOC) and cargo env sourcing.
+- `swatinem/rust-cache` and concurrency control to `fuzz.yml` and `release.yml`.
+
+### Changed
+
+- Unified `actions/checkout` to v6 and `upload-artifact` to v7 across all workflows.
+- Extracted `sample-app` tests to `src/tests.rs` to pass LOC gate.
+
+### Fixed
+
+- Documentation corrections: dora-metrics workflow ref, context.yaml placeholders, ci.md tiers.
+- README version badge, crate list, feature defaults, and benchmarks updated.
+- Replaced `temp_dir` with current directory in test to satisfy Codacy.
+
+---
+
 ## [0.3.0] - 2026-06-17
 
 ### Added
@@ -213,7 +242,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/d-oit/rust-2026-template/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/d-oit/rust-2026-template/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/d-oit/rust-2026-template/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/d-oit/rust-2026-template/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/d-oit/rust-2026-template/compare/v0.2.1...v0.2.2
