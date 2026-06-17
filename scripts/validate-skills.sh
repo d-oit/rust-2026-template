@@ -72,20 +72,35 @@ for skill_path in "$SKILLS_SRC"/*/; do
     FAILED=1
   fi
 
-  # Check 3: Validate CLI symlinks
+  # Check 3: Validate CLI folder symlinks (single symlink per CLI dir)
   for cli_dir in "${CLI_SKILL_DIRS[@]}"; do
-    if [[ ! -d "$REPO_ROOT/$cli_dir" ]]; then
+    cli_full="$REPO_ROOT/$cli_dir"
+
+    # Skip if CLI dir doesn't exist at all
+    if [[ ! -e "$cli_full" ]] && [[ ! -L "$cli_full" ]]; then
       continue
     fi
 
-    link="$REPO_ROOT/$cli_dir/$skill_name"
+    # Check that the CLI dir is a symlink to .agents/skills
+    if [[ -L "$cli_full" ]]; then
+      link_target=$(readlink "$cli_full")
+      if [[ "$link_target" != *"agents/skills"* ]]; then
+        printf "  ${RED}✗${NC} %s is a symlink but points to %s (expected .agents/skills)\n" "$cli_dir" "$link_target"
+        FAILED=1
+      fi
+    elif [[ -d "$cli_full" ]]; then
+      # It's a real directory - check if it contains individual symlinks (old-style)
+      has_individual_links=false
+      for item in "$cli_full"/*; do
+        if [[ -L "$item" ]]; then
+          has_individual_links=true
+          break
+        fi
+      done
 
-    if [[ ! -L "$link" ]] && { [[ "$IS_WINDOWS" == "false" ]] || [[ ! -f "$link" ]]; }; then
-      printf "  ${RED}✗${NC} MISSING symlink: %s/%s\n" "$cli_dir" "$skill_name"
-      FAILED=1
-    elif [[ ! -d "$link" ]] && { [[ "$IS_WINDOWS" == "false" ]] || [[ ! -f "$link" ]]; }; then
-      printf "  ${RED}✗${NC} BROKEN symlink: %s/%s\n" "$cli_dir" "$skill_name"
-      FAILED=1
+      if [[ "$has_individual_links" == "true" ]]; then
+        printf "  ${YELLOW}⚠${NC} %s is a real directory with individual symlinks (consider running setup-skills.sh to switch to folder symlink)\n" "$cli_dir"
+      fi
     fi
   done
 done

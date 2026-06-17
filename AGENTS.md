@@ -39,6 +39,7 @@ Consult the relevant skill's `SKILL.md` for detailed procedures.
 | `self-fix-loop` | Auto-fix CI failures until green |
 | `goap-agent` | Complex multi-step task planning and coordination |
 | `task-decomposition` | Break down tasks into atomic goals |
+| `issue-triage` | Read all open issues, categorize, batch implement in single PR |
 | **Quality & Meta** | |
 | `anti-ai-slop` | Auditing and fixing generic AI code patterns |
 | `privacy-first` | PII and data leakage prevention |

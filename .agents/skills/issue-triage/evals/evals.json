@@ -1,0 +1,46 @@
+[
+  {
+    "name": "discover_open_issues",
+    "description": "Read all open issues from a GitHub repo",
+    "input": "Read all open issues from d-oit/rust-2026-template",
+    "expected_behavior": "Uses gh issue list --state open, reads issue bodies, returns structured list",
+    "assertions": [
+      "Calls gh issue list",
+      "Returns issue numbers and titles",
+      "Includes issue body content"
+    ]
+  },
+  {
+    "name": "categorize_by_type",
+    "description": "Categorize issues by type and effort",
+    "input": "Triage these issues: #100 (feature), #101 (docs), #102 (bug)",
+    "expected_behavior": "Groups issues into feature/bugfix/docs categories with effort estimates",
+    "assertions": [
+      "Identifies issue types from labels or content",
+      "Estimates effort level",
+      "Groups compatible issues together"
+    ]
+  },
+  {
+    "name": "detect_already_implemented",
+    "description": "Skip issues that are already implemented",
+    "input": "Implement all open issues, some may already be done",
+    "expected_behavior": "Checks existing code against issue requirements, skips implemented ones",
+    "assertions": [
+      "Reads existing source code",
+      "Compares against acceptance criteria",
+      "Reports which issues are already done"
+    ]
+  },
+  {
+    "name": "batch_implementation_plan",
+    "description": "Create implementation plan for batch of issues",
+    "input": "Plan implementation for issues #155-#184",
+    "expected_behavior": "Creates ordered implementation plan with dependencies resolved",
+    "assertions": [
+      "Respects dependency order",
+      "Groups compatible issues",
+      "Provides checklist format"
+    ]
+  }
+]
