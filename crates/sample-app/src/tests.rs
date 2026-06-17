@@ -83,8 +83,7 @@ fn test_config_app_name_sanitization() {
 
 #[test]
 fn test_load_config_from_directory() {
-    let temp_dir = std::env::temp_dir();
-    let result = load_config(Some(temp_dir));
+    let result = load_config(Some(std::path::PathBuf::from(".")));
     assert!(result.is_err());
     assert!(
         result
