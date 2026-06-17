@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)](https://www.rust-lang.org)
 [![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
-[![Template Version](https://img.shields.io/badge/version-0.2.3-blue)](CHANGELOG-TEMPLATE.md)
+[![Template Version](https://img.shields.io/badge/version-0.2.3-blue)](.template/CHANGELOG-TEMPLATE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <!-- cargo-sync-readme start -->
@@ -143,7 +143,7 @@ The project uses several directories for generated artifacts and documentation:
 
 A `VERSION` file at the repo root serves as a plain-text single source of truth for tooling that can't easily parse TOML.
 
-> **Versioning note:** `VERSION` is the generated project starter version; `CHANGELOG-TEMPLATE.md` is internal to the template - see #135.
+> **Versioning note:** `VERSION` is the generated project starter version; `.template/CHANGELOG-TEMPLATE.md` is internal to the template - see #135.
 
 ```bash
 VERSION=$(cat VERSION)
