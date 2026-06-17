@@ -3,11 +3,23 @@
     "name": "discover_open_issues",
     "description": "Read all open issues from a GitHub repo",
     "input": "Read all open issues from d-oit/rust-2026-template",
-    "expected_behavior": "Uses gh issue list --state open, reads issue bodies, returns structured list",
+    "expected_behavior": "Auto-detects GitHub from remote, uses gh issue list --state open, reads issue bodies, returns structured list",
     "assertions": [
-      "Calls gh issue list",
+      "Detects platform from git remote",
+      "Calls gh issue list (GitHub) or glab issue list (GitLab)",
       "Returns issue numbers and titles",
       "Includes issue body content"
+    ]
+  },
+  {
+    "name": "discover_issues_gitlab",
+    "description": "Read all open issues from a GitLab repo",
+    "input": "Read all open issues from my-gitlab-group/my-project",
+    "expected_behavior": "Auto-detects GitLab from remote, uses glab issue list --state opened",
+    "assertions": [
+      "Detects GitLab platform from remote URL",
+      "Calls glab issue list --state opened",
+      "Returns issue numbers and titles"
     ]
   },
   {
