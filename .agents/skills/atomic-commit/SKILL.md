@@ -1,21 +1,21 @@
 ---
 name: atomic-commit
 description: >
-  Atomic git workflow - validates, commits, pushes, creates PR, and verifies CI
+  Atomic git workflow - validates, commits, pushes, creates PR/MR, and verifies CI
   with zero-warnings policy. Orchestrates complete code submission as state machine
-  with rollback on failure.
+  with rollback on failure. Supports GitHub (gh) and GitLab (glab).
   Triggers: "commit changes", "push and create PR", "submit code", "atomic commit".
 category: workflow
 license: MIT
 metadata:
   author: d-oit
-  version: "0.2.10"
+  version: "0.3.0"
   adapted-from: d-o-hub/github-template-ai-agents
 ---
 
 # Atomic Commit Skill
 
-Atomic workflow: validate → commit → push → PR → verify. All changes committed as single unit with **zero warnings** policy.
+Atomic workflow: validate → commit → push → PR/MR → verify. All changes committed as single unit with **zero warnings** policy.
 
 ## Overview
 
@@ -24,21 +24,43 @@ Orchestrates complete code submission as state machine with 7 phases:
 2. COMMIT - Atomic commit creation (conventional format)
 3. PRE_PUSH - Remote sync check
 4. PUSH - Upload to origin
-5. PR_CREATE - Open pull request
+5. PR_CREATE - Open pull request (GitHub) or merge request (GitLab)
 6. VERIFY - Wait for CI checks
 7. REPORT - Success summary
 
 **Zero warnings policy**: Any warning fails the workflow and triggers rollback.
+
+## Platform Detection
+
+Auto-detect from git remote:
+
+```bash
+REMOTE=$(git remote get-url origin)
+if echo "$REMOTE" | grep -qi "github"; then
+  PLATFORM="github"; CLI="gh"
+elif echo "$REMOTE" | grep -qi "gitlab"; then
+  PLATFORM="gitlab"; CLI="glab"
+fi
+```
+
+## CLI Command Mapping
+
+| Action | GitHub (`gh`) | GitLab (`glab`) |
+|--------|---------------|-----------------|
+| Create PR/MR | `gh pr create --title "..."` | `glab mr create --title "..."` |
+| Check CI | `gh pr checks` | `glab ci status` |
+| Merge | `gh pr merge 123 --squash` | `glab mr merge 123 --squash` |
 
 ## Arguments
 
 | Argument | Description | Default |
 |----------|-------------|---------|
 | `--message, -m` | Commit message (auto-detect if omitted) | auto |
+| `--platform github\|gitlab` | Force platform | auto-detect |
 | `--dry-run` | Validate only, no commits/pushes | false |
 | `--skip-ci` | Skip CI verification | false |
 | `--timeout` | CI wait timeout in seconds | 1800 |
-| `--base-branch` | Target branch for PR | main |
+| `--base-branch` | Target branch for PR/MR | main |
 
 ## State Machine
 
@@ -57,7 +79,7 @@ Orchestrates complete code submission as state machine with 7 phases:
 | COMMIT | Valid conventional format | Rollback |
 | PRE_PUSH | Remote accessible | Rollback |
 | PUSH | SHA verification | Rollback |
-| PR_CREATE | gh CLI authenticated | Rollback |
+| PR_CREATE | gh/glab CLI authenticated | Rollback |
 | VERIFY | All CI checks green | Rollback |
 
 ## Rust-Specific Checks

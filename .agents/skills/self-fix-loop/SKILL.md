@@ -3,19 +3,20 @@ name: self-fix-loop
 description: >
   Self-learning fix loop - commit, push, monitor CI, auto-fix failures using
   swarm agents with skills on demand, loop until all checks pass.
+  Supports GitHub Actions and GitLab CI.
   Use when CI fails and you need to iteratively fix until green.
   Triggers: "fix CI", "loop until green", "auto-fix failures", "self-fix".
 category: workflow
 license: MIT
 metadata:
   author: d-oit
-  version: "0.2.10"
+  version: "0.3.0"
   adapted-from: d-o-hub/github-template-ai-agents
 ---
 
 # Self-Fix Loop Skill
 
-Automated self-learning cycle: **commit → push → monitor → analyze failures → fix → retry** until all GitHub Actions pass.
+Automated self-learning cycle: **commit → push → monitor → analyze failures → fix → retry** until all CI checks pass.
 
 **Self-Fix Threshold**: If 2+ similar errors occur during the loop, pause and diagnose the root cause before attempting another fix.
 
@@ -24,16 +25,38 @@ Automated self-learning cycle: **commit → push → monitor → analyze failure
 Continuous improvement loop that:
 1. Commits all changes atomically
 2. Pushes to feature branch
-3. Creates/updates PR
-4. Monitors GitHub Actions
+3. Creates/updates PR/MR
+4. Monitors CI (GitHub Actions or GitLab CI)
 5. On failure: diagnoses and fixes
 6. Repeats until ALL checks pass
+
+## Platform Detection
+
+Auto-detect from git remote:
+
+```bash
+REMOTE=$(git remote get-url origin)
+if echo "$REMOTE" | grep -qi "github"; then
+  PLATFORM="github"; CLI="gh"
+elif echo "$REMOTE" | grep -qi "gitlab"; then
+  PLATFORM="gitlab"; CLI="glab"
+fi
+```
+
+## CLI Command Mapping
+
+| Action | GitHub (`gh`) | GitLab (`glab`) |
+|--------|---------------|-----------------|
+| Check CI | `gh pr checks` | `glab ci status` |
+| Create PR/MR | `gh pr create` | `glab mr create` |
+| View logs | `gh run view --log-failed` | `glab ci view` |
 
 ## Arguments
 
 | Argument | Description | Default |
 |----------|-------------|---------|
 | `--max-retries N` | Maximum fix iterations | 5 |
+| `--platform github\|gitlab` | Force platform | auto-detect |
 | `--auto-research` | Use web research on failures | true |
 | `--fix-issues` | Attempt automatic fixes | true |
 | `--strict-validation` | ALL checks must pass | true |
@@ -51,11 +74,11 @@ Phase 1: COMMIT & PUSH
    - Atomic commit
    - Push to feature branch
    ↓
-Phase 2: CREATE/UPDATE PR
-   - Create new PR or update existing
+Phase 2: CREATE/UPDATE PR/MR
+   - Create new PR/MR or update existing
    ↓
 Phase 3: MONITOR CI
-   - Poll GitHub Actions
+   - Poll GitHub Actions / GitLab CI
    - Wait for all checks complete
    ↓
 Phase 4: ANALYZE FAILURES
