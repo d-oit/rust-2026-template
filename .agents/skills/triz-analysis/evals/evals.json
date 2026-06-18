@@ -1,0 +1,427 @@
+{
+  "skill_name": "triz-analysis",
+  "version": "0.2.10",
+  "split": "60/40 train/validation",
+  "evals": [
+    {
+      "id": 1,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Audit our Rust workspace for hidden trade-offs between compile time and runtime performance",
+      "expected_output": "Runs TRIZ contradiction audit, identifies specific crates/files, maps to principles #13 #35, writes report to analysis/triz-<scope>-YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "Output names a target scope (crates/, scripts/, or specific crate)",
+        "Contradiction stated explicitly: 'improving [X] causes [Y] to worsen'",
+        "Maps contradiction to specific TRIZ principle number",
+        "Suggests a Rust-idiomatic resolution pattern (feature flag, dyn dispatch, cargo-bloat, etc.)",
+        "Saves findings to analysis/triz-<scope>-YYYY-MM-DD.md path"
+      ]
+    },
+    {
+      "id": 2,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Run a TRIZ audit on scripts/ to find workflow contradictions",
+      "expected_output": "Performs SCOPE SCAN on scripts/, identifies contradictions, maps to principles, writes analysis/triz-scripts-YYYY-MM-DD.md",
+      "files": [],
+      "assertions": [
+        "Scans scripts/ directory for pain points",
+        "Names at least 2 specific contradictions",
+        "Each contradiction mapped to a TRIZ principle",
+        "Report file path follows analysis/triz-scripts-YYYY-MM-DD.md convention",
+        "Includes IFR (Ideal Final Result) section"
+      ]
+    },
+    {
+      "id": 3,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Find innovation opportunities in our tokio-based async architecture using TRIZ",
+      "expected_output": "Audits async architecture, identifies contradictions like async surface vs blocking cost, maps to #1 #15, proposes feature gates or spawn_blocking pattern",
+      "files": [],
+      "assertions": [
+        "Identifies at least one async-specific contradiction",
+        "References Tokio-specific patterns (spawn_blocking, runtime, handle)",
+        "Maps to principles #1 (Segmentation) and/or #15 (Dynamics)",
+        "Proposes Rust-idiomatic resolution",
+        "Output saved to analysis/"
+      ]
+    },
+    {
+      "id": 4,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "I think our Cargo.toml workspace is over-engineered but I can't see why. Can you TRIZ audit it?",
+      "expected_output": "Audits Cargo.toml workspace, identifies complexity vs functionality contradiction, maps to #1 #9 #15, suggests workspace inheritance or feature segmentation",
+      "files": [],
+      "assertions": [
+        "States contradiction in the form 'improving X worsens Y'",
+        "References specific Cargo.toml patterns (workspace.package, features, dependencies)",
+        "Maps to principle #1 (Segmentation) and #15 (Dynamics)",
+        "Proposes a concrete refactor (e.g., workspace inheritance)",
+        "Saves to analysis/triz-cargo-YYYY-MM-DD.md"
+      ]
+    },
+    {
+      "id": 5,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Our CI takes 25 minutes. Find the contradictions in .github/workflows/",
+      "expected_output": "Audits CI workflows, identifies build matrix vs CI minutes contradiction, maps to #1 #9, proposes cargo-hack and sharding",
+      "files": [],
+      "assertions": [
+        "Target scope is .github/workflows/",
+        "Contradiction: build matrix (improve) vs CI minutes (worsen)",
+        "References cargo-hack or workspace test sharding",
+        "Maps to principle #1 or #9",
+        "Report file path follows analysis/triz-ci-YYYY-MM-DD.md"
+      ]
+    },
+    {
+      "id": 6,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Do a swarm-based TRIZ audit on crates/ — different agents per crate",
+      "expected_output": "Orchestrates parallel TRIZ analysis across crates, integrates findings into single report, uses agent-coordination principles",
+      "files": [],
+      "assertions": [
+        "Mentions parallel or swarm execution across crates",
+        "References agent-coordination skill for orchestration",
+        "Output aggregates per-crate contradictions into one analysis/ file",
+        "Identifies at least one cross-crate contradiction",
+        "Saves to analysis/triz-crates-YYYY-MM-DD.md"
+      ]
+    },
+    {
+      "id": 7,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Our trait has too many methods and downstream users are complaining about compile time. TRIZ this",
+      "expected_output": "Identifies API surface vs compile time contradiction, maps to #2 #6, suggests taking out (#2) into smaller traits or sealed traits (#6)",
+      "files": [],
+      "assertions": [
+        "Contradiction stated: API surface (improve) vs compile time (worsen)",
+        "References trait methods or sealed traits",
+        "Maps to principle #2 (Taking out) and/or #6 (Universality)",
+        "Proposes splitting trait or using sealed pattern",
+        "Saves to analysis/"
+      ]
+    },
+    {
+      "id": 8,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "We're forced to add unsafe to bypass the borrow checker. Use TRIZ to find a safe design",
+      "expected_output": "Audits unsafe usage, identifies lifetime or ownership contradiction, maps to #7 (Nesting) or #17 (Another dimension), proposes Cow, newtype, or wrapper",
+      "files": [],
+      "assertions": [
+        "Contradiction: borrow safety (improve) vs API flexibility (worsen)",
+        "References Rust-specific patterns: Cow, newtype, PhantomData, lifetime generics",
+        "Maps to principle #7 or #17",
+        "Proposes safe alternative (no unsafe)",
+        "Output saved to analysis/"
+      ]
+    },
+    {
+      "id": 9,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Contradiction audit on .agents/ — find trade-offs in our skill index generator",
+      "expected_output": "Audits generate-skills-md.sh, identifies maintainability vs completeness contradiction, maps to #13 (Dynamics), suggests separating static schema from generated table",
+      "files": [],
+      "assertions": [
+        "Target scope is .agents/ or generate-skills-md.sh",
+        "Names the contradiction explicitly",
+        "Maps to a TRIZ principle",
+        "Suggests a separation or restructuring pattern",
+        "Saves to analysis/triz-skills-md-YYYY-MM-DD.md"
+      ]
+    },
+    {
+      "id": 10,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "We have 50+ features in Cargo.toml and binary is huge. Find the contradiction",
+      "expected_output": "Identifies functionality vs binary size contradiction, maps to #1 #15, suggests feature segmentation and cfg gates",
+      "files": [],
+      "assertions": [
+        "Contradiction: functionality (improve) vs binary size (worsen)",
+        "References Cargo features or cfg",
+        "Maps to #1 (Segmentation) and/or #15 (Dynamics)",
+        "Suggests feature gating or split-crate approach",
+        "Report saved to analysis/"
+      ]
+    },
+    {
+      "id": 11,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Security vs ergonomics in our auth crate — run a TRIZ analysis",
+      "expected_output": "Audits auth crate, identifies security vs usability contradiction, maps to #12 (Inversion) and #4 (Asymmetry), proposes risk-based auth",
+      "files": [],
+      "assertions": [
+        "Contradiction: security (improve) vs usability (worsen)",
+        "Maps to #12 and/or #4",
+        "Proposes a Rust-friendly resolution (risk-based, conditional)",
+        "References auth patterns",
+        "Saved to analysis/triz-auth-YYYY-MM-DD.md"
+      ]
+    },
+    {
+      "id": 12,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Our generic API forces users into long compile times. TRIZ audit please",
+      "expected_output": "Identifies genericity vs compile time contradiction, maps to #2 #6, proposes dyn dispatch or trait specialization",
+      "files": [],
+      "assertions": [
+        "Contradiction: genericity (improve) vs compile time (worsen)",
+        "References Rust generics or trait bounds",
+        "Maps to #2 and/or #6",
+        "Proposes dyn Trait or specialization",
+        "Saves to analysis/"
+      ]
+    },
+    {
+      "id": 13,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Hidden trade-offs in our Cargo workspace — use TRIZ to find them",
+      "expected_output": "Performs contradiction audit, lists hidden trade-offs, maps to principles, saves to analysis/",
+      "files": [],
+      "assertions": [
+        "Names at least 2 hidden trade-offs",
+        "Each trade-off mapped to a principle number",
+        "Suggests Rust-idiomatic resolution",
+        "Report path includes 'analysis/triz-' prefix",
+        "Includes IFR section"
+      ]
+    },
+    {
+      "id": 14,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "We need a fresh look at crates/architecture. Use TRIZ to spot design contradictions",
+      "expected_output": "Audits crates/architecture, names contradictions, maps to principles, writes analysis report",
+      "files": [],
+      "assertions": [
+        "Identifies architecture-level contradictions",
+        "Each contradiction mapped to a principle",
+        "Suggests concrete refactor",
+        "Report saved to analysis/",
+        "Does not just restate existing structure"
+      ]
+    },
+    {
+      "id": 15,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "TRIZ scan of our test suite — coverage vs runtime trade-off?",
+      "expected_output": "Audits test setup, finds coverage vs runtime contradiction, maps to #13 #35, suggests nextest sharding or proptest shrinking",
+      "files": [],
+      "assertions": [
+        "Contradiction: test coverage (improve) vs test runtime (worsen)",
+        "References cargo-nextest or proptest",
+        "Maps to #13 and/or #35",
+        "Suggests sharding or shrinking",
+        "Saved to analysis/triz-tests-YYYY-MM-DD.md"
+      ]
+    },
+    {
+      "id": 16,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Find the contradiction in our build matrix that makes CI slow",
+      "expected_output": "Identifies build matrix vs CI minutes contradiction, maps to #1 #9, suggests cargo-hack or workspace segmentation",
+      "files": [],
+      "assertions": [
+        "Contradiction explicitly stated",
+        "References CI minutes or build matrix",
+        "Maps to #1 or #9",
+        "Suggests cargo-hack or workspace split",
+        "Output saved to analysis/"
+      ]
+    },
+    {
+      "id": 17,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Invention audit on .github/workflows/ for any hidden trade-offs",
+      "expected_output": "Audits workflows, finds hidden trade-offs, maps to TRIZ principles, writes analysis report",
+      "files": [],
+      "assertions": [
+        "Target scope is .github/workflows/",
+        "At least 2 trade-offs named",
+        "Each mapped to a principle",
+        "Saves to analysis/triz-workflows-YYYY-MM-DD.md",
+        "Includes Quality Checklist from the skill"
+      ]
+    },
+    {
+      "id": 18,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "TRIZ analysis of crates/example-crate to find abstractions we don't need",
+      "expected_output": "Audits example crate, finds over-abstraction contradiction, maps to #3 (Local quality), suggests flat module tree",
+      "files": [],
+      "assertions": [
+        "Contradiction: abstraction (improve) vs simplicity (worsen)",
+        "Maps to #3 (Local quality)",
+        "References Rust patterns: flat modules, concrete types",
+        "Saves to analysis/triz-example-crate-YYYY-MM-DD.md",
+        "Mentions IFR"
+      ]
+    },
+    {
+      "id": 19,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Fix this clippy warning in src/lib.rs: needless borrow",
+      "expected_output": "Should not trigger triz-analysis; this is a simple clippy fix, not an audit. Should suggest using lint-rust or anti-ai-slop instead.",
+      "files": [],
+      "assertions": [
+        "Does NOT run a contradiction audit",
+        "Does NOT write to analysis/triz-*.md",
+        "Routes to lint-rust or anti-ai-slop instead",
+        "Responds with a direct fix suggestion for the clippy warning",
+        "Mentions cargo clippy or cargo fix"
+      ]
+    },
+    {
+      "id": 20,
+      "split": "validation",
+      "should_trigger": false,
+      "prompt": "Add a new dependency to Cargo.toml — what's the latest version of serde?",
+      "expected_output": "Should not trigger triz-analysis; this is a dependency lookup, not a contradiction audit. Should respond with crate lookup or build-rust.",
+      "files": [],
+      "assertions": [
+        "Does NOT run contradiction analysis",
+        "Does NOT write to analysis/ directory",
+        "Provides serde version or routing suggestion",
+        "Mentions crates.io or cargo search",
+        "Suggests build-rust or release-rust if version check needed"
+      ]
+    },
+    {
+      "id": 21,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Run cargo nextest on the workspace",
+      "expected_output": "Should not trigger triz-analysis; this is a test execution command. Should suggest test-rust skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run a contradiction audit",
+        "Does NOT write to analysis/ directory",
+        "Suggests test-rust skill instead",
+        "Mentions cargo nextest",
+        "No mention of TRIZ principles or contradictions"
+      ]
+    },
+    {
+      "id": 22,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Format all Rust files in the workspace",
+      "expected_output": "Should not trigger triz-analysis; this is a formatting task. Should suggest lint-rust or build-rust.",
+      "files": [],
+      "assertions": [
+        "Does NOT run contradiction audit",
+        "Suggests lint-rust or build-rust skill",
+        "Mentions cargo fmt",
+        "Does NOT write to analysis/",
+        "Does NOT mention TRIZ principles"
+      ]
+    },
+    {
+      "id": 23,
+      "split": "validation",
+      "should_trigger": false,
+      "prompt": "Bump version to 1.2.0 and tag a release",
+      "expected_output": "Should not trigger triz-analysis; this is a release task. Should suggest release-rust skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run contradiction audit",
+        "Suggests release-rust skill",
+        "Does NOT write to analysis/ directory",
+        "Mentions Cargo.toml version bump or git tag",
+        "No mention of TRIZ principles"
+      ]
+    },
+    {
+      "id": 24,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Generate the DORA metrics report for this month",
+      "expected_output": "Should not trigger triz-analysis; this is metrics reporting. Should suggest dora-report skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run contradiction audit",
+        "Suggests dora-report skill",
+        "Does NOT write to analysis/ directory",
+        "Mentions DORA-REPORT.md or metrics.jsonl",
+        "No mention of TRIZ principles"
+      ]
+    },
+    {
+      "id": 25,
+      "split": "validation",
+      "should_trigger": false,
+      "prompt": "Commit these changes and open a PR",
+      "expected_output": "Should not trigger triz-analysis; this is a git workflow. Should suggest atomic-commit skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run contradiction audit",
+        "Suggests atomic-commit skill",
+        "Does NOT write to analysis/ directory",
+        "Mentions git commit or gh pr create",
+        "No mention of TRIZ principles"
+      ]
+    },
+    {
+      "id": 26,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Write a new skill for handling database migrations",
+      "expected_output": "Should not trigger triz-analysis; this is a skill creation task. Should suggest skill-creator skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run contradiction audit",
+        "Suggests skill-creator skill",
+        "Does NOT write to analysis/ directory",
+        "Mentions .agents/skills/ directory",
+        "No mention of TRIZ principles"
+      ]
+    },
+    {
+      "id": 27,
+      "split": "validation",
+      "should_trigger": false,
+      "prompt": "Check this PR for code review issues",
+      "expected_output": "Should not trigger triz-analysis; this is a code review task. Should suggest code-review-assistant or lint-rust.",
+      "files": [],
+      "assertions": [
+        "Does NOT run contradiction audit",
+        "Suggests code review or lint skill",
+        "Does NOT write to analysis/ directory",
+        "Mentions PR or diff review",
+        "No mention of TRIZ principles"
+      ]
+    },
+    {
+      "id": 28,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Remove the email from the authors field in Cargo.toml",
+      "expected_output": "Should not trigger triz-analysis; this is a privacy/compliance fix. Should suggest privacy-first skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run contradiction audit",
+        "Suggests privacy-first skill",
+        "Does NOT write to analysis/ directory",
+        "Mentions Cargo.toml authors field",
+        "No mention of TRIZ principles"
+      ]
+    }
+  ]
+}

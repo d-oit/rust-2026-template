@@ -1,0 +1,27 @@
+{
+  "event_id": "1781794850-opencode",
+  "task_id": "add-triz-skills-and-wire-generator",
+  "parent_task_id": null,
+  "workflow_id": "wf-triz-adaptation-2026-06-18",
+  "agent_id": "opencode",
+  "agent_type": "opencode",
+  "skill": "skill-creator",
+  "skill_version": "1.0",
+  "status": "success",
+  "started_at": "2026-06-18T15:00:50Z",
+  "finished_at": "2026-06-18T15:00:50Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_branch": "main",
+  "git_sha": "f668477",
+  "pr_number": null,
+  "artifacts": [
+    ".agents/skills/triz-analysis/SKILL.md",
+    ".agents/skills/triz-analysis/evals/evals.json",
+    ".agents/skills/triz-solver/SKILL.md",
+    ".agents/skills/triz-solver/evals/evals.json",
+    ".agents/SKILLS.md",
+    ".github/workflows/ci.yml"
+  ],
+  "notes": "Adapted triz-analysis and triz-solver from d-o-hub/github-template-ai-agents for Rust. Added 28 evals per skill (60/40 split, 18 should-trigger, 10 should-not-trigger). Wired generate-skills-md.sh into ci.yml alongside llms.txt check. goap-agent's references to triz-analysis, triz-solver, and task-decomposition now resolve."
+}
