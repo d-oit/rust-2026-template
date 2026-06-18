@@ -345,7 +345,9 @@ jobs:
       - name: Check .agents/SKILLS.md is current
         run: |
           bash scripts/generate-skills-md.sh
-          git diff --exit-code .agents/SKILLS.md || (echo ".agents/SKILLS.md is stale, run scripts/generate-skills-md.sh" && exit 1)
+          MSG="regenerate with scripts/generate-skills-md.sh"
+          git diff --exit-code .agents/SKILLS.md \
+            || (echo ".agents/SKILLS.md is stale, ${MSG}" && exit 1)
 
   # ───────────────────────────────────────────────────
   msrv:
