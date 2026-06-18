@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- Title -->
+    <mxCell id="title" value="rust-2026-template — Architecture Overview" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="300" y="20" width="1000" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- LAYER 1: WORKSPACE ROOT -->
+    <mxCell id="ws" value="Cargo Workspace Root" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="620" y="80" width="360" height="50" as="geometry" />
+    </mxCell>
+
+    <!-- LAYER 2: CRATE LAYER -->
+
+    <!-- Domain / Types tier -->
+    <mxCell id="tier_domain" value="Domain / Types Tier" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=11;align=left;" vertex="1" parent="1">
+      <mxGeometry x="40" y="190" width="180" height="30" as="geometry" />
+    </mxCell>
+
+    <mxCell id="example_crate" value="&lt;b&gt;example-crate&lt;/b&gt;&lt;br/&gt;Core domain types &amp; traits" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="40" y="220" width="190" height="60" as="geometry" />
+    </mxCell>
+
+    <mxCell id="checkpoint" value="&lt;b&gt;checkpoint-template&lt;/b&gt;&lt;br/&gt;State checkpoint &amp; snapshot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="250" y="220" width="190" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- Core / Logic tier -->
+    <mxCell id="tier_core" value="Core / Logic Tier" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=11;align=left;" vertex="1" parent="1">
+      <mxGeometry x="480" y="190" width="180" height="30" as="geometry" />
+    </mxCell>
+
+    <mxCell id="actor" value="&lt;b&gt;actor-runtime-template&lt;/b&gt;&lt;br/&gt;Actor model runtime" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="480" y="220" width="190" height="60" as="geometry" />
+    </mxCell>
+
+    <mxCell id="registry" value="&lt;b&gt;example-registry-pattern&lt;/b&gt;&lt;br/&gt;Service registry pattern" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="690" y="220" width="190" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- Adapters / Backends tier -->
+    <mxCell id="tier_adapter" value="Adapters / Backends Tier" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=11;align=left;" vertex="1" parent="1">
+      <mxGeometry x="900" y="190" width="210" height="30" as="geometry" />
+    </mxCell>
+
+    <mxCell id="hybrid" value="&lt;b&gt;hybrid-storage-template&lt;/b&gt;&lt;br/&gt;Hybrid storage adapter&lt;br/&gt;(libsql / Turso)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="900" y="210" width="195" height="70" as="geometry" />
+    </mxCell>
+
+    <mxCell id="storage" value="&lt;b&gt;example-storage-pattern&lt;/b&gt;&lt;br/&gt;Storage trait impls" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="1110" y="210" width="195" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- CLI / Bin tier -->
+    <mxCell id="tier_cli" value="CLI / Binary Tier" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=11;align=left;" vertex="1" parent="1">
+      <mxGeometry x="1330" y="190" width="160" height="30" as="geometry" />
+    </mxCell>
+
+    <mxCell id="sample" value="&lt;b&gt;sample-app&lt;/b&gt;&lt;br/&gt;CLI binary (clap)&lt;br/&gt;Tokio async runtime" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="1330" y="210" width="185" height="70" as="geometry" />
+    </mxCell>
+
+    <mxCell id="mcp" value="&lt;b&gt;mcp-server-template&lt;/b&gt;&lt;br/&gt;MCP server (rmcp 1.7)&lt;br/&gt;JSON-RPC tools/resources" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="1330" y="300" width="185" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- root lib -->
+    <mxCell id="rootlib" value="&lt;b&gt;rust-2026-template&lt;/b&gt; (root lib)&lt;br/&gt;Feature flags: cli | persistence | parallel | wasm | mcp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="480" y="310" width="400" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- examples / benchmarks -->
+    <mxCell id="examples" value="&lt;b&gt;examples/*&lt;/b&gt;&lt;br/&gt;Workspace examples" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="150" y="310" width="160" height="60" as="geometry" />
+    </mxCell>
+
+    <mxCell id="bench" value="&lt;b&gt;benchmarks&lt;/b&gt;&lt;br/&gt;criterion 0.5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="920" y="310" width="160" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- CI/CD Section -->
+    <mxCell id="cicd_hdr" value="CI / CD &amp; Quality Gate (.github/workflows)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="40" y="430" width="460" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="ci1" value="cargo check / clippy / fmt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="40" y="480" width="200" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ci2" value="cargo test / cargo-mutants" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="250" y="480" width="200" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ci3" value="cargo deny / gitleaks / trivy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+      <mxGeometry x="40" y="530" width="200" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ci4" value="codecov / codacy / SBOM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+      <mxGeometry x="250" y="530" width="200" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ci5" value="cargo-release + cliff (CHANGELOG)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="40" y="580" width="200" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="ci6" value="cargo-dist (binary distribution)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="250" y="580" width="200" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- AI Agent Ecosystem -->
+    <mxCell id="ai_hdr" value="AI Agent Ecosystem (.agents / .claude / .gemini / .qwen / .cursor / .windsurf)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B68EE;strokeColor=#4B0082;fontColor=#ffffff;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="540" y="430" width="680" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="ai1" value="Claude Code&lt;br/&gt;(.claude / CLAUDE.md)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="540" y="480" width="150" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="ai2" value="Gemini&lt;br/&gt;(.gemini / GEMINI.md)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="700" y="480" width="150" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="ai3" value="Qwen&lt;br/&gt;(.qwen / QWEN.md)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="860" y="480" width="150" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="ai4" value="Cursor / Windsurf / Opencode&lt;br/&gt;(.cursor / .windsurf / .opencode)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="1020" y="480" width="195" height="50" as="geometry" />
+    </mxCell>
+
+    <mxCell id="ai5" value="AGENTS.md — agent workflow rules&lt;br/&gt;llms.txt — LLM context hint file&lt;br/&gt;agents-docs/ — agent documentation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="540" y="540" width="330" height="60" as="geometry" />
+    </mxCell>
+
+    <mxCell id="ai6" value="MCP Server Template&lt;br/&gt;rmcp 1.7 — tools &amp; resources&lt;br/&gt;Exposes crate logic to AI agents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="880" y="540" width="335" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- Quality Section -->
+    <mxCell id="quality_hdr" value="Quality &amp; Security Tooling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF8C00;strokeColor=#8B4513;fontColor=#ffffff;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="40" y="650" width="460" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="q1" value="pre-commit hooks&lt;br/&gt;(.pre-commit-config.yaml)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+      <mxGeometry x="40" y="700" width="195" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="q2" value="commitlint + git hooks&lt;br/&gt;(.githooks / commitlint.config.cjs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+      <mxGeometry x="245" y="700" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="q3" value="rustfmt.toml + .clippy.toml&lt;br/&gt;shellcheck + yamllint&lt;br/&gt;markdownlint-cli2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="40" y="760" width="200" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="q4" value="gitleaks.toml — secret scanning&lt;br/&gt;deny.toml — supply chain audit&lt;br/&gt;.codacy.yml + .codecov.yml" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="250" y="760" width="200" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- Dev Environment -->
+    <mxCell id="dev_hdr" value="Dev Environment &amp; Config" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e88e5;strokeColor=#0D47A1;fontColor=#ffffff;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="540" y="650" width="680" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="d1" value="Nix Flake (flake.nix)&lt;br/&gt;Reproducible dev shell" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="540" y="700" width="195" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="d2" value=".vscode / .cargo&lt;br/&gt;rust-toolchain.toml (1.88)&lt;br/&gt;.envrc (direnv)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="745" y="700" width="200" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="d3" value="config/ — runtime config&lt;br/&gt;schema/ — JSON schemas&lt;br/&gt;.template/ — scaffold templates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="955" y="700" width="210" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="d4" value="Makefile — dev shortcuts&lt;br/&gt;scripts/ — automation bash" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="1175" y="700" width="195" height="50" as="geometry" />
+    </mxCell>
+
+    <!-- Testing Strategy -->
+    <mxCell id="test_hdr" value="Testing Strategy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00897b;strokeColor=#004D40;fontColor=#ffffff;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="540" y="770" width="680" height="40" as="geometry" />
+    </mxCell>
+
+    <mxCell id="t1" value="tests/ — integration tests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="540" y="820" width="195" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="t2" value="fuzz/ — cargo-fuzz targets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="745" y="820" width="195" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="t3" value="benchmarks/ — criterion perf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="950" y="820" width="195" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="t4" value="insta snapshots + proptest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="1155" y="820" width="195" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- EDGES -->
+    <mxCell id="e_ws_root" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="ws" target="rootlib" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="example_crate" target="actor" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="checkpoint" target="actor" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="actor" target="hybrid" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="registry" target="hybrid" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="hybrid" target="sample" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="storage" target="sample" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="hybrid" target="mcp" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <mxCell id="e_mcp_ai" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#7B68EE;strokeWidth=2;" edge="1" source="mcp" target="ai_hdr" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Legend -->
+    <mxCell id="leg_hdr" value="Legend" style="text;html=1;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="40" y="870" width="100" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="leg1" value="Domain/Types" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="40" y="895" width="120" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="leg2" value="Core/Logic" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="170" y="895" width="120" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="leg3" value="Adapters/Storage" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="300" y="895" width="140" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="leg4" value="CLI/Binary" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="450" y="895" width="120" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="leg5" value="Workspace/Shared" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="580" y="895" width="140" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="leg6" value="AI Agents" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+      <mxGeometry x="730" y="895" width="120" height="25" as="geometry" />
+    </mxCell>
+    <mxCell id="leg7" value="CI/CD" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="860" y="895" width="120" height="25" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>
