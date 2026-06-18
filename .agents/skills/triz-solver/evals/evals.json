@@ -1,0 +1,427 @@
+{
+  "skill_name": "triz-solver",
+  "version": "0.2.10",
+  "split": "60/40 train/validation",
+  "evals": [
+    {
+      "id": 1,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Caching improves our Rust service speed but adds staleness complexity. Solve this with TRIZ",
+      "expected_output": "Identifies performance vs maintainability contradiction, applies principle #1 (Segmentation) — cache with TTL per data type, proposes newtype wrapper or trait-based cache",
+      "files": [],
+      "assertions": [
+        "Contradiction stated: performance (improve) vs maintainability (worsen)",
+        "Applies principle #1 (Segmentation)",
+        "Proposes Rust-idiomatic solution (TTL type, newtype, trait)",
+        "Validates no new contradictions introduced",
+        "Mentions IFR or ideal final result"
+      ]
+    },
+    {
+      "id": 2,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Strong auth improves security but hurts UX. Use TRIZ to resolve",
+      "expected_output": "Identifies security vs usability contradiction, applies #12 (Inversion) and #4 (Asymmetry), proposes risk-based auth that challenges only suspicious sessions",
+      "files": [],
+      "assertions": [
+        "Contradiction: security (improve) vs usability (worsen)",
+        "Applies #12 (Inversion)",
+        "Proposes risk-based or conditional auth",
+        "Uses Rust pattern (enum, match, trait)",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 3,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Our agent instructions are getting long and eating context. Use TRIZ to optimize",
+      "expected_output": "Identifies completeness vs token limits contradiction, applies #4 (Asymmetry) — heavy knowledge in references/, load lazily",
+      "files": [],
+      "assertions": [
+        "Contradiction: completeness (improve) vs token limits (worsen)",
+        "Applies #4 (Asymmetry)",
+        "Suggests progressive disclosure (references/ folder)",
+        "References agent skills spec",
+        "Result: reliability maintained, context efficiency improved"
+      ]
+    },
+    {
+      "id": 4,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Heavy generics in our core crate cause slow dev builds. TRIZ a solution",
+      "expected_output": "Identifies genericity vs compile time contradiction, applies #2 (Taking out) — extract hot loop into dyn Trait crate",
+      "files": [],
+      "assertions": [
+        "Contradiction: genericity (improve) vs compile time (worsen)",
+        "Applies #2 (Taking out)",
+        "Proposes trait extraction or dyn dispatch",
+        "Rust-idiomatic (trait object or separate crate)",
+        "Validates with cargo build time measurement"
+      ]
+    },
+    {
+      "id": 5,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Adding a borrow makes our trait less flexible for downstream impls. TRIZ fix",
+      "expected_output": "Identifies borrow safety vs extensibility contradiction, applies #7 (Nesting) — use Cow<'_, T> or lifetime-generic type parameter",
+      "files": [],
+      "assertions": [
+        "Contradiction: borrow safety (improve) vs extensibility (worsen)",
+        "Applies #7 (Nesting)",
+        "Proposes Cow or lifetime generics",
+        "Rust-idiomatic pattern",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 6,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Exposing async requires every caller to .await. Solve with TRIZ",
+      "expected_output": "Identifies async surface vs blocking cost contradiction, applies #12 (Inversion) — provide blocking wrapper that calls tokio runtime block_on",
+      "files": [],
+      "assertions": [
+        "Contradiction: async surface (improve) vs blocking cost (worsen)",
+        "Applies #12 (Inversion)",
+        "Proposes blocking wrapper over async core",
+        "References tokio::runtime::Handle or block_on",
+        "Both sync and async callers served"
+      ]
+    },
+    {
+      "id": 7,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Our convenience methods bloat the binary. TRIZ a feature gating approach",
+      "expected_output": "Identifies API ergonomics vs binary size contradiction, applies #1 (Segmentation) and #15 (Dynamics) — feature-gate convenience methods, default off",
+      "files": [],
+      "assertions": [
+        "Contradiction: API ergonomics (improve) vs binary size (worsen)",
+        "Applies #1 (Segmentation) and/or #15 (Dynamics)",
+        "Proposes feature flags or cfg gates",
+        "Rust-idiomatic (Cargo features, #[cfg])",
+        "Users opt in, base binary stays small"
+      ]
+    },
+    {
+      "id": 8,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "We're stuck on a design — adding error context costs performance. Use TRIZ",
+      "expected_output": "Identifies observability vs performance contradiction, applies #13 (Dynamics) — conditional context collection, lazy formatting",
+      "files": [],
+      "assertions": [
+        "Contradiction: error context (improve) vs performance (worsen)",
+        "Applies #13 (Dynamics)",
+        "Proposes lazy formatting or conditional context",
+        "Rust pattern (tracing, anyhow context)",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 9,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Our generic API forces trait bounds that downstream users hate. Solve with TRIZ",
+      "expected_output": "Identifies genericity vs usability contradiction, applies #2 (Taking out) — extract minimal trait or use trait object",
+      "files": [],
+      "assertions": [
+        "Contradiction: genericity (improve) vs usability (worsen)",
+        "Applies #2 (Taking out)",
+        "Proposes minimal trait or dyn dispatch",
+        "Rust-idiomatic",
+        "Both generic and concrete users served"
+      ]
+    },
+    {
+      "id": 10,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "I need to add a new field to my struct but it breaks serde compatibility. TRIZ this",
+      "expected_output": "Identifies compatibility vs evolution contradiction, applies #13 (Dynamics) — use #[serde(default)] + Option<T> for backward compat",
+      "files": [],
+      "assertions": [
+        "Contradiction: schema evolution (improve) vs compatibility (worsen)",
+        "Applies #13 (Dynamics) or #1 (Segmentation)",
+        "Proposes Option<T> or #[serde(default)]",
+        "Rust-idiomatic serde pattern",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 11,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Tokio task spawning overhead is killing throughput. TRIZ optimize",
+      "expected_output": "Identifies throughput vs spawn overhead contradiction, applies #5 (Merging) — batch tasks or use rayon for CPU-bound work",
+      "files": [],
+      "assertions": [
+        "Contradiction: throughput (improve) vs spawn overhead (worsen)",
+        "Applies #5 (Merging)",
+        "Proposes batching or rayon for CPU work",
+        "Rust-idiomatic",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 12,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Lifetimes in my new type are too tangled. Apply TRIZ to simplify",
+      "expected_output": "Identifies lifetime expressiveness vs clarity contradiction, applies #2 (Taking out) or #7 (Nesting) — encapsulate lifetime in newtype or use owned type (String, Bytes)",
+      "files": [],
+      "assertions": [
+        "Contradiction: expressiveness (improve) vs clarity (worsen)",
+        "Applies #2 or #7",
+        "Proposes newtype or owned type (String, bytes::Bytes)",
+        "Rust-idiomatic",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 13,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Test coverage is high but tests take too long to run. TRIZ solve",
+      "expected_output": "Identifies coverage vs runtime contradiction, applies #13 (Dynamics) and #35 — nextest sharding, proptest shrinking, parallel execution",
+      "files": [],
+      "assertions": [
+        "Contradiction: coverage (improve) vs runtime (worsen)",
+        "Applies #13 and/or #35",
+        "References cargo-nextest or proptest",
+        "Proposes sharding or shrinking",
+        "Saves to analysis/ if audit mode"
+      ]
+    },
+    {
+      "id": 14,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Build matrix tests every combination, CI is slow. TRIZ solution?",
+      "expected_output": "Identifies build matrix vs CI minutes contradiction, applies #1 (Segmentation) — cargo-hack with --group-features, or workspace split",
+      "files": [],
+      "assertions": [
+        "Contradiction: build matrix (improve) vs CI minutes (worsen)",
+        "Applies #1 (Segmentation)",
+        "References cargo-hack or workspace split",
+        "Rust-idiomatic",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 15,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Our macro_rules is too clever and breaks tooling. Use TRIZ to refactor",
+      "expected_output": "Identifies macro expressiveness vs tooling support contradiction, applies #2 (Taking out) — extract to proc-macro or plain function",
+      "files": [],
+      "assertions": [
+        "Contradiction: macro expressiveness (improve) vs tooling (worsen)",
+        "Applies #2 (Taking out)",
+        "Proposes proc-macro or function extraction",
+        "Rust-idiomatic",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 16,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Mutex contention is killing perf in our hot path. TRIZ solve",
+      "expected_output": "Identifies thread safety vs performance contradiction, applies #1 (Segmentation) or #12 (Inversion) — switch to lock-free channel or parking_lot::RwLock",
+      "files": [],
+      "assertions": [
+        "Contradiction: thread safety (improve) vs performance (worsen)",
+        "Applies #1 or #12",
+        "Proposes lock-free or RwLock pattern",
+        "References crossbeam or parking_lot",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 17,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Stuck on whether to use trait or enum for our AST. TRIZ help",
+      "expected_output": "Identifies extensibility vs simplicity contradiction, applies #1 (Segmentation) — start with enum, extract trait when second impl appears",
+      "files": [],
+      "assertions": [
+        "Contradiction: extensibility (improve) vs simplicity (worsen)",
+        "Applies #1 (Segmentation)",
+        "Proposes concrete-then-abstract approach",
+        "Rust-idiomatic (matches anti-ai-slop doctrine)",
+        "Defers trait until 2+ impls"
+      ]
+    },
+    {
+      "id": 18,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Cargo workspace inheritance is getting messy. TRIZ clean it up",
+      "expected_output": "Identifies DRY vs flexibility contradiction, applies #1 (Segmentation) — split workspace.package, lints, profiles into focused groups",
+      "files": [],
+      "assertions": [
+        "Contradiction: DRY (improve) vs clarity (worsen)",
+        "Applies #1 (Segmentation)",
+        "Proposes split workspace sections",
+        "References workspace.package, workspace.lints, workspace.dependencies",
+        "No new contradictions introduced"
+      ]
+    },
+    {
+      "id": 19,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Run cargo build on the workspace",
+      "expected_output": "Should not trigger triz-solver; this is a build command. Should suggest build-rust skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ contradiction analysis",
+        "Does NOT apply TRIZ principles",
+        "Suggests build-rust skill",
+        "Mentions cargo build",
+        "Direct execution, no design exploration"
+      ]
+    },
+    {
+      "id": 20,
+      "split": "validation",
+      "should_trigger": false,
+      "prompt": "Fix the failing test in tests/integration_test.rs",
+      "expected_output": "Should not trigger triz-solver; this is a bug fix. Should suggest test-rust or debugger skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests test-rust or debug skill",
+        "Direct fix suggestion",
+        "No mention of contradictions or principles",
+        "Mentions cargo nextest or test debugging"
+      ]
+    },
+    {
+      "id": 21,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Add a doc comment to the public function parse_config",
+      "expected_output": "Should not trigger triz-solver; this is a documentation task. Should suggest anti-ai-slop or just write the doc.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests anti-ai-slop for doc quality",
+        "Direct doc comment suggestion",
+        "No mention of contradictions or principles",
+        "Mentions /// doc comments"
+      ]
+    },
+    {
+      "id": 22,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Audit our Rust code for AI slop patterns",
+      "expected_output": "Should not trigger triz-solver; this is an anti-pattern audit. Should suggest anti-ai-slop skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests anti-ai-slop skill",
+        "Direct audit suggestion",
+        "No mention of contradictions or principles",
+        "Mentions wrapper structs, dyn Error sprawl, etc."
+      ]
+    },
+    {
+      "id": 23,
+      "split": "validation",
+      "should_trigger": false,
+      "prompt": "Search the codebase for all uses of unsafe",
+      "expected_output": "Should not trigger triz-solver; this is a search task. Should suggest grep or build-rust.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests grep or build-rust",
+        "Direct search execution",
+        "No mention of contradictions or principles",
+        "Mentions cargo geiger or grep unsafe"
+      ]
+    },
+    {
+      "id": 24,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Create a release PR for v1.0.0",
+      "expected_output": "Should not trigger triz-solver; this is a release task. Should suggest release-rust or atomic-commit.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests release-rust or atomic-commit skill",
+        "Direct PR/release execution",
+        "No mention of contradictions or principles",
+        "Mentions cargo dist or git tag"
+      ]
+    },
+    {
+      "id": 25,
+      "split": "validation",
+      "should_trigger": false,
+      "prompt": "Generate the DORA report for this sprint",
+      "expected_output": "Should not trigger triz-solver; this is metrics. Should suggest dora-report skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests dora-report skill",
+        "Direct report execution",
+        "No mention of contradictions or principles",
+        "Mentions DORA-REPORT.md or metrics.jsonl"
+      ]
+    },
+    {
+      "id": 26,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Plan implementation of a new feature across multiple crates",
+      "expected_output": "Should not trigger triz-solver; this is task planning. Should suggest task-decomposition or goap-agent.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests task-decomposition or goap-agent",
+        "Direct planning suggestion",
+        "No mention of contradictions or principles",
+        "Mentions sub-goals or ADR"
+      ]
+    },
+    {
+      "id": 27,
+      "split": "validation",
+      "should_trigger": false,
+      "prompt": "Open a PR for this branch",
+      "expected_output": "Should not trigger triz-solver; this is a git workflow. Should suggest atomic-commit skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests atomic-commit skill",
+        "Direct PR creation",
+        "No mention of contradictions or principles",
+        "Mentions gh pr create"
+      ]
+    },
+    {
+      "id": 28,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Check if my email leaked into any source files",
+      "expected_output": "Should not trigger triz-solver; this is a privacy check. Should suggest privacy-first skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run TRIZ analysis",
+        "Suggests privacy-first skill",
+        "Direct grep/scan execution",
+        "No mention of contradictions or principles",
+        "Mentions email pattern matching"
+      ]
+    }
+  ]
+}

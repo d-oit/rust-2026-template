@@ -67,7 +67,10 @@ jobs:
               - 'GEMINI.md'
               - 'QWEN.md'
               - 'agents-docs/**'
+              - '.agents/skills/**'
+              - '.agents/SKILLS.md'
               - 'scripts/validate-agent-entrypoints.sh'
+              - 'scripts/generate-skills-md.sh'
             workflows:
               - '.github/workflows/**'
 
@@ -339,6 +342,12 @@ jobs:
         run: |
           bash scripts/generate-llms-txt.sh
           git diff --exit-code llms.txt || (echo "llms.txt is stale, run scripts/generate-llms-txt.sh" && exit 1)
+      - name: Check .agents/SKILLS.md is current
+        run: |
+          bash scripts/generate-skills-md.sh
+          MSG="regenerate with scripts/generate-skills-md.sh"
+          git diff --exit-code .agents/SKILLS.md \
+            || (echo ".agents/SKILLS.md is stale, ${MSG}" && exit 1)
 
   # ───────────────────────────────────────────────────
   msrv:

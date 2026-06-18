@@ -25,3 +25,6 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `skill-evaluator` | [skills/skill-evaluator/SKILL.md](skills/skill-evaluator/SKILL.md) | Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usa |
 | `task-decomposition` | [skills/task-decomposition/SKILL.md](skills/task-decomposition/SKILL.md) | Break down complex tasks into atomic, actionable goals with clear dependencies |
 | `test-rust` | [skills/test-rust/SKILL.md](skills/test-rust/SKILL.md) | Run the complete test suite for a Rust project including unit tests, |
+| `triz-analysis` | [skills/triz-analysis/SKILL.md](skills/triz-analysis/SKILL.md) | Run a systematic TRIZ contradiction audit against a Rust codebase, architecture, or workflow to iden |
+| `triz-solver` | [skills/triz-solver/SKILL.md](skills/triz-solver/SKILL.md) | Systematic problem-solving using TRIZ (Theory of Inventive Problem Solving) principles adapted for s |
+| `verify-actions` | [skills/verify-actions/SKILL.md](skills/verify-actions/SKILL.md) | Verify GitHub Actions / GitLab CI action versions against actual releases before |

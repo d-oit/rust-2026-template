@@ -38,6 +38,5 @@ for skill_dir in "${SKILLS_DIR}"/*/; do
   printf "| \`%s\` | [%s](%s) | %s |\n" "${name}" "${rel_path}" "${rel_path}" "${desc}" >> "${OUT}"
 done
 
-echo "" >> "${OUT}"
-echo "Generated $(grep -c "^\| \`" "${OUT}") skills." >&2
+echo "Generated $(grep -c '^| `' "${OUT}") skills." >&2
 echo "✓ ${OUT}"
