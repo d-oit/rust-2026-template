@@ -28,4 +28,3 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `triz-analysis` | [skills/triz-analysis/SKILL.md](skills/triz-analysis/SKILL.md) | Run a systematic TRIZ contradiction audit against a Rust codebase, architecture, or workflow to iden |
 | `triz-solver` | [skills/triz-solver/SKILL.md](skills/triz-solver/SKILL.md) | Systematic problem-solving using TRIZ (Theory of Inventive Problem Solving) principles adapted for s |
 | `verify-actions` | [skills/verify-actions/SKILL.md](skills/verify-actions/SKILL.md) | Verify GitHub Actions / GitLab CI action versions against actual releases before |
-
