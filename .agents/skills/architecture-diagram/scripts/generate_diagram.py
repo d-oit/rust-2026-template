@@ -9,7 +9,6 @@ import argparse
 import json
 import re
 import subprocess
-import math
 from pathlib import Path
 
 # ── Default config ─────────────────────────────────────────────────────────
@@ -46,7 +45,8 @@ def _read_frontmatter_name(path: Path) -> str:
             m = re.search(r"^name:\s*(.+)$", block, re.MULTILINE)
             if m:
                 return m.group(1).strip().strip('"').strip("'")
-    except Exception:
+    except (IndexError, OSError):
+        # Best-effort frontmatter parse, fall back to stem on any error
         pass
     return path.stem
 
@@ -80,6 +80,7 @@ def discover_commands(root: Path) -> list[str]:
 def discover_crates(root: Path) -> list[dict]:
     """Uses cargo metadata to find workspace crates, dependencies, and features."""
     try:
+        # Use a fixed command list for security
         cmd = ["cargo", "metadata", "--format-version", "1", "--no-deps"]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True, cwd=root)
         data = json.loads(result.stdout)
@@ -106,7 +107,7 @@ def discover_crates(root: Path) -> list[dict]:
                     "description": pkg.get("description", ""),
                 })
         return sorted(crates, key=lambda x: x["name"])
-    except Exception as e:
+    except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError) as e:
         print(f" [warn] failed to discover crates: {e}")
         return []
 
@@ -130,9 +131,6 @@ def _line(x1, y1, x2, y2, cls="arr", arrow=True) -> str:
     marker = ' marker-end="url(#arrow)"' if arrow else ""
     return f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" class="{cls}"{marker}/>'
 
-def _path_arrow(d, cls="arr") -> str:
-    return f'<path d="{d}" class="{cls}" marker-end="url(#arrow)"/>'
-
 def _section_line(y) -> str:
     return (f'<line x1="20" y1="{y}" x2="660" y2="{y}" '
             f'stroke="#ccc" stroke-width="0.5" opacity="0.18"/>')
@@ -140,7 +138,7 @@ def _section_line(y) -> str:
 def _container(x, y, w, h, label, sublabel=None) -> str:
     c = COLORS["gray"]
     parts = [
-        f'<g class="card">',
+        '<g class="card">',
         _rect(x, y, w, h, rx=8, fill="none", stroke=c["stroke"], sw=1, dash=True),
         _text(x + w // 2, y + 14, label, cls="th"),
     ]
@@ -152,7 +150,7 @@ def _container(x, y, w, h, label, sublabel=None) -> str:
 def _pill(x, y, w, h, label, color="gray") -> str:
     c = COLORS.get(color, COLORS["gray"])
     return "\n".join([
-        f'<g class="card">',
+        '<g class="card">',
         _rect(x, y, w, h, rx=h // 2, fill=c["fill"], stroke=c["stroke"], sw=1),
         _text(x + w // 2, y + h // 2, label, cls="ts"),
         "</g>",
@@ -205,7 +203,7 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
         prev_right = None
         for s in stages:
             c = COLORS.get(s.get("color", "teal"), COLORS["teal"])
-            push(f'<g class="card">')
+            push('<g class="card">')
             push(_rect(x, y, bw, row_h, rx=8, fill=c["fill"], stroke=c["stroke"], sw=1.5))
             push(_text(x + bw // 2, y + row_h // 2, s["name"], cls="th"))
             push("</g>")
@@ -274,7 +272,7 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
                 if layer_name == "apps": color = "amber"
                 if layer_name == "templates": color = "purple"
 
-                push(f'<g class="card">')
+                push('<g class="card">')
                 push(_rect(cx, current_y, col_w, box_h, rx=6, fill=COLORS[color]["fill"], stroke=COLORS[color]["stroke"], sw=1))
                 push(_text(cx + col_w // 2, current_y + 18, crate["name"], cls="th"))
                 push(_text(cx + col_w // 2, current_y + 34, f"v{crate['version']}", cls="ts", opacity="0.6"))
