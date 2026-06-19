@@ -6,21 +6,33 @@
       "prompt": "Run full lint suite on this Rust project",
       "expected_output": "Runs clippy, fmt check, cargo audit, cargo deny, cargo machete in sequence",
       "files": [],
-      "assertions": ["Runs clippy with -D warnings", "Runs cargo fmt --check", "Runs cargo audit and cargo deny"]
+      "assertions": [
+        "Runs clippy with -D warnings",
+        "Runs cargo fmt --check",
+        "Runs cargo audit and cargo deny"
+      ]
     },
     {
       "id": 2,
       "prompt": "Fix all clippy warnings",
       "expected_output": "Runs clippy with --fix flag, reports auto-fixed vs manual fixes needed",
       "files": [],
-      "assertions": ["Uses cargo clippy --fix --allow-dirty", "Reports warnings that couldn't be auto-fixed", "Runs --all-targets --all-features"]
+      "assertions": [
+        "Uses cargo clippy --fix --allow-dirty",
+        "Reports warnings that couldn't be auto-fixed",
+        "Runs --all-targets --all-features"
+      ]
     },
     {
       "id": 3,
       "prompt": "Check for security vulnerabilities in dependencies",
       "expected_output": "Runs cargo audit and cargo deny check, reports findings with severity",
       "files": [],
-      "assertions": ["Runs cargo audit", "Runs cargo deny check", "Reports vulnerability severity and license issues"]
+      "assertions": [
+        "Runs cargo audit",
+        "Runs cargo deny check",
+        "Reports vulnerability severity and license issues"
+      ]
     }
   ]
 }

@@ -10,6 +10,11 @@ metadata:
 
 # Skill: dora-report
 
+## When to Use
+
+- User asks for this skill's functionality
+
+
 ## Purpose
 Generate a `DORA-REPORT.md` for this repository by computing the five core DORA software
 delivery performance metrics and three DORA agentic metrics from available data sources.

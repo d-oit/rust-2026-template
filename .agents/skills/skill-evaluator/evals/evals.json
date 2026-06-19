@@ -6,21 +6,33 @@
       "prompt": "Evaluate the build-rust skill",
       "expected_output": "Runs structure check, eval review, live run, produces PASS/NEEDS_WORK/FAIL verdict",
       "files": [],
-      "assertions": ["Checks SKILL.md exists and has frontmatter", "Reviews evals/evals.json quality", "Produces explicit verdict"]
+      "assertions": [
+        "Checks SKILL.md exists and has frontmatter",
+        "Reviews evals/evals.json quality",
+        "Produces explicit verdict"
+      ]
     },
     {
       "id": 2,
       "prompt": "Is this skill well-structured?",
       "expected_output": "Validates directory layout, frontmatter fields, eval case completeness",
       "files": [],
-      "assertions": ["Validates skill directory structure", "Checks frontmatter required fields", "Counts eval cases (minimum 3)"]
+      "assertions": [
+        "Validates skill directory structure",
+        "Checks frontmatter required fields",
+        "Counts eval cases (minimum 3)"
+      ]
     },
     {
       "id": 3,
       "prompt": "Run a live test of the privacy-first skill",
       "expected_output": "Executes a real prompt through the skill, grades output against assertions with evidence",
       "files": [],
-      "assertions": ["Runs a real prompt through the skill", "Grades against concrete assertions", "Provides evidence for pass/fail"]
+      "assertions": [
+        "Runs a real prompt through the skill",
+        "Grades against concrete assertions",
+        "Provides evidence for pass/fail"
+      ]
     }
   ]
 }

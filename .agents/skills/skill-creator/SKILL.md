@@ -11,6 +11,11 @@ metadata:
 
 # Skill Creator
 
+## When to Use
+
+- User asks for this skill's functionality
+
+
 Create and improve skills following the Agent Skills specification.
 A skill extends agent capabilities with specialized knowledge, workflows, and tools.
 

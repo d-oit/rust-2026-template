@@ -15,6 +15,11 @@ metadata:
 
 # Skill: lint-rust
 
+## When to Use
+
+- User asks for this skill's functionality
+
+
 ## Purpose
 
 Run comprehensive linting and static analysis on Rust code.

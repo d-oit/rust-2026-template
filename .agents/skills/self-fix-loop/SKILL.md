@@ -16,6 +16,11 @@ metadata:
 
 # Self-Fix Loop Skill
 
+## When to Use
+
+- User asks for this skill's functionality
+
+
 Automated self-learning cycle: **commit → push → monitor → analyze failures → fix → retry** until all CI checks pass.
 
 **Self-Fix Threshold**: If 2+ similar errors occur during the loop, pause and diagnose the root cause before attempting another fix.

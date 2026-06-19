@@ -6,21 +6,33 @@
       "prompt": "Prepare a release for version 1.2.0",
       "expected_output": "Runs pre-release checks, bumps version, updates changelog, creates tag",
       "files": [],
-      "assertions": ["Runs fmt, clippy, tests, audit before release", "Bumps version in Cargo.toml", "Creates annotated git tag"]
+      "assertions": [
+        "Runs fmt, clippy, tests, audit before release",
+        "Bumps version in Cargo.toml",
+        "Creates annotated git tag"
+      ]
     },
     {
       "id": 2,
       "prompt": "Publish this crate to crates.io for the first time",
       "expected_output": "Verifies crate name availability, runs full check suite, publishes",
       "files": [],
-      "assertions": ["Checks crates.io name availability first", "Runs cargo publish --dry-run", "Verifies all CI checks pass"]
+      "assertions": [
+        "Checks crates.io name availability first",
+        "Runs cargo publish --dry-run",
+        "Verifies all CI checks pass"
+      ]
     },
     {
       "id": 3,
       "prompt": "What's the release process for this project?",
       "expected_output": "Explains the 4-step release workflow with version scheme",
       "files": [],
-      "assertions": ["Describes pre-release checks", "Explains semantic versioning", "References cargo-dist and CI workflow"]
+      "assertions": [
+        "Describes pre-release checks",
+        "Explains semantic versioning",
+        "References cargo-dist and CI workflow"
+      ]
     }
   ]
 }

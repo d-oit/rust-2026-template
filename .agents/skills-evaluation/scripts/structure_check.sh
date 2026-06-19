@@ -2,7 +2,7 @@
 # .agents/skills-evaluation/scripts/structure_check.sh
 
 SKILLS_DIR=".agents/skills"
-ITERATION_DIR=${1:-".agents/skills-evaluation/iterations/iteration-1"}
+ITERATION_DIR=${1:-".agents/skills-evaluation/iterations/baseline"}
 RESULTS="$ITERATION_DIR/structure_check.json"
 
 mkdir -p "$ITERATION_DIR"
@@ -19,43 +19,36 @@ for skill_dir in "$SKILLS_DIR"/*/; do
         continue
     fi
 
-    # Frontmatter checks
-    has_name=$(grep -c "^name:" "$skill_md" 2>/dev/null | head -n 1 | awk '{print $1}')
-    [ -z "$has_name" ] && has_name=0
-    has_desc=$(grep -c "^description:" "$skill_md" 2>/dev/null | head -n 1 | awk '{print $1}')
-    [ -z "$has_desc" ] && has_desc=0
-    has_cat=$(grep -c "^category:" "$skill_md" 2>/dev/null | head -n 1 | awk '{print $1}')
-    [ -z "$has_cat" ] && has_cat=0
-    has_ver=$(grep -c "^version:" "$skill_md" 2>/dev/null | head -n 1 | awk '{print $1}')
-    [ -z "$has_ver" ] && has_ver=0
+    # Frontmatter checks (Handle indentation)
+    has_name=$(grep -E "^  ?name:" "$skill_md" | wc -l)
+    has_desc=$(grep -E "^  ?description:" "$skill_md" | wc -l)
+    has_cat=$(grep -E "^  ?category:" "$skill_md" | wc -l)
+    has_ver=$(grep -E "^  ?version:" "$skill_md" | wc -l)
 
     # Section checks
-    has_when=$(grep -ci "## When to Use" "$skill_md" 2>/dev/null | head -n 1 | awk '{print $1}')
-    [ -z "$has_when" ] && has_when=0
-    has_rational=$(grep -c "^## Rationalizations" "$skill_md" 2>/dev/null | head -n 1 | awk '{print $1}')
-    [ -z "$has_rational" ] && has_rational=0
-    has_flags=$(grep -c "^## Red Flags" "$skill_md" 2>/dev/null | head -n 1 | awk '{print $1}')
-    [ -z "$has_flags" ] && has_flags=0
+    has_when=$(grep -Ei "^## When [tT]o Use" "$skill_md" | wc -l)
+    has_rational=$(grep -E "^## Rationalizations" "$skill_md" | wc -l)
+    has_flags=$(grep -E "^## Red Flags" "$skill_md" | wc -l)
 
     # Evals
     eval_count=0
     assertion_count=0
     if [ -f "$evals_json" ]; then
-        eval_count=$(jq '.evals | length' "$evals_json" 2>/dev/null | head -n 1 | awk '{print $1}')
+        eval_count=$(jq '.evals | length' "$evals_json" 2>/dev/null)
         [ -z "$eval_count" ] && eval_count=0
-        assertion_count=$(jq '[.evals[].assertions // [] | length] | add // 0' "$evals_json" 2>/dev/null | head -n 1 | awk '{print $1}')
+        assertion_count=$(jq '[.evals[].assertions // [] | length] | add // 0' "$evals_json" 2>/dev/null)
         [ -z "$assertion_count" ] && assertion_count=0
     fi
 
     # Calculate score
     score=0
-    [ "$has_name" -gt 0 ] && score=$((score + 1))
-    [ "$has_desc" -gt 0 ] && score=$((score + 1))
-    [ "$has_cat" -gt 0 ] && score=$((score + 1))
-    [ "$has_ver" -gt 0 ] && score=$((score + 1))
-    [ "$has_when" -gt 0 ] && score=$((score + 1))
-    [ "$has_rational" -gt 0 ] && score=$((score + 1))
-    [ "$has_flags" -gt 0 ] && score=$((score + 1))
+    [ "$has_name" -ge 1 ] && score=$((score + 1))
+    [ "$has_desc" -ge 1 ] && score=$((score + 1))
+    [ "$has_cat" -ge 1 ] && score=$((score + 1))
+    [ "$has_ver" -ge 1 ] && score=$((score + 1))
+    [ "$has_when" -ge 1 ] && score=$((score + 1))
+    [ "$has_rational" -ge 1 ] && score=$((score + 1))
+    [ "$has_flags" -ge 1 ] && score=$((score + 1))
     [ "$eval_count" -ge 3 ] && score=$((score + 1))
 
     verdict="PASS"

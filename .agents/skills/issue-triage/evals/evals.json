@@ -1,58 +1,35 @@
-[
-  {
-    "name": "discover_open_issues",
-    "description": "Read all open issues from a GitHub repo",
-    "input": "Read all open issues from d-oit/rust-2026-template",
-    "expected_behavior": "Auto-detects GitHub from remote, uses gh issue list --state open, reads issue bodies, returns structured list",
-    "assertions": [
-      "Detects platform from git remote",
-      "Calls gh issue list (GitHub) or glab issue list (GitLab)",
-      "Returns issue numbers and titles",
-      "Includes issue body content"
-    ]
-  },
-  {
-    "name": "discover_issues_gitlab",
-    "description": "Read all open issues from a GitLab repo",
-    "input": "Read all open issues from my-gitlab-group/my-project",
-    "expected_behavior": "Auto-detects GitLab from remote, uses glab issue list --state opened",
-    "assertions": [
-      "Detects GitLab platform from remote URL",
-      "Calls glab issue list --state opened",
-      "Returns issue numbers and titles"
-    ]
-  },
-  {
-    "name": "categorize_by_type",
-    "description": "Categorize issues by type and effort",
-    "input": "Triage these issues: #100 (feature), #101 (docs), #102 (bug)",
-    "expected_behavior": "Groups issues into feature/bugfix/docs categories with effort estimates",
-    "assertions": [
-      "Identifies issue types from labels or content",
-      "Estimates effort level",
-      "Groups compatible issues together"
-    ]
-  },
-  {
-    "name": "detect_already_implemented",
-    "description": "Skip issues that are already implemented",
-    "input": "Implement all open issues, some may already be done",
-    "expected_behavior": "Checks existing code against issue requirements, skips implemented ones",
-    "assertions": [
-      "Reads existing source code",
-      "Compares against acceptance criteria",
-      "Reports which issues are already done"
-    ]
-  },
-  {
-    "name": "batch_implementation_plan",
-    "description": "Create implementation plan for batch of issues",
-    "input": "Plan implementation for issues #155-#184",
-    "expected_behavior": "Creates ordered implementation plan with dependencies resolved",
-    "assertions": [
-      "Respects dependency order",
-      "Groups compatible issues",
-      "Provides checklist format"
-    ]
-  }
-]
+{
+  "skill_name": "issue-triage",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Read all open issues from d-oit/rust-2026-template",
+      "expected_output": "Detects platform, calls gh issue list, returns structured list",
+      "assertions": [
+        "Detects platform from git remote",
+        "Calls gh issue list (GitHub) or glab issue list (GitLab)",
+        "Returns issue numbers and titles"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Triage these issues: #100 (feature), #101 (docs), #102 (bug)",
+      "expected_output": "Groups issues into categories with effort estimates",
+      "assertions": [
+        "Identifies issue types from labels or content",
+        "Estimates effort level",
+        "Groups compatible issues together"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Plan implementation for issues #155-#184",
+      "expected_output": "Creates ordered implementation plan with dependencies resolved",
+      "assertions": [
+        "Respects dependency order",
+        "Groups compatible issues",
+        "Provides checklist format"
+      ]
+    }
+  ]
+}
