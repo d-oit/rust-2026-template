@@ -105,35 +105,39 @@ struct Args {
 #[inline]
 #[must_use]
 pub const fn is_safe_char(c: char) -> bool {
-    // Bolt: Fast path for ASCII printable characters (' ' to '~')
-    // to bypass complex Unicode and Bidi checks for common cases.
-    if matches!(c, ' '..='~') {
-        return true;
+    // Bolt: Hierarchical fast-path for character validation.
+    let cp = c as u32;
+
+    // Fast path: ASCII printable characters (0x20..=0x7E)
+    if cp <= 0x7E {
+        return cp >= 0x20;
     }
 
-    // Bolt: Faster control character check using range instead of is_control().
-    // is_control checks for U+0000..=U+001F, U+007F, and U+0080..=U+009F.
-    if matches!(c, '\u{0000}'..='\u{001F}' | '\u{007F}'..='\u{009F}') {
+    // Fast path: ASCII/C1 control characters (0x00..=0x1F, 0x7F..=0x9F)
+    if cp <= 0x9F {
         return false;
     }
 
-    // Security: Exclude Bidi control, zero-width, and other invisible characters
-    // that can be used for log injection, obfuscation, or homograph attacks.
-    !matches!(
-        c,
-        // Bidi control characters (U+200E, U+200F, U+061C, U+202A..=U+202E, U+2066..=U+2069)
-        '\u{200e}' | '\u{200f}' | '\u{061c}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}' |
-        // Line/Paragraph separators (U+2028, U+2029)
-        '\u{2028}' | '\u{2029}' |
-        // Soft Hyphen (U+00AD)
-        '\u{00ad}' |
-        // Zero-width characters (U+200B..=U+200D)
-        '\u{200b}'..='\u{200d}' |
-        // Invisible operators/formatters (U+2060..=U+2064)
-        '\u{2060}'..='\u{2064}' |
-        // Byte Order Mark (U+FEFF)
-        '\u{feff}'
-    )
+    // Middle path: Latin-1, Basic Multilingual Plane characters below General Punctuation
+    if cp < 0x2000 {
+        // Exclude Soft Hyphen (0x00AD) and Arabic Letter Mark (0x061C)
+        return cp != 0x00AD && cp != 0x061C;
+    }
+
+    // Punctuation and Format blocks (0x2000..=0x206F)
+    if cp <= 0x206F {
+        return !matches!(
+            c,
+            // Zero-width (200B..200D), Bidi control (200E..200F, 202A..202E, 2066..2069),
+            // Line/Para separators (2028..2029), and Invisible formatters (2060..2064)
+            '\u{200b}'..='\u{200f}' | '\u{2028}' | '\u{2029}' |
+            '\u{202a}'..='\u{202e}' | '\u{2060}'..='\u{2064}' |
+            '\u{2066}'..='\u{2069}'
+        );
+    }
+
+    // Slow path: Common Unicode (CJK, Emojis, etc.) are safe except for Byte Order Mark
+    cp != 0xFEFF
 }
 
 /// Sanitizes a string by replacing unsafe characters with '?'.
@@ -161,8 +165,8 @@ pub fn sanitize_str(s: &str) -> Cow<'_, str> {
     let mut result = String::with_capacity(s.len());
     result.push_str(&s[..i]);
 
-    let chars = s[i..].char_indices();
-    for (_, c) in chars {
+    // Bolt: Use .chars() instead of .char_indices() to avoid unused index overhead
+    for c in s[i..].chars() {
         if is_safe_char(c) {
             result.push(c);
         } else {

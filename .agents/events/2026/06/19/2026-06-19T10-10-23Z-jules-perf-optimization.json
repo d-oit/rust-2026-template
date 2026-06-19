@@ -1,0 +1,11 @@
+{
+  "event_id": "1781863823-jules",
+  "task_id": "perf-optimization-sample-app",
+  "skill": "perf-improvement",
+  "status": "success",
+  "started_at": "2026-06-19T09:10:23Z",
+  "finished_at": "2026-06-19T10:10:23Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "d15b876"
+}
