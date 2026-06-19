@@ -9,6 +9,7 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | Skill | Path | Description |
 |-------|------|-------------|
 | `anti-ai-slop` | [skills/anti-ai-slop/SKILL.md](skills/anti-ai-slop/SKILL.md) | Apply this skill when auditing, writing, or reviewing Rust code to avoid generic |
+| `architecture-diagram` | [skills/architecture-diagram/SKILL.md](skills/architecture-diagram/SKILL.md) | Generate or update a project architecture SVG diagram by scanning the live project structure, includ |
 | `atomic-commit` | [skills/atomic-commit/SKILL.md](skills/atomic-commit/SKILL.md) | Atomic git workflow - validates, commits, pushes, creates PR/MR, and verifies CI |
 | `build-rust` | [skills/build-rust/SKILL.md](skills/build-rust/SKILL.md) | Compile, test, and verify Rust projects following 2026 best practices. |
 | `codacy` | [skills/codacy/SKILL.md](skills/codacy/SKILL.md) | Use Codacy static analysis CLIs to query PR analysis, triage issues, suppress false positives, and r |

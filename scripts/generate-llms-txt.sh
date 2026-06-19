@@ -34,6 +34,7 @@ This is a comprehensive Rust workspace template designed for 2026 best practices
 - **.agents/skills/**: Executable task knowledge and workflows.
 - **.agents/context/**: Cross-repo context for derived repositories.
 - **llms.txt**: Token-efficient project context (this file).
+- **docs/architecture.svg**: Visual representation of the project architecture.
 
 ## Architecture
 
