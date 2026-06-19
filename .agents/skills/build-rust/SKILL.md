@@ -19,7 +19,6 @@ metadata:
 
 - User asks for this skill's functionality
 
-
 ## Purpose
 
 Compile, test, and verify Rust projects following 2026 best practices.

@@ -19,7 +19,6 @@ metadata:
 
 - User asks for this skill's functionality
 
-
 Atomic workflow: validate → commit → push → PR/MR → verify. All changes committed as single unit with **zero warnings** policy.
 
 ## Overview

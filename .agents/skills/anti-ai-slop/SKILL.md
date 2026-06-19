@@ -22,7 +22,6 @@ metadata:
 
 - User asks for this skill's functionality
 
-
 AI tools generate recognizable Rust monoculture. This skill audits and fixes it.
 
 ---

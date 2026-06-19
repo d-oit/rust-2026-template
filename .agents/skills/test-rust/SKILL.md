@@ -19,7 +19,6 @@ metadata:
 
 - User asks for this skill's functionality
 
-
 ## Purpose
 
 Run the complete test suite for a Rust project using best practices.
