@@ -80,9 +80,15 @@ def discover_commands(root: Path) -> list[str]:
 def discover_crates(root: Path) -> list[dict]:
     """Uses cargo metadata to find workspace crates, dependencies, and features."""
     try:
-        # Use a fixed command list for security
-        cmd = ["cargo", "metadata", "--format-version", "1", "--no-deps"]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True, cwd=root)
+        # Use a fixed command list with literals for security scanners
+        result = subprocess.run(
+            ["cargo", "metadata", "--format-version", "1", "--no-deps"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=root,
+            shell=False,
+        )
         data = json.loads(result.stdout)
 
         crates = []
@@ -133,7 +139,7 @@ def _line(x1, y1, x2, y2, cls="arr", arrow=True) -> str:
 
 def _section_line(y) -> str:
     return (f'<line x1="20" y1="{y}" x2="660" y2="{y}" '
-            f'stroke="#ccc" stroke-width="0.5" opacity="0.18"/>')
+            'stroke="#ccc" stroke-width="0.5" opacity="0.18"/>')
 
 def _container(x, y, w, h, label, sublabel=None) -> str:
     c = COLORS["gray"]
