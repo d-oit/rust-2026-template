@@ -1,0 +1,36 @@
+name: Skills Evaluation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.agents/skills/**'
+      - '.agents/skills-evaluation/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.agents/skills/**'
+      - '.agents/skills-evaluation/**'
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Structure Check
+        run: |
+          mkdir -p .agents/skills-evaluation/iterations/ci-run
+          ./.agents/skills-evaluation/scripts/structure_check.sh .agents/skills-evaluation/iterations/ci-run
+
+      - name: Generate Report
+        run: |
+          python3 .agents/skills-evaluation/scripts/generate_report.py .agents/skills-evaluation/iterations/ci-run
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-evaluation-report
+          path: .agents/skills-evaluation/iterations/ci-run/report.md
