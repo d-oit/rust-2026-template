@@ -1,7 +1,6 @@
 ---
 name: triz-analysis
-version: "0.2.10"
-description: Run a systematic TRIZ contradiction audit against a Rust codebase, architecture, or workflow to identify hidden trade-offs and innovation opportunities. Use when facing design trade-offs, contradictory requirements, or needing to identify innovation opportunities through systematic contradiction analysis. Triggers: "TRIZ audit", "contradiction analysis", "innovation audit", "trade-off analysis", "hidden trade-offs".
+description: "Run a systematic TRIZ contradiction audit against a Rust codebase, architecture, or workflow to identify hidden trade-offs and innovation opportunities. Use when facing design trade-offs, contradictory requirements, or needing to identify innovation opportunities through systematic contradiction analysis. Triggers: 'TRIZ audit', 'contradiction analysis', 'innovation audit', 'trade-off analysis', 'hidden trade-offs'."
 category: analysis
 license: MIT
 metadata:
