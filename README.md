@@ -17,6 +17,8 @@ and AI agent integration.
 
 This template is designed for Rust developers who want to start new projects with best practices baked in. It provides a modular workspace structure, comprehensive quality gates, and built-in support for AI-assisted development.
 
+![Architecture](docs/architecture.svg)
+
 ## Features
 
 - **Rust 2024 Edition:** Leverages the latest language features and idioms with an MSRV of 1.88.

@@ -1,0 +1,163 @@
+<svg width="100%" viewBox="0 0 680 1403" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+    markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#94a3b8"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/>
+  </filter>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    .th{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;fill:#0f172a;letter-spacing:-0.01em}
+    .ts{font-family:'Inter',system-ui,sans-serif;font-size:11px;font-weight:400;fill:#64748b}
+    .txs{font-family:'Inter',system-ui,sans-serif;font-size:9px;font-weight:400;fill:#94a3b8}
+    .tl{font-family:'Inter',system-ui,sans-serif;font-size:15px;font-weight:700;fill:#0f172a;letter-spacing:-0.02em}
+    .arr{fill:none;stroke:#94a3b8;stroke-width:1.2}
+    .leader{fill:none;stroke:#cbd5e1;stroke-width:0.5;stroke-dasharray:3 3}
+    .card{filter:url(#shadow)}
+  </style>
+</defs>
+<text class="tl" x="340" y="28" text-anchor="middle" dominant-baseline="central">Project Architecture</text>
+<line x1="60" y1="38" x2="620" y2="38" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+<text class="ts" x="21" y="54" opacity="0.55">Workflow pipeline</text>
+<g class="card">
+<rect x="21" y="54" width="140" height="36" rx="8" fill="#f0fdf9" stroke="#0d9488" stroke-width="1.5"/>
+<text class="th" x="91" y="72" text-anchor="middle" dominant-baseline="central">lint</text>
+</g>
+<g class="card">
+<rect x="173" y="54" width="140" height="36" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text class="th" x="243" y="72" text-anchor="middle" dominant-baseline="central">test</text>
+</g>
+<line x1="161" y1="72" x2="173" y2="72" class="arr" marker-end="url(#arrow)"/>
+<g class="card">
+<rect x="325" y="54" width="140" height="36" rx="8" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
+<text class="th" x="395" y="72" text-anchor="middle" dominant-baseline="central">audit</text>
+</g>
+<line x1="313" y1="72" x2="325" y2="72" class="arr" marker-end="url(#arrow)"/>
+<g class="card">
+<rect x="477" y="54" width="140" height="36" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+<text class="th" x="547" y="72" text-anchor="middle" dominant-baseline="central">release</text>
+</g>
+<line x1="465" y1="72" x2="477" y2="72" class="arr" marker-end="url(#arrow)"/>
+<line x1="20" y1="105" x2="660" y2="105" stroke="#ccc" stroke-width="0.5" opacity="0.18"/>
+<text class="th" x="340" y="127" text-anchor="middle" dominant-baseline="central">Rust Workspace: 11 crates</text>
+<g class="card">
+<rect x="240" y="155" width="200" height="60" rx="6" fill="#fffbeb" stroke="#d97706" stroke-width="1"/>
+<text class="th" x="340" y="173" text-anchor="middle" dominant-baseline="central">sample-app</text>
+<text class="ts" x="340" y="189" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+</g>
+<g class="card">
+<rect x="240" y="250" width="200" height="60" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1"/>
+<text class="th" x="340" y="268" text-anchor="middle" dominant-baseline="central">benchmarks</text>
+<text class="ts" x="340" y="284" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+</g>
+<g class="card">
+<rect x="20" y="345" width="200" height="60" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1"/>
+<text class="th" x="120" y="363" text-anchor="middle" dominant-baseline="central">actor-runtime-template</text>
+<text class="ts" x="120" y="379" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+</g>
+<g class="card">
+<rect x="240" y="345" width="200" height="60" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1"/>
+<text class="th" x="340" y="363" text-anchor="middle" dominant-baseline="central">checkpoint-template</text>
+<text class="ts" x="340" y="379" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+</g>
+<g class="card">
+<rect x="460" y="345" width="200" height="80" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1"/>
+<text class="th" x="560" y="363" text-anchor="middle" dominant-baseline="central">hybrid-storage-template</text>
+<text class="ts" x="560" y="379" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+<text class="txs" x="560" y="391" text-anchor="middle" dominant-baseline="central" opacity="0.5">features:</text>
+<text class="txs" x="560" y="401" text-anchor="middle" dominant-baseline="central">kv</text>
+<text class="txs" x="560" y="411" text-anchor="middle" dominant-baseline="central">sqlite</text>
+</g>
+<g class="card">
+<rect x="130" y="460" width="200" height="60" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1"/>
+<text class="th" x="230" y="478" text-anchor="middle" dominant-baseline="central">mcp-server-template</text>
+<text class="ts" x="230" y="494" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+</g>
+<g class="card">
+<rect x="350" y="460" width="200" height="130" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1"/>
+<text class="th" x="450" y="478" text-anchor="middle" dominant-baseline="central">rust-2026-template</text>
+<text class="ts" x="450" y="494" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+<text class="txs" x="450" y="506" text-anchor="middle" dominant-baseline="central" opacity="0.5">features:</text>
+<text class="txs" x="450" y="516" text-anchor="middle" dominant-baseline="central">cli</text>
+<text class="txs" x="450" y="526" text-anchor="middle" dominant-baseline="central">mcp</text>
+<text class="txs" x="450" y="536" text-anchor="middle" dominant-baseline="central">parallel</text>
+<text class="txs" x="450" y="546" text-anchor="middle" dominant-baseline="central">persistence</text>
+<text class="txs" x="450" y="556" text-anchor="middle" dominant-baseline="central">tracing-json</text>
+<text class="txs" x="450" y="566" text-anchor="middle" dominant-baseline="central">tracing-opentelemetry</text>
+<text class="txs" x="450" y="576" text-anchor="middle" dominant-baseline="central">wasm</text>
+</g>
+<g class="card">
+<rect x="20" y="625" width="200" height="60" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1"/>
+<text class="th" x="120" y="643" text-anchor="middle" dominant-baseline="central">example-crate</text>
+<text class="ts" x="120" y="659" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+</g>
+<g class="card">
+<rect x="240" y="625" width="200" height="60" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1"/>
+<text class="th" x="340" y="643" text-anchor="middle" dominant-baseline="central">example-registry-pattern</text>
+<text class="ts" x="340" y="659" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+</g>
+<g class="card">
+<rect x="460" y="625" width="200" height="80" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1"/>
+<text class="th" x="560" y="643" text-anchor="middle" dominant-baseline="central">example-storage-pattern</text>
+<text class="ts" x="560" y="659" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.0.0</text>
+<text class="txs" x="560" y="671" text-anchor="middle" dominant-baseline="central" opacity="0.5">features:</text>
+<text class="txs" x="560" y="681" text-anchor="middle" dominant-baseline="central">mock</text>
+<text class="txs" x="560" y="691" text-anchor="middle" dominant-baseline="central">sqlite</text>
+</g>
+<g class="card">
+<rect x="240" y="740" width="200" height="60" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1"/>
+<text class="th" x="340" y="758" text-anchor="middle" dominant-baseline="central">hello-world-example</text>
+<text class="ts" x="340" y="774" text-anchor="middle" dominant-baseline="central" opacity="0.6">v0.1.0</text>
+</g>
+<line x1="340" y1="310" x2="450" y2="460" class="arr" marker-end="url(#arrow)"/>
+<path d="M 340 310 C 340 330, 340 135, 340 155" class="arr" marker-end="url(#arrow)"/>
+<path d="M 340 800 C 340 820, 120 605, 120 625" class="arr" marker-end="url(#arrow)"/>
+<line x1="20" y1="845" x2="660" y2="845" stroke="#ccc" stroke-width="0.5" opacity="0.18"/>
+<g class="card">
+<rect x="20" y="855" width="310" height="407" rx="8" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+<text class="th" x="175" y="869" text-anchor="middle" dominant-baseline="central">21 skills</text>
+<text class="ts" x="175" y="883" text-anchor="middle" dominant-baseline="central">.agents/skills/</text>
+</g>
+<text class="ts" x="32" y="903">anti-ai-slop</text>
+<text class="ts" x="32" y="920">architecture-diagram</text>
+<text class="ts" x="32" y="937">atomic-commit</text>
+<text class="ts" x="32" y="954">build-rust</text>
+<text class="ts" x="32" y="971">codacy</text>
+<text class="ts" x="32" y="988">crates-io-name-check</text>
+<text class="ts" x="32" y="1005">dora-report</text>
+<text class="ts" x="32" y="1022">goap-agent</text>
+<text class="ts" x="32" y="1039">issue-triage</text>
+<text class="ts" x="32" y="1056">lint-rust</text>
+<text class="ts" x="32" y="1073">metrics-reporter</text>
+<text class="ts" x="32" y="1090">privacy-first</text>
+<text class="ts" x="32" y="1107">release-rust</text>
+<text class="ts" x="32" y="1124">self-fix-loop</text>
+<text class="ts" x="32" y="1141">skill-creator</text>
+<text class="ts" x="32" y="1158">skill-evaluator</text>
+<text class="ts" x="32" y="1175">task-decomposition</text>
+<text class="ts" x="32" y="1192">test-rust</text>
+<text class="ts" x="32" y="1209">triz-analysis</text>
+<text class="ts" x="32" y="1226">triz-solver</text>
+<text class="ts" x="32" y="1243">verify-actions</text>
+<g class="card">
+<rect x="350" y="855" width="310" height="407" rx="8" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+<text class="th" x="505" y="869" text-anchor="middle" dominant-baseline="central">0 agents</text>
+<text class="ts" x="505" y="883" text-anchor="middle" dominant-baseline="central">.opencode/agents/</text>
+</g>
+<text class="ts" x="362" y="903">(no agents found)</text>
+<line x1="20" y1="1272" x2="660" y2="1272" stroke="#ccc" stroke-width="0.5" opacity="0.18"/>
+<text class="th" x="340" y="1294" text-anchor="middle" dominant-baseline="central">2 slash commands</text>
+<text class="ts" x="340" y="1308" text-anchor="middle" dominant-baseline="central">.opencode/commands/</text>
+<g class="card">
+<rect x="20" y="1322" width="310" height="22" rx="11" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+<text class="ts" x="175" y="1333" text-anchor="middle" dominant-baseline="central">/generate-docs</text>
+</g>
+<g class="card">
+<rect x="345" y="1322" width="310" height="22" rx="11" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+<text class="ts" x="500" y="1333" text-anchor="middle" dominant-baseline="central">/resume</text>
+</g>
+<text class="ts" x="340" y="1379" text-anchor="middle" opacity="0.32">Rust 2026 Template · maintainer</text>
+</svg>
