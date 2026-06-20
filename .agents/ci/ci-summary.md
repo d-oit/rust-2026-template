@@ -1,14 +1,14 @@
 # CI Status Summary
 
-**Last updated:** 2026-06-20T15:33:37Z
-**Commit:** 3fed8294c14a4cf6ae72be15a449d91d5325b15c
+**Last updated:** 2026-06-20T16:58:51Z
+**Commit:** 958de5cbe11e94a342b3aefc3b14a10073e96bb9
 **Branch:** main
 
 ## Job Results
 
 | Job | Status |
 |---|---|
-| lint | ✅ success |
+| lint | ❌ failed |
 | test | ✅ success |
 | security | ✅ success |
 | bench | ✅ success |
