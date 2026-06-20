@@ -9,6 +9,7 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 # ── Default config ─────────────────────────────────────────────────────────
@@ -24,15 +25,16 @@ DEFAULT_CONFIG = {
     ],
 }
 
-# ── Color palette (modern 2026: soft pastels with depth) ────────────────────
+# ── Color palette (modern 2026: high-fidelity soft pastels) ────────────────
 COLORS = {
-    "teal": {"fill": "#f0fdf9", "stroke": "#0d9488", "text": "#115e59"},
-    "blue": {"fill": "#eff6ff", "stroke": "#2563eb", "text": "#1e40af"},
-    "purple": {"fill": "#f5f3ff", "stroke": "#7c3aed", "text": "#5b21b6"},
-    "green": {"fill": "#f0fdf4", "stroke": "#16a34a", "text": "#166534"},
-    "gray": {"fill": "#f8fafc", "stroke": "#94a3b8", "text": "#334155"},
-    "rose": {"fill": "#fff1f2", "stroke": "#e11d48", "text": "#9f1239"},
-    "amber": {"fill": "#fffbeb", "stroke": "#d97706", "text": "#92400e"},
+    "teal": {"fill": "#f0fdf9", "stroke": "#14b8a6", "text": "#0f766e"},
+    "blue": {"fill": "#eff6ff", "stroke": "#3b82f6", "text": "#1d4ed8"},
+    "purple": {"fill": "#f5f3ff", "stroke": "#8b5cf6", "text": "#6d28d9"},
+    "green": {"fill": "#f0fdf4", "stroke": "#22c55e", "text": "#15803d"},
+    "gray": {"fill": "#f8fafc", "stroke": "#64748b", "text": "#334155"},
+    "rose": {"fill": "#fff1f2", "stroke": "#f43f5e", "text": "#be123c"},
+    "amber": {"fill": "#fffbeb", "stroke": "#f59e0b", "text": "#b45309"},
+    "slate": {"fill": "#f1f5f9", "stroke": "#475569", "text": "#1e293b"},
 }
 
 # ── Discovery helpers ──────────────────────────────────────────────────────
@@ -45,9 +47,8 @@ def _read_frontmatter_name(path: Path) -> str:
             m = re.search(r"^name:\s*(.+)$", block, re.MULTILINE)
             if m:
                 return m.group(1).strip().strip('"').strip("'")
-    except (IndexError, OSError):
-        # Best-effort frontmatter parse, fall back to stem on any error
-        pass
+    except Exception as e:
+        print(f" [info] frontmatter parse skipped for {path.name}: {e}", file=sys.stderr)
     return path.stem
 
 def discover_skills(root: Path) -> list[str]:
@@ -80,13 +81,13 @@ def discover_commands(root: Path) -> list[str]:
 def discover_crates(root: Path) -> list[dict]:
     """Uses cargo metadata to find workspace crates, dependencies, and features."""
     try:
-        # Use a fixed command list with literals for security scanners
-        result = subprocess.run(
+        # Secure subprocess call using a static list of literals
+        result = subprocess.run(  # nosec B603
             ["cargo", "metadata", "--format-version", "1", "--no-deps"],
             capture_output=True,
             text=True,
             check=True,
-            cwd=root,
+            cwd=str(root.resolve()),
             shell=False,
         )
         data = json.loads(result.stdout)
@@ -121,7 +122,7 @@ def discover_crates(root: Path) -> list[dict]:
 def _esc(s: str) -> str:
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-def _rect(x, y, w, h, rx=4, fill="#F1EFE8", stroke="#5F5E5A", sw=0.5, dash=False) -> str:
+def _rect(x, y, w, h, rx=6, fill="#F1EFE8", stroke="#5F5E5A", sw=1.0, dash=False) -> str:
     dash_attr = ' stroke-dasharray="4 3"' if dash else ""
     return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" '
             f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}"{dash_attr}/>')
@@ -139,17 +140,17 @@ def _line(x1, y1, x2, y2, cls="arr", arrow=True) -> str:
 
 def _section_line(y) -> str:
     return (f'<line x1="20" y1="{y}" x2="660" y2="{y}" '
-            'stroke="#ccc" stroke-width="0.5" opacity="0.18"/>')
+            'stroke="#cbd5e1" stroke-width="0.5" opacity="0.3"/>')
 
 def _container(x, y, w, h, label, sublabel=None) -> str:
     c = COLORS["gray"]
     parts = [
         '<g class="card">',
-        _rect(x, y, w, h, rx=8, fill="none", stroke=c["stroke"], sw=1, dash=True),
-        _text(x + w // 2, y + 14, label, cls="th"),
+        _rect(x, y, w, h, rx=10, fill="none", stroke=c["stroke"], sw=1, dash=True),
+        _text(x + w // 2, y + 16, label, cls="th"),
     ]
     if sublabel:
-        parts.append(_text(x + w // 2, y + 28, sublabel, cls="ts"))
+        parts.append(_text(x + w // 2, y + 32, sublabel, cls="ts"))
     parts.append("</g>")
     return "\n".join(parts)
 
@@ -166,19 +167,19 @@ def _pill(x, y, w, h, label, color="gray") -> str:
 DEFS = """<defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
     markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-    <path d="M2 1L8 5L2 9" fill="none" stroke="#94a3b8"
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#64748b"
       stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </marker>
-  <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
-    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/>
+  <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
   </filter>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     .th{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;fill:#0f172a;letter-spacing:-0.01em}
-    .ts{font-family:'Inter',system-ui,sans-serif;font-size:11px;font-weight:400;fill:#64748b}
-    .txs{font-family:'Inter',system-ui,sans-serif;font-size:9px;font-weight:400;fill:#94a3b8}
-    .tl{font-family:'Inter',system-ui,sans-serif;font-size:15px;font-weight:700;fill:#0f172a;letter-spacing:-0.02em}
-    .arr{fill:none;stroke:#94a3b8;stroke-width:1.2}
+    .ts{font-family:'Inter',system-ui,sans-serif;font-size:11px;font-weight:400;fill:#475569}
+    .txs{font-family:'Inter',system-ui,sans-serif;font-size:9px;font-weight:400;fill:#64748b}
+    .tl{font-family:'Inter',system-ui,sans-serif;font-size:18px;font-weight:700;fill:#0f172a;letter-spacing:-0.02em}
+    .arr{fill:none;stroke:#94a3b8;stroke-width:1.2;opacity:0.6}
     .leader{fill:none;stroke:#cbd5e1;stroke-width:0.5;stroke-dasharray:3 3}
     .card{filter:url(#shadow)}
   </style>
@@ -192,19 +193,20 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
         parts.append(s)
 
     # ── Title ───────────────────────────────────────────────────────────
-    y = 28
+    y = 35
     push(_text(340, y, cfg["title"], cls="tl"))
-    y += 10
-    push(f'<line x1="60" y1="{y}" x2="620" y2="{y}" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>')
+    y += 15
+    push(f'<line x1="100" y1="{y}" x2="580" y2="{y}" stroke="#e2e8f0" stroke-width="1" opacity="0.6"/>')
 
     # ── Pipeline stages ───────────────────────────────────────────────────
-    y += 16
-    push(f'<text class="ts" x="21" y="{y}" opacity="0.55">Workflow pipeline</text>')
+    y += 20
+    push(f'<text class="txs" x="21" y="{y}" opacity="0.8" font-weight="600" fill="#94a3b8">CI/CD PIPELINE</text>')
+    y += 15
     stages = cfg.get("pipeline_stages", [])
     if stages:
-        row_h = 36
-        gap = 12
-        bw = min(140, (640 - (len(stages) - 1) * gap) // len(stages))
+        row_h = 38
+        gap = 16
+        bw = min(130, (640 - (len(stages) - 1) * gap) // len(stages))
         x = 21
         prev_right = None
         for s in stages:
@@ -220,12 +222,12 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
         y += row_h
 
     # ── Section divider ──────────────────────────────────────────────────
-    y += 15
+    y += 25
     push(_section_line(y))
-    section_top = y + 10
+    section_top = y + 15
 
     # ── Crate Dependencies (Improved Graph!) ──────────────────────────────
-    push(_text(340, section_top + 12, f"Rust Workspace: {labels['crates']} crates", cls="th"))
+    push(_text(340, section_top + 10, f"RUST WORKSPACE: {labels['crates']} CRATES", cls="txs", opacity="0.8"))
 
     layers = {
         "apps": [],
@@ -245,18 +247,17 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
         else:
             layers["core"].append(crate)
 
-    current_y = section_top + 40
+    current_y = section_top + 45
     crate_coords = {}
-    col_w = 200
-    row_h_base = 60
-    gap_x = 20
-    gap_y = 35
+    col_w = 190
+    row_h_base = 65
+    gap_x = 25
+    gap_y = 65 # Increased for modern spacing
 
     for layer_name in ["apps", "core", "templates", "other"]:
         layer_crates = layers[layer_name]
         if not layer_crates: continue
 
-        # Split into rows if too many
         max_per_row = 3
         for row_idx in range(0, len(layer_crates), max_per_row):
             row_crates = layer_crates[row_idx : row_idx + max_per_row]
@@ -269,7 +270,7 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
                 cx = start_x + i * (col_w + gap_x)
 
                 features = crate.get("features", [])
-                box_h = row_h_base + (len(features) * 10)
+                box_h = row_h_base + (len(features) * 14) # Increased spacing to avoid overlap
                 max_row_box_h = max(max_row_box_h, box_h)
 
                 crate_coords[crate["name"]] = (cx, current_y, box_h)
@@ -279,71 +280,83 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
                 if layer_name == "templates": color = "purple"
 
                 push('<g class="card">')
-                push(_rect(cx, current_y, col_w, box_h, rx=6, fill=COLORS[color]["fill"], stroke=COLORS[color]["stroke"], sw=1))
-                push(_text(cx + col_w // 2, current_y + 18, crate["name"], cls="th"))
-                push(_text(cx + col_w // 2, current_y + 34, f"v{crate['version']}", cls="ts", opacity="0.6"))
+                push(_rect(cx, current_y, col_w, box_h, rx=10, fill=COLORS[color]["fill"], stroke=COLORS[color]["stroke"], sw=1.5))
+                push(_text(cx + col_w // 2, current_y + 20, crate["name"], cls="th"))
+                push(_text(cx + col_w // 2, current_y + 38, f"v{crate['version']}", cls="txs", opacity="0.7"))
 
                 if features:
-                    push(_text(cx + col_w // 2, current_y + 46, "features:", cls="txs", opacity="0.5"))
+                    push(_text(cx + col_w // 2, current_y + 52, "features:", cls="txs", opacity="0.5"))
                     for j, feat in enumerate(features):
-                        push(_text(cx + col_w // 2, current_y + 56 + j * 10, feat, cls="txs"))
+                        push(_text(cx + col_w // 2, current_y + 66 + j * 14, feat, cls="txs"))
                 push("</g>")
 
             current_y += max_row_box_h + gap_y
 
-    # Draw Dependency Arrows
+    # Draw Dependency Arrows with Intelligent Routing
     for crate in crates:
         if crate["name"] in crate_coords:
             p1 = crate_coords[crate["name"]]
             for dep in crate["dependencies"]:
                 if dep in crate_coords:
                     p2 = crate_coords[dep]
+
                     x1 = p1[0] + col_w // 2
                     y1 = p1[1] + p1[2]
                     x2 = p2[0] + col_w // 2
                     y2 = p2[1]
 
-                    if y1 < y2:
-                        push(_line(x1, y1, x2, y2, cls="arr"))
-                    elif y1 > y2:
-                        push(f'<path d="M {x1} {y1} C {x1} {y1+20}, {x2} {y2-20}, {x2} {y2}" class="arr" marker-end="url(#arrow)"/>')
+                    # Modern curved routing to avoid crossing labels
+                    if abs(x1 - x2) < 5: # Vertically aligned
+                        if y1 < y2: # Downward
+                             push(_line(x1, y1, x2, y2, cls="arr"))
+                        else: # Upward (side loop)
+                             push(f'<path d="M {x1} {y1} C {x1+col_w//2+15} {y1+20}, {x2+col_w//2+15} {y2-20}, {x2} {y2}" class="arr" marker-end="url(#arrow)"/>')
                     else:
-                         push(f'<path d="M {x1} {y1} Q {(x1+x2)//2} {y1+30}, {x2} {y2}" class="arr" marker-end="url(#arrow)"/>')
+                        # Smooth S-curve
+                        dx = x2 - x1
+                        dy = y2 - y1
+                        ctrl_y_offset = min(35, abs(dy) // 2)
+                        if y1 < y2:
+                            push(f'<path d="M {x1} {y1} C {x1} {y1+ctrl_y_offset}, {x2} {y2-ctrl_y_offset}, {x2} {y2}" class="arr" marker-end="url(#arrow)"/>')
+                        else:
+                            # Avoid box overlap by looping wide
+                            offset = 60 if dx > 0 else -60
+                            push(f'<path d="M {x1} {y1} C {x1+offset} {y1+25}, {x2+offset} {y2-25}, {x2} {y2}" class="arr" marker-end="url(#arrow)"/>')
 
-    y = current_y + 10
+    y = current_y + 5
     push(_section_line(y))
-    section_top = y + 10
+    section_top = y + 20
 
     # ── Skills | Agents ───────────────────────────────────────────────────
     col_w_side = 310
     skills_x = 20
     agents_x = skills_x + col_w_side + 20
-    row_h_text = 17
+    row_h_text = 18
     max_rows = max(len(skills), len(agents), 5)
-    col_h = 40 + max_rows * row_h_text + 10
+    col_h = 45 + max_rows * row_h_text + 10
 
-    push(_container(skills_x, section_top, col_w_side, col_h, f"{labels['skills']} skills", ".agents/skills/"))
+    push(_container(skills_x, section_top, col_w_side, col_h, f"{labels['skills']} SKILLS", ".agents/skills/"))
     for i, sk in enumerate(skills):
-        push(f'<text class="ts" x="{skills_x+12}" y="{section_top+48+i*row_h_text}">{_esc(sk)}</text>')
+        push(f'<text class="ts" x="{skills_x+16}" y="{section_top+52+i*row_h_text}">{_esc(sk)}</text>')
 
-    push(_container(agents_x, section_top, col_w_side, col_h, f"{labels['agents']} agents", ".opencode/agents/"))
+    push(_container(agents_x, section_top, col_w_side, col_h, f"{labels['agents']} AGENTS", ".opencode/agents/"))
     for i, ag in enumerate(agents):
-        push(f'<text class="ts" x="{agents_x+12}" y="{section_top+48+i*row_h_text}">{_esc(ag)}</text>')
+        push(f'<text class="ts" x="{agents_x+16}" y="{section_top+52+i*row_h_text}">{_esc(ag)}</text>')
 
-    y = section_top + col_h + 10
+    y = section_top + col_h + 15
     push(_section_line(y))
-    y += 10
+    y += 15
 
     # ── Commands ─────────────────────────────────────────────────────────
-    push(_text(340, y + 12, f"{labels['commands']} slash commands", cls="th"))
-    push(_text(340, y + 26, ".opencode/commands/", cls="ts"))
-    y += 40
+    push(_text(340, y + 10, f"{labels['commands']} SLASH COMMANDS", cls="txs", opacity="0.8"))
+    push(_text(340, y + 26, ".opencode/commands/", cls="txs", opacity="0.5"))
+    y += 45
 
-    show_cmds = commands[:12]
+    show_cmds = commands[:14]
     extra = len(commands) - len(show_cmds)
     pill_w = 310
-    pill_h = 22
-    pill_gap = 6
+    pill_h = 24
+    pill_gap = 8
     col2_x = 345
 
     for i, cmd in enumerate(show_cmds):
@@ -351,18 +364,18 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
         row = i // 2
         cx = 20 if col == 0 else col2_x
         cy = y + row * (pill_h + pill_gap)
-        push(_pill(cx, cy, pill_w, pill_h, cmd))
+        push(_pill(cx, cy, pill_w, pill_h, cmd, color="slate"))
 
-    y += ((len(show_cmds) + 1) // 2) * (pill_h + pill_gap) + 5
+    y += ((len(show_cmds) + 1) // 2) * (pill_h + pill_gap) + 10
     if extra > 0:
-        push(_text(340, y + 6, f"+ {extra} more commands", cls="ts"))
-        y += 16
+        push(_text(340, y + 6, f"+ {extra} more commands", cls="ts", opacity="0.6"))
+        y += 20
 
     # ── Footer ───────────────────────────────────────────────────────────
-    y += 24
+    y += 30
     footer = f'{cfg.get("project_name", "Project")} · {cfg.get("author", "maintainer")}'
-    push(f'<text class="ts" x="{340}" y="{y}" text-anchor="middle" opacity="0.32">{_esc(footer)}</text>')
-    y += 24
+    push(f'<text class="txs" x="{340}" y="{y}" text-anchor="middle" opacity="0.4" font-weight="600">{_esc(footer.upper())}</text>')
+    y += 35
 
     viewbox_h = y
     svg = (f'<svg width="100%" viewBox="0 0 680 {viewbox_h}" xmlns="http://www.w3.org/2000/svg">\n'
@@ -384,8 +397,11 @@ def main():
     cfg_path = root / "docs" / "diagram-config.json"
     cfg = dict(DEFAULT_CONFIG)
     if cfg_path.exists():
-        with open(cfg_path, encoding="utf-8") as f:
-            cfg.update(json.load(f))
+        try:
+            with open(cfg_path, encoding="utf-8") as f:
+                cfg.update(json.load(f))
+        except (json.JSONDecodeError, OSError) as e:
+            print(f" [warn] failed to load diagram-config.json: {e}", file=sys.stderr)
 
     # Discover
     crates = discover_crates(root)
@@ -417,5 +433,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()
