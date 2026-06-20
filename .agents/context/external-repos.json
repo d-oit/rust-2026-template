@@ -13,6 +13,16 @@
       "pinned_ref": "main",
       "last_verified": "2026-06-16",
       "trust_level": "high"
+    },
+    {
+      "name": "github-template-ai-agents",
+      "url": "https://github.com/d-o-hub/github-template-ai-agents",
+      "relationship": "peer-template",
+      "agent_context_url": "https://raw.githubusercontent.com/d-o-hub/github-template-ai-agents/main/AGENTS.md",
+      "description": "Language-agnostic AI agent template. Provides general skills and multi-agent patterns. Refer to for non-Rust projects or general agent workflows.",
+      "pinned_ref": "main",
+      "last_verified": "2026-06-17",
+      "trust_level": "medium"
     }
   ],
   "shared_skills": [

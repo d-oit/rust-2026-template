@@ -1,0 +1,67 @@
+---
+# .github/labeler.yml
+# Path-to-label mapping for PR auto-labeling
+
+rust:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'crates/**'
+          - 'src/**'
+          - 'Cargo.toml'
+          - 'Cargo.lock'
+          - 'rust-toolchain.toml'
+          - 'deny.toml'
+          - 'rustfmt.toml'
+          - '.clippy.toml'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+
+scripts:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'scripts/**'
+
+agents:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'AGENTS.md'
+          - '.agents/**'
+          - 'agents-docs/**'
+          - 'CLAUDE.md'
+          - 'GEMINI.md'
+          - 'QWEN.md'
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - '*.md'
+
+benchmarks:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'benchmarks/**'
+
+fuzz:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'fuzz/**'
+
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'config/**'
+          - '.vscode/**'
+          - '.cargo/**'
+          - 'flake.nix'
+          - '.envrc'
+          - '.pre-commit-config.yaml'
+
+hooks:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'hooks/**'
+          - '.githooks/**'

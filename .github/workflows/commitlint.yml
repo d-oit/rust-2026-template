@@ -1,0 +1,25 @@
+---
+# .github/workflows/commitlint.yml
+# Standalone conventional commit enforcement
+name: Commitlint
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  commitlint:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    if: "!contains(github.actor, '[bot]')"
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed  # v6
+        with:
+          configFile: ./commitlint.config.cjs

@@ -1,0 +1,50 @@
+---
+# .github/workflows/cleanup-ci-status.yml
+# Clean stale CI status artifacts and old benchmark events
+name: Cleanup CI Status
+
+on:
+  schedule:
+    - cron: '0 6 * * 0'  # Weekly on Sunday at 6am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    name: Clean Stale Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Clean old benchmark events
+        run: |
+          # Remove benchmark events older than 90 days
+          find benchmarks/events -name "*.jsonl" -mtime +90 -delete 2>/dev/null || true
+          # Remove empty date directories
+          find benchmarks/events -type d -empty -delete 2>/dev/null || true
+          echo "Cleaned old benchmark events"
+
+      - name: Clean old aggregated metrics
+        run: |
+          # Remove daily summaries older than 90 days
+          find .agents/aggregated -name "*.json" -mtime +90 -delete 2>/dev/null || true
+          echo "Cleaned old aggregated metrics"
+
+      - name: Clean old event files
+        run: |
+          # Remove event files older than 180 days
+          find .agents/events -name "*.json" -mtime +180 -delete 2>/dev/null || true
+          # Remove empty date directories
+          find .agents/events -type d -empty -delete 2>/dev/null || true
+          echo "Cleaned old event files"
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: clean stale CI artifacts [skip ci]"
+          git push
+        continue-on-error: true
