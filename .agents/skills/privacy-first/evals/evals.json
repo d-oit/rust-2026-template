@@ -6,21 +6,33 @@
       "prompt": "Check this codebase for email addresses",
       "expected_output": "Scans for email patterns, excludes test domains and .git, reports findings",
       "files": [],
-      "assertions": ["Uses email regex pattern", "Excludes example.com/test.com domains", "Excludes .git and target directories"]
+      "assertions": [
+        "Uses email regex pattern",
+        "Excludes example.com/test.com domains",
+        "Excludes .git and target directories"
+      ]
     },
     {
       "id": 2,
       "prompt": "I need to add a contact email to README.md",
       "expected_output": "Recommends GitHub Issues URL instead of email, explains why",
       "files": [],
-      "assertions": ["Does not add email to codebase", "Suggests GitHub Issues link", "Explains privacy-first policy"]
+      "assertions": [
+        "Does not add email to codebase",
+        "Suggests GitHub Issues link",
+        "Explains privacy-first policy"
+      ]
     },
     {
       "id": 3,
       "prompt": "Is it okay to use my email in Cargo.toml authors?",
       "expected_output": "Shows correct Cargo.toml format without email, explains replacement rules",
       "files": [],
-      "assertions": ["Shows authors = [\"Name\"] format", "Does not include email in example", "References replacement rules table"]
+      "assertions": [
+        "Shows authors = [\"Name\"] format",
+        "Does not include email in example",
+        "References replacement rules table"
+      ]
     }
   ]
 }

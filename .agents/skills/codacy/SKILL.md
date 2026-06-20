@@ -10,6 +10,10 @@ metadata:
 
 # Codacy Static Analysis
 
+## When to Use
+
+- User asks for this skill's functionality
+
 Orchestrate static analysis using Codacy Analysis CLI (local) and Codacy Cloud CLI (remote).
 
 ## Installation & Auth

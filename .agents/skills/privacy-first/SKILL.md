@@ -17,6 +17,10 @@ metadata:
 
 # Privacy First
 
+## When to Use
+
+- User asks for this skill's functionality
+
 This skill ensures no email addresses or personal data leak into the Rust codebase.
 It provides detection, prevention, and automated checking for Rust projects.
 

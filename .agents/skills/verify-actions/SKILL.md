@@ -17,6 +17,10 @@ metadata:
 
 # Verify Actions
 
+## When to Use
+
+- User asks for this skill's functionality
+
 Never trust version comments in workflow files. Always verify the correct SHA
 against the actual upstream release before pinning or updating an action.
 
@@ -129,3 +133,9 @@ using — upstream may have released newer versions.
 | `actions/checkout` across all workflows | Same SHA |
 | `actions/upload-artifact` across all workflows | Same SHA |
 | Composite action internal pins | Match consuming workflow versions |
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "Placeholder" | "Placeholder" |

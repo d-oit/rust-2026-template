@@ -8,7 +8,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Caching improves our Rust service speed but adds staleness complexity. Solve this with TRIZ",
-      "expected_output": "Identifies performance vs maintainability contradiction, applies principle #1 (Segmentation) — cache with TTL per data type, proposes newtype wrapper or trait-based cache",
+      "expected_output": "Identifies performance vs maintainability contradiction, applies principle #1 (Segmentation) \u2014 cache with TTL per data type, proposes newtype wrapper or trait-based cache",
       "files": [],
       "assertions": [
         "Contradiction stated: performance (improve) vs maintainability (worsen)",
@@ -38,7 +38,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Our agent instructions are getting long and eating context. Use TRIZ to optimize",
-      "expected_output": "Identifies completeness vs token limits contradiction, applies #4 (Asymmetry) — heavy knowledge in references/, load lazily",
+      "expected_output": "Identifies completeness vs token limits contradiction, applies #4 (Asymmetry) \u2014 heavy knowledge in references/, load lazily",
       "files": [],
       "assertions": [
         "Contradiction: completeness (improve) vs token limits (worsen)",
@@ -53,7 +53,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Heavy generics in our core crate cause slow dev builds. TRIZ a solution",
-      "expected_output": "Identifies genericity vs compile time contradiction, applies #2 (Taking out) — extract hot loop into dyn Trait crate",
+      "expected_output": "Identifies genericity vs compile time contradiction, applies #2 (Taking out) \u2014 extract hot loop into dyn Trait crate",
       "files": [],
       "assertions": [
         "Contradiction: genericity (improve) vs compile time (worsen)",
@@ -68,7 +68,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Adding a borrow makes our trait less flexible for downstream impls. TRIZ fix",
-      "expected_output": "Identifies borrow safety vs extensibility contradiction, applies #7 (Nesting) — use Cow<'_, T> or lifetime-generic type parameter",
+      "expected_output": "Identifies borrow safety vs extensibility contradiction, applies #7 (Nesting) \u2014 use Cow<'_, T> or lifetime-generic type parameter",
       "files": [],
       "assertions": [
         "Contradiction: borrow safety (improve) vs extensibility (worsen)",
@@ -83,7 +83,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Exposing async requires every caller to .await. Solve with TRIZ",
-      "expected_output": "Identifies async surface vs blocking cost contradiction, applies #12 (Inversion) — provide blocking wrapper that calls tokio runtime block_on",
+      "expected_output": "Identifies async surface vs blocking cost contradiction, applies #12 (Inversion) \u2014 provide blocking wrapper that calls tokio runtime block_on",
       "files": [],
       "assertions": [
         "Contradiction: async surface (improve) vs blocking cost (worsen)",
@@ -98,7 +98,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Our convenience methods bloat the binary. TRIZ a feature gating approach",
-      "expected_output": "Identifies API ergonomics vs binary size contradiction, applies #1 (Segmentation) and #15 (Dynamics) — feature-gate convenience methods, default off",
+      "expected_output": "Identifies API ergonomics vs binary size contradiction, applies #1 (Segmentation) and #15 (Dynamics) \u2014 feature-gate convenience methods, default off",
       "files": [],
       "assertions": [
         "Contradiction: API ergonomics (improve) vs binary size (worsen)",
@@ -112,8 +112,8 @@
       "id": 8,
       "split": "train",
       "should_trigger": true,
-      "prompt": "We're stuck on a design — adding error context costs performance. Use TRIZ",
-      "expected_output": "Identifies observability vs performance contradiction, applies #13 (Dynamics) — conditional context collection, lazy formatting",
+      "prompt": "We're stuck on a design \u2014 adding error context costs performance. Use TRIZ",
+      "expected_output": "Identifies observability vs performance contradiction, applies #13 (Dynamics) \u2014 conditional context collection, lazy formatting",
       "files": [],
       "assertions": [
         "Contradiction: error context (improve) vs performance (worsen)",
@@ -128,7 +128,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Our generic API forces trait bounds that downstream users hate. Solve with TRIZ",
-      "expected_output": "Identifies genericity vs usability contradiction, applies #2 (Taking out) — extract minimal trait or use trait object",
+      "expected_output": "Identifies genericity vs usability contradiction, applies #2 (Taking out) \u2014 extract minimal trait or use trait object",
       "files": [],
       "assertions": [
         "Contradiction: genericity (improve) vs usability (worsen)",
@@ -143,7 +143,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "I need to add a new field to my struct but it breaks serde compatibility. TRIZ this",
-      "expected_output": "Identifies compatibility vs evolution contradiction, applies #13 (Dynamics) — use #[serde(default)] + Option<T> for backward compat",
+      "expected_output": "Identifies compatibility vs evolution contradiction, applies #13 (Dynamics) \u2014 use #[serde(default)] + Option<T> for backward compat",
       "files": [],
       "assertions": [
         "Contradiction: schema evolution (improve) vs compatibility (worsen)",
@@ -158,7 +158,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Tokio task spawning overhead is killing throughput. TRIZ optimize",
-      "expected_output": "Identifies throughput vs spawn overhead contradiction, applies #5 (Merging) — batch tasks or use rayon for CPU-bound work",
+      "expected_output": "Identifies throughput vs spawn overhead contradiction, applies #5 (Merging) \u2014 batch tasks or use rayon for CPU-bound work",
       "files": [],
       "assertions": [
         "Contradiction: throughput (improve) vs spawn overhead (worsen)",
@@ -173,7 +173,7 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Lifetimes in my new type are too tangled. Apply TRIZ to simplify",
-      "expected_output": "Identifies lifetime expressiveness vs clarity contradiction, applies #2 (Taking out) or #7 (Nesting) — encapsulate lifetime in newtype or use owned type (String, Bytes)",
+      "expected_output": "Identifies lifetime expressiveness vs clarity contradiction, applies #2 (Taking out) or #7 (Nesting) \u2014 encapsulate lifetime in newtype or use owned type (String, Bytes)",
       "files": [],
       "assertions": [
         "Contradiction: expressiveness (improve) vs clarity (worsen)",
@@ -188,7 +188,7 @@
       "split": "validation",
       "should_trigger": true,
       "prompt": "Test coverage is high but tests take too long to run. TRIZ solve",
-      "expected_output": "Identifies coverage vs runtime contradiction, applies #13 (Dynamics) and #35 — nextest sharding, proptest shrinking, parallel execution",
+      "expected_output": "Identifies coverage vs runtime contradiction, applies #13 (Dynamics) and #35 \u2014 nextest sharding, proptest shrinking, parallel execution",
       "files": [],
       "assertions": [
         "Contradiction: coverage (improve) vs runtime (worsen)",
@@ -203,7 +203,7 @@
       "split": "validation",
       "should_trigger": true,
       "prompt": "Build matrix tests every combination, CI is slow. TRIZ solution?",
-      "expected_output": "Identifies build matrix vs CI minutes contradiction, applies #1 (Segmentation) — cargo-hack with --group-features, or workspace split",
+      "expected_output": "Identifies build matrix vs CI minutes contradiction, applies #1 (Segmentation) \u2014 cargo-hack with --group-features, or workspace split",
       "files": [],
       "assertions": [
         "Contradiction: build matrix (improve) vs CI minutes (worsen)",
@@ -218,7 +218,7 @@
       "split": "validation",
       "should_trigger": true,
       "prompt": "Our macro_rules is too clever and breaks tooling. Use TRIZ to refactor",
-      "expected_output": "Identifies macro expressiveness vs tooling support contradiction, applies #2 (Taking out) — extract to proc-macro or plain function",
+      "expected_output": "Identifies macro expressiveness vs tooling support contradiction, applies #2 (Taking out) \u2014 extract to proc-macro or plain function",
       "files": [],
       "assertions": [
         "Contradiction: macro expressiveness (improve) vs tooling (worsen)",
@@ -233,7 +233,7 @@
       "split": "validation",
       "should_trigger": true,
       "prompt": "Mutex contention is killing perf in our hot path. TRIZ solve",
-      "expected_output": "Identifies thread safety vs performance contradiction, applies #1 (Segmentation) or #12 (Inversion) — switch to lock-free channel or parking_lot::RwLock",
+      "expected_output": "Identifies thread safety vs performance contradiction, applies #1 (Segmentation) or #12 (Inversion) \u2014 switch to lock-free channel or parking_lot::RwLock",
       "files": [],
       "assertions": [
         "Contradiction: thread safety (improve) vs performance (worsen)",
@@ -248,7 +248,7 @@
       "split": "validation",
       "should_trigger": true,
       "prompt": "Stuck on whether to use trait or enum for our AST. TRIZ help",
-      "expected_output": "Identifies extensibility vs simplicity contradiction, applies #1 (Segmentation) — start with enum, extract trait when second impl appears",
+      "expected_output": "Identifies extensibility vs simplicity contradiction, applies #1 (Segmentation) \u2014 start with enum, extract trait when second impl appears",
       "files": [],
       "assertions": [
         "Contradiction: extensibility (improve) vs simplicity (worsen)",
@@ -263,7 +263,7 @@
       "split": "validation",
       "should_trigger": true,
       "prompt": "Cargo workspace inheritance is getting messy. TRIZ clean it up",
-      "expected_output": "Identifies DRY vs flexibility contradiction, applies #1 (Segmentation) — split workspace.package, lints, profiles into focused groups",
+      "expected_output": "Identifies DRY vs flexibility contradiction, applies #1 (Segmentation) \u2014 split workspace.package, lints, profiles into focused groups",
       "files": [],
       "assertions": [
         "Contradiction: DRY (improve) vs clarity (worsen)",

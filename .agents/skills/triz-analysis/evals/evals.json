@@ -82,7 +82,7 @@
       "id": 6,
       "split": "train",
       "should_trigger": true,
-      "prompt": "Do a swarm-based TRIZ audit on crates/ — different agents per crate",
+      "prompt": "Do a swarm-based TRIZ audit on crates/ \u2014 different agents per crate",
       "expected_output": "Orchestrates parallel TRIZ analysis across crates, integrates findings into single report, uses agent-coordination principles",
       "files": [],
       "assertions": [
@@ -127,7 +127,7 @@
       "id": 9,
       "split": "train",
       "should_trigger": true,
-      "prompt": "Contradiction audit on .agents/ — find trade-offs in our skill index generator",
+      "prompt": "Contradiction audit on .agents/ \u2014 find trade-offs in our skill index generator",
       "expected_output": "Audits generate-skills-md.sh, identifies maintainability vs completeness contradiction, maps to #13 (Dynamics), suggests separating static schema from generated table",
       "files": [],
       "assertions": [
@@ -157,7 +157,7 @@
       "id": 11,
       "split": "train",
       "should_trigger": true,
-      "prompt": "Security vs ergonomics in our auth crate — run a TRIZ analysis",
+      "prompt": "Security vs ergonomics in our auth crate \u2014 run a TRIZ analysis",
       "expected_output": "Audits auth crate, identifies security vs usability contradiction, maps to #12 (Inversion) and #4 (Asymmetry), proposes risk-based auth",
       "files": [],
       "assertions": [
@@ -187,7 +187,7 @@
       "id": 13,
       "split": "validation",
       "should_trigger": true,
-      "prompt": "Hidden trade-offs in our Cargo workspace — use TRIZ to find them",
+      "prompt": "Hidden trade-offs in our Cargo workspace \u2014 use TRIZ to find them",
       "expected_output": "Performs contradiction audit, lists hidden trade-offs, maps to principles, saves to analysis/",
       "files": [],
       "assertions": [
@@ -217,7 +217,7 @@
       "id": 15,
       "split": "validation",
       "should_trigger": true,
-      "prompt": "TRIZ scan of our test suite — coverage vs runtime trade-off?",
+      "prompt": "TRIZ scan of our test suite \u2014 coverage vs runtime trade-off?",
       "expected_output": "Audits test setup, finds coverage vs runtime contradiction, maps to #13 #35, suggests nextest sharding or proptest shrinking",
       "files": [],
       "assertions": [
@@ -292,7 +292,7 @@
       "id": 20,
       "split": "validation",
       "should_trigger": false,
-      "prompt": "Add a new dependency to Cargo.toml — what's the latest version of serde?",
+      "prompt": "Add a new dependency to Cargo.toml \u2014 what's the latest version of serde?",
       "expected_output": "Should not trigger triz-analysis; this is a dependency lookup, not a contradiction audit. Should respond with crate lookup or build-rust.",
       "files": [],
       "assertions": [

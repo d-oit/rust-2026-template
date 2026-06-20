@@ -15,6 +15,10 @@ metadata:
 
 # Skill: build-rust
 
+## When to Use
+
+- User asks for this skill's functionality
+
 ## Purpose
 
 Compile, test, and verify Rust projects following 2026 best practices.
@@ -95,18 +99,18 @@ Call `metrics-reporter` skill.
 
 ### Slow incremental builds in WSL2
 
-**Symptom**: Build takes >30s even for small changes  
+**Symptom**: Build takes >30s even for small changes
 **Fix**: Ensure `target/` is on the Linux filesystem, not Windows mount.
 See `.cargo/config.toml` for WSL2 disk optimization.
 
 ### VS Code reloads during build
 
-**Symptom**: VS Code refreshes while `cargo build` runs  
+**Symptom**: VS Code refreshes while `cargo build` runs
 **Fix**: Set `files.watcherExclude` for `**/target/**` in `.vscode/settings.json`
 
 ### Linker errors on WSL2
 
-**Symptom**: `error: linker 'cc' not found`  
+**Symptom**: `error: linker 'cc' not found`
 **Fix**: `sudo apt-get install build-essential`
 
 ## Rationalizations

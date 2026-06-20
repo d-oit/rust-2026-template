@@ -6,21 +6,33 @@
       "prompt": "Run the full test suite",
       "expected_output": "Runs unit tests (nextest), doc tests, reports pass/fail with coverage if available",
       "files": [],
-      "assertions": ["Uses cargo-nextest if available", "Runs doc tests separately", "Reports test count and failures"]
+      "assertions": [
+        "Uses cargo-nextest if available",
+        "Runs doc tests separately",
+        "Reports test count and failures"
+      ]
     },
     {
       "id": 2,
       "prompt": "My tests are failing, help me debug",
       "expected_output": "Runs tests, captures output, identifies failure pattern, suggests fixes",
       "files": [],
-      "assertions": ["Runs cargo nextest run or cargo test", "Captures and analyzes test output", "Suggests specific fix for failure"]
+      "assertions": [
+        "Runs cargo nextest run or cargo test",
+        "Captures and analyzes test output",
+        "Suggests specific fix for failure"
+      ]
     },
     {
       "id": 3,
       "prompt": "What's the test coverage for this project?",
       "expected_output": "Runs cargo llvm-cov nextest, generates HTML report, reports coverage percentage",
       "files": [],
-      "assertions": ["Uses cargo-llvm-cov if available", "Generates HTML coverage report", "Reports overall and per-module coverage"]
+      "assertions": [
+        "Uses cargo-llvm-cov if available",
+        "Generates HTML coverage report",
+        "Reports overall and per-module coverage"
+      ]
     }
   ]
 }

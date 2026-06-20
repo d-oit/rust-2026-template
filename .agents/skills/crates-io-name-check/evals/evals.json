@@ -6,21 +6,33 @@
       "prompt": "Is the name 'my-tool-core' available on crates.io?",
       "expected_output": "Checks via cargo search and crates.io API, reports availability status",
       "files": [],
-      "assertions": ["Uses cargo search or API to check", "Reports exact HTTP status code", "Suggests alternatives if taken"]
+      "assertions": [
+        "Uses cargo search or API to check",
+        "Reports exact HTTP status code",
+        "Suggests alternatives if taken"
+      ]
     },
     {
       "id": 2,
       "prompt": "I want to publish a new crate called 'auth-utils'",
       "expected_output": "Checks name availability, warns about generic naming, suggests more specific names",
       "files": [],
-      "assertions": ["Checks crates.io availability", "Warns about generic 'utils' naming", "Suggests project-scoped naming"]
+      "assertions": [
+        "Checks crates.io availability",
+        "Warns about generic 'utils' naming",
+        "Suggests project-scoped naming"
+      ]
     },
     {
       "id": 3,
       "prompt": "Before I commit, verify my crate name is unique",
       "expected_output": "Runs full availability check including similarity check against existing crates",
       "files": [],
-      "assertions": ["Checks exact name match", "Searches for similar prefixes", "Verifies Cargo.toml name matches directory"]
+      "assertions": [
+        "Checks exact name match",
+        "Searches for similar prefixes",
+        "Verifies Cargo.toml name matches directory"
+      ]
     }
   ]
 }

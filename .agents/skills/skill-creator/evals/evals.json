@@ -6,21 +6,33 @@
       "prompt": "Create a new skill for database migrations",
       "expected_output": "Creates skill directory with SKILL.md (frontmatter + instructions), evals/evals.json, references/",
       "files": [],
-      "assertions": ["Creates SKILL.md with valid frontmatter", "Includes name, description, category fields", "Creates evals/evals.json with 3+ cases"]
+      "assertions": [
+        "Creates SKILL.md with valid frontmatter",
+        "Includes name, description, category fields",
+        "Creates evals/evals.json with 3+ cases"
+      ]
     },
     {
       "id": 2,
       "prompt": "Optimize this skill's description for better triggering",
       "expected_output": "Analyzes current description, tests trigger accuracy, suggests improvements",
       "files": [],
-      "assertions": ["Reads current skill description", "Suggests imperative phrasing", "Checks 1024 character limit"]
+      "assertions": [
+        "Reads current skill description",
+        "Suggests imperative phrasing",
+        "Checks 1024 character limit"
+      ]
     },
     {
       "id": 3,
       "prompt": "Write evals for the test-rust skill",
       "expected_output": "Creates 3+ realistic test cases covering should-trigger and should-not-trigger scenarios",
       "files": [],
-      "assertions": ["Creates evals/evals.json", "Includes at least 3 eval cases", "Each case has id, prompt, expected_output, assertions"]
+      "assertions": [
+        "Creates evals/evals.json",
+        "Includes at least 3 eval cases",
+        "Each case has id, prompt, expected_output, assertions"
+      ]
     }
   ]
 }

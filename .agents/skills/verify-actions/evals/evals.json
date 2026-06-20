@@ -5,7 +5,10 @@
       "id": 1,
       "prompt": "Update actions/checkout from v4 to v6 in all workflow files",
       "expected_output": "Agent verifies the v6 SHA via gh api before pinning, updates all files consistently, and runs a version consistency check",
-      "files": [".github/workflows/ci.yml", ".github/workflows/release.yml"],
+      "files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/release.yml"
+      ],
       "assertions": [
         "Agent runs gh api to resolve the SHA for the v6 tag",
         "All workflow files use the same SHA for actions/checkout",
@@ -16,7 +19,9 @@
       "id": 2,
       "prompt": "Add Swatinem/rust-cache to the fuzz workflow",
       "expected_output": "Agent looks up the latest release tag, resolves the SHA, pins it with a version comment",
-      "files": [".github/workflows/fuzz.yml"],
+      "files": [
+        ".github/workflows/fuzz.yml"
+      ],
       "assertions": [
         "Agent verifies the SHA against the upstream repo",
         "SHA is pinned with a version comment",
@@ -27,7 +32,9 @@
       "id": 3,
       "prompt": "Audit all action versions across workflows for consistency",
       "expected_output": "Agent greps all uses: lines, groups by action name, identifies mismatches",
-      "files": [".github/workflows/"],
+      "files": [
+        ".github/workflows/"
+      ],
       "assertions": [
         "Agent finds all action references across all workflow files",
         "Agent identifies any version mismatches",
@@ -38,7 +45,10 @@
       "id": 4,
       "prompt": "Check if the upload-artifact version in ci.yml matches hotfix.yml",
       "expected_output": "Agent compares the SHAs and reports whether they match",
-      "files": [".github/workflows/ci.yml", ".github/workflows/hotfix.yml"],
+      "files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/hotfix.yml"
+      ],
       "assertions": [
         "Agent extracts the SHA from both files",
         "Agent reports match or mismatch with evidence",
@@ -60,7 +70,9 @@
       "id": 6,
       "prompt": "The CI is failing because download-artifact can't find the artifact",
       "expected_output": "Agent checks if upload-artifact and download-artifact versions are compatible",
-      "files": [".github/workflows/ci.yml"],
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
       "assertions": [
         "Agent identifies the version mismatch between upload and download",
         "Agent recommends matching major versions",
@@ -69,7 +81,7 @@
     },
     {
       "id": 7,
-      "prompt": "I see this in a workflow: uses: actions/checkout@abc123  # v5 — is this correct?",
+      "prompt": "I see this in a workflow: uses: actions/checkout@abc123  # v5 \u2014 is this correct?",
       "expected_output": "Agent verifies whether the SHA actually resolves to v5",
       "files": [],
       "assertions": [
@@ -82,7 +94,9 @@
       "id": 8,
       "prompt": "Set up a new release workflow with cargo-dist",
       "expected_output": "Agent uses the verify-actions skill to pin all action SHAs correctly",
-      "files": [".github/workflows/release.yml"],
+      "files": [
+        ".github/workflows/release.yml"
+      ],
       "assertions": [
         "All actions are SHA-pinned (not tag-pinned)",
         "Each SHA has a version comment",

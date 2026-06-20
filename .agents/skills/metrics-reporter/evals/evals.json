@@ -6,21 +6,33 @@
       "prompt": "Record that I just finished the auth module task",
       "expected_output": "Creates event file in .agents/events/YYYY/MM/DD/ with task metadata, git SHA, success status",
       "files": [],
-      "assertions": ["Creates directory .agents/events/YYYY/MM/DD/", "Writes valid JSON event file", "Includes git SHA in event"]
+      "assertions": [
+        "Creates directory .agents/events/YYYY/MM/DD/",
+        "Writes valid JSON event file",
+        "Includes git SHA in event"
+      ]
     },
     {
       "id": 2,
       "prompt": "Log a failed task - the tests didn't pass",
       "expected_output": "Creates event file with success=false, includes error context",
       "files": [],
-      "assertions": ["Sets success field to false", "Includes task description", "Uses correct timestamp format"]
+      "assertions": [
+        "Sets success field to false",
+        "Includes task description",
+        "Uses correct timestamp format"
+      ]
     },
     {
       "id": 3,
       "prompt": "I had to fix the agent's code manually, record that",
       "expected_output": "Creates event file with human_interventions > 0",
       "files": [],
-      "assertions": ["Sets human_interventions to at least 1", "Notes the intervention reason", "Uses event file pattern not append"]
+      "assertions": [
+        "Sets human_interventions to at least 1",
+        "Notes the intervention reason",
+        "Uses event file pattern not append"
+      ]
     }
   ]
 }

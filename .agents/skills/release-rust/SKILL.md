@@ -15,6 +15,10 @@ metadata:
 
 # Skill: release-rust
 
+## When to Use
+
+- User asks for this skill's functionality
+
 ## Purpose
 
 Create and publish a new release of the Rust project.

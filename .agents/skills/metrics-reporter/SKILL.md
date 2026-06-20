@@ -10,6 +10,10 @@ metadata:
 
 # Skill: metrics-reporter
 
+## When to Use
+
+- User asks for this skill's functionality
+
 ## Purpose
 
 Record agentic task completion by writing a per-event JSON file to `.agents/events/`. This pattern avoids Git merge conflicts and supports multi-agent coordination.
