@@ -1,0 +1,44 @@
+# Gitleaks Configuration Template
+# Copy this to .gitleaks.toml in your project
+# https://github.com/gitleaks/gitleaks
+
+title = "Gitleaks configuration"
+
+[allowlist]
+  description = "Global allowlist"
+  paths = [
+    '''tests/.*''',
+    '''examples/.*''',
+    '''\.mimocode/.*''',
+  ]
+
+[[rules]]
+  id = "generic-api-key"
+  description = "Generic API Key"
+  regex = '''(?i)(api[_-]?key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]'''
+  entropy = 3
+  tags = ["key", "API", "generic"]
+
+[[rules]]
+  id = "github-pat"
+  description = "GitHub Personal Access Token"
+  regex = '''ghp_[a-zA-Z0-9]{36}'''
+  tags = ["github", "token"]
+
+[[rules]]
+  id = "github-oauth"
+  description = "GitHub OAuth Access Token"
+  regex = '''gho_[a-zA-Z0-9]{36}'''
+  tags = ["github", "token"]
+
+[[rules]]
+  id = "github-app-token"
+  description = "GitHub App Token"
+  regex = '''(ghu|ghs)_[a-zA-Z0-9]{36}'''
+  tags = ["github", "token"]
+
+[[rules]]
+  id = "private-key"
+  description = "Private Key"
+  regex = '''-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----'''
+  tags = ["key", "private"]

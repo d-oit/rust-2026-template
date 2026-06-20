@@ -130,13 +130,7 @@ jobs:
             done < .agents/metrics.jsonl
             echo "Agent metrics validation OK"
           fi
-      - name: Commitlint
-        if: >
-          github.event_name == 'pull_request' &&
-          !contains(github.actor, '[bot]')
-        uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed  # v6
-        with:
-          configFile: ./commitlint.config.cjs
+      # Commitlint is enforced via dedicated .github/workflows/commitlint.yml
 
   # ───────────────────────────────────────────────────
   shellcheck:
@@ -323,21 +317,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Check VERSION matches Cargo.toml
-        run: |
-          VERSION=$(cat VERSION)
-          CARGO_VERSION=$(awk '
-            /^\[workspace\.package\]/ { in_section=1; next }
-            /^\[/                     { in_section=0 }
-            in_section && /^version[[:space:]]*=/ {
-              match($0, /"([0-9]+\.[0-9]+\.[0-9]+)"/, arr)
-              if (arr[1] != "") { print arr[1]; exit }
-            }
-          ' Cargo.toml)
-          if [ "$VERSION" != "$CARGO_VERSION" ]; then
-            echo "VERSION mismatch: VERSION=$VERSION, Cargo.toml=$CARGO_VERSION"
-            exit 1
-          fi
-          echo "VERSION ($VERSION) matches Cargo.toml"
+        run: bash scripts/propagate-version.sh --check
       - name: Check llms.txt is current
         run: |
           bash scripts/generate-llms-txt.sh

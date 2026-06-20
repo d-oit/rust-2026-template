@@ -244,6 +244,15 @@ if [[ " ${DETECTED_LANGUAGES[*]} " =~ " rust " ]]; then
     warn "cargo-machete not installed, skipping"
   fi
 
+  # MSRV audit
+  if [[ -f "./scripts/audit-msrv.sh" ]]; then
+    if ./scripts/audit-msrv.sh >/dev/null 2>&1; then
+      pass "MSRV: compliant"
+    else
+      warn "MSRV: audit found issues (run ./scripts/audit-msrv.sh for details)"
+    fi
+  fi
+
   printf "\n"
 fi
 
@@ -318,7 +327,37 @@ fi
 printf "\n"
 
 # ============================================================
-# 10. LLM CONTEXT FILES
+# 10. WORKFLOW VALIDATION
+# ============================================================
+info "Validating GitHub Actions workflows..."
+if [[ -f "./scripts/validate-workflows.sh" ]]; then
+  if ./scripts/validate-workflows.sh >/dev/null 2>&1; then
+    pass "Workflows: valid"
+  else
+    warn "Workflows: validation issues (run ./scripts/validate-workflows.sh for details)"
+  fi
+else
+  warn "validate-workflows.sh not found"
+fi
+printf "\n"
+
+# ============================================================
+# 11. SKILL EVALS
+# ============================================================
+info "Running skill evals..."
+if [[ -f "./scripts/run-evals.sh" ]]; then
+  if ./scripts/run-evals.sh >/dev/null 2>&1; then
+    pass "Evals: all skills valid"
+  else
+    warn "Evals: issues found (run ./scripts/run-evals.sh --verbose for details)"
+  fi
+else
+  warn "run-evals.sh not found"
+fi
+printf "\n"
+
+# ============================================================
+# 13. LLM CONTEXT FILES
 # ============================================================
 info "Checking LLM context files..."
 if [[ -f "llms.txt" ]] && [[ -f "llms-full.txt" ]]; then
@@ -329,7 +368,7 @@ fi
 printf "\n"
 
 # ============================================================
-# 11. CI STATUS ARTIFACT
+# 14. CI STATUS ARTIFACT
 # ============================================================
 info "Checking CI status artifact..."
 if [[ -f ".agents/ci/ci-status.json" ]]; then
