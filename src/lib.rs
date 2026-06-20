@@ -3,7 +3,7 @@
 //!
 //! ## Overview
 //!
-//! ![Architecture](docs/architecture.svg)
+//! ![Architecture](.template/architecture.svg)
 //!
 //! This template is designed for Rust developers who want to start new projects with best practices baked in. It provides a modular workspace structure, comprehensive quality gates, and built-in support for AI-assisted development.
 //!

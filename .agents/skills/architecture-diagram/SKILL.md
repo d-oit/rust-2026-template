@@ -39,7 +39,7 @@ Run the script from the project root:
 ```bash
 python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
   --root . \
-  --out docs/architecture.svg
+  --out .template/architecture.svg
 ```
 
 The script auto-discovers:
@@ -48,7 +48,7 @@ The script auto-discovers:
 - **Agents** → `.opencode/agents/*.md` (uses filename stem).
 - **Commands** → `.opencode/commands/*.md` (uses filename stem, strips leading `/`).
 
-It writes a self-contained SVG to `--out` (default: `docs/architecture.svg`).
+It writes a self-contained SVG to `--out` (default: `.template/architecture.svg`).
 
 ### Step 3 — Confirm and Report
 
@@ -59,8 +59,8 @@ After the script exits:
 
 ## Output
 
-`docs/architecture.svg` — a standalone SVG output file, compatible with GitHub README embedding:
-`![Architecture](docs/architecture.svg)`
+`.template/architecture.svg` — a standalone SVG output file, compatible with GitHub README embedding:
+`![Architecture](.template/architecture.svg)`
 
 ## Customization
 

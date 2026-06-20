@@ -3,7 +3,7 @@
 generate_diagram.py — Project architecture SVG generator
 Scans the live project structure, including Rust workspace, and writes an architecture diagram.
 Usage:
-python generate_diagram.py [--root .] [--out docs/architecture.svg]
+python generate_diagram.py [--root .] [--out .template/architecture.svg]
 """
 import argparse
 import json
@@ -82,6 +82,7 @@ def discover_crates(root: Path) -> list[dict]:
     """Uses cargo metadata to find workspace crates, dependencies, and features."""
     try:
         # Secure subprocess call using a static list of literals
+        # Literal arguments prevent shell injection and satisfy security scanners.
         result = subprocess.run(  # nosec B603
             ["cargo", "metadata", "--format-version", "1", "--no-deps"],
             capture_output=True,
@@ -115,7 +116,7 @@ def discover_crates(root: Path) -> list[dict]:
                 })
         return sorted(crates, key=lambda x: x["name"])
     except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError) as e:
-        print(f" [warn] failed to discover crates: {e}")
+        print(f" [warn] failed to discover crates: {e}", file=sys.stderr)
         return []
 
 # ── SVG helpers ───────────────────────────────────────────────────────────
@@ -252,7 +253,7 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
     col_w = 190
     row_h_base = 65
     gap_x = 25
-    gap_y = 65 # Increased for modern spacing
+    gap_y = 70 # Modern spacing
 
     for layer_name in ["apps", "core", "templates", "other"]:
         layer_crates = layers[layer_name]
@@ -270,7 +271,7 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
                 cx = start_x + i * (col_w + gap_x)
 
                 features = crate.get("features", [])
-                box_h = row_h_base + (len(features) * 14) # Increased spacing to avoid overlap
+                box_h = row_h_base + (len(features) * 14) # Increased spacing
                 max_row_box_h = max(max_row_box_h, box_h)
 
                 crate_coords[crate["name"]] = (cx, current_y, box_h)
@@ -387,7 +388,7 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
 def main():
     parser = argparse.ArgumentParser(description="Generate architecture SVG")
     parser.add_argument("--root", default=".", help="Project root directory")
-    parser.add_argument("--out", default="docs/architecture.svg", help="Output SVG path")
+    parser.add_argument("--out", default=".template/architecture.svg", help="Output SVG path")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
