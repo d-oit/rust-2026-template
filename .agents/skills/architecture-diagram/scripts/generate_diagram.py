@@ -30,7 +30,6 @@ THEME = {
         "other":     {"bg": "#f0fdf4", "border": "#bbf7d0", "text": "#166534", "accent": "#22c55e", "grad": ["#f0fdf4", "#dcfce7"]},
         "pipeline":  {"bg": "#f0fdfa", "border": "#99f6e4", "text": "#0f766e", "accent": "#14b8a6", "grad": ["#f0fdfa", "#ccfbf1"]},
         "interface": {"bg": "#f8fafc", "border": "#e2e8f0", "text": "#334155", "accent": "#64748b", "grad": ["#f8fafc", "#f1f5f9"]},
-        "memory":    {"bg": "#fefce8", "border": "#fef08a", "text": "#854d0e", "accent": "#eab308", "grad": ["#fefce8", "#fef9c3"]},
         "rose":      {"bg": "#fff1f2", "border": "#fecdd3", "text": "#9f1239", "accent": "#f43f5e", "grad": ["#fff1f2", "#ffe4e6"]},
         "teal":      {"bg": "#f0fdfa", "border": "#99f6e4", "text": "#0f766e", "accent": "#14b8a6", "grad": ["#f0fdfa", "#ccfbf1"]},
         "blue":      {"bg": "#eff6ff", "border": "#bfdbfe", "text": "#1e40af", "accent": "#3b82f6", "grad": ["#eff6ff", "#dbeafe"]},
@@ -383,45 +382,6 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
             push(_text(370, y_cursor + 60 + i * text_h, ag, anchor="start", cls="ts"))
     else:
         push(_text(370 + side_w // 2, y_cursor + max_h // 2 + 10, "none configured", cls="txs", opacity="0.4"))
-    push("</g>")
-
-    # ── Memory System (Agent Persistence Layer) ──
-    y_cursor += 20
-    push(f'<line x1="20" y1="{y_cursor}" x2="660" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
-    y_cursor += 30
-    push(f'<g id="memory" role="region" aria-label="Agent memory system components">')
-    push(_text(340, y_cursor, "MEMORY SYSTEM · AGENT PERSISTENCE", cls="section-label"))
-    y_cursor += 35
-
-    # Memory components with hierarchy
-    mem_components = [
-        ("Project Memory", "MEMORY.md", "Persistent across sessions", "core"),
-        ("Session Checkpoint", "checkpoint.md", "Structured state (11 sections)", "templates"),
-        ("Per-task Progress", "tasks/<id>/progress.md", "Splitover from session", "apps"),
-        ("Global Memory", "global/MEMORY.md", "User preferences", "other"),
-        ("Notes Scratchpad", "notes.md", "Free-form entries", "interface"),
-    ]
-
-    # Draw memory hierarchy as vertical stack
-    mem_x = 21
-    mem_w = 638
-    mem_h = 32
-    mem_gap = 8
-
-    for i, (name, path, desc, color_key) in enumerate(mem_components):
-        cy = y_cursor + i * (mem_h + mem_gap)
-        push(f'<g class="card" role="img" aria-label="Memory component: {name}">')
-        push(_rect(mem_x, cy, mem_w, mem_h, rx=8, color_key=color_key))
-        push(_text(mem_x + 15, cy + mem_h // 2, name, anchor="start", cls="th"))
-        push(_text(mem_x + 180, cy + mem_h // 2, path, anchor="start", cls="txs", opacity="0.6"))
-        push(_text(mem_x + mem_w - 15, cy + mem_h // 2, desc, anchor="end", cls="txs", opacity="0.5"))
-        push("</g>")
-        # Draw connector line to next component
-        if i < len(mem_components) - 1:
-            line_y = cy + mem_h
-            push(f'<line x1="{mem_x + mem_w // 2}" y1="{line_y}" x2="{mem_x + mem_w // 2}" y2="{line_y + mem_gap}" stroke="{THEME["colors"]["divider"]}" stroke-width="1" stroke-dasharray="3 2"/>')
-
-    y_cursor += len(mem_components) * (mem_h + mem_gap) + 10
     push("</g>")
 
     # ── Subagent Workflow (Multi-Agent Orchestration) ──
