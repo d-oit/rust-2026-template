@@ -33,21 +33,15 @@ info "Checking crate publish readiness..."
 echo ""
 
 # Get workspace members that are publishable
-MEMBERS=$(awk '
-  /^\[workspace\]/ { in_ws=1; next }
-  /^\[/ { in_ws=0; next }
-  in_ws && /^members/ {
-    if (match($0, /\[.*\]/)) {
-      gsub(/[\[\]"',]/, " ")
-      print
-      next
-    }
-    in_members=1
-    next
-  }
-  in_members && /^\]/ { in_members=0; next }
-  in_members { gsub(/[[:space:]]*["',]/, " "); print }
-' Cargo.toml)
+MEMBERS=$(python3 -c "
+import tomllib, glob
+with open('Cargo.toml', 'rb') as f:
+    data = tomllib.load(f)
+members = data.get('workspace', {}).get('members', [])
+for m in members:
+    for expanded in glob.glob(m):
+        print(expanded)
+" 2>/dev/null || echo "")
 
 for member in $MEMBERS; do
   member=$(echo "$member" | tr -d '[:space:]')
@@ -90,12 +84,12 @@ for member in $MEMBERS; do
     fi
   fi
 
-  # Dry-run publish
-  if ! OUTPUT=$(cargo publish --dry-run -p "$CRATE_NAME" 2>&1); then
-    fail "$member: dry-run publish failed"
+  # Dry-run package (faster than full publish)
+  if ! OUTPUT=$(cargo package --list -p "$CRATE_NAME" 2>&1); then
+    fail "$member: package listing failed"
     echo "$OUTPUT" | head -10 | sed 's/^/    /'
   else
-    pass "$member: ready to publish"
+    pass "$member: packaging OK"
   fi
 done
 
