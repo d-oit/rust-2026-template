@@ -39,6 +39,7 @@ use storage::FileStorage;
 
 /// Checkpoint header stored with each checkpoint file.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct CheckpointHeader {
     pub version: u32,
     pub created_at: SystemTime,
@@ -123,8 +124,12 @@ impl<T: Storable> CheckpointManager<T> {
         self.header.version = T::version();
         self.header.created_at = SystemTime::now();
 
-        let data =
-            bincode::serialize(state).map_err(|e| CheckpointError::Serialization(e.to_string()))?;
+        use bincode::Options;
+        let options = bincode::options();
+
+        let data = options
+            .serialize(state)
+            .map_err(|e| CheckpointError::Serialization(e.to_string()))?;
 
         self.storage.save(&self.header, &data).await?;
         info!("Checkpoint saved (version {})", self.header.version);
@@ -133,10 +138,30 @@ impl<T: Storable> CheckpointManager<T> {
 
     /// Load state with migration support.
     pub async fn load(&self) -> Result<Option<T>, CheckpointError> {
-        let (header, data) = match self.storage.load().await {
+        // Security: Define a reasonable limit for checkpoint files and metadata.
+        const MAX_CHECKPOINT_SIZE: u64 = 10 * 1024 * 1024;
+        const MAX_APP_NAME_LEN: usize = 256;
+
+        let (header, payload) = match self.storage.load().await {
             Ok(v) => v,
-            Err(_) => return Ok(None),
+            Err(storage::StorageError::NotFound) => return Ok(None),
+            Err(e) => return Err(CheckpointError::Storage(e)),
         };
+
+        // Security (2026): Sanitize app_name to prevent log injection and resource exhaustion.
+        // Also check length.
+        if header.app_name.len() > MAX_APP_NAME_LEN {
+            return Err(CheckpointError::Serialization(format!(
+                "app_name too long: {} bytes (max {MAX_APP_NAME_LEN})",
+                header.app_name.len()
+            )));
+        }
+
+        if header.app_name.chars().any(|c| c.is_control()) {
+            return Err(CheckpointError::Serialization(
+                "app_name contains control characters".to_string(),
+            ));
+        }
 
         // Handle version mismatch
         if header.version != T::version() {
@@ -146,7 +171,12 @@ impl<T: Storable> CheckpointManager<T> {
             });
         }
 
-        let state = bincode::deserialize(&data)
+        // Security: Use bincode with a size limit to prevent resource exhaustion.
+        use bincode::Options;
+        let options = bincode::options().with_limit(MAX_CHECKPOINT_SIZE);
+
+        let state = options
+            .deserialize(&payload)
             .map_err(|e| CheckpointError::Serialization(e.to_string()))?;
 
         Ok(Some(state))
@@ -190,5 +220,100 @@ mod tests {
         let manager = CheckpointManager::<TestState>::new(&path);
         let result = manager.load().await.unwrap();
         assert!(result.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_load_config_too_large() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("too_large.ckpt");
+
+        // Create a file larger than 10MB
+        let large_data = vec![0u8; 11 * 1024 * 1024];
+        std::fs::write(&path, large_data).unwrap();
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await;
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(matches!(
+            err,
+            CheckpointError::Storage(storage::StorageError::TooLarge(_))
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_load_config_invalid_type() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("directory.ckpt");
+        std::fs::create_dir(&path).unwrap();
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await;
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(matches!(
+            err,
+            CheckpointError::Storage(storage::StorageError::InvalidType)
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_load_config_app_name_too_long() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("long_app_name.ckpt");
+
+        let header = CheckpointHeader {
+            version: 1,
+            created_at: SystemTime::UNIX_EPOCH,
+            app_name: "a".repeat(257),
+        };
+        let state = TestState { value: 42 };
+
+        use bincode::Options;
+        let options = bincode::options();
+        let state_data = options.serialize(&state).unwrap();
+
+        let mut combined = options.serialize(&header).unwrap();
+        combined.extend_from_slice(&state_data);
+
+        std::fs::write(&path, combined).unwrap();
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await;
+
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("app_name too long"));
+    }
+
+    #[tokio::test]
+    async fn test_load_config_app_name_control_chars() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("control_chars.ckpt");
+
+        let header = CheckpointHeader {
+            version: 1,
+            created_at: SystemTime::UNIX_EPOCH,
+            app_name: "test\napp".to_string(),
+        };
+        let state = TestState { value: 42 };
+
+        use bincode::Options;
+        let options = bincode::options();
+        let state_data = options.serialize(&state).unwrap();
+
+        let mut combined = options.serialize(&header).unwrap();
+        combined.extend_from_slice(&state_data);
+
+        std::fs::write(&path, combined).unwrap();
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await;
+
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("control characters"));
     }
 }
