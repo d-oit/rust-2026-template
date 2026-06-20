@@ -1,0 +1,8 @@
+[book]
+title = "Rust 2026 Template"
+authors = ["Maintainer"]
+language = "en"
+src = "src"
+
+[output.html]
+default-theme = "light"
