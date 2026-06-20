@@ -80,22 +80,28 @@ echo ""
 info "Checking workspace member crates..."
 
 # Get workspace members from Cargo.toml
-MEMBERS=$(awk '
+MEMBERS=$(python3 -c "
+import tomllib, glob
+with open('Cargo.toml', 'rb') as f:
+    data = tomllib.load(f)
+members = data.get('workspace', {}).get('members', [])
+for m in members:
+    for expanded in glob.glob(m):
+        print(expanded)
+" 2>/dev/null || awk '
   /^\[workspace\]/ { in_ws=1; next }
   /^\[/ { in_ws=0; next }
   in_ws && /^members/ {
-    # Handle inline array: members = ["a", "b"]
     if (match($0, /\[.*\]/)) {
-      gsub(/[\[\]"',]/, " ")
+      gsub(/[\[\]" ,]/, " ")
       print
       next
     }
-    # Handle multi-line array
     in_members=1
     next
   }
   in_members && /^\]/ { in_members=0; next }
-  in_members { gsub(/[[:space:]]*["',]/, " "); print }
+  in_members { gsub(/[[:space:]" ,]/, " "); print }
 ' Cargo.toml)
 
 ISSUES=0
@@ -110,9 +116,9 @@ for member in $MEMBERS; do
   fi
 
   # Check if member inherits workspace version
-  if grep -q 'version.workspace\s*=\s*true' "$CARGO_TOML"; then
-    # Check if member declares its own rust-version
-    MEMBER_RV=$(grep 'rust-version' "$CARGO_TOML" | sed 's/.*"\(.*\)".*/\1/' | head -1)
+  if grep -q 'version.workspace' "$CARGO_TOML"; then
+    # Check if member declares its own rust-version (not workspace inheritance)
+    MEMBER_RV=$(grep '^rust-version' "$CARGO_TOML" 2>/dev/null | grep -v 'rust-version.workspace' 2>/dev/null | sed 's/.*"\(.*\)".*/\1/' 2>/dev/null | head -1 || true)
     if [[ -n "$MEMBER_RV" ]]; then
       if [[ "$MEMBER_RV" != "$MSRV" ]]; then
         warn "$member: rust-version ($MEMBER_RV) differs from MSRV ($MSRV)"
