@@ -125,17 +125,26 @@ def discover_error_types(root: Path) -> list[dict]:
                 for match in re.finditer(r'pub enum (\w*Error)\s*\{([^}]+)\}', content, re.DOTALL):
                     enum_name = match.group(1)
                     variants_text = match.group(2)
-                    variants = re.findall(r'(\w+)(?:\(|\s|$)', variants_text)
-                    variants = [v for v in variants if v[0].isupper() and v not in ('Debug', 'Error', 'Display', 'From')]
-                    if variants:
+                    # Extract variant names more carefully
+                    variants = []
+                    for line in variants_text.split('\n'):
+                        line = line.strip()
+                        # Match variant names that start with uppercase
+                        vm = re.match(r'(\w+)(?:\(|\s|$)', line)
+                        if vm:
+                            v = vm.group(1)
+                            if v[0].isupper() and v not in ('Debug', 'Error', 'Display', 'From', 'Source'):
+                                variants.append(v)
+                    variants = list(dict.fromkeys(variants))  # Dedupe while preserving order
+                    if variants and enum_name not in [e["name"] for e in error_types]:
                         error_types.append({
                             "name": enum_name,
-                            "variants": variants[:6],  # Limit to 6 variants
+                            "variants": variants[:6],
                             "crate": crate_dir.name,
                         })
             except Exception:
                 continue
-    return error_types[:5]  # Limit to 5 error types
+    return error_types[:5]
 
 def discover_agent_roles(root: Path) -> list[dict]:
     """Discover agent roles from ORCHESTRATION.md."""
@@ -146,10 +155,10 @@ def discover_agent_roles(root: Path) -> list[dict]:
         content = orch_file.read_text(encoding="utf-8")
         roles = []
         # Parse markdown table for agent roles
-        for match in re.finditer(r'\|\s*\*\*(\w+-\w+)\*\*\s*\|[^|]*\|\s*`([^`]+(?:`[^`]*)*)`\s*\|', content):
+        for match in re.finditer(r'\|\s*\*\*(\w+-\w+)\*\*\s*\|[^|]*\|\s*`([^`]+)`', content):
             role_name = match.group(1)
             skills_text = match.group(2)
-            skills = [s.strip('`') for s in skills_text.split('`, `')]
+            skills = [s.strip() for s in skills_text.split(',')]
             colors = {"code": "teal", "release": "green", "quality": "blue", "meta": "templates"}
             color_key = colors.get(role_name.split("-")[0], "interface")
             roles.append({
@@ -169,10 +178,12 @@ def discover_handoff_items(root: Path) -> list[dict]:
     try:
         content = orch_file.read_text(encoding="utf-8")
         items = []
+        seen = set()
         # Find file references in the handoff protocol section
         for match in re.finditer(r'`([^`]+\.(?:json|jsonl|md))`', content):
             file_path = match.group(1)
-            if file_path not in [i["path"] for i in items]:
+            if file_path not in seen:
+                seen.add(file_path)
                 items.append({"path": file_path, "desc": "Workflow state"})
         return items[:3]
     except Exception:

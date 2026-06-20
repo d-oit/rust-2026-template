@@ -1,4 +1,4 @@
-<svg width="100%" viewBox="0 0 680 3336" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYSTEM ARCHITECTURE - RUST 2026 WORKSPACE">
+<svg width="100%" viewBox="0 0 680 3116" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYSTEM ARCHITECTURE - RUST 2026 WORKSPACE">
 <defs>
       <linearGradient id="grad-apps" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fffbeb"/><stop offset="100%" stop-color="#fef3c7"/></linearGradient>
 <linearGradient id="grad-core" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eff6ff"/><stop offset="100%" stop-color="#dbeafe"/></linearGradient>
@@ -36,7 +36,7 @@
         .subtitle{font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:9px;font-weight:500;fill:#94a3b8}
       </style>
     </defs>
-<rect width="680" height="3336" fill="#ffffff"/>
+<rect width="680" height="3116" fill="#ffffff"/>
 <g id="header" role="banner" aria-label="System architecture header">
 <text class="tl" x="340" y="50" text-anchor="middle" dominant-baseline="central" role="img" aria-label="System Architecture Title">SYSTEM ARCHITECTURE</text>
 <text class="subtitle" x="340" y="68" text-anchor="middle" dominant-baseline="central" opacity="0.6">RUST 2026 WORKSPACE</text>
@@ -219,110 +219,91 @@
 <g class="card" role="img" aria-label="Agent role: code-agent">
 <rect x="21" y="2317" width="305" height="40" rx="10" fill="url(#grad-teal)" stroke="#99f6e4" stroke-width="1.5"/>
 <text class="th" x="33" y="2332" text-anchor="start" dominant-baseline="central" font-weight="600">code-agent</text>
-<text class="txs" x="33" y="2347" text-anchor="start" dominant-baseline="central" opacity="0.6">build-rust · lint-rust · test-rust · anti-ai-slop · privacy-first` |
-| **release-agent** | Claude Code, OpenCode | `release-rust · crates-io-name-check` |
-| **quality-agent** | Any | `skill-evaluator · codacy · dora-report · metrics-reporter` |
-| **meta-agent** | Any | `skill-creator · skill-evaluator</text>
+<text class="txs" x="33" y="2347" text-anchor="start" dominant-baseline="central" opacity="0.6">build-rust</text>
 </g>
-<text class="section-label" x="340" y="2382" text-anchor="middle" dominant-baseline="central">HANDOFF PROTOCOL</text>
+<g class="card" role="img" aria-label="Agent role: release-agent">
+<rect x="354" y="2317" width="305" height="40" rx="10" fill="url(#grad-green)" stroke="#bbf7d0" stroke-width="1.5"/>
+<text class="th" x="366" y="2332" text-anchor="start" dominant-baseline="central" font-weight="600">release-agent</text>
+<text class="txs" x="366" y="2347" text-anchor="start" dominant-baseline="central" opacity="0.6">release-rust</text>
+</g>
+<g class="card" role="img" aria-label="Agent role: quality-agent">
+<rect x="21" y="2367" width="305" height="40" rx="10" fill="url(#grad-blue)" stroke="#bfdbfe" stroke-width="1.5"/>
+<text class="th" x="33" y="2382" text-anchor="start" dominant-baseline="central" font-weight="600">quality-agent</text>
+<text class="txs" x="33" y="2397" text-anchor="start" dominant-baseline="central" opacity="0.6">skill-evaluator</text>
+</g>
+<g class="card" role="img" aria-label="Agent role: meta-agent">
+<rect x="354" y="2367" width="305" height="40" rx="10" fill="url(#grad-templates)" stroke="#e9d5ff" stroke-width="1.5"/>
+<text class="th" x="366" y="2382" text-anchor="start" dominant-baseline="central" font-weight="600">meta-agent</text>
+<text class="txs" x="366" y="2397" text-anchor="start" dominant-baseline="central" opacity="0.6">skill-creator</text>
+</g>
+<text class="section-label" x="340" y="2432" text-anchor="middle" dominant-baseline="central">HANDOFF PROTOCOL</text>
 <g class="card" role="img" aria-label="Handoff: .agents/context/workflow-state.json">
-<rect x="21" y="2407" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="th" x="126" y="2420" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/context/workflow-state.json</text>
-<text class="txs" x="126" y="2434" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
+<rect x="21" y="2457" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="th" x="126" y="2470" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/context/workflow-state.json</text>
+<text class="txs" x="126" y="2484" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
 </g>
 <g class="card" role="img" aria-label="Handoff: workflow-state.json">
-<rect x="239" y="2407" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="th" x="344" y="2420" text-anchor="middle" dominant-baseline="central" font-weight="500">workflow-state.json</text>
-<text class="txs" x="344" y="2434" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
+<rect x="239" y="2457" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="th" x="344" y="2470" text-anchor="middle" dominant-baseline="central" font-weight="500">workflow-state.json</text>
+<text class="txs" x="344" y="2484" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
 </g>
 <g class="card" role="img" aria-label="Handoff: .agents/aggregated/metrics.jsonl">
-<rect x="457" y="2407" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="th" x="562" y="2420" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/aggregated/metrics.jsonl</text>
-<text class="txs" x="562" y="2434" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
+<rect x="457" y="2457" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="th" x="562" y="2470" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/aggregated/metrics.jsonl</text>
+<text class="txs" x="562" y="2484" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
 </g>
 </g>
-<line x1="20" y1="2482" x2="660" y2="2482" stroke="#f1f5f9" stroke-width="1"/>
+<line x1="20" y1="2532" x2="660" y2="2532" stroke="#f1f5f9" stroke-width="1"/>
 <g id="error-handling" role="region" aria-label="Error handling patterns">
-<text class="section-label" x="340" y="2512" text-anchor="middle" dominant-baseline="central">ERROR HANDLING PATTERNS</text>
+<text class="section-label" x="340" y="2562" text-anchor="middle" dominant-baseline="central">ERROR HANDLING PATTERNS</text>
 <g class="card" role="img" aria-label="Error strategy: thiserror">
-<rect x="21" y="2542" width="305" height="45" rx="10" fill="url(#grad-core)" stroke="#bfdbfe" stroke-width="1.5"/>
-<text class="th" x="36" y="2558" text-anchor="start" dominant-baseline="central" font-weight="600">thiserror</text>
-<text class="txs" x="36" y="2574" text-anchor="start" dominant-baseline="central" opacity="0.6">Library error types — 7 crates using derive macro</text>
+<rect x="21" y="2592" width="305" height="45" rx="10" fill="url(#grad-core)" stroke="#bfdbfe" stroke-width="1.5"/>
+<text class="th" x="36" y="2608" text-anchor="start" dominant-baseline="central" font-weight="600">thiserror</text>
+<text class="txs" x="36" y="2624" text-anchor="start" dominant-baseline="central" opacity="0.6">Library error types — 7 crates using derive macro</text>
 </g>
 <g class="card" role="img" aria-label="Error strategy: anyhow">
-<rect x="354" y="2542" width="305" height="45" rx="10" fill="url(#grad-apps)" stroke="#fde68a" stroke-width="1.5"/>
-<text class="th" x="369" y="2558" text-anchor="start" dominant-baseline="central" font-weight="600">anyhow</text>
-<text class="txs" x="369" y="2574" text-anchor="start" dominant-baseline="central" opacity="0.6">Application errors — Context-rich error propagation</text>
-</g>
-<text class="section-label" x="340" y="2607" text-anchor="middle" dominant-baseline="central">CRATE ERROR TYPES</text>
-<g class="card-soft" role="img" aria-label="Error type: ToolError from mcp-server-template">
-<rect x="21" y="2632" width="638" height="40" rx="8" fill="url(#grad-rose)" stroke="#fecdd3" stroke-width="1.5"/>
-<text class="th" x="36" y="2646" text-anchor="start" dominant-baseline="central" font-weight="600">ToolError</text>
-<text class="txs" x="36" y="2662" text-anchor="start" dominant-baseline="central" opacity="0.6">Invalid · Invalid</text>
-<text class="txs" x="644" y="2646" text-anchor="end" dominant-baseline="central" opacity="0.4">mcp-server-template</text>
-</g>
-<g class="card-soft" role="img" aria-label="Error type: ValidationError from mcp-server-template">
-<rect x="21" y="2678" width="638" height="40" rx="8" fill="url(#grad-rose)" stroke="#fecdd3" stroke-width="1.5"/>
-<text class="th" x="36" y="2692" text-anchor="start" dominant-baseline="central" font-weight="600">ValidationError</text>
-<text class="txs" x="36" y="2708" text-anchor="start" dominant-baseline="central" opacity="0.6">Missing · Missing</text>
-<text class="txs" x="644" y="2692" text-anchor="end" dominant-baseline="central" opacity="0.4">mcp-server-template</text>
-</g>
-<g class="card-soft" role="img" aria-label="Error type: ServerError from mcp-server-template">
-<rect x="21" y="2724" width="638" height="40" rx="8" fill="url(#grad-rose)" stroke="#fecdd3" stroke-width="1.5"/>
-<text class="th" x="36" y="2738" text-anchor="start" dominant-baseline="central" font-weight="600">ServerError</text>
-<text class="txs" x="36" y="2754" text-anchor="start" dominant-baseline="central" opacity="0.6">Tool · Tool</text>
-<text class="txs" x="644" y="2738" text-anchor="end" dominant-baseline="central" opacity="0.4">mcp-server-template</text>
-</g>
-<g class="card-soft" role="img" aria-label="Error type: AppError from sample-app">
-<rect x="21" y="2770" width="638" height="40" rx="8" fill="url(#grad-rose)" stroke="#fecdd3" stroke-width="1.5"/>
-<text class="th" x="36" y="2784" text-anchor="start" dominant-baseline="central" font-weight="600">AppError</text>
-<text class="txs" x="36" y="2800" text-anchor="start" dominant-baseline="central" opacity="0.6">IO · IO</text>
-<text class="txs" x="644" y="2784" text-anchor="end" dominant-baseline="central" opacity="0.4">sample-app</text>
-</g>
-<g class="card-soft" role="img" aria-label="Error type: StorageError from hybrid-storage-template">
-<rect x="21" y="2816" width="638" height="40" rx="8" fill="url(#grad-rose)" stroke="#fecdd3" stroke-width="1.5"/>
-<text class="th" x="36" y="2830" text-anchor="start" dominant-baseline="central" font-weight="600">StorageError</text>
-<text class="txs" x="36" y="2846" text-anchor="start" dominant-baseline="central" opacity="0.6">Key · Key</text>
-<text class="txs" x="644" y="2830" text-anchor="end" dominant-baseline="central" opacity="0.4">hybrid-storage-template</text>
+<rect x="354" y="2592" width="305" height="45" rx="10" fill="url(#grad-apps)" stroke="#fde68a" stroke-width="1.5"/>
+<text class="th" x="369" y="2608" text-anchor="start" dominant-baseline="central" font-weight="600">anyhow</text>
+<text class="txs" x="369" y="2624" text-anchor="start" dominant-baseline="central" opacity="0.6">Application errors — Context-rich error propagation</text>
 </g>
 </g>
-<line x1="20" y1="2897" x2="660" y2="2897" stroke="#f1f5f9" stroke-width="1"/>
+<line x1="20" y1="2677" x2="660" y2="2677" stroke="#f1f5f9" stroke-width="1"/>
 <g id="data-flow" role="region" aria-label="Data flow patterns">
-<text class="section-label" x="340" y="2927" text-anchor="middle" dominant-baseline="central">DATA FLOW · COMPONENT INTERACTIONS</text>
-<text class="section-label" x="340" y="2957" text-anchor="middle" dominant-baseline="central">KEY DATA TYPES</text>
+<text class="section-label" x="340" y="2707" text-anchor="middle" dominant-baseline="central">DATA FLOW · COMPONENT INTERACTIONS</text>
+<text class="section-label" x="340" y="2737" text-anchor="middle" dominant-baseline="central">KEY DATA TYPES</text>
 <g class="card-soft" role="img" aria-label="Data type: EchoTool">
-<rect x="21" y="2982" width="305" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="th" x="33" y="2995" text-anchor="start" dominant-baseline="central" font-weight="500">EchoTool</text>
-<text class="txs" x="33" y="3009" text-anchor="start" dominant-baseline="central" opacity="0.5">Tool that echoes the input back. — mcp-server-template</text>
+<rect x="21" y="2762" width="305" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="th" x="33" y="2775" text-anchor="start" dominant-baseline="central" font-weight="500">EchoTool</text>
+<text class="txs" x="33" y="2789" text-anchor="start" dominant-baseline="central" opacity="0.5">Tool that echoes the input back. — mcp-server-template</text>
 </g>
 <g class="card-soft" role="img" aria-label="Data type: CalcTool">
-<rect x="354" y="2982" width="305" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="th" x="366" y="2995" text-anchor="start" dominant-baseline="central" font-weight="500">CalcTool</text>
-<text class="txs" x="366" y="3009" text-anchor="start" dominant-baseline="central" opacity="0.5">Calculator tool supporting basic arithmetic. — mcp-server-template</text>
+<rect x="354" y="2762" width="305" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="th" x="366" y="2775" text-anchor="start" dominant-baseline="central" font-weight="500">CalcTool</text>
+<text class="txs" x="366" y="2789" text-anchor="start" dominant-baseline="central" opacity="0.5">Calculator tool supporting basic arithmetic. — mcp-server-template</text>
 </g>
 <g class="card-soft" role="img" aria-label="Data type: McpServer">
-<rect x="21" y="3025" width="305" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="th" x="33" y="3038" text-anchor="start" dominant-baseline="central" font-weight="500">McpServer</text>
-<text class="txs" x="33" y="3052" text-anchor="start" dominant-baseline="central" opacity="0.5">MCP server with registered tools. — mcp-server-template</text>
+<rect x="21" y="2805" width="305" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="th" x="33" y="2818" text-anchor="start" dominant-baseline="central" font-weight="500">McpServer</text>
+<text class="txs" x="33" y="2832" text-anchor="start" dominant-baseline="central" opacity="0.5">MCP server with registered tools. — mcp-server-template</text>
 </g>
 <g class="card-soft" role="img" aria-label="Data type: HybridStorage">
-<rect x="354" y="3025" width="305" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="th" x="366" y="3038" text-anchor="start" dominant-baseline="central" font-weight="500">HybridStorage</text>
-<text class="txs" x="366" y="3052" text-anchor="start" dominant-baseline="central" opacity="0.5">Hybrid storage combining multiple backends. — hybrid-storage-template</text>
+<rect x="354" y="2805" width="305" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="th" x="366" y="2818" text-anchor="start" dominant-baseline="central" font-weight="500">HybridStorage</text>
+<text class="txs" x="366" y="2832" text-anchor="start" dominant-baseline="central" opacity="0.5">Hybrid storage combining multiple backends. — hybrid-storage-template</text>
 </g>
 </g>
-<line x1="20" y1="3103" x2="660" y2="3103" stroke="#f1f5f9" stroke-width="1"/>
+<line x1="20" y1="2883" x2="660" y2="2883" stroke="#f1f5f9" stroke-width="1"/>
 <g id="commands" role="region" aria-label="Interface protocols and commands">
-<text class="section-label" x="340" y="3133" text-anchor="middle" dominant-baseline="central">INTERFACE PROTOCOLS</text>
+<text class="section-label" x="340" y="2913" text-anchor="middle" dominant-baseline="central">INTERFACE PROTOCOLS</text>
 <g class="card-soft" role="img" aria-label="Command: /generate-docs">
-<rect x="20" y="3168" width="310" height="30" rx="15" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="ts" x="175" y="3183" text-anchor="middle" dominant-baseline="central" font-weight="500">/generate-docs</text>
+<rect x="20" y="2948" width="310" height="30" rx="15" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="ts" x="175" y="2963" text-anchor="middle" dominant-baseline="central" font-weight="500">/generate-docs</text>
 </g>
 <g class="card-soft" role="img" aria-label="Command: /resume">
-<rect x="345" y="3168" width="310" height="30" rx="15" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
-<text class="ts" x="500" y="3183" text-anchor="middle" dominant-baseline="central" font-weight="500">/resume</text>
+<rect x="345" y="2948" width="310" height="30" rx="15" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
+<text class="ts" x="500" y="2963" text-anchor="middle" dominant-baseline="central" font-weight="500">/resume</text>
 </g>
 </g>
-<line x1="140" y1="3266" x2="540" y2="3266" stroke="#f1f5f9" stroke-width="1"/>
-<text class="txs" x="340" y="3286" text-anchor="middle" dominant-baseline="central" opacity="0.25" font-weight="700">RUST 2026 WORKSPACE · MAINTAINER · 2026 EDITION</text>
+<line x1="140" y1="3046" x2="540" y2="3046" stroke="#f1f5f9" stroke-width="1"/>
+<text class="txs" x="340" y="3066" text-anchor="middle" dominant-baseline="central" opacity="0.25" font-weight="700">RUST 2026 WORKSPACE · MAINTAINER · 2026 EDITION</text>
 </svg>
