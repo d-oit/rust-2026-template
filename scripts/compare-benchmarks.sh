@@ -10,15 +10,11 @@ cd "$REPO_ROOT" || exit 1
 # --- Colors ---
 if [[ -t 1 ]] && [[ "${FORCE_COLOR:-}" != "0" ]]; then
   RED='\033[0;31m'
-  GREEN='\033[0;32m'
   YELLOW='\033[1;33m'
-  BLUE='\033[0;34m'
   NC='\033[0m'
 else
   RED=''
-  GREEN=''
   YELLOW=''
-  BLUE=''
   NC=''
 fi
 

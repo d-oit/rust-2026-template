@@ -6,41 +6,41 @@
 
 1. **Single Source of Truth (ADR-0001)**: `AGENTS.md` is the canonical instruction file. Tool-specific files (`CLAUDE.md`, `GEMINI.md`, etc.) contain only thin adapters with `@AGENTS.md` references. This prevents instruction drift across agent platforms.
 
-2. **CI Path Filtering (ADR-0002)**: Using `dorny/paths-filter` to detect changed files before running expensive CI jobs. This reduces CI time by ~60% for documentation-only changes.
+1. **CI Path Filtering (ADR-0002)**: Using `dorny/paths-filter` to detect changed files before running expensive CI jobs. This reduces CI time by ~60% for documentation-only changes.
 
-3. **Template Crate Patterns (ADR-0003)**: Workspace member crates demonstrate different architectural patterns (actor model, storage, MCP server, checkpoint). Each pattern is self-contained with its own README.
+1. **Template Crate Patterns (ADR-0003)**: Workspace member crates demonstrate different architectural patterns (actor model, storage, MCP server, checkpoint). Each pattern is self-contained with its own README.
 
 ### Quality Gates
 
-4. **11-Stage Quality Gate**: The quality gate script auto-detects languages and runs appropriate checks. Adding a new language requires only adding detection logic and check commands.
+1. **11-Stage Quality Gate**: The quality gate script auto-detects languages and runs appropriate checks. Adding a new language requires only adding detection logic and check commands.
 
-5. **Pre-commit + CI Defense in Depth**: Pre-commit hooks catch issues locally; CI catches what slips through. Both run the same underlying checks but in different environments.
+1. **Pre-commit + CI Defense in Depth**: Pre-commit hooks catch issues locally; CI catches what slips through. Both run the same underlying checks but in different environments.
 
-6. **LOC Limit Enforcement**: 500 LOC per source file prevents mega-files. Enforcement happens at pre-commit (git hook) and CI (quality gate).
+1. **LOC Limit Enforcement**: 500 LOC per source file prevents mega-files. Enforcement happens at pre-commit (git hook) and CI (quality gate).
 
 ### Agent Patterns
 
-7. **Skills over Monoliths**: Breaking agent knowledge into discrete skills (18 total) enables reuse and composition. Each skill is self-contained with its own evals.
+1. **Skills over Monoliths**: Breaking agent knowledge into discrete skills (18 total) enables reuse and composition. Each skill is self-contained with its own evals.
 
-8. **Event-Based Metrics**: Writing immutable JSON event files to `.agents/events/YYYY/MM/DD/` prevents merge conflicts and enables historical analysis.
+1. **Event-Based Metrics**: Writing immutable JSON event files to `.agents/events/YYYY/MM/DD/` prevents merge conflicts and enables historical analysis.
 
-9. **Session Bootstrap**: Auto-injecting project context at session start reduces agent orientation time from minutes to seconds.
+1. **Session Bootstrap**: Auto-injecting project context at session start reduces agent orientation time from minutes to seconds.
 
 ### Rust-Specific
 
-10. **Workspace Version Propagation**: Using `version.workspace = true` in member crates ensures version consistency. The `propagate-version.sh` script automates updates.
+1. **Workspace Version Propagation**: Using `version.workspace = true` in member crates ensures version consistency. The `propagate-version.sh` script automates updates.
 
-11. **cargo-deny for Supply Chain**: `deny.toml` enforces license allowlists, bans problematic crates, and checks for known vulnerabilities. Runs in both pre-commit and CI.
+1. **cargo-deny for Supply Chain**: `deny.toml` enforces license allowlists, bans problematic crates, and checks for known vulnerabilities. Runs in both pre-commit and CI.
 
-12. **nextest over cargo test**: Parallel test execution with `cargo-nextest` reduces test time by ~40%. Profile configurations in `.config/nextest.toml`.
+1. **nextest over cargo test**: Parallel test execution with `cargo-nextest` reduces test time by ~40%. Profile configurations in `.config/nextest.toml`.
 
 ### CI/CD
 
-13. **SHA-Pinned Actions**: All GitHub Actions are pinned to commit SHAs, not tags. This prevents supply-chain attacks via tag mutation.
+1. **SHA-Pinned Actions**: All GitHub Actions are pinned to commit SHAs, not tags. This prevents supply-chain attacks via tag mutation.
 
-14. **DORA Metrics Integration**: Automated tracking of Deployment Frequency, Lead Time, Change Failure Rate, and Failed Deployment Recovery Time via workflow events.
+1. **DORA Metrics Integration**: Automated tracking of Deployment Frequency, Lead Time, Change Failure Rate, and Failed Deployment Recovery Time via workflow events.
 
-15. **Self-Learning Labels**: `learn-labels.sh` mines commits, issues, and PRs to discover missing labels. The label set evolves with the project.
+1. **Self-Learning Labels**: `learn-labels.sh` mines commits, issues, and PRs to discover missing labels. The label set evolves with the project.
 
 ## Common Pitfalls
 
