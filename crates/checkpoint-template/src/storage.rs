@@ -101,7 +101,10 @@ impl FileStorage {
 
         // Security (2026): Use a capacity-limited reader to prevent OOM
         // if the file grows between metadata check and read (though rare on handles).
-        let mut data = Vec::with_capacity(file_size as usize);
+        let data_capacity =
+            usize::try_from(file_size).map_err(|_| StorageError::TooLarge(file_size))?;
+        let mut data = Vec::with_capacity(data_capacity);
+
         use tokio::io::AsyncReadExt;
         let mut reader = file.take(MAX_CHECKPOINT_SIZE);
         reader
@@ -120,7 +123,9 @@ impl FileStorage {
             .deserialize_from(&mut cursor)
             .map_err(|_| StorageError::Serialization)?;
 
-        let payload = data[cursor.position() as usize..].to_vec();
+        let payload_start =
+            usize::try_from(cursor.position()).map_err(|_| StorageError::Serialization)?;
+        let payload = data[payload_start..].to_vec();
         Ok((header, payload))
     }
 }
