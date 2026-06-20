@@ -9,7 +9,7 @@ python generate_diagram.py [--root .] [--out .template/architecture.svg]
 import argparse
 import json
 import re
-import subprocess
+import subprocess  # nosec B404
 import sys
 from pathlib import Path
 
