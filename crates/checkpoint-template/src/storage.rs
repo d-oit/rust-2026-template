@@ -3,9 +3,11 @@
 use super::CheckpointHeader;
 pub use super::MigrationError;
 use std::path::PathBuf;
-use std::time::SystemTime;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
+
+/// Default maximum size for a checkpoint file (10MB).
+pub const DEFAULT_MAX_CHECKPOINT_SIZE: u64 = 10 * 1024 * 1024;
 
 /// Storage error types.
 #[derive(Debug, thiserror::Error)]
@@ -21,6 +23,14 @@ pub enum StorageError {
     /// Checkpoint not found.
     #[error("Checkpoint not found")]
     NotFound,
+
+    /// Checkpoint file too large.
+    #[error("Checkpoint too large: {0} bytes")]
+    TooLarge(u64),
+
+    /// Invalid file type.
+    #[error("Invalid file type")]
+    InvalidType,
 }
 
 /// File-based checkpoint storage with atomic writes.
@@ -41,12 +51,15 @@ impl FileStorage {
         let temp_path = self.path.with_extension("tmp");
         let final_path = self.path.with_extension("ckpt");
 
-        let combined: Vec<u8> =
-            bincode::serialize(&(header.version, header.created_at, header.app_name.clone()))
-                .map_err(|_| StorageError::Serialization)?
-                .into_iter()
-                .chain(data.iter().copied())
-                .collect();
+        use bincode::Options;
+        let options = bincode::options();
+
+        let combined: Vec<u8> = options
+            .serialize(header)
+            .map_err(|_| StorageError::Serialization)?
+            .into_iter()
+            .chain(data.iter().copied())
+            .collect();
 
         let mut file = fs::File::create(&temp_path)
             .await
@@ -61,10 +74,16 @@ impl FileStorage {
         Ok(())
     }
 
-    /// Load checkpoint data.
-    pub async fn load(&self) -> Result<(CheckpointHeader, Vec<u8>), StorageError> {
+    /// Load checkpoint data with a specific size limit.
+    pub async fn load_with_limit(
+        &self,
+        max_size: u64,
+    ) -> Result<(CheckpointHeader, Vec<u8>), StorageError> {
         let final_path = self.path.with_extension("ckpt");
-        let data = fs::read(&final_path).await.map_err(|e| {
+
+        // Security (2026): Open file FIRST to avoid TOCTOU (Time-of-Check to Time-of-Use)
+        // vulnerabilities. Using the file handle for subsequent metadata checks.
+        let file = fs::File::open(&final_path).await.map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
                 StorageError::NotFound
             } else {
@@ -72,18 +91,50 @@ impl FileStorage {
             }
         })?;
 
+        let metadata = file.metadata().await.map_err(StorageError::Io)?;
+
+        if !metadata.is_file() {
+            return Err(StorageError::InvalidType);
+        }
+
+        let file_size = metadata.len();
+        if file_size > max_size {
+            return Err(StorageError::TooLarge(file_size));
+        }
+
+        // Security (2026): Use a capacity-limited reader to prevent OOM
+        // if the file grows between metadata check and read (though rare on handles).
+        let data_capacity =
+            usize::try_from(file_size).map_err(|_| StorageError::TooLarge(file_size))?;
+        let mut data = Vec::with_capacity(data_capacity);
+
+        use tokio::io::AsyncReadExt;
+        let mut reader = file.take(max_size);
+        reader
+            .read_to_end(&mut data)
+            .await
+            .map_err(StorageError::Io)?;
+
         let mut cursor = std::io::Cursor::new(&data);
-        let (version, created_at, app_name): (u32, SystemTime, String) =
-            bincode::deserialize_from(&mut cursor).map_err(|_| StorageError::Serialization)?;
+        // Security: Use bincode with a size limit to prevent resource exhaustion.
+        use bincode::Options;
+        let options = bincode::options()
+            .with_limit(max_size)
+            .allow_trailing_bytes();
 
-        let header = CheckpointHeader {
-            version,
-            created_at,
-            app_name,
-        };
+        let header: CheckpointHeader = options
+            .deserialize_from(&mut cursor)
+            .map_err(|_| StorageError::Serialization)?;
 
-        let payload = data[usize::try_from(cursor.position()).unwrap_or(0)..].to_vec();
+        let payload_start =
+            usize::try_from(cursor.position()).map_err(|_| StorageError::Serialization)?;
+        let payload = data[payload_start..].to_vec();
         Ok((header, payload))
+    }
+
+    /// Load checkpoint data using default limit (10MB).
+    pub async fn load(&self) -> Result<(CheckpointHeader, Vec<u8>), StorageError> {
+        self.load_with_limit(DEFAULT_MAX_CHECKPOINT_SIZE).await
     }
 }
 
