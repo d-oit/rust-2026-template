@@ -452,7 +452,7 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
     for i, (file_path, desc) in enumerate(handoff_items):
         cx = 21 + i * 218
         push(f'<g class="card" role="img" aria-label="Handoff: {file_path}">')
-        push(_rect(cx, y_cursor, 210, 35, rx=8, color_key="memory"))
+        push(_rect(cx, y_cursor, 210, 35, rx=8, color_key="interface"))
         push(_text(cx + 105, y_cursor + 13, file_path, cls="th", weight="500"))
         push(_text(cx + 105, y_cursor + 27, desc, cls="txs", opacity="0.5"))
         push("</g>")

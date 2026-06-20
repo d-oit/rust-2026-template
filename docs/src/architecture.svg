@@ -255,17 +255,17 @@
 </g>
 <text class="section-label" x="340" y="2047" text-anchor="middle" dominant-baseline="central">HANDOFF PROTOCOL</text>
 <g class="card" role="img" aria-label="Handoff: workflow-state.json">
-<rect x="21" y="2072" width="210" height="35" rx="8" fill="url(#grad-memory)" stroke="#bfdbfe" stroke-width="1.5"/>
+<rect x="21" y="2072" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
 <text class="th" x="126" y="2085" text-anchor="middle" dominant-baseline="central" font-weight="500">workflow-state.json</text>
 <text class="txs" x="126" y="2099" text-anchor="middle" dominant-baseline="central" opacity="0.5">Live state tracking</text>
 </g>
 <g class="card" role="img" aria-label="Handoff: .agents/events/">
-<rect x="239" y="2072" width="210" height="35" rx="8" fill="url(#grad-memory)" stroke="#bfdbfe" stroke-width="1.5"/>
+<rect x="239" y="2072" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
 <text class="th" x="344" y="2085" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/events/</text>
 <text class="txs" x="344" y="2099" text-anchor="middle" dominant-baseline="central" opacity="0.5">Immutable event files</text>
 </g>
 <g class="card" role="img" aria-label="Handoff: metrics.jsonl">
-<rect x="457" y="2072" width="210" height="35" rx="8" fill="url(#grad-memory)" stroke="#bfdbfe" stroke-width="1.5"/>
+<rect x="457" y="2072" width="210" height="35" rx="8" fill="url(#grad-interface)" stroke="#e2e8f0" stroke-width="1.5"/>
 <text class="th" x="562" y="2085" text-anchor="middle" dominant-baseline="central" font-weight="500">metrics.jsonl</text>
 <text class="txs" x="562" y="2099" text-anchor="middle" dominant-baseline="central" opacity="0.5">Aggregated metrics</text>
 </g>
