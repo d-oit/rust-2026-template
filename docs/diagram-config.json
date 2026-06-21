@@ -6,26 +6,27 @@
     {
       "name": "ANALYZE",
       "color": "teal",
-      "desc": "lint · clippy",
-      "timing": "Every push · ~2 min"
+      "desc": "lint \u00b7 clippy",
+      "timing": "Every push \u00b7 ~2 min"
     },
     {
       "name": "VALIDATE",
       "color": "blue",
-      "desc": "test · nextest",
-      "timing": "Every push · ~5 min"
+      "desc": "test \u00b7 nextest",
+      "timing": "Every push \u00b7 ~5 min"
     },
     {
       "name": "HARDEN",
       "color": "rose",
-      "desc": "audit · deny",
+      "desc": "audit \u00b7 deny",
       "timing": "Weekly + pre-release"
     },
     {
       "name": "DEPLOY",
       "color": "green",
-      "desc": "release · publish",
-      "timing": "Tag-triggered · ~4 min"
+      "desc": "release \u00b7 publish",
+      "timing": "Tag-triggered \u00b7 ~4 min"
     }
-  ]
+  ],
+  "_comment": "Trigger workflow test"
 }
