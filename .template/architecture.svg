@@ -318,25 +318,25 @@
 <g id="data-flow" role="region" aria-label="Data flow patterns">
 <text class="section-label" x="600" y="2568" text-anchor="middle" dominant-baseline="central">DATA FLOW · COMPONENT INTERACTIONS</text>
 <text class="section-label" x="600" y="2598" text-anchor="middle" dominant-baseline="central">KEY DATA TYPES</text>
-<g class="card-soft" role="img" aria-label="Data type: EchoTool">
-<rect x="30" y="2623" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="45" y="2638" text-anchor="start" dominant-baseline="central" font-weight="500">EchoTool</text>
-<text class="txs" x="45" y="2653" text-anchor="start" dominant-baseline="central" opacity="0.5">Tool that echoes the input back. — mcp-server-template</text>
-</g>
-<g class="card-soft" role="img" aria-label="Data type: CalcTool">
-<rect x="620" y="2623" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="635" y="2638" text-anchor="start" dominant-baseline="central" font-weight="500">CalcTool</text>
-<text class="txs" x="635" y="2653" text-anchor="start" dominant-baseline="central" opacity="0.5">Calculator tool supporting basic arithmetic. — mcp-server-template</text>
-</g>
-<g class="card-soft" role="img" aria-label="Data type: McpServer">
-<rect x="30" y="2671" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="45" y="2686" text-anchor="start" dominant-baseline="central" font-weight="500">McpServer</text>
-<text class="txs" x="45" y="2701" text-anchor="start" dominant-baseline="central" opacity="0.5">MCP server with registered tools. — mcp-server-template</text>
-</g>
 <g class="card-soft" role="img" aria-label="Data type: HybridStorage">
+<rect x="30" y="2623" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="45" y="2638" text-anchor="start" dominant-baseline="central" font-weight="500">HybridStorage</text>
+<text class="txs" x="45" y="2653" text-anchor="start" dominant-baseline="central" opacity="0.5">Hybrid storage combining multiple backends. — hybrid-storage-template</text>
+</g>
+<g class="card-soft" role="img" aria-label="Data type: SqliteBackend">
+<rect x="620" y="2623" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="635" y="2638" text-anchor="start" dominant-baseline="central" font-weight="500">SqliteBackend</text>
+<text class="txs" x="635" y="2653" text-anchor="start" dominant-baseline="central" opacity="0.5">SQLite backend using libSQL/Turso. — hybrid-storage-template</text>
+</g>
+<g class="card-soft" role="img" aria-label="Data type: MemoryBackend">
+<rect x="30" y="2671" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="45" y="2686" text-anchor="start" dominant-baseline="central" font-weight="500">MemoryBackend</text>
+<text class="txs" x="45" y="2701" text-anchor="start" dominant-baseline="central" opacity="0.5">Memory backend for testing. — hybrid-storage-template</text>
+</g>
+<g class="card-soft" role="img" aria-label="Data type: MigrationRegistry">
 <rect x="620" y="2671" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="635" y="2686" text-anchor="start" dominant-baseline="central" font-weight="500">HybridStorage</text>
-<text class="txs" x="635" y="2701" text-anchor="start" dominant-baseline="central" opacity="0.5">Hybrid storage combining multiple backends. — hybrid-storage-template</text>
+<text class="th" x="635" y="2686" text-anchor="start" dominant-baseline="central" font-weight="500">MigrationRegistry</text>
+<text class="txs" x="635" y="2701" text-anchor="start" dominant-baseline="central" opacity="0.5">Migration registry for handling schema changes. — checkpoint-template</text>
 </g>
 </g>
 <line x1="30" y1="2754" x2="1170" y2="2754" stroke="#e2e8f0" stroke-width="1"/>
