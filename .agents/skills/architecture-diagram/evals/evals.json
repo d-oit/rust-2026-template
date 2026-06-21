@@ -1,0 +1,156 @@
+[
+  {
+    "id": "basic-generation",
+    "prompt": "Generate the architecture diagram for this workspace",
+    "expected_output": "SVG file written to .template/architecture.svg containing workspace topology, crate cards, dependency arrows, skills list, and pipeline stages",
+    "assertions": [
+      {
+        "type": "file_exists",
+        "path": ".template/architecture.svg"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "<svg"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "SYSTEM ARCHITECTURE"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "WORKSPACE TOPOLOGY"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "PIPELINE ORCHESTRATION"
+      }
+    ]
+  },
+  {
+    "id": "crate-discovery",
+    "prompt": "Generate the architecture diagram and verify all workspace crates are discovered",
+    "expected_output": "SVG contains cards for all 11 workspace crates: rust-2026-template, sample-app, benchmarks, actor-runtime-template, checkpoint-template, hybrid-storage-template, mcp-server-template, example-crate, example-registry-pattern, example-storage-pattern, hello-world-example",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "rust-2026-template"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "sample-app"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "benchmarks"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "hybrid-storage-template"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "mcp-server-template"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "hello-world-example"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "example-crate"
+      }
+    ]
+  },
+  {
+    "id": "no-overlaps",
+    "prompt": "Generate the architecture diagram and verify no overlapping elements",
+    "expected_output": "SVG cards have non-overlapping bounding boxes, no text is clipped",
+    "assertions": [
+      {
+        "type": "file_exists",
+        "path": ".template/architecture.svg"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "role=\"img\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "aria-label"
+      }
+    ]
+  },
+  {
+    "id": "text-readability",
+    "prompt": "Generate the architecture diagram and verify text is readable (no tiny fonts)",
+    "expected_output": "SVG uses font-size >= 11px for all text, no opacity below 0.5 except footer",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "font-size:11px"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "font-size:12.5px"
+      },
+      {
+        "type": "content_not_contains",
+        "path": ".template/architecture.svg",
+        "value": "font-size:10px"
+      }
+    ]
+  },
+  {
+    "id": "dependency-arrows",
+    "prompt": "Generate the architecture diagram and verify dependency arrows exist",
+    "expected_output": "SVG contains dependency arrow paths for benchmarks -> rust-2026-template, benchmarks -> sample-app, hello-world-example -> example-crate",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "Dependency: benchmarks depends on rust-2026-template"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "Dependency: benchmarks depends on sample-app"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "Dependency: hello-world-example depends on example-crate"
+      }
+    ]
+  },
+  {
+    "id": "grid-fallback",
+    "prompt": "Generate the architecture diagram with --no-graphviz flag",
+    "expected_output": "SVG file written successfully using grid layout fallback",
+    "assertions": [
+      {
+        "type": "file_exists",
+        "path": ".template/architecture.svg"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "WORKSPACE TOPOLOGY"
+      }
+    ]
+  }
+]

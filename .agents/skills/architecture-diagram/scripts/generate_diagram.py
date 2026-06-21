@@ -10,6 +10,7 @@ Scans the live project structure, including Rust workspace, and writes an archit
 - Minimal notation (less visual noise, clearer relationships)
 - Machine-readable structure (semantic <g> groups with IDs)
 - NO hardcoded values - everything discovered from codebase
+- 1200px landscape format with descriptions inside elements
 
 Usage:
 python generate_diagram.py [--root .] [--out .template/architecture.svg]
@@ -20,6 +21,14 @@ import re
 import subprocess  # nosec B404
 import sys
 from pathlib import Path
+
+# ── Layout Constants ───────────────────────────────────────────────────────
+VIEWBOX_W = 1200
+VIEWBOX_MARGIN = 30
+CENTER_X = VIEWBOX_W // 2
+RIGHT_EDGE = VIEWBOX_W - VIEWBOX_MARGIN
+GAP_X = 40
+GAP_Y = 30
 
 # ── Modern 2026 Style Configuration ─────────────────────────────────────────
 THEME = {
@@ -41,7 +50,6 @@ THEME = {
     },
     "font": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     "radius": 14,
-    "shadow": "0 2px 4px rgba(0,0,0,0.05)"
 }
 
 DEFAULT_CONFIG = {
@@ -64,7 +72,8 @@ def _read_frontmatter_name(path: Path) -> str:
 
 def discover_skills(root: Path) -> list[str]:
     skills_dir = root / ".agents" / "skills"
-    if not skills_dir.is_dir(): return []
+    if not skills_dir.is_dir():
+        return []
     return [
         _read_frontmatter_name(d / "SKILL.md")
         for d in sorted(skills_dir.iterdir())
@@ -73,12 +82,14 @@ def discover_skills(root: Path) -> list[str]:
 
 def discover_agents(root: Path) -> list[str]:
     agents_dir = root / ".opencode" / "agents"
-    if not agents_dir.is_dir(): return []
+    if not agents_dir.is_dir():
+        return []
     return sorted(p.stem for p in agents_dir.glob("*.md"))
 
 def discover_commands(root: Path) -> list[str]:
     commands_dir = root / ".opencode" / "commands"
-    if not commands_dir.is_dir(): return []
+    if not commands_dir.is_dir():
+        return []
     return sorted(
         (p.stem if p.stem.startswith("/") else "/" + p.stem)
         for p in commands_dir.glob("*.md")
@@ -110,7 +121,6 @@ def discover_crates(root: Path) -> list[dict]:
         return []
 
 def discover_error_types(root: Path) -> list[dict]:
-    """Discover error enums from codebase."""
     error_types = []
     crates_dir = root / "crates"
     if not crates_dir.is_dir():
@@ -121,21 +131,18 @@ def discover_error_types(root: Path) -> list[dict]:
         for rs_file in crate_dir.rglob("*.rs"):
             try:
                 content = rs_file.read_text(encoding="utf-8")
-                # Find error enums
                 for match in re.finditer(r'pub enum (\w*Error)\s*\{([^}]+)\}', content, re.DOTALL):
                     enum_name = match.group(1)
                     variants_text = match.group(2)
-                    # Extract variant names more carefully
                     variants = []
                     for line in variants_text.split('\n'):
                         line = line.strip()
-                        # Match variant names that start with uppercase
                         vm = re.match(r'(\w+)(?:\(|\s|$)', line)
                         if vm:
                             v = vm.group(1)
                             if v[0].isupper() and v not in ('Debug', 'Error', 'Display', 'From', 'Source'):
                                 variants.append(v)
-                    variants = list(dict.fromkeys(variants))  # Dedupe while preserving order
+                    variants = list(dict.fromkeys(variants))
                     if variants and enum_name not in [e["name"] for e in error_types]:
                         error_types.append({
                             "name": enum_name,
@@ -147,14 +154,12 @@ def discover_error_types(root: Path) -> list[dict]:
     return error_types[:5]
 
 def discover_agent_roles(root: Path) -> list[dict]:
-    """Discover agent roles from ORCHESTRATION.md."""
     orch_file = root / ".agents" / "ORCHESTRATION.md"
     if not orch_file.exists():
         return []
     try:
         content = orch_file.read_text(encoding="utf-8")
         roles = []
-        # Parse markdown table for agent roles
         for match in re.finditer(r'\|\s*\*\*(\w+-\w+)\*\*\s*\|[^|]*\|\s*`([^`]+)`', content):
             role_name = match.group(1)
             skills_text = match.group(2)
@@ -171,7 +176,6 @@ def discover_agent_roles(root: Path) -> list[dict]:
         return []
 
 def discover_handoff_items(root: Path) -> list[dict]:
-    """Discover handoff protocol files from ORCHESTRATION.md."""
     orch_file = root / ".agents" / "ORCHESTRATION.md"
     if not orch_file.exists():
         return []
@@ -179,7 +183,6 @@ def discover_handoff_items(root: Path) -> list[dict]:
         content = orch_file.read_text(encoding="utf-8")
         items = []
         seen = set()
-        # Find file references in the handoff protocol section
         for match in re.finditer(r'`([^`]+\.(?:json|jsonl|md))`', content):
             file_path = match.group(1)
             if file_path not in seen:
@@ -190,7 +193,6 @@ def discover_handoff_items(root: Path) -> list[dict]:
         return []
 
 def discover_data_types(root: Path) -> list[dict]:
-    """Discover key data types from codebase."""
     data_types = []
     crates_dir = root / "crates"
     if not crates_dir.is_dir():
@@ -201,7 +203,6 @@ def discover_data_types(root: Path) -> list[dict]:
         for rs_file in crate_dir.rglob("*.rs"):
             try:
                 content = rs_file.read_text(encoding="utf-8")
-                # Find public structs with doc comments
                 for match in re.finditer(r'/// ([^\n]+)\npub struct (\w+)', content):
                     desc = match.group(1)
                     struct_name = match.group(2)
@@ -213,6 +214,158 @@ def discover_data_types(root: Path) -> list[dict]:
             except Exception:
                 continue
     return data_types[:4]
+
+# ── Dynamic Layout Engine ─────────────────────────────────────────────────
+def _estimate_text_width(text: str, font_size: int = 12) -> float:
+    avg_char_w = font_size * 0.62
+    return len(text) * avg_char_w
+
+def _compute_card_dimensions(crate: dict, card_w: int = 340) -> tuple[int, int]:
+    name_w = _estimate_text_width(crate["name"], font_size=13)
+    desc = crate.get("description", "")
+    desc_lines = _wrap_text(desc, max_chars=max(int(card_w / 7), 30))
+    desc_h = len(desc_lines) * 16 if desc_lines else 0
+    features = crate.get("features", [])
+    feat_h = 26 if features else 0
+    card_h = 70 + desc_h + feat_h + 10
+    return card_w, card_h
+
+def _has_graphviz() -> bool:
+    try:
+        result = subprocess.run(  # nosec B603
+            ["dot", "-V"], capture_output=True, text=True, timeout=5, shell=False,
+        )
+        return result.returncode == 0 or "graphviz" in result.stderr.lower()
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return False
+
+def _layout_with_graphviz(crates: list[dict], layers: dict, y_start: int, viewbox_w: int) -> dict:
+    dot_lines = ['digraph G {', '  rankdir=TB;', '  node [shape=box, style=filled, fontname="Inter"];', '  edge [style=invis];']
+    rank_groups = {}
+    for layer_name in ["apps", "core", "templates", "other"]:
+        layer_crates = layers.get(layer_name, [])
+        if layer_crates:
+            names = [c["name"] for c in layer_crates]
+            rank_groups[layer_name] = names
+            dot_lines.append(f'  {{ rank=same; {"; ".join(f"{n}" for n in names)}; }}')
+
+    for crate in crates:
+        safe = crate["name"].replace("-", "_").replace(".", "_")
+        label = crate["name"].replace("&", "&&")
+        dot_lines.append(f'  {safe} [label="{label}", fillcolor="#eff6ff", fontcolor="#1e40af"];')
+
+    for crate in crates:
+        src = crate["name"].replace("-", "_").replace(".", "_")
+        for dep in crate["dependencies"]:
+            dst = dep.replace("-", "_").replace(".", "_")
+            dot_lines.append(f'  {src} -> {dst};')
+    dot_lines.append('}')
+    dot_src = "\n".join(dot_lines)
+    try:
+        result = subprocess.run(  # nosec B603
+            ["dot", "-Tjson"], input=dot_src, capture_output=True, text=True,
+            timeout=30, shell=False,
+        )
+        if result.returncode != 0:
+            return {}
+        data = json.loads(result.stdout)
+        objects = data.get("objects", [])
+        if not objects:
+            return {}
+        min_x = min(obj.get("pos", "0,0").split(",")[0].strip("!") for obj in objects if "pos" in obj)
+        max_x = max(obj.get("pos", "0,0").split(",")[0].strip("!") for obj in objects if "pos" in obj)
+        min_y = min(obj.get("pos", "0,0").split(",")[1].strip("!") for obj in objects if "pos" in obj)
+        max_y = max(obj.get("pos", "0,0").split(",")[1].strip("!") for obj in objects if "pos" in obj)
+        range_x = max(float(max_x) - float(min_x), 1)
+        range_y = max(float(max_y) - float(min_y), 1)
+        margin = 30
+        usable_w = viewbox_w - 2 * margin
+        usable_h = max(range_y * (usable_w / range_x), 300)
+        scale = usable_w / range_x if range_x > 0 else 1
+        coords = {}
+        for obj in objects:
+            name = obj.get("name", "")
+            if "pos" not in obj:
+                continue
+            px, py = [float(v.strip("!")) for v in obj["pos"].split(",")]
+            w = float(obj.get("width", 1)) * 72
+            h = float(obj.get("height", 1)) * 72
+            sx = margin + (px - float(min_x)) * scale - w / 2
+            sy = y_start + (py - float(min_y)) * scale * 0.8
+            original = name.replace("_", "-")
+            coords[original] = (int(sx), int(sy), int(w), int(h))
+        return coords
+    except (subprocess.TimeoutExpired, json.JSONDecodeError, ValueError):
+        return {}
+
+def _layout_grid_fallback(crates: list[dict], layers: dict, y_start: int, viewbox_w: int) -> dict:
+    coords = {}
+    col_w = 340
+    gap_x, gap_y = 40, 30
+    temp_y = y_start
+    for layer_name in ["apps", "core", "templates", "other"]:
+        layer_crates = layers.get(layer_name, [])
+        if not layer_crates:
+            continue
+        temp_y += 18
+        for row_idx in range(0, len(layer_crates), 2):
+            row_crates = layer_crates[row_idx:row_idx + 2]
+            num = len(row_crates)
+            start_x = (viewbox_w - (num * col_w + (num - 1) * gap_x)) // 2
+            max_row_h = 0
+            for i, crate in enumerate(row_crates):
+                cx = start_x + i * (col_w + gap_x)
+                _, box_h = _compute_card_dimensions(crate, card_w=col_w)
+                coords[crate["name"]] = (cx, temp_y, col_w, box_h)
+                max_row_h = max(max_row_h, box_h)
+            temp_y += max_row_h + gap_y
+    return coords
+
+def _boxes_intersect(a: tuple, b: tuple) -> bool:
+    ax, ay, aw, ah = a[0], a[1], a[2], a[3]
+    bx, by, bw, bh = b[0], b[1], b[2], b[3]
+    return not (ax + aw <= bx or bx + bw <= ax or ay + ah <= by or by + bh <= ay)
+
+def _detect_overlaps(coords: dict) -> list[tuple[str, str]]:
+    items = list(coords.items())
+    overlaps = []
+    for i, (na, a) in enumerate(items):
+        for nb, b in items[i + 1:]:
+            if _boxes_intersect(a, b):
+                overlaps.append((na, nb))
+    return overlaps
+
+def _fix_overlaps(coords: dict, max_iterations: int = 10) -> int:
+    fix_count = 0
+    for _ in range(max_iterations):
+        overlaps = _detect_overlaps(coords)
+        if not overlaps:
+            break
+        for na, nb in overlaps:
+            a, b = coords[na], coords[nb]
+            overlap_y = min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1])
+            overlap_x = min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0])
+            if overlap_y > 0 and overlap_x > 0:
+                if a[1] <= b[1]:
+                    coords[nb] = (b[0], a[1] + a[3] + 15, b[2], b[3])
+                else:
+                    coords[na] = (a[0], b[1] + b[3] + 15, a[2], a[3])
+                fix_count += 1
+    return fix_count
+
+def _route_edge_avoiding_obstacles(sx, sy, tx, ty, obstacles, src_name, dst_name) -> str:
+    min_gap = 20
+    for obs_name, (ox, oy, ow, oh) in obstacles.items():
+        if obs_name in (src_name, dst_name):
+            continue
+        cx, cy = (ox + ow / 2, oy + oh / 2)
+        if min(ox + ow, tx) - max(ox, sx) > 0 and min(oy + oh, ty) - max(oy, sy) > 0:
+            if sx < ox and tx > ox:
+                sx_adj = ox - min_gap
+                return (f'M {sx} {sy} L {sx} {sy + 20} L {sx_adj} {sy + 20} '
+                        f'L {sx_adj} {ty - 20} L {tx} {ty - 20} L {tx} {ty}')
+    mid_y = (sy + ty) // 2
+    return f'M {sx} {sy} C {sx} {mid_y}, {tx} {mid_y}, {tx} {ty}'
 
 # ── SVG Primitives ────────────────────────────────────────────────────────
 def _esc(s: str) -> str:
@@ -268,27 +421,77 @@ def _container(x, y, w, h, label, sublabel=None, aria_label=None) -> str:
     parts.append("</g>")
     return "\n".join(parts)
 
+def _wrap_text(text: str, max_chars: int = 50) -> list[str]:
+    if not text:
+        return []
+    words = text.split()
+    lines = []
+    current = ""
+    for word in words:
+        if len(current) + len(word) + 1 <= max_chars:
+            current = f"{current} {word}" if current else word
+        else:
+            lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return lines[:2]
+
+def _section_divider(y: int) -> str:
+    return f'<line x1="{VIEWBOX_MARGIN}" y1="{y}" x2="{RIGHT_EDGE}" y2="{y}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>'
+
+def _crate_card(x, y, crate, color_key, card_w=340) -> tuple[str, int]:
+    desc = crate.get("description", "")
+    features = crate.get("features", [])
+    deps_count = len(crate.get("dependencies", []))
+    desc_lines = _wrap_text(desc, max_chars=max(int(card_w / 7), 30))
+    desc_h = len(desc_lines) * 16 if desc_lines else 0
+    feat_h = 26 if features else 0
+    card_h = 70 + desc_h + feat_h + 10
+    parts = [
+        f'<g id="crate-{crate["name"]}" class="card" role="img" '
+        f'aria-label="Crate: {crate["name"]} v{crate["version"]}">',
+        _rect(x, y, card_w, card_h, color_key=color_key),
+        _accent_bar(x + 8, y + 8, card_w - 16, color_key=color_key),
+        _text(x + 12, y + 28, crate["name"], anchor="start", cls="th"),
+        _text(x + card_w - 12, y + 28, f"v{crate['version']}", anchor="end", cls="txs", opacity="0.55"),
+    ]
+    if desc_lines:
+        for i, line in enumerate(desc_lines):
+            parts.append(_text(x + 12, y + 50 + i * 16, line, anchor="start", cls="ts", opacity="0.75"))
+    if features:
+        feat_y = y + card_h - 28
+        feat_x = x + 10
+        for f in features:
+            fw = len(f) * 6 + 16
+            if feat_x + fw > x + card_w - 10:
+                feat_x = x + 10
+                feat_y += 20
+            parts.append(_badge(feat_x, feat_y, f, color_key=color_key, w=fw))
+            feat_x += fw + 6
+    if deps_count:
+        parts.append(_text(x + card_w - 12, y + card_h - 14, f"deps: {deps_count}", anchor="end", cls="txs", opacity="0.55"))
+    parts.append("</g>")
+    return "\n".join(parts), card_h
+
 # ── Main SVG Builder ──────────────────────────────────────────────────────
 def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str],
-              commands: list[str], labels: dict, root: Path) -> str:
+              commands: list[str], labels: dict, root: Path, no_graphviz: bool = False) -> str:
     parts: list[str] = []
     y_cursor = 0
     def push(s: str): parts.append(s)
 
-    # Discover all dynamic content
     error_types = discover_error_types(root)
     agent_roles = discover_agent_roles(root)
     handoff_items = discover_handoff_items(root)
     data_types = discover_data_types(root)
 
-    # ── Gradient Definitions ──
     grad_defs = []
     for key in ["apps", "core", "templates", "other", "pipeline", "interface", "rose", "teal", "blue", "green"]:
         c = THEME["colors"].get(key)
         if c and "grad" in c:
             grad_defs.append(_grad_def(f"grad-{key}", c["grad"]))
 
-    # ── Style Definitions ──
     DEFS = f"""<defs>
       {chr(10).join(grad_defs)}
       <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
@@ -306,72 +509,82 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
         .th{{font-family:{THEME["font"]};font-size:13px;font-weight:600;fill:#0f172a;letter-spacing:-0.01em}}
-        .ts{{font-family:{THEME["font"]};font-size:12px;font-weight:400;fill:#475569}}
-        .txs{{font-family:{THEME["font"]};font-size:10px;font-weight:400;fill:#64748b}}
-        .tl{{font-family:{THEME["font"]};font-size:20px;font-weight:700;fill:#0f172a;letter-spacing:-0.02em}}
-        .arr{{fill:none;stroke:{THEME["colors"]["arrow"]};stroke-width:1.3;opacity:0.65}}
-        .arr-dep{{fill:none;stroke:#6366f1;stroke-width:1.2;opacity:0.5;stroke-dasharray:6 3}}
+        .ts{{font-family:{THEME["font"]};font-size:12.5px;font-weight:500;fill:#334155;letter-spacing:0.01em}}
+        .txs{{font-family:{THEME["font"]};font-size:11px;font-weight:500;fill:#475569;letter-spacing:0.01em}}
+        .tl{{font-family:{THEME["font"]};font-size:24px;font-weight:700;fill:#0f172a;letter-spacing:-0.02em}}
+        .arr{{fill:none;stroke:{THEME["colors"]["arrow"]};stroke-width:1.5;opacity:0.7}}
+        .arr-dep{{fill:none;stroke:#6366f1;stroke-width:1.3;opacity:0.6;stroke-dasharray:6 3}}
         .card{{filter:url(#shadow)}}
         .card-soft{{filter:url(#soft-shadow)}}
-        .section-label{{font-family:{THEME["font"]};font-size:10px;font-weight:700;fill:#94a3b8;letter-spacing:0.08em;text-transform:uppercase}}
-        .subtitle{{font-family:{THEME["font"]};font-size:9px;font-weight:500;fill:#94a3b8}}
+        .section-label{{font-family:{THEME["font"]};font-size:11px;font-weight:700;fill:#94a3b8;letter-spacing:0.08em;text-transform:uppercase}}
+        .subtitle{{font-family:{THEME["font"]};font-size:11px;font-weight:500;fill:#94a3b8}}
       </style>
     </defs>"""
 
-    # ── Background ──
-    push(f'<rect width="680" height="3000" fill="{THEME["colors"]["bg"]}"/>')
+    push(f'<rect width="{VIEWBOX_W}" height="3000" fill="{THEME["colors"]["bg"]}"/>')
 
-    # ── Header ──
+    # Header
     y_cursor = 50
     push(f'<g id="header" role="banner" aria-label="System architecture header">')
-    push(_text(340, y_cursor, cfg["title"], cls="tl", aria="System Architecture Title"))
-    y_cursor += 18
-    push(_text(340, y_cursor, cfg["project_name"], cls="subtitle", opacity="0.6"))
-    y_cursor += 18
-    push(f'<line x1="140" y1="{y_cursor}" x2="540" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
-    push("</g>")
-
-    # ── Legend ──
-    y_cursor += 25
-    push(f'<g id="legend" role="img" aria-label="Color legend">')
-    legend_items = [("apps", "Applications"), ("core", "Core Libraries"), ("templates", "Templates"), ("other", "Examples")]
-    legend_x = 21
-    for color_key, label in legend_items:
-        c = THEME["colors"][color_key]
-        push(f'<rect x="{legend_x}" y="{y_cursor}" width="8" height="8" rx="4" fill="{c["accent"]}"/>')
-        push(_text(legend_x + 14, y_cursor + 4, label, anchor="start", cls="txs", opacity="0.6"))
-        legend_x += len(label) * 6 + 30
-    push("</g>")
+    push(_text(CENTER_X, y_cursor, cfg["title"], cls="tl", aria="System Architecture Title"))
     y_cursor += 20
+    push(_text(CENTER_X, y_cursor, cfg["project_name"], cls="subtitle", opacity="0.6"))
+    y_cursor += 20
+    push(f'<line x1="{CENTER_X - 200}" y1="{y_cursor}" x2="{CENTER_X + 200}" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
+    push("</g>")
 
-    # ── Pipeline ──
-    y_cursor += 25
-    push(f'<g id="pipeline" role="region" aria-label="CI/CD Pipeline orchestration">')
-    push(_text(340, y_cursor, "PIPELINE ORCHESTRATION", cls="section-label"))
+    # Legend
     y_cursor += 30
-    stages = [("ANALYZE", "teal", "lint · clippy"), ("VALIDATE", "blue", "test · nextest"),
-              ("HARDEN", "rose", "audit · deny"), ("DEPLOY", "green", "release · publish")]
-    row_h, gap = 48, 18
-    bw = min(140, (640 - (len(stages) - 1) * gap) // len(stages))
-    x = 21
-    for i, (name, color, desc) in enumerate(stages):
+    push(f'<g id="legend" role="img" aria-label="Color legend">')
+    legend_items = [
+        ("apps", "Applications", "Binary crates and CLI tools"),
+        ("core", "Core Libraries", "Shared library crates"),
+        ("templates", "Templates", "Reusable architectural patterns"),
+        ("other", "Examples", "Learning references and demos"),
+    ]
+    legend_x = VIEWBOX_MARGIN
+    for color_key, label, desc in legend_items:
+        c = THEME["colors"][color_key]
+        push(f'<rect x="{legend_x}" y="{y_cursor}" width="10" height="10" rx="5" fill="{c["accent"]}"/>')
+        push(_text(legend_x + 16, y_cursor + 5, label, anchor="start", cls="th", weight="600"))
+        push(_text(legend_x + 16, y_cursor + 20, desc, anchor="start", cls="txs", opacity="0.5"))
+        legend_x += 280
+    push("</g>")
+    y_cursor += 40
+
+    # Pipeline
+    y_cursor += 20
+    push(f'<g id="pipeline" role="region" aria-label="CI/CD Pipeline orchestration">')
+    push(_text(CENTER_X, y_cursor, "PIPELINE ORCHESTRATION", cls="section-label"))
+    y_cursor += 30
+    stages = [
+        ("ANALYZE", "teal", "lint · clippy", "Every push · ~2 min"),
+        ("VALIDATE", "blue", "test · nextest", "Every push · ~5 min"),
+        ("HARDEN", "rose", "audit · deny", "Weekly + pre-release"),
+        ("DEPLOY", "green", "release · publish", "Tag-triggered · ~4 min"),
+    ]
+    row_h, gap = 60, 20
+    bw = (VIEWBOX_W - 2 * VIEWBOX_MARGIN - 3 * gap) // 4
+    x = VIEWBOX_MARGIN
+    for i, (name, color, desc, timing) in enumerate(stages):
         push(f'<g class="card" role="img" aria-label="Pipeline stage: {name} - {desc}">')
         push(_rect(x, y_cursor, bw, row_h, color_key=color))
-        push(_text(x + bw // 2, y_cursor + 19, name, cls="th"))
-        push(_text(x + bw // 2, y_cursor + 35, desc, cls="txs", opacity="0.5"))
+        push(_text(x + bw // 2, y_cursor + 20, name, cls="th"))
+        push(_text(x + bw // 2, y_cursor + 36, desc, cls="txs", opacity="0.6"))
+        push(_text(x + bw // 2, y_cursor + 50, timing, cls="txs", opacity="0.55"))
         push("</g>")
         if i > 0:
-            push(f'<line x1="{x-gap}" y1="{y_cursor+row_h//2}" x2="{x}" y2="{y_cursor+row_h//2}" class="arr" marker-end="url(#arrow)"/>')
+            push(f'<line x1="{x - gap}" y1="{y_cursor + row_h // 2}" x2="{x}" y2="{y_cursor + row_h // 2}" class="arr" marker-end="url(#arrow)"/>')
         x += bw + gap
     y_cursor += row_h + 10
     push("</g>")
 
-    # ── Workspace Topology ──
-    y_cursor += 50
-    push(f'<line x1="20" y1="{y_cursor}" x2="660" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
+    # Workspace Topology
+    y_cursor += 40
+    push(_section_divider(y_cursor))
     y_cursor += 25
     push(f'<g id="workspace" role="region" aria-label="Workspace topology with {labels["crates"]} components">')
-    push(_text(340, y_cursor, f"WORKSPACE TOPOLOGY · {labels['crates']} COMPONENTS", cls="section-label"))
+    push(_text(CENTER_X, y_cursor, f"WORKSPACE TOPOLOGY · {labels['crates']} COMPONENTS", cls="section-label"))
     y_cursor += 40
 
     layers = {"apps": [], "core": [], "templates": [], "other": []}
@@ -379,56 +592,25 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
         name = crate["name"]
         if name == cfg.get("project_name", "").lower().replace(" ", "-") or name == "sample-app":
             layers["apps"].append(crate)
-        elif "-template" in name: layers["templates"].append(crate)
-        elif "example-" in name or name == "hello-world-example": layers["other"].append(crate)
-        else: layers["core"].append(crate)
+        elif "-template" in name:
+            layers["templates"].append(crate)
+        elif "example-" in name or name == "hello-world-example":
+            layers["other"].append(crate)
+        else:
+            layers["core"].append(crate)
 
-    crate_coords = {}
-    col_w, row_h_min = 200, 80
-    gap_x, gap_y = 25, 95
+    use_graphviz = not no_graphviz and _has_graphviz()
+    if use_graphviz:
+        crate_coords = _layout_with_graphviz(crates, layers, y_cursor, VIEWBOX_W)
+    if not use_graphviz or not crate_coords:
+        crate_coords = _layout_grid_fallback(crates, layers, y_cursor, VIEWBOX_W)
+        use_graphviz = False
 
-    for layer_name in ["apps", "core", "templates", "other"]:
-        layer_crates = layers[layer_name]
-        if not layer_crates: continue
-        layer_labels = {"apps": "APPLICATIONS", "core": "CORE LIBRARIES", "templates": "TEMPLATE CRATES", "other": "EXAMPLES"}
-        push(f'<g id="layer-{layer_name}" role="group" aria-label="{layer_labels.get(layer_name, layer_name)}">')
-        push(_text(21, y_cursor - 8, layer_labels.get(layer_name, layer_name.upper()), anchor="start", cls="txs", weight="600", opacity="0.35"))
-        y_cursor += 12
+    overlap_fixes = _fix_overlaps(crate_coords)
+    if overlap_fixes:
+        print(f"Fixed {overlap_fixes} overlapping elements", file=sys.stderr)
 
-        for row_idx in range(0, len(layer_crates), 3):
-            row_crates = layer_crates[row_idx : row_idx + 3]
-            num = len(row_crates)
-            start_x = (680 - (num * col_w + (num - 1) * gap_x)) // 2
-            max_row_h = 0
-            for i, crate in enumerate(row_crates):
-                cx = start_x + i * (col_w + gap_x)
-                feats = crate.get("features", [])
-                box_h = row_h_min + (len(feats) * 18)
-                max_row_h = max(max_row_h, box_h)
-                crate_coords[crate["name"]] = (cx, y_cursor, box_h)
-
-                push(f'<g id="crate-{crate["name"]}" class="card" role="img" '
-                     f'aria-label="Crate: {crate["name"]} v{crate["version"]}">')
-                push(_rect(cx, y_cursor, col_w, box_h, color_key=layer_name))
-                push(_accent_bar(cx + 8, y_cursor + 8, col_w - 16, color_key=layer_name))
-                push(_text(cx + col_w // 2, y_cursor + 28, crate["name"], cls="th"))
-                push(_text(cx + col_w // 2, y_cursor + 44, f"v{crate['version']}", cls="txs", opacity="0.45"))
-                if feats:
-                    feat_y = y_cursor + 58
-                    feat_x = cx + 10
-                    for f in feats:
-                        push(_badge(feat_x, feat_y, f, color_key=layer_name, w=len(f) * 6 + 16))
-                        feat_x += len(f) * 6 + 22
-                        if feat_x + 50 > cx + col_w:
-                            feat_x = cx + 10
-                            feat_y += 20
-                push("</g>")
-            y_cursor += max_row_h + gap_y
-        push("</g>")
-
-    # ── Dependency Arrows ──
     push(f'<g id="dependencies" role="img" aria-label="Crate dependency relationships">')
-    MARGIN_X = 8
     for crate in crates:
         if crate["name"] in crate_coords:
             p1 = crate_coords[crate["name"]]
@@ -436,86 +618,107 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
             for dep in crate["dependencies"]:
                 if dep in crate_coords:
                     p2 = crate_coords[dep]
-                    sx, sy = p1[0], p1[1] + p1[2] // 2
-                    tx, ty = p2[0], p2[1] + p2[2] // 2
-                    control_offset_x = 25
-                    push(f'<path d="M {sx} {sy} '
-                         f'C {sx - control_offset_x} {sy}, {MARGIN_X + 12} {sy}, {MARGIN_X + 12} {sy} '
-                         f'L {MARGIN_X + 12} {ty} '
-                         f'C {MARGIN_X + 12} {ty}, {tx - control_offset_x} {ty}, {tx} {ty}" '
+                    sx, sy = p1[0] + p1[2] // 2, p1[1] + p1[3]
+                    tx, ty = p2[0] + p2[2] // 2, p2[1]
+                    if not use_graphviz:
+                        path_d = _route_edge_avoiding_obstacles(sx, sy, tx, ty, crate_coords, src_name, dep)
+                    else:
+                        mid_y = (sy + ty) // 2
+                        path_d = f'M {sx} {sy} C {sx} {mid_y}, {tx} {mid_y}, {tx} {ty}'
+                    push(f'<path d="{path_d}" '
                          f'class="arr-dep" marker-end="url(#arrow-dep)" '
                          f'aria-label="Dependency: {src_name} depends on {dep}"/>')
     push("</g>")
+
+    # Draw crate cards ON TOP of arrows
+    for layer_name in ["apps", "core", "templates", "other"]:
+        layer_crates = layers[layer_name]
+        if not layer_crates:
+            continue
+        layer_labels = {"apps": "APPLICATIONS", "core": "CORE LIBRARIES", "templates": "TEMPLATE CRATES", "other": "EXAMPLES"}
+        push(f'<g id="layer-{layer_name}" role="group" aria-label="{layer_labels.get(layer_name, layer_name)}">')
+        push(_text(VIEWBOX_MARGIN, y_cursor, layer_labels.get(layer_name, layer_name.upper()), anchor="start", cls="txs", weight="600", opacity="0.5"))
+        y_cursor += 18
+
+        for crate in layer_crates:
+            if crate["name"] in crate_coords:
+                cx, cy, cw, ch = crate_coords[crate["name"]]
+                card_content, _ = _crate_card(cx, cy, crate, layer_name, card_w=cw)
+                push(card_content)
+        push("</g>")
     push("</g>")
 
-    # ── Skills & Agents ──
-    y_cursor += 20
-    push(f'<line x1="20" y1="{y_cursor}" x2="660" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
+    # Skills & Agents
+    if crate_coords:
+        max_crate_bottom = max(cy + ch for cx, cy, cw, ch in crate_coords.values())
+        y_cursor = max_crate_bottom + 30
+    else:
+        y_cursor += 30
+    push(_section_divider(y_cursor))
     y_cursor += 30
-    side_w, text_h = 310, 22
-    skills_h = 65 + max(len(skills), 5) * text_h
-    agents_h = 65 + max(len(agents), 5) * text_h
+    panel_w = (VIEWBOX_W - 2 * VIEWBOX_MARGIN - GAP_X) // 2
+    text_h = 22
+    skills_h = 70 + max(len(skills), 5) * text_h
+    agents_h = 70 + max(len(agents), 5) * text_h
     max_h = max(skills_h, agents_h)
 
     push(f'<g id="skills" role="region" aria-label="{labels["skills"]} active skills">')
-    push(_container(20, y_cursor, side_w, max_h, f"{labels['skills']} ACTIVE SKILLS", ".agents/skills/", aria_label="Active skills list"))
+    push(_container(VIEWBOX_MARGIN, y_cursor, panel_w, max_h, f"{labels['skills']} ACTIVE SKILLS", ".agents/skills/", aria_label="Active skills list"))
     for i, sk in enumerate(skills):
-        push(_text(40, y_cursor + 60 + i * text_h, sk, anchor="start", cls="ts"))
+        push(_text(VIEWBOX_MARGIN + 20, y_cursor + 60 + i * text_h, sk, anchor="start", cls="ts"))
     push("</g>")
 
     push(f'<g id="agents" role="region" aria-label="{labels["agents"]} cognitive agents">')
-    push(_container(350, y_cursor, side_w, max_h, f"{labels['agents']} COGNITIVE AGENTS", ".opencode/agents/", aria_label="Cognitive agents list"))
+    push(_container(VIEWBOX_MARGIN + panel_w + GAP_X, y_cursor, panel_w, max_h, f"{labels['agents']} COGNITIVE AGENTS", ".opencode/agents/", aria_label="Cognitive agents list"))
     if agents:
         for i, ag in enumerate(agents):
-            push(_text(370, y_cursor + 60 + i * text_h, ag, anchor="start", cls="ts"))
+            push(_text(VIEWBOX_MARGIN + panel_w + GAP_X + 20, y_cursor + 60 + i * text_h, ag, anchor="start", cls="ts"))
     else:
-        push(_text(370 + side_w // 2, y_cursor + max_h // 2 + 10, "none configured", cls="txs", opacity="0.4"))
+        push(_text(VIEWBOX_MARGIN + panel_w + GAP_X + panel_w // 2, y_cursor + max_h // 2 + 10, "none configured", cls="txs", opacity="0.55"))
     push("</g>")
 
-    # ── Subagent Workflow ──
-    y_cursor += max_h + 20
-    push(f'<line x1="20" y1="{y_cursor}" x2="660" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
+    # Subagent Workflow
+    y_cursor += max_h + 30
+    push(_section_divider(y_cursor))
     y_cursor += 30
     push(f'<g id="subagent-workflow" role="region" aria-label="Subagent workflow and orchestration">')
-    push(_text(340, y_cursor, "SUBAGENT WORKFLOW · MULTI-AGENT ORCHESTRATION", cls="section-label"))
+    push(_text(CENTER_X, y_cursor, "SUBAGENT WORKFLOW · MULTI-AGENT ORCHESTRATION", cls="section-label"))
     y_cursor += 35
 
-    # Agent roles (dynamic)
     if agent_roles:
-        role_w, role_h, role_gap = 305, 40, 10
+        role_w, role_h, role_gap = panel_w, 45, 12
         for i, role in enumerate(agent_roles):
-            rx = 21 if i % 2 == 0 else 354
+            rx = VIEWBOX_MARGIN if i % 2 == 0 else VIEWBOX_MARGIN + panel_w + GAP_X
             ry = y_cursor + (i // 2) * (role_h + role_gap)
             push(f'<g class="card" role="img" aria-label="Agent role: {role["name"]}">')
             push(_rect(rx, ry, role_w, role_h, rx=10, color_key=role["color"]))
-            push(_text(rx + 12, ry + 15, role["name"], anchor="start", cls="th", weight="600"))
-            push(_text(rx + 12, ry + 30, " · ".join(role["skills"]), anchor="start", cls="txs", opacity="0.6"))
+            push(_text(rx + 15, ry + 18, role["name"], anchor="start", cls="th", weight="600"))
+            push(_text(rx + 15, ry + 35, " · ".join(role["skills"]), anchor="start", cls="txs", opacity="0.6"))
             push("</g>")
         y_cursor += ((len(agent_roles) + 1) // 2) * (role_h + role_gap) + 15
 
-    # Handoff protocol (dynamic)
     if handoff_items:
-        push(_text(340, y_cursor, "HANDOFF PROTOCOL", cls="section-label"))
+        push(_text(CENTER_X, y_cursor, "HANDOFF PROTOCOL", cls="section-label"))
         y_cursor += 25
+        handoff_w = (VIEWBOX_W - 2 * VIEWBOX_MARGIN - (len(handoff_items) - 1) * GAP_X) // len(handoff_items)
         for i, item in enumerate(handoff_items):
-            cx = 21 + i * 218
+            cx = VIEWBOX_MARGIN + i * (handoff_w + GAP_X)
             push(f'<g class="card" role="img" aria-label="Handoff: {item["path"]}">')
-            push(_rect(cx, y_cursor, 210, 35, rx=8, color_key="interface"))
-            push(_text(cx + 105, y_cursor + 13, item["path"], cls="th", weight="500"))
-            push(_text(cx + 105, y_cursor + 27, item["desc"], cls="txs", opacity="0.5"))
+            push(_rect(cx, y_cursor, handoff_w, 40, rx=8, color_key="interface"))
+            push(_text(cx + handoff_w // 2, y_cursor + 15, item["path"], cls="th", weight="500"))
+            push(_text(cx + handoff_w // 2, y_cursor + 30, item["desc"], cls="txs", opacity="0.5"))
             push("</g>")
-        y_cursor += 55
+        y_cursor += 60
     push("</g>")
 
-    # ── Error Handling ──
+    # Error Handling
     y_cursor += 20
-    push(f'<line x1="20" y1="{y_cursor}" x2="660" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
+    push(_section_divider(y_cursor))
     y_cursor += 30
     push(f'<g id="error-handling" role="region" aria-label="Error handling patterns">')
-    push(_text(340, y_cursor, "ERROR HANDLING PATTERNS", cls="section-label"))
+    push(_text(CENTER_X, y_cursor, "ERROR HANDLING PATTERNS", cls="section-label"))
     y_cursor += 30
 
-    # Error strategies (dynamic from crates)
     thiserror_count = 0
     for crate in crates:
         crate_dir = root / "crates" / crate["name"]
@@ -528,86 +731,89 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
                 except Exception:
                     continue
 
-    strat_w = 305
+    strat_w = panel_w
     push(f'<g class="card" role="img" aria-label="Error strategy: thiserror">')
-    push(_rect(21, y_cursor, strat_w, 45, rx=10, color_key="core"))
-    push(_text(36, y_cursor + 16, "thiserror", anchor="start", cls="th", weight="600"))
-    push(_text(36, y_cursor + 32, f"Library error types — {thiserror_count} crates using derive macro", anchor="start", cls="txs", opacity="0.6"))
+    push(_rect(VIEWBOX_MARGIN, y_cursor, strat_w, 50, rx=10, color_key="core"))
+    push(_text(VIEWBOX_MARGIN + 15, y_cursor + 18, "thiserror", anchor="start", cls="th", weight="600"))
+    push(_text(VIEWBOX_MARGIN + 15, y_cursor + 35, f"Library error types — {thiserror_count} crates using derive macro", anchor="start", cls="txs", opacity="0.6"))
     push("</g>")
     push(f'<g class="card" role="img" aria-label="Error strategy: anyhow">')
-    push(_rect(354, y_cursor, strat_w, 45, rx=10, color_key="apps"))
-    push(_text(369, y_cursor + 16, "anyhow", anchor="start", cls="th", weight="600"))
-    push(_text(369, y_cursor + 32, "Application errors — Context-rich error propagation", anchor="start", cls="txs", opacity="0.6"))
+    push(_rect(VIEWBOX_MARGIN + panel_w + GAP_X, y_cursor, strat_w, 50, rx=10, color_key="apps"))
+    push(_text(VIEWBOX_MARGIN + panel_w + GAP_X + 15, y_cursor + 18, "anyhow", anchor="start", cls="th", weight="600"))
+    push(_text(VIEWBOX_MARGIN + panel_w + GAP_X + 15, y_cursor + 35, "Application errors — Context-rich error propagation", anchor="start", cls="txs", opacity="0.6"))
     push("</g>")
-    y_cursor += 65
+    y_cursor += 70
 
-    # Error types (dynamic)
     if error_types:
-        push(_text(340, y_cursor, "CRATE ERROR TYPES", cls="section-label"))
+        push(_text(CENTER_X, y_cursor, "CRATE ERROR TYPES", cls="section-label"))
         y_cursor += 25
         for i, err in enumerate(error_types):
             cy = y_cursor + i * 46
             push(f'<g class="card-soft" role="img" aria-label="Error type: {err["name"]} from {err["crate"]}">')
-            push(_rect(21, cy, 638, 40, rx=8, color_key="rose"))
-            push(_text(36, cy + 14, err["name"], anchor="start", cls="th", weight="600"))
-            push(_text(36, cy + 30, " · ".join(err["variants"]), anchor="start", cls="txs", opacity="0.6"))
-            push(_text(644, cy + 14, err["crate"], anchor="end", cls="txs", opacity="0.4"))
+            push(_rect(VIEWBOX_MARGIN, cy, VIEWBOX_W - 2 * VIEWBOX_MARGIN, 40, rx=8, color_key="rose"))
+            push(_text(VIEWBOX_MARGIN + 15, cy + 14, err["name"], anchor="start", cls="th", weight="600"))
+            push(_text(VIEWBOX_MARGIN + 15, cy + 30, " · ".join(err["variants"]), anchor="start", cls="txs", opacity="0.6"))
+            push(_text(RIGHT_EDGE - 15, cy + 14, err["crate"], anchor="end", cls="txs", opacity="0.55"))
             push("</g>")
         y_cursor += len(error_types) * 46 + 15
     push("</g>")
 
-    # ── Data Flow ──
+    # Data Flow
     y_cursor += 20
-    push(f'<line x1="20" y1="{y_cursor}" x2="660" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
+    push(_section_divider(y_cursor))
     y_cursor += 30
     push(f'<g id="data-flow" role="region" aria-label="Data flow patterns">')
-    push(_text(340, y_cursor, "DATA FLOW · COMPONENT INTERACTIONS", cls="section-label"))
+    push(_text(CENTER_X, y_cursor, "DATA FLOW · COMPONENT INTERACTIONS", cls="section-label"))
     y_cursor += 30
 
-    # Data types (dynamic)
     if data_types:
-        push(_text(340, y_cursor, "KEY DATA TYPES", cls="section-label"))
+        push(_text(CENTER_X, y_cursor, "KEY DATA TYPES", cls="section-label"))
         y_cursor += 25
+        dt_w = panel_w
         for i, dt in enumerate(data_types):
-            dx = 21 if i % 2 == 0 else 354
-            dy = y_cursor + (i // 2) * 43
+            dx = VIEWBOX_MARGIN if i % 2 == 0 else VIEWBOX_MARGIN + panel_w + GAP_X
+            dy = y_cursor + (i // 2) * 48
             safe_name = _esc(dt["name"])
             push(f'<g class="card-soft" role="img" aria-label="Data type: {safe_name}">')
-            push(_rect(dx, dy, 305, 35, rx=8, color_key="interface"))
-            push(_text(dx + 12, dy + 13, dt["name"], anchor="start", cls="th", weight="500"))
-            push(_text(dx + 12, dy + 27, f"{dt['desc']} — {dt['crate']}", anchor="start", cls="txs", opacity="0.5"))
+            push(_rect(dx, dy, dt_w, 40, rx=8, color_key="interface"))
+            push(_text(dx + 15, dy + 15, dt["name"], anchor="start", cls="th", weight="500"))
+            push(_text(dx + 15, dy + 30, f"{dt['desc']} — {dt['crate']}", anchor="start", cls="txs", opacity="0.5"))
             push("</g>")
-        y_cursor += ((len(data_types) + 1) // 2) * 43 + 15
+        y_cursor += ((len(data_types) + 1) // 2) * 48 + 15
     push("</g>")
 
-    # ── Commands ──
+    # Commands
     y_cursor += 20
-    push(f'<line x1="20" y1="{y_cursor}" x2="660" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
+    push(_section_divider(y_cursor))
     y_cursor += 30
     push(f'<g id="commands" role="region" aria-label="Interface protocols and commands">')
-    push(_text(340, y_cursor, "INTERFACE PROTOCOLS", cls="section-label"))
+    push(_text(CENTER_X, y_cursor, "INTERFACE PROTOCOLS", cls="section-label"))
     y_cursor += 35
-    for i, cmd in enumerate(commands[:14]):
-        cx, cy = (20 if i % 2 == 0 else 345), y_cursor + (i // 2) * 38
+    cmd_cols = 3
+    cmd_w = (VIEWBOX_W - 2 * VIEWBOX_MARGIN - (cmd_cols - 1) * GAP_X) // cmd_cols
+    for i, cmd in enumerate(commands[:18]):
+        col = i % cmd_cols
+        row = i // cmd_cols
+        cx = VIEWBOX_MARGIN + col * (cmd_w + GAP_X)
+        cy = y_cursor + row * 38
         push(f'<g class="card-soft" role="img" aria-label="Command: {cmd}">')
-        push(_rect(cx, cy, 310, 30, rx=15, color_key="interface"))
-        push(_text(cx + 155, cy + 15, cmd, cls="ts", weight="500"))
+        push(_rect(cx, cy, cmd_w, 30, rx=15, color_key="interface"))
+        push(_text(cx + cmd_w // 2, cy + 15, cmd, cls="ts", weight="500"))
         push("</g>")
     push("</g>")
 
-    y_cursor += ((len(commands[:14]) + 1) // 2) * 38 + 60
-    push(f'<line x1="140" y1="{y_cursor}" x2="540" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
+    y_cursor += ((len(commands[:18]) + cmd_cols - 1) // cmd_cols) * 38 + 60
+    push(f'<line x1="{CENTER_X - 200}" y1="{y_cursor}" x2="{CENTER_X + 200}" y2="{y_cursor}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>')
     y_cursor += 20
     footer = f"{cfg['project_name']} · {cfg['author']} · 2026 EDITION"
-    push(_text(340, y_cursor, footer, cls="txs", weight="700", opacity="0.25"))
+    push(_text(CENTER_X, y_cursor, footer, cls="txs", weight="700", opacity="0.35"))
 
-    # ── Trim background rect ──
     svg_height = y_cursor + 50
-    parts[0] = f'<rect width="680" height="{svg_height}" fill="{THEME["colors"]["bg"]}"/>'
+    parts[0] = f'<rect width="{VIEWBOX_W}" height="{svg_height}" fill="{THEME["colors"]["bg"]}"/>'
 
     title = cfg["title"]
     project = cfg["project_name"]
-    return (f'<svg width="100%" viewBox="0 0 680 {svg_height}" xmlns="http://www.w3.org/2000/svg" '
+    return (f'<svg width="100%" viewBox="0 0 {VIEWBOX_W} {svg_height}" xmlns="http://www.w3.org/2000/svg" '
             f'role="img" aria-label="{title} - {project}">\n{DEFS}\n'
             + "\n".join(parts) + "\n</svg>")
 
@@ -615,22 +821,27 @@ def main():
     parser = argparse.ArgumentParser(description="Generate Project Topology SVG")
     parser.add_argument("--root", default=".", help="Workspace root")
     parser.add_argument("--out", default=".template/architecture.svg", help="Output path")
+    parser.add_argument("--no-graphviz", action="store_true", help="Force grid layout (skip Graphviz auto-layout)")
     args = parser.parse_args()
     root, out = Path(args.root).resolve(), Path(args.out)
-    if not out.is_absolute(): out = root / out
+    if not out.is_absolute():
+        out = root / out
     cfg = dict(DEFAULT_CONFIG)
     cfg_file = root / "docs" / "diagram-config.json"
     if cfg_file.exists():
         try:
-            with open(cfg_file, encoding="utf-8") as f: cfg.update(json.load(f))
-        except Exception: pass
+            with open(cfg_file, encoding="utf-8") as f:
+                cfg.update(json.load(f))
+        except Exception:
+            pass
     crates = discover_crates(root)
     skills, agents, commands = discover_skills(root), discover_agents(root), discover_commands(root)
     labels = {"crates": len(crates), "skills": len(skills), "agents": len(agents), "commands": len(commands)}
-    d_crates = crates or [{"name": "(no workspace)", "version": "0.0.0", "dependencies": [], "features": []}]
-    svg = build_svg(cfg, d_crates, skills, agents, commands, labels, root)
+    d_crates = crates or [{"name": "(no workspace)", "version": "0.0.0", "dependencies": [], "features": [], "description": ""}]
+    svg = build_svg(cfg, d_crates, skills, agents, commands, labels, root, no_graphviz=args.no_graphviz)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(svg, encoding="utf-8")
     print(f"Written: {out}")
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()

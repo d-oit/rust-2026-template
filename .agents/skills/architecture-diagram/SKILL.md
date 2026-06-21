@@ -1,6 +1,6 @@
 ---
 name: architecture-diagram
-version: 0.3.0
+version: 0.4.0
 description: Generate or update a project architecture SVG diagram by scanning the live project structure, including Rust workspace crates and dependencies. Use this skill whenever the user asks to regenerate, refresh, or update the architecture diagram, or when crates, skills, agents, or commands have been added/removed and the diagram is stale. Triggers on phrases like "update the diagram", "regenerate the architecture SVG", "sync the architecture", or "show crate dependencies".
 category: documentation
 license: MIT
@@ -48,6 +48,17 @@ The script auto-discovers:
 - **Agents** → `.opencode/agents/*.md` (uses filename stem).
 - **Commands** → `.opencode/commands/*.md` (uses filename stem, strips leading `/`).
 
+**Layout engine:**
+- With Graphviz installed: uses `dot` for auto-layout — nodes placed by dependency hierarchy, edges routed orthogonally.
+- Without Graphviz (or with `--no-graphviz`): falls back to an enhanced grid layout with obstacle-avoiding edge routing.
+- Overlap detection runs post-layout and pushes apart any colliding elements.
+
+```bash
+# Force grid layout (skip Graphviz)
+python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
+  --root . --out .template/architecture.svg --no-graphviz
+```
+
 It writes a self-contained SVG to `--out` (default: `.template/architecture.svg`).
 
 ### Step 3 — Confirm and Report
@@ -61,6 +72,23 @@ After the script exits:
 
 `.template/architecture.svg` — a standalone SVG output file, compatible with GitHub README embedding:
 `![Architecture](.template/architecture.svg)`
+
+## Optional Dependency: Graphviz
+
+For optimal layout (auto-positioned nodes, orthogonal edge routing), install Graphviz:
+
+```bash
+# macOS
+brew install graphviz
+
+# Ubuntu/Debian
+sudo apt install graphviz
+
+# Verify
+dot -V
+```
+
+Without Graphviz, the script uses an enhanced grid layout with obstacle-avoiding arrows. Both modes produce overlap-free, readable diagrams.
 
 ## Customization
 
