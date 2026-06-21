@@ -441,17 +441,24 @@ def _wrap_text(text: str, max_chars: int = 50) -> list[str]:
 def _section_divider(y: int) -> str:
     return f'<line x1="{VIEWBOX_MARGIN}" y1="{y}" x2="{RIGHT_EDGE}" y2="{y}" stroke="{THEME["colors"]["divider"]}" stroke-width="1"/>'
 
+DEFAULT_DESCRIPTIONS = {
+    "benchmarks": "Criterion benchmarks for workspace crates",
+    "hello-world-example": "Minimal hello world example crate",
+}
+
 def _crate_card(x, y, crate, color_key, card_w=340) -> tuple[str, int]:
-    desc = crate.get("description", "")
+    desc = crate.get("description") or DEFAULT_DESCRIPTIONS.get(crate["name"], "")
     features = crate.get("features", [])
     deps_count = len(crate.get("dependencies", []))
     desc_lines = _wrap_text(desc, max_chars=max(int(card_w / 7), 30))
     desc_h = len(desc_lines) * 16 if desc_lines else 0
     feat_h = 26 if features else 0
     card_h = 70 + desc_h + feat_h + 10
+    tooltip = _esc(f"{crate['name']} v{crate['version']}: {desc}" if desc else f"{crate['name']} v{crate['version']}")
     parts = [
         f'<g id="crate-{crate["name"]}" class="card" role="img" '
         f'aria-label="Crate: {crate["name"]} v{crate["version"]}">',
+        f'<title>{tooltip}</title>',
         _rect(x, y, card_w, card_h, color_key=color_key),
         _accent_bar(x + 8, y + 8, card_w - 16, color_key=color_key),
         _text(x + 12, y + 28, crate["name"], anchor="start", cls="th"),

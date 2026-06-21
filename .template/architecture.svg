@@ -97,6 +97,7 @@
 <g id="layer-apps" role="group" aria-label="APPLICATIONS">
 <text class="txs" x="30" y="385" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">APPLICATIONS</text>
 <g id="crate-sample-app" class="card" role="img" aria-label="Crate: sample-app v0.0.0">
+<title>sample-app v0.0.0: Sample application demonstrating the rust-2026-template</title>
 <rect x="430" y="403" width="340" height="112" rx="14" fill="url(#grad-apps)" stroke="#fde68a" stroke-width="1.5"/>
 <rect x="438" y="411" width="324" height="3" rx="1.5" fill="#f59e0b"/>
 <text class="th" x="442" y="431" text-anchor="start" dominant-baseline="central">sample-app</text>
@@ -108,16 +109,19 @@
 <g id="layer-core" role="group" aria-label="CORE LIBRARIES">
 <text class="txs" x="30" y="403" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">CORE LIBRARIES</text>
 <g id="crate-benchmarks" class="card" role="img" aria-label="Crate: benchmarks v0.0.0">
-<rect x="430" y="563" width="340" height="80" rx="14" fill="url(#grad-core)" stroke="#bfdbfe" stroke-width="1.5"/>
+<title>benchmarks v0.0.0: Criterion benchmarks for workspace crates</title>
+<rect x="430" y="563" width="340" height="96" rx="14" fill="url(#grad-core)" stroke="#bfdbfe" stroke-width="1.5"/>
 <rect x="438" y="571" width="324" height="3" rx="1.5" fill="#3b82f6"/>
 <text class="th" x="442" y="591" text-anchor="start" dominant-baseline="central">benchmarks</text>
 <text class="txs" x="758" y="591" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="txs" x="758" y="629" text-anchor="end" dominant-baseline="central" opacity="0.55">deps: 2</text>
+<text class="ts" x="442" y="613" text-anchor="start" dominant-baseline="central" opacity="0.75">Criterion benchmarks for workspace crates</text>
+<text class="txs" x="758" y="645" text-anchor="end" dominant-baseline="central" opacity="0.55">deps: 2</text>
 </g>
 </g>
 <g id="layer-templates" role="group" aria-label="TEMPLATE CRATES">
 <text class="txs" x="30" y="421" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">TEMPLATE CRATES</text>
 <g id="crate-actor-runtime-template" class="card" role="img" aria-label="Crate: actor-runtime-template v0.0.0">
+<title>actor-runtime-template v0.0.0: Actor runtime template using ractor for message-passing concurrency</title>
 <rect x="240" y="691" width="340" height="112" rx="14" fill="url(#grad-templates)" stroke="#e9d5ff" stroke-width="1.5"/>
 <rect x="248" y="699" width="324" height="3" rx="1.5" fill="#a855f7"/>
 <text class="th" x="252" y="719" text-anchor="start" dominant-baseline="central">actor-runtime-template</text>
@@ -126,6 +130,7 @@
 <text class="ts" x="252" y="757" text-anchor="start" dominant-baseline="central" opacity="0.75">message-passing concurrency</text>
 </g>
 <g id="crate-checkpoint-template" class="card" role="img" aria-label="Crate: checkpoint-template v0.0.0">
+<title>checkpoint-template v0.0.0: Checkpoint template for serializable application state with migration support</title>
 <rect x="620" y="691" width="340" height="112" rx="14" fill="url(#grad-templates)" stroke="#e9d5ff" stroke-width="1.5"/>
 <rect x="628" y="699" width="324" height="3" rx="1.5" fill="#a855f7"/>
 <text class="th" x="632" y="719" text-anchor="start" dominant-baseline="central">checkpoint-template</text>
@@ -134,6 +139,7 @@
 <text class="ts" x="632" y="757" text-anchor="start" dominant-baseline="central" opacity="0.75">state with migration support</text>
 </g>
 <g id="crate-hybrid-storage-template" class="card" role="img" aria-label="Crate: hybrid-storage-template v0.0.0">
+<title>hybrid-storage-template v0.0.0: Hybrid storage template with SQL + KV backends and caching</title>
 <rect x="240" y="833" width="340" height="138" rx="14" fill="url(#grad-templates)" stroke="#e9d5ff" stroke-width="1.5"/>
 <rect x="248" y="841" width="324" height="3" rx="1.5" fill="#a855f7"/>
 <text class="th" x="252" y="861" text-anchor="start" dominant-baseline="central">hybrid-storage-template</text>
@@ -144,6 +150,7 @@
 <rect x="284" y="943" width="52" height="18" rx="9" fill="#faf5ff" stroke="#e9d5ff" stroke-width="0.75"/><text class="txs" x="310" y="952" text-anchor="middle" dominant-baseline="central" fill="#6b21a8" font-weight="500">sqlite</text>
 </g>
 <g id="crate-mcp-server-template" class="card" role="img" aria-label="Crate: mcp-server-template v0.0.0">
+<title>mcp-server-template v0.0.0: MCP server template crate with tool registration and dispatch</title>
 <rect x="620" y="833" width="340" height="112" rx="14" fill="url(#grad-templates)" stroke="#e9d5ff" stroke-width="1.5"/>
 <rect x="628" y="841" width="324" height="3" rx="1.5" fill="#a855f7"/>
 <text class="th" x="632" y="861" text-anchor="start" dominant-baseline="central">mcp-server-template</text>
@@ -152,6 +159,7 @@
 <text class="ts" x="632" y="899" text-anchor="start" dominant-baseline="central" opacity="0.75">and dispatch</text>
 </g>
 <g id="crate-rust-2026-template" class="card" role="img" aria-label="Crate: rust-2026-template v0.0.0">
+<title>rust-2026-template v0.0.0: A production-ready Rust workspace template with modern tooling, CI/CD, and AI agent integration</title>
 <rect x="430" y="1001" width="340" height="138" rx="14" fill="url(#grad-templates)" stroke="#e9d5ff" stroke-width="1.5"/>
 <rect x="438" y="1009" width="324" height="3" rx="1.5" fill="#a855f7"/>
 <text class="th" x="442" y="1029" text-anchor="start" dominant-baseline="central">rust-2026-template</text>
@@ -170,6 +178,7 @@
 <g id="layer-other" role="group" aria-label="EXAMPLES">
 <text class="txs" x="30" y="439" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">EXAMPLES</text>
 <g id="crate-example-crate" class="card" role="img" aria-label="Crate: example-crate v0.0.0">
+<title>example-crate v0.0.0: Example crate in the rust-2026-template workspace</title>
 <rect x="240" y="1187" width="340" height="112" rx="14" fill="url(#grad-other)" stroke="#bbf7d0" stroke-width="1.5"/>
 <rect x="248" y="1195" width="324" height="3" rx="1.5" fill="#22c55e"/>
 <text class="th" x="252" y="1215" text-anchor="start" dominant-baseline="central">example-crate</text>
@@ -178,6 +187,7 @@
 <text class="ts" x="252" y="1253" text-anchor="start" dominant-baseline="central" opacity="0.75">workspace</text>
 </g>
 <g id="crate-example-registry-pattern" class="card" role="img" aria-label="Crate: example-registry-pattern v0.0.0">
+<title>example-registry-pattern v0.0.0: Template pattern: registry-based handler dispatch</title>
 <rect x="620" y="1187" width="340" height="112" rx="14" fill="url(#grad-other)" stroke="#bbf7d0" stroke-width="1.5"/>
 <rect x="628" y="1195" width="324" height="3" rx="1.5" fill="#22c55e"/>
 <text class="th" x="632" y="1215" text-anchor="start" dominant-baseline="central">example-registry-pattern</text>
@@ -186,6 +196,7 @@
 <text class="ts" x="632" y="1253" text-anchor="start" dominant-baseline="central" opacity="0.75">dispatch</text>
 </g>
 <g id="crate-example-storage-pattern" class="card" role="img" aria-label="Crate: example-storage-pattern v0.0.0">
+<title>example-storage-pattern v0.0.0: Template pattern: trait-only storage layer with swappable backends</title>
 <rect x="240" y="1329" width="340" height="138" rx="14" fill="url(#grad-other)" stroke="#bbf7d0" stroke-width="1.5"/>
 <rect x="248" y="1337" width="324" height="3" rx="1.5" fill="#22c55e"/>
 <text class="th" x="252" y="1357" text-anchor="start" dominant-baseline="central">example-storage-pattern</text>
@@ -196,11 +207,13 @@
 <rect x="296" y="1439" width="52" height="18" rx="9" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="0.75"/><text class="txs" x="322" y="1448" text-anchor="middle" dominant-baseline="central" fill="#166534" font-weight="500">sqlite</text>
 </g>
 <g id="crate-hello-world-example" class="card" role="img" aria-label="Crate: hello-world-example v0.1.0">
-<rect x="620" y="1329" width="340" height="80" rx="14" fill="url(#grad-other)" stroke="#bbf7d0" stroke-width="1.5"/>
+<title>hello-world-example v0.1.0: Minimal hello world example crate</title>
+<rect x="620" y="1329" width="340" height="96" rx="14" fill="url(#grad-other)" stroke="#bbf7d0" stroke-width="1.5"/>
 <rect x="628" y="1337" width="324" height="3" rx="1.5" fill="#22c55e"/>
 <text class="th" x="632" y="1357" text-anchor="start" dominant-baseline="central">hello-world-example</text>
 <text class="txs" x="948" y="1357" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.1.0</text>
-<text class="txs" x="948" y="1395" text-anchor="end" dominant-baseline="central" opacity="0.55">deps: 1</text>
+<text class="ts" x="632" y="1379" text-anchor="start" dominant-baseline="central" opacity="0.75">Minimal hello world example crate</text>
+<text class="txs" x="948" y="1411" text-anchor="end" dominant-baseline="central" opacity="0.55">deps: 1</text>
 </g>
 </g>
 </g>
