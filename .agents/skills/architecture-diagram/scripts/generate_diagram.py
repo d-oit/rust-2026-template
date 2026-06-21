@@ -240,7 +240,7 @@ def _has_graphviz() -> bool:
         return False
 
 def _layout_with_graphviz(crates: list[dict], layers: dict, y_start: int, viewbox_w: int) -> dict:
-    dot_lines = ['digraph G {', '  rankdir=TB;', '  node [shape=box, style=filled, fontname="Inter"];', '  edge [style=invis];']
+    dot_lines = ['digraph G {', '  rankdir=TB;', '  node [shape=box, style=filled, fontname="Inter", fontsize=11];', '  edge [style=invis, weight=10];', '  graph [ranksep=0.8, nodesep=0.5, splines=ortho];']
     rank_groups = {}
     for layer_name in ["apps", "core", "templates", "other"]:
         layer_crates = layers.get(layer_name, [])
@@ -358,14 +358,15 @@ def _route_edge_avoiding_obstacles(sx, sy, tx, ty, obstacles, src_name, dst_name
     for obs_name, (ox, oy, ow, oh) in obstacles.items():
         if obs_name in (src_name, dst_name):
             continue
-        cx, cy = (ox + ow / 2, oy + oh / 2)
         if min(ox + ow, tx) - max(ox, sx) > 0 and min(oy + oh, ty) - max(oy, sy) > 0:
             if sx < ox and tx > ox:
                 sx_adj = ox - min_gap
                 return (f'M {sx} {sy} L {sx} {sy + 20} L {sx_adj} {sy + 20} '
                         f'L {sx_adj} {ty - 20} L {tx} {ty - 20} L {tx} {ty}')
+    if abs(sx - tx) < 10:
+        return f'M {sx} {sy} L {tx} {ty}'
     mid_y = (sy + ty) // 2
-    return f'M {sx} {sy} C {sx} {mid_y}, {tx} {mid_y}, {tx} {ty}'
+    return f'M {sx} {sy} L {sx} {mid_y} L {tx} {mid_y} L {tx} {ty}'
 
 # ── SVG Primitives ────────────────────────────────────────────────────────
 def _esc(s: str) -> str:
@@ -624,7 +625,10 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
                         path_d = _route_edge_avoiding_obstacles(sx, sy, tx, ty, crate_coords, src_name, dep)
                     else:
                         mid_y = (sy + ty) // 2
-                        path_d = f'M {sx} {sy} C {sx} {mid_y}, {tx} {mid_y}, {tx} {ty}'
+                        if abs(sx - tx) < 10:
+                            path_d = f'M {sx} {sy} L {tx} {ty}'
+                        else:
+                            path_d = f'M {sx} {sy} L {sx} {mid_y} L {tx} {mid_y} L {tx} {ty}'
                     push(f'<path d="{path_d}" '
                          f'class="arr-dep" marker-end="url(#arrow-dep)" '
                          f'aria-label="Dependency: {src_name} depends on {dep}"/>')
@@ -817,11 +821,31 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
             f'role="img" aria-label="{title} - {project}">\n{DEFS}\n'
             + "\n".join(parts) + "\n</svg>")
 
+def _export_format(svg: str, svg_path: Path, out_path: Path, fmt: str) -> bool:
+    if fmt == "png":
+        for cmd in [["rsvg-convert", "-f", "png", "-o", str(out_path), str(svg_path)],
+                     ["inkscape", "--export-type=png", f"--export-filename={out_path}", str(svg_path)]]:
+            try:
+                subprocess.run(cmd, capture_output=True, timeout=30, check=True, shell=False)  # nosec B603
+                return True
+            except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError):
+                continue
+    elif fmt == "pdf":
+        for cmd in [["rsvg-convert", "-f", "pdf", "-o", str(out_path), str(svg_path)],
+                     ["inkscape", "--export-type=pdf", f"--export-filename={out_path}", str(svg_path)]]:
+            try:
+                subprocess.run(cmd, capture_output=True, timeout=30, check=True, shell=False)  # nosec B603
+                return True
+            except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError):
+                continue
+    return False
+
 def main():
     parser = argparse.ArgumentParser(description="Generate Project Topology SVG")
     parser.add_argument("--root", default=".", help="Workspace root")
     parser.add_argument("--out", default=".template/architecture.svg", help="Output path")
     parser.add_argument("--no-graphviz", action="store_true", help="Force grid layout (skip Graphviz auto-layout)")
+    parser.add_argument("--format", choices=["svg", "png", "pdf"], default="svg", help="Output format (default: svg)")
     args = parser.parse_args()
     root, out = Path(args.root).resolve(), Path(args.out)
     if not out.is_absolute():
@@ -842,6 +866,14 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(svg, encoding="utf-8")
     print(f"Written: {out}")
+
+    if args.format != "svg":
+        fmt_out = out.with_suffix(f".{args.format}")
+        converted = _export_format(svg, out, fmt_out, args.format)
+        if converted:
+            print(f"Exported: {fmt_out}")
+        else:
+            print(f"Warning: {args.format} export requires rsvg-convert or inkscape on PATH", file=sys.stderr)
 
 if __name__ == "__main__":
     main()

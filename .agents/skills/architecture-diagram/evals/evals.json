@@ -152,5 +152,146 @@
         "value": "WORKSPACE TOPOLOGY"
       }
     ]
+  },
+  {
+    "id": "custom-output-path",
+    "prompt": "Generate the architecture diagram to a custom output path",
+    "expected_output": "SVG file written to custom path",
+    "assertions": [
+      {
+        "type": "file_exists",
+        "path": "/tmp/custom-diagram.svg"
+      },
+      {
+        "type": "content_contains",
+        "path": "/tmp/custom-diagram.svg",
+        "value": "<svg"
+      }
+    ]
+  },
+  {
+    "id": "skills-discovery",
+    "prompt": "Generate the diagram and verify skills are discovered from .agents/skills/",
+    "expected_output": "SVG contains a skills section listing discovered skills",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "ACTIVE SKILLS"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "architecture-diagram"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "anti-ai-slop"
+      }
+    ]
+  },
+  {
+    "id": "accessibility",
+    "prompt": "Generate the diagram and verify accessibility attributes",
+    "expected_output": "SVG contains ARIA labels, role attributes, and semantic grouping",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "role=\"banner\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "role=\"region\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "role=\"group\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "aria-label=\"System architecture header\""
+      }
+    ]
+  },
+  {
+    "id": "feature-badges",
+    "prompt": "Generate the diagram and verify feature badges are rendered",
+    "expected_output": "SVG contains feature badges for crates with features",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "font-weight=\"500\">cli<"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "font-weight=\"500\">mcp<"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "font-weight=\"500\">wasm<"
+      }
+    ]
+  },
+  {
+    "id": "pipeline-stages",
+    "prompt": "Generate the diagram and verify all 4 pipeline stages exist",
+    "expected_output": "SVG contains ANALYZE, VALIDATE, HARDEN, DEPLOY pipeline stages",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "ANALYZE"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "VALIDATE"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "HARDEN"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "DEPLOY"
+      }
+    ]
+  },
+  {
+    "id": "svg-structure",
+    "prompt": "Generate the diagram and verify SVG structure is valid",
+    "expected_output": "SVG has proper viewBox, xmlns, and defs section",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "viewBox=\"0 0 1200"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "xmlns=\"http://www.w3.org/2000/svg\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "<defs>"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.svg",
+        "value": "</svg>"
+      }
+    ]
   }
 ]

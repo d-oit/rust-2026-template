@@ -79,3 +79,10 @@ default.profraw
 
 # Auto-generated LLM context files
 llms-full.txt
+
+# Python cache
+__pycache__/
+*.pyc
+
+# MiMoCode local state
+.mimocode/

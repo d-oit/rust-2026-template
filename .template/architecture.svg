@@ -90,9 +90,9 @@
 <g id="workspace" role="region" aria-label="Workspace topology with 11 components">
 <text class="section-label" x="600" y="345" text-anchor="middle" dominant-baseline="central">WORKSPACE TOPOLOGY · 11 COMPONENTS</text>
 <g id="dependencies" role="img" aria-label="Crate dependency relationships">
-<path d="M 600 643 C 600 822, 600 822, 600 1001" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: benchmarks depends on rust-2026-template"/>
-<path d="M 600 643 C 600 523, 600 523, 600 403" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: benchmarks depends on sample-app"/>
-<path d="M 790 1409 C 790 1298, 410 1298, 410 1187" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: hello-world-example depends on example-crate"/>
+<path d="M 600 643 L 600 1001" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: benchmarks depends on rust-2026-template"/>
+<path d="M 600 643 L 600 403" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: benchmarks depends on sample-app"/>
+<path d="M 790 1409 L 790 1298 L 410 1298 L 410 1187" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: hello-world-example depends on example-crate"/>
 </g>
 <g id="layer-apps" role="group" aria-label="APPLICATIONS">
 <text class="txs" x="30" y="385" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">APPLICATIONS</text>
