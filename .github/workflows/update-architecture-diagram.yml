@@ -5,7 +5,9 @@ on:
     paths:
       - "Cargo.toml"
       - "crates/**/Cargo.toml"
+      - "crates/*/src/**/*.rs"
       - ".agents/skills/*/SKILL.md"
+      - ".agents/ORCHESTRATION.md"
       - "docs/diagram-config.json"
     branches: [main]
   workflow_dispatch:
