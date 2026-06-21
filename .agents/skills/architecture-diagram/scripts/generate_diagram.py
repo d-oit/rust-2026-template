@@ -33,23 +33,24 @@ GAP_Y = 30
 # ── Modern 2026 Style Configuration ─────────────────────────────────────────
 THEME = {
     "colors": {
-        "apps":      {"bg": "#fffbeb", "border": "#fde68a", "text": "#92400e", "accent": "#f59e0b", "grad": ["#fffbeb", "#fef3c7"]},
-        "core":      {"bg": "#eff6ff", "border": "#bfdbfe", "text": "#1e40af", "accent": "#3b82f6", "grad": ["#eff6ff", "#dbeafe"]},
-        "templates": {"bg": "#faf5ff", "border": "#e9d5ff", "text": "#6b21a8", "accent": "#a855f7", "grad": ["#faf5ff", "#f3e8ff"]},
-        "other":     {"bg": "#f0fdf4", "border": "#bbf7d0", "text": "#166534", "accent": "#22c55e", "grad": ["#f0fdf4", "#dcfce7"]},
-        "pipeline":  {"bg": "#f0fdfa", "border": "#99f6e4", "text": "#0f766e", "accent": "#14b8a6", "grad": ["#f0fdfa", "#ccfbf1"]},
-        "interface": {"bg": "#f8fafc", "border": "#e2e8f0", "text": "#334155", "accent": "#64748b", "grad": ["#f8fafc", "#f1f5f9"]},
-        "rose":      {"bg": "#fff1f2", "border": "#fecdd3", "text": "#9f1239", "accent": "#f43f5e", "grad": ["#fff1f2", "#ffe4e6"]},
-        "teal":      {"bg": "#f0fdfa", "border": "#99f6e4", "text": "#0f766e", "accent": "#14b8a6", "grad": ["#f0fdfa", "#ccfbf1"]},
-        "blue":      {"bg": "#eff6ff", "border": "#bfdbfe", "text": "#1e40af", "accent": "#3b82f6", "grad": ["#eff6ff", "#dbeafe"]},
-        "green":     {"bg": "#f0fdf4", "border": "#bbf7d0", "text": "#166534", "accent": "#22c55e", "grad": ["#f0fdf4", "#dcfce7"]},
-        "divider":   "#f1f5f9",
+        "apps":      {"bg": "#fffbeb", "border": "#fcd34d", "text": "#92400e", "accent": "#f59e0b", "grad": ["#fffbeb", "#fef3c7", "#fde68a"]},
+        "core":      {"bg": "#eff6ff", "border": "#93c5fd", "text": "#1e40af", "accent": "#3b82f6", "grad": ["#eff6ff", "#dbeafe", "#bfdbfe"]},
+        "templates": {"bg": "#faf5ff", "border": "#d8b4fe", "text": "#6b21a8", "accent": "#a855f7", "grad": ["#faf5ff", "#f3e8ff", "#e9d5ff"]},
+        "other":     {"bg": "#f0fdf4", "border": "#86efac", "text": "#166534", "accent": "#22c55e", "grad": ["#f0fdf4", "#dcfce7", "#bbf7d0"]},
+        "pipeline":  {"bg": "#f0fdfa", "border": "#5eead4", "text": "#0f766e", "accent": "#14b8a6", "grad": ["#f0fdfa", "#ccfbf1", "#99f6e4"]},
+        "interface": {"bg": "#f8fafc", "border": "#cbd5e1", "text": "#334155", "accent": "#64748b", "grad": ["#f8fafc", "#f1f5f9", "#e2e8f0"]},
+        "rose":      {"bg": "#fff1f2", "border": "#fda4af", "text": "#9f1239", "accent": "#f43f5e", "grad": ["#fff1f2", "#ffe4e6", "#fecdd3"]},
+        "teal":      {"bg": "#f0fdfa", "border": "#5eead4", "text": "#0f766e", "accent": "#14b8a6", "grad": ["#f0fdfa", "#ccfbf1", "#99f6e4"]},
+        "blue":      {"bg": "#eff6ff", "border": "#93c5fd", "text": "#1e40af", "accent": "#3b82f6", "grad": ["#eff6ff", "#dbeafe", "#bfdbfe"]},
+        "green":     {"bg": "#f0fdf4", "border": "#86efac", "text": "#166534", "accent": "#22c55e", "grad": ["#f0fdf4", "#dcfce7", "#bbf7d0"]},
+        "divider":   "#e2e8f0",
         "arrow":     "#94a3b8",
         "bg":        "#ffffff",
         "muted":     "#f8fafc",
+        "surface":   "#ffffff",
     },
     "font": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    "radius": 14,
+    "radius": 16,
 }
 
 DEFAULT_CONFIG = {
@@ -379,9 +380,15 @@ def _esc(s: str) -> str:
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 def _grad_def(name: str, colors: list[str]) -> str:
+    if len(colors) >= 3:
+        return (f'<linearGradient id="{name}" x1="0" y1="0" x2="0" y2="1">'
+                f'<stop offset="0%" stop-color="{colors[0]}"/>'
+                f'<stop offset="50%" stop-color="{colors[1]}"/>'
+                f'<stop offset="100%" stop-color="{colors[2]}"/>'
+                f'</linearGradient>')
     return (f'<linearGradient id="{name}" x1="0" y1="0" x2="0" y2="1">'
             f'<stop offset="0%" stop-color="{colors[0]}"/>'
-            f'<stop offset="100%" stop-color="{colors[1]}"/>'
+            f'<stop offset="100%" stop-color="{colors[-1]}"/>'
             f'</linearGradient>')
 
 def _rect(x, y, w, h, rx=None, color_key="core", dash=False, fill_override=None) -> str:
@@ -394,7 +401,7 @@ def _rect(x, y, w, h, rx=None, color_key="core", dash=False, fill_override=None)
 
 def _accent_bar(x, y, w, color_key="core") -> str:
     c = THEME["colors"].get(color_key, THEME["colors"]["core"])
-    return f'<rect x="{x}" y="{y}" width="{w}" height="3" rx="1.5" fill="{c["accent"]}"/>'
+    return f'<rect x="{x}" y="{y}" width="{w}" height="4" rx="2" fill="{c["accent"]}" opacity="0.9"/>'
 
 def _text(x, y, content, anchor="middle", cls="ts", dy=None, opacity=None, weight=None, aria=None) -> str:
     dy_attr = f' dy="{dy}"' if dy else ""
@@ -409,11 +416,11 @@ def _badge(x, y, text_content, color_key="core", w=None) -> str:
     c = THEME["colors"].get(color_key, THEME["colors"]["core"])
     tw = len(text_content) * 6 + 16
     bw = w or max(tw, 50)
-    return (f'<rect x="{x}" y="{y}" width="{bw}" height="18" rx="9" '
-            f'fill="{c["bg"]}" stroke="{c["border"]}" stroke-width="0.75"/>'
-            f'<text class="txs" x="{x + bw // 2}" y="{y + 9}" '
+    return (f'<rect x="{x}" y="{y}" width="{bw}" height="20" rx="10" '
+            f'fill="{c["bg"]}" stroke="{c["border"]}" stroke-width="1"/>'
+            f'<text class="badge" x="{x + bw // 2}" y="{y + 10}" '
             f'text-anchor="middle" dominant-baseline="central" '
-            f'fill="{c["text"]}" font-weight="500">{_esc(text_content)}</text>')
+            f'fill="{c["text"]}">{_esc(text_content)}</text>')
 
 def _container(x, y, w, h, label, sublabel=None, aria_label=None) -> str:
     parts = [
@@ -515,23 +522,29 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
         <path d="M2 2L10 6L2 10Z" fill="#6366f1" opacity="0.6"/>
       </marker>
       <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
-        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.1"/>
+        <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.05"/>
       </filter>
-      <filter id="soft-shadow" x="-8%" y="-8%" width="116%" height="120%">
-        <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.06"/>
+      <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="130%">
+        <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.08"/>
+      </filter>
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
       </filter>
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
-        .th{{font-family:{THEME["font"]};font-size:13px;font-weight:600;fill:#0f172a;letter-spacing:-0.01em}}
-        .ts{{font-family:{THEME["font"]};font-size:12.5px;font-weight:500;fill:#334155;letter-spacing:0.01em}}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap');
+        .th{{font-family:{THEME["font"]};font-size:13px;font-weight:700;fill:#0f172a;letter-spacing:-0.01em}}
+        .ts{{font-family:{THEME["font"]};font-size:12.5px;font-weight:500;fill:#334155;letter-spacing:0.005em}}
         .txs{{font-family:{THEME["font"]};font-size:11px;font-weight:500;fill:#475569;letter-spacing:0.01em}}
-        .tl{{font-family:{THEME["font"]};font-size:24px;font-weight:700;fill:#0f172a;letter-spacing:-0.02em}}
-        .arr{{fill:none;stroke:{THEME["colors"]["arrow"]};stroke-width:1.5;opacity:0.7}}
-        .arr-dep{{fill:none;stroke:#6366f1;stroke-width:1.3;opacity:0.6;stroke-dasharray:6 3}}
+        .tl{{font-family:{THEME["font"]};font-size:28px;font-weight:800;fill:#0f172a;letter-spacing:-0.03em}}
+        .arr{{fill:none;stroke:{THEME["colors"]["arrow"]};stroke-width:1.5;opacity:0.6}}
+        .arr-dep{{fill:none;stroke:#6366f1;stroke-width:1.5;opacity:0.5;stroke-dasharray:8 4}}
         .card{{filter:url(#shadow)}}
         .card-soft{{filter:url(#soft-shadow)}}
-        .section-label{{font-family:{THEME["font"]};font-size:11px;font-weight:700;fill:#94a3b8;letter-spacing:0.08em;text-transform:uppercase}}
-        .subtitle{{font-family:{THEME["font"]};font-size:11px;font-weight:500;fill:#94a3b8}}
+        .section-label{{font-family:{THEME["font"]};font-size:11px;font-weight:800;fill:#64748b;letter-spacing:0.1em;text-transform:uppercase}}
+        .subtitle{{font-family:{THEME["font"]};font-size:12px;font-weight:600;fill:#94a3b8;letter-spacing:0.05em}}
+        .badge{{font-family:{THEME["font"]};font-size:10px;font-weight:600;letter-spacing:0.02em}}
       </style>
     </defs>"""
 
