@@ -56,6 +56,12 @@ DEFAULT_CONFIG = {
     "title": "SYSTEM ARCHITECTURE",
     "project_name": "RUST 2026 WORKSPACE",
     "author": "MAINTAINER",
+    "pipeline_stages": [
+        {"name": "ANALYZE", "color": "teal", "desc": "lint · clippy", "timing": "Every push · ~2 min"},
+        {"name": "VALIDATE", "color": "blue", "desc": "test · nextest", "timing": "Every push · ~5 min"},
+        {"name": "HARDEN", "color": "rose", "desc": "audit · deny", "timing": "Weekly + pre-release"},
+        {"name": "DEPLOY", "color": "green", "desc": "release · publish", "timing": "Tag-triggered · ~4 min"},
+    ],
 }
 
 # ── Discovery Helpers ──────────────────────────────────────────────────────
@@ -565,16 +571,16 @@ def build_svg(cfg: dict, crates: list[dict], skills: list[str], agents: list[str
     push(f'<g id="pipeline" role="region" aria-label="CI/CD Pipeline orchestration">')
     push(_text(CENTER_X, y_cursor, "PIPELINE ORCHESTRATION", cls="section-label"))
     y_cursor += 30
-    stages = [
-        ("ANALYZE", "teal", "lint · clippy", "Every push · ~2 min"),
-        ("VALIDATE", "blue", "test · nextest", "Every push · ~5 min"),
-        ("HARDEN", "rose", "audit · deny", "Weekly + pre-release"),
-        ("DEPLOY", "green", "release · publish", "Tag-triggered · ~4 min"),
-    ]
+    stages = cfg.get("pipeline_stages", DEFAULT_CONFIG["pipeline_stages"])
+    num_stages = len(stages)
     row_h, gap = 60, 20
-    bw = (VIEWBOX_W - 2 * VIEWBOX_MARGIN - 3 * gap) // 4
+    bw = (VIEWBOX_W - 2 * VIEWBOX_MARGIN - (num_stages - 1) * gap) // num_stages
     x = VIEWBOX_MARGIN
-    for i, (name, color, desc, timing) in enumerate(stages):
+    for i, stage in enumerate(stages):
+        name = stage["name"]
+        color = stage.get("color", "teal")
+        desc = stage.get("desc", "")
+        timing = stage.get("timing", "")
         push(f'<g class="card" role="img" aria-label="Pipeline stage: {name} - {desc}">')
         push(_rect(x, y_cursor, bw, row_h, color_key=color))
         push(_text(x + bw // 2, y_cursor + 20, name, cls="th"))

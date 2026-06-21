@@ -1,0 +1,31 @@
+{
+  "title": "SYSTEM ARCHITECTURE",
+  "project_name": "RUST 2026 WORKSPACE",
+  "author": "MAINTAINER",
+  "pipeline_stages": [
+    {
+      "name": "ANALYZE",
+      "color": "teal",
+      "desc": "lint · clippy",
+      "timing": "Every push · ~2 min"
+    },
+    {
+      "name": "VALIDATE",
+      "color": "blue",
+      "desc": "test · nextest",
+      "timing": "Every push · ~5 min"
+    },
+    {
+      "name": "HARDEN",
+      "color": "rose",
+      "desc": "audit · deny",
+      "timing": "Weekly + pre-release"
+    },
+    {
+      "name": "DEPLOY",
+      "color": "green",
+      "desc": "release · publish",
+      "timing": "Tag-triggered · ~4 min"
+    }
+  ]
+}
