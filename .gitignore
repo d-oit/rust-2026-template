@@ -86,3 +86,4 @@ __pycache__/
 
 # MiMoCode local state
 .mimocode/
+docs/book/

@@ -26,10 +26,6 @@ jobs:
       - name: Install Graphviz
         run: sudo apt-get install -y graphviz
 
-      - name: Install mdbook
-        run: |
-          curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz | tar xz -C /usr/local/bin
-
       - name: Regenerate diagram
         run: |
           python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
@@ -37,13 +33,10 @@ jobs:
             --out .template/architecture.svg
           cp .template/architecture.svg docs/src/architecture.svg
 
-      - name: Build mdbook
-        run: mdbook build docs
-
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet; then
+          if git diff --quiet .template/architecture.svg docs/src/architecture.svg; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -54,6 +47,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .template/architecture.svg docs/src/architecture.svg docs/book/
-          git commit -m "docs: regenerate architecture diagram and rebuild mdbook [skip ci]"
+          git add .template/architecture.svg docs/src/architecture.svg
+          git commit -m "docs: regenerate architecture diagram [skip ci]"
           git push
