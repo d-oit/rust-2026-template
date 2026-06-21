@@ -1,3 +1,4 @@
+---
 name: Deploy mdBook to GitHub Pages
 
 on:
@@ -27,7 +28,8 @@ jobs:
 
       - name: Install mdbook
         run: |
-          curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          MDBOOK_URL="https://github.com/rust-lang/mdBook/releases/download/v0.4.40"
+          curl -sSL "${MDBOOK_URL}/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz" | tar xz
           sudo mv mdbook /usr/local/bin/
 
       - name: Sync architecture SVG
