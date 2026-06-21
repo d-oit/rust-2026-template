@@ -176,23 +176,38 @@
                         <h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
 <p><img src="architecture.svg" alt="System Architecture" /></p>
 <h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
-<p>This diagram shows the complete system architecture of the Rust 2026 Template workspace, including:</p>
+<p>This diagram shows the complete system architecture of the Rust 2026 Template workspace in a <strong>1200px landscape format</strong> with descriptions inside each element, including:</p>
 <ul>
-<li><strong>Pipeline Orchestration</strong> — CI/CD stages from analysis to deployment</li>
-<li><strong>Workspace Topology</strong> — All 11 crates organized by layer (applications, core libraries, templates, examples)</li>
-<li><strong>Active Skills</strong> — 21 agent skills for development workflows</li>
+<li><strong>Pipeline Orchestration</strong> — CI/CD stages from analysis to deployment with timing info</li>
+<li><strong>Workspace Topology</strong> — All crates organized by layer with purpose descriptions inside each card</li>
+<li><strong>Active Skills</strong> — Agent skills for development workflows</li>
 <li><strong>Interface Protocols</strong> — Slash commands and tool integrations</li>
 </ul>
 <h2 id="crate-layers"><a class="header" href="#crate-layers">Crate Layers</a></h2>
 <div class="table-wrapper"><table><thead><tr><th>Layer</th><th>Crates</th><th>Purpose</th></tr></thead><tbody>
-<tr><td>Applications</td><td><code>sample-app</code></td><td>Reference binary application</td></tr>
-<tr><td>Core Libraries</td><td><code>benchmarks</code></td><td>Performance measurement</td></tr>
-<tr><td>Templates</td><td><code>actor-runtime-template</code>, <code>checkpoint-template</code>, <code>hybrid-storage-template</code>, <code>mcp-server-template</code>, <code>rust-2026-template</code></td><td>Reusable architectural patterns</td></tr>
-<tr><td>Examples</td><td><code>example-crate</code>, <code>example-registry-pattern</code>, <code>example-storage-pattern</code>, <code>hello-world-example</code></td><td>Learning references</td></tr>
+<tr><td>Applications</td><td><code>sample-app</code></td><td>Reference binary application demonstrating the workspace template</td></tr>
+<tr><td>Core Libraries</td><td><code>benchmarks</code></td><td>Performance measurement andCriterion benchmarks</td></tr>
+<tr><td>Templates</td><td><code>actor-runtime-template</code></td><td>Actor runtime with supervision and restart strategies</td></tr>
+<tr><td></td><td><code>checkpoint-template</code></td><td>Serializable state with versioning and file storage</td></tr>
+<tr><td></td><td><code>hybrid-storage-template</code></td><td>Backend abstraction with feature-gated implementations</td></tr>
+<tr><td></td><td><code>mcp-server-template</code></td><td>MCP server with tool trait and registry dispatch</td></tr>
+<tr><td></td><td><code>rust-2026-template</code></td><td>Main workspace template with modern tooling and CI/CD</td></tr>
+<tr><td>Examples</td><td><code>example-crate</code></td><td>Basic example crate</td></tr>
+<tr><td></td><td><code>example-registry-pattern</code></td><td>Registry dispatch pattern example</td></tr>
+<tr><td></td><td><code>example-storage-pattern</code></td><td>Storage abstraction pattern example</td></tr>
+<tr><td></td><td><code>hello-world-example</code></td><td>Simple hello world example</td></tr>
 </tbody></table>
 </div>
 <h2 id="dependency-flow"><a class="header" href="#dependency-flow">Dependency Flow</a></h2>
 <p>Dependencies flow upward only: examples → templates → core → applications. This is enforced by <code>cargo deny</code>.</p>
+<h2 id="diagram-features"><a class="header" href="#diagram-features">Diagram Features</a></h2>
+<ul>
+<li><strong>Descriptions inside elements</strong> — Each crate card includes its purpose description</li>
+<li><strong>Feature badges</strong> — Cargo features displayed as visual badges inside cards</li>
+<li><strong>Dependency counts</strong> — Number of internal dependencies shown on each card</li>
+<li><strong>Pipeline timing</strong> — Estimated CI/CD stage durations</li>
+<li><strong>1200px landscape</strong> — Optimized for web display and README embedding</li>
+</ul>
 <h2 id="regenerating-the-diagram"><a class="header" href="#regenerating-the-diagram">Regenerating the Diagram</a></h2>
 <pre><code class="language-bash">python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --out .template/architecture.svg
 cp .template/architecture.svg docs/src/architecture.svg
