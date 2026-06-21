@@ -33,6 +33,28 @@
         "Runs cargo deny check",
         "Reports vulnerability severity and license issues"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Check if my code is properly formatted",
+      "expected_output": "Runs cargo fmt --check and reports unformatted files",
+      "files": [],
+      "assertions": [
+        "Runs cargo fmt --check",
+        "Reports which files need formatting",
+        "Does not modify files in check mode"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Lint the entire workspace for unused dependencies",
+      "expected_output": "Runs cargo machete to find unused dependencies across all crates",
+      "files": [],
+      "assertions": [
+        "Runs cargo machete",
+        "Reports unused dependencies per crate",
+        "Distinguishes between truly unused and build-only deps"
+      ]
     }
   ]
 }

@@ -1,0 +1,51 @@
+name: Update Architecture Diagram
+
+on:
+  push:
+    paths:
+      - "Cargo.toml"
+      - "crates/**/Cargo.toml"
+      - ".agents/skills/*/SKILL.md"
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Graphviz
+        run: sudo apt-get install -y graphviz
+
+      - name: Regenerate diagram
+        run: |
+          python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
+            --root . \
+            --out .template/architecture.svg
+          cp .template/architecture.svg docs/src/architecture.svg
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet .template/architecture.svg docs/src/architecture.svg; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .template/architecture.svg docs/src/architecture.svg
+          git commit -m "docs: regenerate architecture diagram [skip ci]"
+          git push

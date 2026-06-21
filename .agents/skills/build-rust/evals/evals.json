@@ -33,6 +33,28 @@
         "Uses cargo-nextest if available",
         "Runs doc tests separately"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Build only a specific crate in the workspace",
+      "expected_output": "Builds the specified crate with cargo build -p <crate>",
+      "files": [],
+      "assertions": [
+        "Uses cargo build -p <crate-name>",
+        "Reports build time and output binary path",
+        "Does not rebuild unchanged crates"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Check build times and identify slow crates",
+      "expected_output": "Runs cargo build with timing, reports per-crate compile times",
+      "files": [],
+      "assertions": [
+        "Uses cargo build --timings or cargo clean + build",
+        "Reports which crates take longest to compile",
+        "Suggests optimizations for slow crates"
+      ]
     }
   ]
 }
