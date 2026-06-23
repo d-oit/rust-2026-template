@@ -1,10 +1,13 @@
-"""Excalidraw renderer — convert SceneDocument to Excalidraw v2 JSON format."""
+"""Excalidraw renderer — convert SceneDocument to Excalidraw v2 JSON format.
 
-import hashlib
-from typing import Any
+Uses native Excalidraw features:
+- frame elements for section grouping
+- label property for bound text on shapes
+- startBinding/endBinding for arrow connections
+- proper element ordering (children before frames)
+"""
 
-from .scene_model import SceneDocument, SceneNode, SceneEdge
-from .config import THEME
+from .scene_model import SceneDocument, SceneNode
 
 
 EXCALIDRAW_COLORS = {
@@ -21,53 +24,61 @@ EXCALIDRAW_COLORS = {
 }
 
 
-def _deterministic_seed(id_str: str) -> int:
+def _seed(id_str: str) -> int:
     h = 0
     for c in id_str:
         h = (h * 31 + ord(c)) & 0xFFFFFFFF
     return h
 
 
-def _make_rect(el_id: str, node: SceneNode, group_ids: list[str] | None = None) -> dict:
-    colors = EXCALIDRAW_COLORS.get(node.color_key, EXCALIDRAW_COLORS["interface"])
-    return {
+def _rect(el_id: str, x: float, y: float, w: float, h: float,
+          color_key: str = "interface", label: str | None = None,
+          label_font_size: int = 14, label_align: str = "center",
+          label_valign: str = "middle", label_color: str | None = None,
+          stroke_width: int = 2, opacity: int = 100,
+          frame_id: str | None = None) -> dict:
+    colors = EXCALIDRAW_COLORS.get(color_key, EXCALIDRAW_COLORS["interface"])
+    el = {
         "id": el_id,
         "type": "rectangle",
-        "x": node.x,
-        "y": node.y,
-        "width": node.w,
-        "height": node.h,
+        "x": x, "y": y, "width": w, "height": h,
         "angle": 0,
         "strokeColor": colors["stroke"],
         "backgroundColor": colors["bg"],
         "fillStyle": "solid",
-        "strokeWidth": 2,
+        "strokeWidth": stroke_width,
         "strokeStyle": "solid",
         "roughness": 1,
-        "opacity": 100,
-        "groupIds": group_ids or [],
-        "frameId": None,
+        "opacity": opacity,
+        "groupIds": [],
+        "frameId": frame_id,
         "index": None,
         "roundness": {"type": 3},
-        "seed": _deterministic_seed(el_id),
-        "version": 1,
-        "versionNonce": _deterministic_seed(el_id + "_v"),
+        "seed": _seed(el_id),
+        "version": 1, "versionNonce": _seed(el_id + "_v"),
         "isDeleted": False,
         "boundElements": None,
-        "updated": 1,
-        "link": None,
-        "locked": False,
+        "updated": 1, "link": None, "locked": False,
     }
+    if label:
+        el["label"] = {
+            "text": label,
+            "fontSize": label_font_size,
+            "fontFamily": 1,
+            "textAlign": label_align,
+            "verticalAlign": label_valign,
+            "strokeColor": label_color or colors["stroke"],
+        }
+    return el
 
 
-def _make_text(el_id: str, x: float, y: float, text: str, font_size: int = 20,
-               font_family: int = 2, text_align: str = "left",
-               group_ids: list[str] | None = None, color: str = "#1e1e1e") -> dict:
+def _text(el_id: str, x: float, y: float, text: str,
+          font_size: int = 16, color: str = "#1e1e1e",
+          align: str = "left", frame_id: str | None = None) -> dict:
     return {
         "id": el_id,
         "type": "text",
-        "x": x,
-        "y": y,
+        "x": x, "y": y,
         "width": len(text) * font_size * 0.6,
         "height": font_size * 1.25,
         "angle": 0,
@@ -78,22 +89,19 @@ def _make_text(el_id: str, x: float, y: float, text: str, font_size: int = 20,
         "strokeStyle": "solid",
         "roughness": 1,
         "opacity": 100,
-        "groupIds": group_ids or [],
-        "frameId": None,
+        "groupIds": [],
+        "frameId": frame_id,
         "index": None,
         "roundness": None,
-        "seed": _deterministic_seed(el_id),
-        "version": 1,
-        "versionNonce": _deterministic_seed(el_id + "_v"),
+        "seed": _seed(el_id),
+        "version": 1, "versionNonce": _seed(el_id + "_v"),
         "isDeleted": False,
         "boundElements": None,
-        "updated": 1,
-        "link": None,
-        "locked": False,
+        "updated": 1, "link": None, "locked": False,
         "text": text,
         "fontSize": font_size,
-        "fontFamily": font_family,
-        "textAlign": text_align,
+        "fontFamily": 1,
+        "textAlign": align,
         "verticalAlign": "top",
         "containerId": None,
         "originalText": text,
@@ -101,334 +109,271 @@ def _make_text(el_id: str, x: float, y: float, text: str, font_size: int = 20,
     }
 
 
-def _make_arrow(el_id: str, source: SceneNode, target: SceneNode,
-                group_ids: list[str] | None = None,
-                direction: str = "vertical",
-                all_nodes: list[SceneNode] | None = None) -> dict:
-    if direction == "horizontal":
-        sx = source.x + source.w
-        sy = source.y + source.h / 2
-        tx = target.x
-        ty = target.y + target.h / 2
-    else:
-        sx = source.x + source.w / 2
-        sy = source.y + source.h
-        tx = target.x + target.w / 2
-        ty = target.y
-
-    points = [[0, 0], [tx - sx, ty - sy]]
-
-    if direction == "vertical":
-        has_obstacle = False
-        if all_nodes:
-            for node in all_nodes:
-                if node.id in (source.id, target.id):
-                    continue
-                if node.kind in ("pipeline_stage", "section_label"):
-                    continue
-                nx, ny, nw, nh = node.x, node.y, node.w, node.h
-                path_min_x = min(sx, tx)
-                path_max_x = max(sx, tx)
-                if nx <= path_max_x + 20 and nx + nw >= path_min_x - 20 and sy < ny < ty:
-                    has_obstacle = True
-                    break
-        if has_obstacle:
-            mid_y = (sy + ty) / 2
-            points = [[0, 0], [0, mid_y - sy], [tx - sx, mid_y - sy], [tx - sx, ty - sy]]
-
-    result = {
+def _arrow(el_id: str, x: float, y: float,
+           start_id: str, end_id: str,
+           points: list[list[float]] | None = None,
+           label: str | None = None,
+           stroke_color: str = "#868e96",
+           stroke_width: int = 2,
+           stroke_style: str = "solid",
+           opacity: int = 100,
+           elbowed: bool = False) -> dict:
+    if points is None:
+        points = [[0, 0], [100, 0]]
+    el = {
         "id": el_id,
         "type": "arrow",
-        "x": sx,
-        "y": sy,
-        "width": abs(tx - sx) if abs(tx - sx) > 1 else 1,
-        "height": abs(ty - sy) if abs(ty - sy) > 1 else 1,
+        "x": x, "y": y,
+        "width": abs(points[-1][0]) or 1,
+        "height": abs(points[-1][1]) or 1,
         "angle": 0,
-        "strokeColor": "#94a3b8",
+        "strokeColor": stroke_color,
         "backgroundColor": "transparent",
         "fillStyle": "solid",
-        "strokeWidth": 1.5,
-        "strokeStyle": "solid",
-        "roughness": 0,
-        "opacity": 70,
-        "groupIds": group_ids or [],
+        "strokeWidth": stroke_width,
+        "strokeStyle": stroke_style,
+        "roughness": 1,
+        "opacity": opacity,
+        "groupIds": [],
         "frameId": None,
         "index": None,
         "roundness": {"type": 2},
-        "seed": _deterministic_seed(el_id),
-        "version": 1,
-        "versionNonce": _deterministic_seed(el_id + "_v"),
+        "seed": _seed(el_id),
+        "version": 1, "versionNonce": _seed(el_id + "_v"),
         "isDeleted": False,
         "boundElements": None,
-        "updated": 1,
-        "link": None,
-        "locked": False,
+        "updated": 1, "link": None, "locked": False,
         "points": points,
-        "startBinding": None,
-        "endBinding": None,
+        "startBinding": {"elementId": start_id, "focus": 0, "gap": 5},
+        "endBinding": {"elementId": end_id, "focus": 0, "gap": 5},
         "startArrowhead": None,
         "endArrowhead": "arrow",
-        "elbowed": len(points) > 2,
+        "elbowed": elbowed,
     }
-    return result
+    if label:
+        el["label"] = {"text": label, "fontSize": 14, "fontFamily": 1}
+    return el
 
 
-def _make_container_frame(el_id: str, x: float, y: float, w: float, h: float,
-                          label: str, group_ids: list[str] | None = None) -> list[dict]:
-    frame = {
+def _frame(el_id: str, name: str, children: list[str]) -> dict:
+    return {
         "id": el_id,
-        "type": "rectangle",
-        "x": x,
-        "y": y,
-        "width": w,
-        "height": h,
+        "type": "frame",
+        "x": 0, "y": 0, "width": 100, "height": 100,
         "angle": 0,
-        "strokeColor": "#94a3b8",
+        "strokeColor": "#868e96",
         "backgroundColor": "transparent",
         "fillStyle": "solid",
         "strokeWidth": 1,
-        "strokeStyle": "dashed",
+        "strokeStyle": "solid",
         "roughness": 0,
-        "opacity": 30,
-        "groupIds": group_ids or [],
+        "opacity": 100,
+        "groupIds": [],
         "frameId": None,
         "index": None,
-        "roundness": {"type": 3},
-        "seed": _deterministic_seed(el_id),
-        "version": 1,
-        "versionNonce": _deterministic_seed(el_id + "_v"),
+        "roundness": None,
+        "seed": _seed(el_id),
+        "version": 1, "versionNonce": _seed(el_id + "_v"),
         "isDeleted": False,
         "boundElements": None,
-        "updated": 1,
-        "link": None,
-        "locked": False,
+        "updated": 1, "link": None, "locked": False,
+        "name": name,
+        "children": children,
     }
-    label_el = _make_text(el_id + "_label", x + 10, y + 5, label,
-                          font_size=11, font_family=2, group_ids=group_ids,
-                          color="#64748b")
-    return [frame, label_el]
+
+
+def _build_crate(el_id: str, node: SceneNode, frame_id: str | None = None) -> list[dict]:
+    """Build a crate card: rectangle with label + version text."""
+    els = []
+    desc = node.metadata.get("description", "")
+    features = node.metadata.get("features", [])
+    ver = node.subtitle or ""
+
+    label_text = node.label
+    if ver:
+        label_text += f"\n{ver}"
+    if desc:
+        short_desc = desc[:50] + ("..." if len(desc) > 50 else "")
+        label_text += f"\n{short_desc}"
+
+    els.append(_rect(el_id, node.x, node.y, node.w, node.h,
+                     color_key=node.color_key, label=label_text,
+                     label_font_size=14, label_align="left",
+                     label_valign="top", frame_id=frame_id))
+
+    for fi, feat in enumerate(features):
+        fid = f"{el_id}_feat_{fi}"
+        fw = len(feat) * 7 + 16
+        fx = node.x + 10 + fi * (fw + 6)
+        fy = node.y + node.h - 24
+        if fx + fw > node.x + node.w - 10:
+            fx = node.x + 10
+            fy += 20
+        els.append(_rect(fid, fx, fy, fw, 18,
+                         color_key=node.color_key,
+                         label=feat, label_font_size=10,
+                         stroke_width=1, frame_id=frame_id))
+
+    return els
+
+
+def _build_pipeline_stage(el_id: str, node: SceneNode, frame_id: str | None = None) -> dict:
+    """Build a pipeline stage: rectangle with label + timing."""
+    label = node.label
+    if node.subtitle:
+        label += f"\n{node.subtitle}"
+    timing = node.metadata.get("timing", "")
+    if timing:
+        label += f"\n{timing}"
+    return _rect(el_id, node.x, node.y, node.w, node.h,
+                 color_key=node.color_key, label=label,
+                 label_font_size=14, frame_id=frame_id)
+
+
+def _build_error_type(el_id: str, node: SceneNode, frame_id: str | None = None) -> dict:
+    """Build an error type card."""
+    label = node.label
+    if node.subtitle:
+        label += f"\n{node.subtitle}"
+    crate = node.metadata.get("crate", "")
+    if crate:
+        label += f"\n({crate})"
+    return _rect(el_id, node.x, node.y, node.w, node.h,
+                 color_key="rose", label=label,
+                 label_font_size=12, label_align="left",
+                 frame_id=frame_id)
+
+
+def _build_data_type(el_id: str, node: SceneNode, frame_id: str | None = None) -> dict:
+    """Build a data type card."""
+    label = node.label
+    if node.subtitle:
+        label += f"\n{node.subtitle}"
+    return _rect(el_id, node.x, node.y, node.w, node.h,
+                 color_key="interface", label=label,
+                 label_font_size=12, label_align="left",
+                 frame_id=frame_id)
 
 
 def scene_to_excalidraw(scene: SceneDocument) -> dict:
-    """Convert SceneDocument to Excalidraw v2 JSON format."""
+    """Convert SceneDocument to Excalidraw v2 JSON using native features."""
     elements: list[dict] = []
-    node_map: dict[str, SceneNode] = {n.id: n for n in scene.all_nodes}
+    node_map = {n.id: n for n in scene.all_nodes}
+    arrow_bindings: dict[str, list[str]] = {}
 
+    # ── Header (standalone text) ──
     for section in scene.sections:
+        if section.id != "header":
+            continue
+        for node in section.nodes:
+            font_size = 28 if node.metadata.get("cls") == "tl" else 14
+            elements.append(_text(
+                f"el_{node.id}", node.x - node.w / 2, node.y,
+                node.label, font_size=font_size, color="#1e1e1e",
+            ))
+
+    # ── Sections with frames ──
+    for section in scene.sections:
+        if section.id in ("header", "legend"):
+            continue
+
         section_nodes = [n for n in section.nodes if n.id in node_map]
         if not section_nodes:
             continue
 
-        if section.id == "legend":
-            continue
+        frame_id = f"frame_{section.id}"
+        child_ids = []
 
-        if section.id == "header":
-            for node in section_nodes:
-                el_id = f"el_{node.id}"
-                font_size = 28 if node.metadata.get("cls") == "tl" else 14
-                elements.append(_make_text(
-                    el_id, node.x - node.w / 2, node.y,
-                    node.label, font_size=font_size, font_family=2,
-                    text_align="center", color="#1e1e1e",
-                ))
-            continue
-
-        min_x = min(n.x for n in section_nodes)
-        min_y = min(n.y for n in section_nodes)
-        max_x = max(n.x + n.w for n in section_nodes)
-        max_y = max(n.y + n.h for n in section_nodes)
-        padding = 15
-
-        container_id = f"container_{section.id}"
-        group_id = f"group_{section.id}"
-        container_els = _make_container_frame(
-            container_id,
-            min_x - padding, min_y - padding,
-            max_x - min_x + 2 * padding, max_y - min_y + 2 * padding,
-            section.title.upper(),
-            group_ids=[group_id],
-        )
-        elements.extend(container_els)
-
+        # Build child elements first (required by Excalidraw frame ordering)
         for node in section_nodes:
             el_id = f"el_{node.id}"
-            elements.append(_make_rect(el_id, node, group_ids=[group_id]))
 
             if node.kind == "crate":
-                title_id = f"el_{node.id}_title"
-                elements.append(_make_text(
-                    title_id, node.x + 10, node.y + 8,
-                    node.label, font_size=14, font_family=2,
-                    group_ids=[group_id], color="#1e1e1e",
-                ))
-                if node.subtitle:
-                    ver_id = f"el_{node.id}_version"
-                    elements.append(_make_text(
-                        ver_id, node.x + node.w - 10, node.y + 8,
-                        node.subtitle, font_size=11, font_family=2,
-                        text_align="right", group_ids=[group_id], color="#64748b",
-                    ))
-                if node.metadata.get("description"):
-                    desc_lines = _wrap_excalidraw_text(node.metadata["description"], max_chars=45)
-                    for di, line in enumerate(desc_lines):
-                        did = f"el_{node.id}_desc_{di}"
-                        elements.append(_make_text(
-                            did, node.x + 10, node.y + 30 + di * 16,
-                            line, font_size=12, font_family=2,
-                            group_ids=[group_id], color="#475569",
-                        ))
-                features = node.metadata.get("features", [])
-                if features:
-                    feat_y = node.y + node.h - 25
-                    feat_x = node.x + 10
-                    for feat in features:
-                        fid = f"el_{node.id}_feat_{feat}"
-                        fw = len(feat) * 7 + 16
-                        if feat_x + fw > node.x + node.w - 10:
-                            feat_x = node.x + 10
-                            feat_y += 20
-                        feat_rect = _make_rect(fid, SceneNode(
-                            id=fid, kind="command",
-                            x=feat_x, y=feat_y, w=fw, h=18,
-                            label=feat, color_key=node.color_key,
-                        ), group_ids=[group_id])
-                        feat_rect["roundness"] = {"type": 3}
-                        elements.append(feat_rect)
-                        elements.append(_make_text(
-                            fid + "_text", feat_x + 4, feat_y + 2,
-                            feat, font_size=10, font_family=2,
-                            group_ids=[group_id], color=EXCALIDRAW_COLORS.get(node.color_key, {}).get("stroke", "#1e1e1e"),
-                        ))
-                        feat_x += fw + 6
-            elif node.kind == "pipeline_stage":
-                elements.append(_make_text(
-                    f"el_{node.id}_title", node.x + node.w / 2 - len(node.label) * 4,
-                    node.y + 10, node.label, font_size=14, font_family=2,
-                    text_align="center", group_ids=[group_id], color="#1e1e1e",
-                ))
-                if node.subtitle:
-                    elements.append(_make_text(
-                        f"el_{node.id}_desc", node.x + 10, node.y + 30,
-                        node.subtitle, font_size=11, font_family=2,
-                        group_ids=[group_id], color="#475569",
-                    ))
-                if node.metadata.get("timing"):
-                    elements.append(_make_text(
-                        f"el_{node.id}_timing", node.x + 10, node.y + 45,
-                        node.metadata["timing"], font_size=10, font_family=2,
-                        group_ids=[group_id], color="#64748b",
-                    ))
-            elif node.kind == "skill":
-                elements.append(_make_text(
-                    f"el_{node.id}_text", node.x, node.y,
-                    node.label, font_size=13, font_family=2,
-                    group_ids=[group_id], color="#334155",
-                ))
-            elif node.kind == "agent":
-                elements.append(_make_text(
-                    f"el_{node.id}_text", node.x, node.y,
-                    node.label, font_size=13, font_family=2,
-                    group_ids=[group_id], color="#334155",
-                ))
-            elif node.kind == "strategy":
-                elements.append(_make_text(
-                    f"el_{node.id}_label", node.x + 15, node.y + 10,
-                    node.label, font_size=14, font_family=2,
-                    group_ids=[group_id], color="#1e1e1e",
-                ))
-                if node.subtitle:
-                    elements.append(_make_text(
-                        f"el_{node.id}_desc", node.x + 15, node.y + 30,
-                        node.subtitle, font_size=11, font_family=2,
-                        group_ids=[group_id], color="#475569",
-                    ))
-            elif node.kind == "error_type":
-                elements.append(_make_text(
-                    f"el_{node.id}_label", node.x + 15, node.y + 5,
-                    node.label, font_size=13, font_family=2,
-                    group_ids=[group_id], color="#9f1239",
-                ))
-                if node.subtitle:
-                    elements.append(_make_text(
-                        f"el_{node.id}_variants", node.x + 15, node.y + 22,
-                        node.subtitle, font_size=11, font_family=2,
-                        group_ids=[group_id], color="#475569",
-                    ))
-                if node.metadata.get("crate"):
-                    elements.append(_make_text(
-                        f"el_{node.id}_crate", node.x + node.w - 15, node.y + 5,
-                        node.metadata["crate"], font_size=11, font_family=2,
-                        text_align="right", group_ids=[group_id], color="#64748b",
-                    ))
-            elif node.kind == "data_type":
-                elements.append(_make_text(
-                    f"el_{node.id}_label", node.x + 15, node.y + 5,
-                    node.label, font_size=13, font_family=2,
-                    group_ids=[group_id], color="#1e1e1e",
-                ))
-                if node.subtitle:
-                    elements.append(_make_text(
-                        f"el_{node.id}_desc", node.x + 15, node.y + 22,
-                        node.subtitle, font_size=11, font_family=2,
-                        group_ids=[group_id], color="#475569",
-                    ))
-            elif node.kind == "command":
-                elements.append(_make_text(
-                    f"el_{node.id}_text", node.x + 10, node.y + 5,
-                    node.label, font_size=13, font_family=2,
-                    group_ids=[group_id], color="#334155",
-                ))
-            elif node.kind == "section_label":
-                if node.subtitle:
-                    elements.append(_make_text(
-                        f"el_{node.id}_label", node.x, node.y,
-                        node.label, font_size=13, font_family=2,
-                        group_ids=[group_id], color="#1e1e1e",
-                    ))
-                    elements.append(_make_text(
-                        f"el_{node.id}_desc", node.x, node.y + 18,
-                        node.subtitle, font_size=11, font_family=2,
-                        group_ids=[group_id], color="#64748b",
-                    ))
-                else:
-                    elements.append(_make_text(
-                        f"el_{node.id}_label", node.x, node.y,
-                        node.label, font_size=13, font_family=2,
-                        group_ids=[group_id], color="#1e1e1e",
-                    ))
+                children = _build_crate(el_id, node, frame_id=frame_id)
+                elements.extend(children)
+                child_ids.append(el_id)
+                arrow_bindings[node.id] = [el_id]
 
-    # ── Edges ──
+            elif node.kind == "pipeline_stage":
+                elements.append(_build_pipeline_stage(el_id, node, frame_id=frame_id))
+                child_ids.append(el_id)
+                arrow_bindings[node.id] = [el_id]
+
+            elif node.kind == "error_type":
+                elements.append(_build_error_type(el_id, node, frame_id=frame_id))
+                child_ids.append(el_id)
+
+            elif node.kind == "data_type":
+                elements.append(_build_data_type(el_id, node, frame_id=frame_id))
+                child_ids.append(el_id)
+
+            elif node.kind in ("skill", "agent", "command"):
+                elements.append(_rect(el_id, node.x, node.y, node.w or 200, node.h or 24,
+                                      color_key="interface", label=node.label,
+                                      label_font_size=12, label_align="left",
+                                      frame_id=frame_id))
+                child_ids.append(el_id)
+
+            elif node.kind == "strategy":
+                label = node.label
+                if node.subtitle:
+                    label += f"\n{node.subtitle}"
+                elements.append(_rect(el_id, node.x, node.y, node.w, node.h,
+                                      color_key=node.color_key, label=label,
+                                      label_font_size=12, label_align="left",
+                                      frame_id=frame_id))
+                child_ids.append(el_id)
+
+            elif node.kind == "section_label":
+                label = node.label
+                if node.subtitle:
+                    label += f"\n{node.subtitle}"
+                elements.append(_text(f"el_{node.id}", node.x, node.y,
+                                      label, font_size=14, color="#495057",
+                                      frame_id=frame_id))
+                child_ids.append(el_id)
+
+        # Build frame after children
+        if child_ids:
+            elements.append(_frame(frame_id, section.title.upper(), child_ids))
+
+    # ── Arrows with bindings ──
     for edge in scene.all_edges:
         source = node_map.get(edge.source_id)
         target = node_map.get(edge.target_id)
-        if source and target:
-            direction = "horizontal" if edge.style == "pipeline" else "vertical"
-            elements.append(_make_arrow(
-                f"el_{edge.id}", source, target,
-                direction=direction,
-                all_nodes=scene.all_nodes,
-            ))
+        if not source or not target:
+            continue
 
-    # ── Fix container bounds to encompass all children ──
-    for el in elements:
-        if el["id"].startswith("container_"):
-            section_id = el["id"].replace("container_", "")
-            group_id = f"group_{section_id}"
-            children = [c for c in elements if group_id in c.get("groupIds", []) and c["id"] != el["id"]]
-            if children:
-                min_x = min(c["x"] for c in children)
-                min_y = min(c["y"] for c in children)
-                max_x = max(c["x"] + c.get("width", 0) for c in children)
-                max_y = max(c["y"] + c.get("height", 0) for c in children)
-                el["x"] = min_x - 15
-                el["y"] = min_y - 25
-                el["width"] = max_x - min_x + 30
-                el["height"] = max_y - min_y + 40
+        src_el_id = f"el_{source.id}"
+        tgt_el_id = f"el_{target.id}"
+
+        if edge.style == "horizontal":
+            sx = source.x + source.w
+            sy = source.y + source.h / 2
+            tx = target.x
+            ty = target.y + target.h / 2
+            points = [[0, 0], [tx - sx, ty - sy]]
+            stroke_color = "#868e96"
+        else:
+            sx = source.x + source.w / 2
+            sy = source.y + source.h
+            tx = target.x + target.w / 2
+            ty = target.y
+            points = [[0, 0], [tx - sx, ty - sy]]
+            stroke_color = "#868e96"
+
+        elements.append(_arrow(
+            f"el_{edge.id}", sx, sy,
+            start_id=src_el_id, end_id=tgt_el_id,
+            points=points,
+            stroke_color=stroke_color,
+            stroke_width=2,
+        ))
 
     return {
         "type": "excalidraw",
         "version": 2,
-        "source": "https://github.com/excalidraw/excalidraw",
+        "source": "https://excalidraw.com",
         "elements": elements,
         "appState": {
             "gridSize": None,
@@ -436,20 +381,3 @@ def scene_to_excalidraw(scene: SceneDocument) -> dict:
         },
         "files": {},
     }
-
-
-def _wrap_excalidraw_text(text: str, max_chars: int = 45) -> list[str]:
-    if not text:
-        return []
-    words = text.split()
-    lines = []
-    current = ""
-    for word in words:
-        if len(current) + len(word) + 1 <= max_chars:
-            current = f"{current} {word}" if current else word
-        else:
-            lines.append(current)
-            current = word
-    if current:
-        lines.append(current)
-    return lines[:2]
