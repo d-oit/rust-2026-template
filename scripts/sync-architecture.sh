@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# sync-architecture.sh - Regenerate architecture SVG and sync to docs
+# sync-architecture.sh - Regenerate architecture diagram and sync to docs
 # Idempotent: safe to re-run.
 set -euo pipefail
 
@@ -10,19 +10,20 @@ log()  { printf '==> %s\n' "$*"; }
 ok()   { printf '  \033[0;32m✓\033[0m %s\n' "$*"; }
 warn() { printf '  ! %s\n' "$*"; }
 
-# --- Generate SVG ---
-SVG_GEN=".agents/skills/architecture-diagram/scripts/generate_diagram.py"
+# --- Generate Excalidraw + SVG ---
+GEN_SCRIPT=".agents/skills/architecture-diagram/scripts/generate_diagram.py"
+EXCALIDRAW_OUT=".template/architecture.excalidraw"
 SVG_OUT=".template/architecture.svg"
 
-if [[ -f "$SVG_GEN" ]]; then
+if [[ -f "$GEN_SCRIPT" ]]; then
   log "Generating architecture diagram"
-  python3 "$SVG_GEN" --root . --out "$SVG_OUT"
-  ok "Generated $SVG_OUT"
+  python3 "$GEN_SCRIPT" --root . --out "$EXCALIDRAW_OUT" --svg-out "$SVG_OUT"
+  ok "Generated $EXCALIDRAW_OUT and $SVG_OUT"
 else
-  warn "$SVG_GEN not found - skipping generation"
+  warn "$GEN_SCRIPT not found - skipping generation"
 fi
 
-# --- Sync to docs ---
+# --- Sync SVG to docs ---
 if [[ -f "$SVG_OUT" ]]; then
   mkdir -p docs/src
   cp "$SVG_OUT" docs/src/architecture.svg

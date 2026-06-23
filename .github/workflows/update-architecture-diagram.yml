@@ -25,20 +25,31 @@ jobs:
         with:
           python-version: "3.12"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
       - name: Install Graphviz
         run: sudo apt-get install -y graphviz
 
-      - name: Regenerate diagram
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Regenerate Excalidraw scene
         run: |
           python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
             --root . \
-            --out .template/architecture.svg
-          cp .template/architecture.svg docs/src/architecture.svg
+            --out .template/architecture.excalidraw \
+            --svg-out .template/architecture.svg
+
+      - name: Copy SVG to docs
+        run: cp .template/architecture.svg docs/src/architecture.svg
 
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet .template/architecture.svg docs/src/architecture.svg; then
+          if git diff --quiet .template/ docs/src/architecture.svg; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -49,6 +60,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .template/architecture.svg docs/src/architecture.svg
+          git add .template/architecture.excalidraw .template/architecture.svg docs/src/architecture.svg
           git commit -m "docs: regenerate architecture diagram [skip ci]"
           git push

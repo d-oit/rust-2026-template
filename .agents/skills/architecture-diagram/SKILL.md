@@ -1,7 +1,7 @@
 ---
 name: architecture-diagram
-version: 0.4.0
-description: Generate or update a project architecture SVG diagram by scanning the live project structure, including Rust workspace crates and dependencies. Use this skill whenever the user asks to regenerate, refresh, or update the architecture diagram, or when crates, skills, agents, or commands have been added/removed and the diagram is stale. Triggers on phrases like "update the diagram", "regenerate the architecture SVG", "sync the architecture", or "show crate dependencies".
+version: 0.5.0
+description: Generate an Excalidraw source file and rendered SVG diagram by scanning the live project structure, including Rust workspace crates and dependencies. Use this skill whenever the user asks to regenerate, refresh, or update the architecture diagram, or when crates, skills, agents, or commands have been added/removed and the diagram is stale. Triggers on phrases like "update the diagram", "regenerate the architecture SVG", "sync the architecture", or "show crate dependencies".
 category: documentation
 license: MIT
 metadata:
@@ -12,7 +12,7 @@ metadata:
 
 # Architecture Diagram
 
-Generates an architecture SVG diagram by scanning the live project structure, including Rust workspace crates, dependencies, and agentic skills.
+Generates an Excalidraw source file and rendered SVG diagram by scanning the live project structure, including Rust workspace crates, dependencies, and agentic skills.
 
 ## When to Use
 
@@ -39,7 +39,8 @@ Run the script from the project root:
 ```bash
 python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
   --root . \
-  --out .template/architecture.svg
+  --out .template/architecture.excalidraw \
+  --svg-out .template/architecture.svg
 ```
 
 The script auto-discovers:
@@ -48,18 +49,22 @@ The script auto-discovers:
 - **Agents** → `.opencode/agents/*.md` (uses filename stem).
 - **Commands** → `.opencode/commands/*.md` (uses filename stem, strips leading `/`).
 
+**Default mode (Excalidraw):**
+1. Generates `.template/architecture.excalidraw` (editable source)
+2. Exports `.template/architecture.svg` via Node.js (`@excalidraw/utils`)
+3. Requires Node.js for SVG export
+
+**Legacy SVG mode** (no Node.js required):
+
+```bash
+python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
+  --root . --legacy-svg --out .template/architecture.svg
+```
+
 **Layout engine:**
 - With Graphviz installed: uses `dot` for auto-layout — nodes placed by dependency hierarchy, edges routed orthogonally.
 - Without Graphviz (or with `--no-graphviz`): falls back to an enhanced grid layout with obstacle-avoiding edge routing.
 - Overlap detection runs post-layout and pushes apart any colliding elements.
-
-```bash
-# Force grid layout (skip Graphviz)
-python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
-  --root . --out .template/architecture.svg --no-graphviz
-```
-
-It writes a self-contained SVG to `--out` (default: `.template/architecture.svg`).
 
 ### Step 3 — Confirm and Report
 
@@ -70,10 +75,23 @@ After the script exits:
 
 ## Output
 
-`.template/architecture.svg` — a standalone SVG output file, compatible with GitHub README embedding:
+- `.template/architecture.excalidraw` — editable Excalidraw source of truth
+- `.template/architecture.svg` — generated SVG for README embedding
+
+The SVG embeds in GitHub README without changes:
 `![Architecture](.template/architecture.svg)`
 
-## Optional Dependency: Graphviz
+## Optional Dependencies
+
+### Node.js (for SVG export from Excalidraw)
+
+Required only when using default Excalidraw mode:
+
+```bash
+npm ci
+```
+
+### Graphviz (for optimal layout)
 
 For optimal layout (auto-positioned nodes, orthogonal edge routing), install Graphviz:
 
@@ -106,6 +124,19 @@ The script reads an optional `docs/diagram-config.json` if present:
   ]
 }
 ```
+
+## CLI Flags
+
+| Flag | Description |
+|------|-------------|
+| `--root PATH` | Workspace root (default: `.`) |
+| `--format excalidraw\|svg` | Output format (default: `excalidraw`) |
+| `--out PATH` | Primary output path |
+| `--svg-out PATH` | SVG export path (default: `.template/architecture.svg`) |
+| `--png-out PATH` | PNG export path (optional) |
+| `--no-export` | Skip SVG/PNG export (Excalidraw only) |
+| `--legacy-svg` | Direct SVG generation via Python (no Node.js) |
+| `--no-graphviz` | Force grid layout |
 
 ## Rationalizations
 

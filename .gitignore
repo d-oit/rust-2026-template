@@ -87,6 +87,9 @@ llms-full.txt
 __pycache__/
 *.pyc
 
+# Node.js
+node_modules/
+
 # MiMoCode local state
 .mimocode/
 docs/book/

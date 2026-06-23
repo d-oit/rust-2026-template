@@ -1,4 +1,5 @@
-<svg width="100%" viewBox="0 0 1200 3009" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYSTEM ARCHITECTURE - RUST 2026 WORKSPACE">
+<svg width="100%" viewBox="0 0 1200 2824" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SYSTEM ARCHITECTURE - RUST 2026 WORKSPACE">
+<rect width="1200" height="2504" fill="#ffffff"/>
 <defs>
       <linearGradient id="grad-apps" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fffbeb"/><stop offset="50%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/></linearGradient>
 <linearGradient id="grad-core" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eff6ff"/><stop offset="50%" stop-color="#dbeafe"/><stop offset="100%" stop-color="#bfdbfe"/></linearGradient>
@@ -42,316 +43,315 @@
         .badge{font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;font-size:10px;font-weight:600;letter-spacing:0.02em}
       </style>
     </defs>
-<rect width="1200" height="3009" fill="#ffffff"/>
 <g id="header" role="banner" aria-label="System architecture header">
-<text class="tl" x="600" y="50" text-anchor="middle" dominant-baseline="central" role="img" aria-label="System Architecture Title">SYSTEM ARCHITECTURE</text>
-<text class="subtitle" x="600" y="70" text-anchor="middle" dominant-baseline="central" opacity="0.6">RUST 2026 WORKSPACE</text>
-<line x1="400" y1="90" x2="800" y2="90" stroke="#e2e8f0" stroke-width="1"/>
+<text class="tl" x="600" y="50.0" text-anchor="middle" dominant-baseline="central" role="img" aria-label="System Architecture Title">SYSTEM ARCHITECTURE</text>
+<text class="subtitle" x="600" y="70.0" text-anchor="middle" dominant-baseline="central" opacity="0.6">RUST 2026 WORKSPACE</text>
+<line x1="400" y1="90.0" x2="800" y2="90.0" stroke="#e2e8f0" stroke-width="1"/>
 </g>
 <g id="legend" role="img" aria-label="Color legend">
-<rect x="30" y="120" width="10" height="10" rx="5" fill="#f59e0b"/>
-<text class="th" x="46" y="125" text-anchor="start" dominant-baseline="central" font-weight="600">Applications</text>
-<text class="txs" x="46" y="140" text-anchor="start" dominant-baseline="central" opacity="0.5">Binary crates and CLI tools</text>
-<rect x="310" y="120" width="10" height="10" rx="5" fill="#3b82f6"/>
-<text class="th" x="326" y="125" text-anchor="start" dominant-baseline="central" font-weight="600">Core Libraries</text>
-<text class="txs" x="326" y="140" text-anchor="start" dominant-baseline="central" opacity="0.5">Shared library crates</text>
-<rect x="590" y="120" width="10" height="10" rx="5" fill="#a855f7"/>
-<text class="th" x="606" y="125" text-anchor="start" dominant-baseline="central" font-weight="600">Templates</text>
-<text class="txs" x="606" y="140" text-anchor="start" dominant-baseline="central" opacity="0.5">Reusable architectural patterns</text>
-<rect x="870" y="120" width="10" height="10" rx="5" fill="#22c55e"/>
-<text class="th" x="886" y="125" text-anchor="start" dominant-baseline="central" font-weight="600">Examples</text>
-<text class="txs" x="886" y="140" text-anchor="start" dominant-baseline="central" opacity="0.5">Learning references and demos</text>
+<rect x="30" y="120.0" width="10" height="10" rx="5" fill="#f59e0b"/>
+<text class="th" x="46" y="125.0" text-anchor="start" dominant-baseline="central" font-weight="600">Applications</text>
+<text class="txs" x="46" y="140.0" text-anchor="start" dominant-baseline="central" opacity="0.5">Binary crates and CLI tools</text>
+<rect x="310" y="120.0" width="10" height="10" rx="5" fill="#3b82f6"/>
+<text class="th" x="326" y="125.0" text-anchor="start" dominant-baseline="central" font-weight="600">Core Libraries</text>
+<text class="txs" x="326" y="140.0" text-anchor="start" dominant-baseline="central" opacity="0.5">Shared library crates</text>
+<rect x="590" y="120.0" width="10" height="10" rx="5" fill="#a855f7"/>
+<text class="th" x="606" y="125.0" text-anchor="start" dominant-baseline="central" font-weight="600">Templates</text>
+<text class="txs" x="606" y="140.0" text-anchor="start" dominant-baseline="central" opacity="0.5">Reusable architectural patterns</text>
+<rect x="870" y="120.0" width="10" height="10" rx="5" fill="#22c55e"/>
+<text class="th" x="886" y="125.0" text-anchor="start" dominant-baseline="central" font-weight="600">Examples</text>
+<text class="txs" x="886" y="140.0" text-anchor="start" dominant-baseline="central" opacity="0.5">Learning references and demos</text>
 </g>
 <g id="pipeline" role="region" aria-label="CI/CD Pipeline orchestration">
-<text class="section-label" x="600" y="180" text-anchor="middle" dominant-baseline="central">PIPELINE ORCHESTRATION</text>
+<text class="section-label" x="600" y="180.0" text-anchor="middle" dominant-baseline="central">PIPELINE ORCHESTRATION</text>
 <g class="card" role="img" aria-label="Pipeline stage: ANALYZE - lint · clippy">
-<rect x="30" y="210" width="270" height="60" rx="16" fill="url(#grad-teal)" stroke="#5eead4" stroke-width="1.5"/>
-<text class="th" x="165" y="230" text-anchor="middle" dominant-baseline="central">ANALYZE</text>
-<text class="txs" x="165" y="246" text-anchor="middle" dominant-baseline="central" opacity="0.6">lint · clippy</text>
-<text class="txs" x="165" y="260" text-anchor="middle" dominant-baseline="central" opacity="0.55">Every push · ~2 min</text>
+<rect x="30.0" y="210.0" width="270" height="60" rx="16" fill="url(#grad-teal)" stroke="#5eead4" stroke-width="1.5"/>
+<text class="th" x="165.0" y="230.0" text-anchor="middle" dominant-baseline="central">ANALYZE</text>
+<text class="txs" x="165.0" y="246.0" text-anchor="middle" dominant-baseline="central" opacity="0.6">lint · clippy</text>
+<text class="txs" x="165.0" y="260.0" text-anchor="middle" dominant-baseline="central" opacity="0.55">Every push · ~2 min</text>
 </g>
 <g class="card" role="img" aria-label="Pipeline stage: VALIDATE - test · nextest">
-<rect x="320" y="210" width="270" height="60" rx="16" fill="url(#grad-blue)" stroke="#93c5fd" stroke-width="1.5"/>
-<text class="th" x="455" y="230" text-anchor="middle" dominant-baseline="central">VALIDATE</text>
-<text class="txs" x="455" y="246" text-anchor="middle" dominant-baseline="central" opacity="0.6">test · nextest</text>
-<text class="txs" x="455" y="260" text-anchor="middle" dominant-baseline="central" opacity="0.55">Every push · ~5 min</text>
+<rect x="320.0" y="210.0" width="270" height="60" rx="16" fill="url(#grad-blue)" stroke="#93c5fd" stroke-width="1.5"/>
+<text class="th" x="455.0" y="230.0" text-anchor="middle" dominant-baseline="central">VALIDATE</text>
+<text class="txs" x="455.0" y="246.0" text-anchor="middle" dominant-baseline="central" opacity="0.6">test · nextest</text>
+<text class="txs" x="455.0" y="260.0" text-anchor="middle" dominant-baseline="central" opacity="0.55">Every push · ~5 min</text>
 </g>
-<line x1="300" y1="240" x2="320" y2="240" class="arr" marker-end="url(#arrow)"/>
+<line x1="300.0" y1="240.0" x2="320.0" y2="240.0" class="arr" marker-end="url(#arrow)"/>
 <g class="card" role="img" aria-label="Pipeline stage: HARDEN - audit · deny">
-<rect x="610" y="210" width="270" height="60" rx="16" fill="url(#grad-rose)" stroke="#fda4af" stroke-width="1.5"/>
-<text class="th" x="745" y="230" text-anchor="middle" dominant-baseline="central">HARDEN</text>
-<text class="txs" x="745" y="246" text-anchor="middle" dominant-baseline="central" opacity="0.6">audit · deny</text>
-<text class="txs" x="745" y="260" text-anchor="middle" dominant-baseline="central" opacity="0.55">Weekly + pre-release</text>
+<rect x="610.0" y="210.0" width="270" height="60" rx="16" fill="url(#grad-rose)" stroke="#fda4af" stroke-width="1.5"/>
+<text class="th" x="745.0" y="230.0" text-anchor="middle" dominant-baseline="central">HARDEN</text>
+<text class="txs" x="745.0" y="246.0" text-anchor="middle" dominant-baseline="central" opacity="0.6">audit · deny</text>
+<text class="txs" x="745.0" y="260.0" text-anchor="middle" dominant-baseline="central" opacity="0.55">Weekly + pre-release</text>
 </g>
-<line x1="590" y1="240" x2="610" y2="240" class="arr" marker-end="url(#arrow)"/>
+<line x1="590.0" y1="240.0" x2="610.0" y2="240.0" class="arr" marker-end="url(#arrow)"/>
 <g class="card" role="img" aria-label="Pipeline stage: DEPLOY - release · publish">
-<rect x="900" y="210" width="270" height="60" rx="16" fill="url(#grad-green)" stroke="#86efac" stroke-width="1.5"/>
-<text class="th" x="1035" y="230" text-anchor="middle" dominant-baseline="central">DEPLOY</text>
-<text class="txs" x="1035" y="246" text-anchor="middle" dominant-baseline="central" opacity="0.6">release · publish</text>
-<text class="txs" x="1035" y="260" text-anchor="middle" dominant-baseline="central" opacity="0.55">Tag-triggered · ~4 min</text>
+<rect x="900.0" y="210.0" width="270" height="60" rx="16" fill="url(#grad-green)" stroke="#86efac" stroke-width="1.5"/>
+<text class="th" x="1035.0" y="230.0" text-anchor="middle" dominant-baseline="central">DEPLOY</text>
+<text class="txs" x="1035.0" y="246.0" text-anchor="middle" dominant-baseline="central" opacity="0.6">release · publish</text>
+<text class="txs" x="1035.0" y="260.0" text-anchor="middle" dominant-baseline="central" opacity="0.55">Tag-triggered · ~4 min</text>
 </g>
-<line x1="880" y1="240" x2="900" y2="240" class="arr" marker-end="url(#arrow)"/>
+<line x1="880.0" y1="240.0" x2="900.0" y2="240.0" class="arr" marker-end="url(#arrow)"/>
 </g>
-<line x1="30" y1="320" x2="1170" y2="320" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="30" y1="320.0" x2="1170" y2="320.0" stroke="#e2e8f0" stroke-width="1"/>
 <g id="workspace" role="region" aria-label="Workspace topology with 11 components">
-<text class="section-label" x="600" y="345" text-anchor="middle" dominant-baseline="central">WORKSPACE TOPOLOGY · 11 COMPONENTS</text>
+<text class="section-label" x="600" y="345.0" text-anchor="middle" dominant-baseline="central">WORKSPACE TOPOLOGY · 11 COMPONENTS</text>
 <g id="dependencies" role="img" aria-label="Crate dependency relationships">
-<path d="M 600 643 L 600 1001" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: benchmarks depends on rust-2026-template"/>
-<path d="M 600 643 L 600 403" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: benchmarks depends on sample-app"/>
-<path d="M 790 1409 L 790 1298 L 410 1298 L 410 1187" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: hello-world-example depends on example-crate"/>
+<path d="M 600 458 L 600 816" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: benchmarks depends on rust-2026-template"/>
+<path d="M 600 458 L 600 218" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: benchmarks depends on sample-app"/>
+<path d="M 790 1224 L 790 1113 L 410 1113 L 410 1002" class="arr-dep" marker-end="url(#arrow-dep)" aria-label="Dependency: hello-world-example depends on example-crate"/>
 </g>
 <g id="layer-apps" role="group" aria-label="APPLICATIONS">
-<text class="txs" x="30" y="385" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">APPLICATIONS</text>
+<text class="txs" x="30" y="385.0" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">APPLICATIONS</text>
 <g id="crate-sample-app" class="card" role="img" aria-label="Crate: sample-app v0.0.0">
 <title>sample-app v0.0.0: Sample application demonstrating the rust-2026-template</title>
-<rect x="430" y="403" width="340" height="112" rx="16" fill="url(#grad-apps)" stroke="#fcd34d" stroke-width="1.5"/>
-<rect x="438" y="411" width="324" height="4" rx="2" fill="#f59e0b" opacity="0.9"/>
-<text class="th" x="442" y="431" text-anchor="start" dominant-baseline="central">sample-app</text>
-<text class="txs" x="758" y="431" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="442" y="453" text-anchor="start" dominant-baseline="central" opacity="0.75">Sample application demonstrating the</text>
-<text class="ts" x="442" y="469" text-anchor="start" dominant-baseline="central" opacity="0.75">rust-2026-template</text>
+<rect x="430" y="218" width="340" height="112" rx="16" fill="url(#grad-apps)" stroke="#fcd34d" stroke-width="1.5"/>
+<rect x="438" y="226" width="324" height="4" rx="2" fill="#f59e0b" opacity="0.9"/>
+<text class="th" x="442" y="246" text-anchor="start" dominant-baseline="central">sample-app</text>
+<text class="txs" x="758" y="246" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="442" y="268" text-anchor="start" dominant-baseline="central" opacity="0.75">Sample application demonstrating the</text>
+<text class="ts" x="442" y="284" text-anchor="start" dominant-baseline="central" opacity="0.75">rust-2026-template</text>
 </g>
 </g>
 <g id="layer-core" role="group" aria-label="CORE LIBRARIES">
-<text class="txs" x="30" y="403" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">CORE LIBRARIES</text>
+<text class="txs" x="30" y="403.0" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">CORE LIBRARIES</text>
 <g id="crate-benchmarks" class="card" role="img" aria-label="Crate: benchmarks v0.0.0">
 <title>benchmarks v0.0.0: Criterion benchmarks for workspace crates</title>
-<rect x="430" y="563" width="340" height="96" rx="16" fill="url(#grad-core)" stroke="#93c5fd" stroke-width="1.5"/>
-<rect x="438" y="571" width="324" height="4" rx="2" fill="#3b82f6" opacity="0.9"/>
-<text class="th" x="442" y="591" text-anchor="start" dominant-baseline="central">benchmarks</text>
-<text class="txs" x="758" y="591" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="442" y="613" text-anchor="start" dominant-baseline="central" opacity="0.75">Criterion benchmarks for workspace crates</text>
-<text class="txs" x="758" y="645" text-anchor="end" dominant-baseline="central" opacity="0.55">deps: 2</text>
+<rect x="430" y="378" width="340" height="96" rx="16" fill="url(#grad-core)" stroke="#93c5fd" stroke-width="1.5"/>
+<rect x="438" y="386" width="324" height="4" rx="2" fill="#3b82f6" opacity="0.9"/>
+<text class="th" x="442" y="406" text-anchor="start" dominant-baseline="central">benchmarks</text>
+<text class="txs" x="758" y="406" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="442" y="428" text-anchor="start" dominant-baseline="central" opacity="0.75">Criterion benchmarks for workspace crates</text>
+<text class="txs" x="758" y="460" text-anchor="end" dominant-baseline="central" opacity="0.55">deps: 2</text>
 </g>
 </g>
 <g id="layer-templates" role="group" aria-label="TEMPLATE CRATES">
-<text class="txs" x="30" y="421" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">TEMPLATE CRATES</text>
+<text class="txs" x="30" y="421.0" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">TEMPLATE CRATES</text>
 <g id="crate-actor-runtime-template" class="card" role="img" aria-label="Crate: actor-runtime-template v0.0.0">
 <title>actor-runtime-template v0.0.0: Actor runtime template using ractor for message-passing concurrency</title>
-<rect x="240" y="691" width="340" height="112" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
-<rect x="248" y="699" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
-<text class="th" x="252" y="719" text-anchor="start" dominant-baseline="central">actor-runtime-template</text>
-<text class="txs" x="568" y="719" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="252" y="741" text-anchor="start" dominant-baseline="central" opacity="0.75">Actor runtime template using ractor for</text>
-<text class="ts" x="252" y="757" text-anchor="start" dominant-baseline="central" opacity="0.75">message-passing concurrency</text>
+<rect x="240" y="506" width="340" height="112" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
+<rect x="248" y="514" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
+<text class="th" x="252" y="534" text-anchor="start" dominant-baseline="central">actor-runtime-template</text>
+<text class="txs" x="568" y="534" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="252" y="556" text-anchor="start" dominant-baseline="central" opacity="0.75">Actor runtime template using ractor for</text>
+<text class="ts" x="252" y="572" text-anchor="start" dominant-baseline="central" opacity="0.75">message-passing concurrency</text>
 </g>
 <g id="crate-checkpoint-template" class="card" role="img" aria-label="Crate: checkpoint-template v0.0.0">
 <title>checkpoint-template v0.0.0: Checkpoint template for serializable application state with migration support</title>
-<rect x="620" y="691" width="340" height="112" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
-<rect x="628" y="699" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
-<text class="th" x="632" y="719" text-anchor="start" dominant-baseline="central">checkpoint-template</text>
-<text class="txs" x="948" y="719" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="632" y="741" text-anchor="start" dominant-baseline="central" opacity="0.75">Checkpoint template for serializable application</text>
-<text class="ts" x="632" y="757" text-anchor="start" dominant-baseline="central" opacity="0.75">state with migration support</text>
+<rect x="620" y="506" width="340" height="112" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
+<rect x="628" y="514" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
+<text class="th" x="632" y="534" text-anchor="start" dominant-baseline="central">checkpoint-template</text>
+<text class="txs" x="948" y="534" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="632" y="556" text-anchor="start" dominant-baseline="central" opacity="0.75">Checkpoint template for serializable application</text>
+<text class="ts" x="632" y="572" text-anchor="start" dominant-baseline="central" opacity="0.75">state with migration support</text>
 </g>
 <g id="crate-hybrid-storage-template" class="card" role="img" aria-label="Crate: hybrid-storage-template v0.0.0">
 <title>hybrid-storage-template v0.0.0: Hybrid storage template with SQL + KV backends and caching</title>
-<rect x="240" y="833" width="340" height="138" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
-<rect x="248" y="841" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
-<text class="th" x="252" y="861" text-anchor="start" dominant-baseline="central">hybrid-storage-template</text>
-<text class="txs" x="568" y="861" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="252" y="883" text-anchor="start" dominant-baseline="central" opacity="0.75">Hybrid storage template with SQL + KV backends</text>
-<text class="ts" x="252" y="899" text-anchor="start" dominant-baseline="central" opacity="0.75">and caching</text>
-<rect x="250" y="943" width="28" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="264" y="953" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">kv</text>
-<rect x="284" y="943" width="52" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="310" y="953" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">sqlite</text>
+<rect x="240" y="648" width="340" height="138" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
+<rect x="248" y="656" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
+<text class="th" x="252" y="676" text-anchor="start" dominant-baseline="central">hybrid-storage-template</text>
+<text class="txs" x="568" y="676" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="252" y="698" text-anchor="start" dominant-baseline="central" opacity="0.75">Hybrid storage template with SQL + KV backends</text>
+<text class="ts" x="252" y="714" text-anchor="start" dominant-baseline="central" opacity="0.75">and caching</text>
+<rect x="250" y="758" width="28" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="264" y="768" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">kv</text>
+<rect x="284" y="758" width="52" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="310" y="768" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">sqlite</text>
 </g>
 <g id="crate-mcp-server-template" class="card" role="img" aria-label="Crate: mcp-server-template v0.0.0">
 <title>mcp-server-template v0.0.0: MCP server template crate with tool registration and dispatch</title>
-<rect x="620" y="833" width="340" height="112" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
-<rect x="628" y="841" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
-<text class="th" x="632" y="861" text-anchor="start" dominant-baseline="central">mcp-server-template</text>
-<text class="txs" x="948" y="861" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="632" y="883" text-anchor="start" dominant-baseline="central" opacity="0.75">MCP server template crate with tool registration</text>
-<text class="ts" x="632" y="899" text-anchor="start" dominant-baseline="central" opacity="0.75">and dispatch</text>
+<rect x="620" y="648" width="340" height="112" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
+<rect x="628" y="656" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
+<text class="th" x="632" y="676" text-anchor="start" dominant-baseline="central">mcp-server-template</text>
+<text class="txs" x="948" y="676" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="632" y="698" text-anchor="start" dominant-baseline="central" opacity="0.75">MCP server template crate with tool registration</text>
+<text class="ts" x="632" y="714" text-anchor="start" dominant-baseline="central" opacity="0.75">and dispatch</text>
 </g>
 <g id="crate-rust-2026-template" class="card" role="img" aria-label="Crate: rust-2026-template v0.0.0">
 <title>rust-2026-template v0.0.0: A production-ready Rust workspace template with modern tooling, CI/CD, and AI agent integration</title>
-<rect x="430" y="1001" width="340" height="138" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
-<rect x="438" y="1009" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
-<text class="th" x="442" y="1029" text-anchor="start" dominant-baseline="central">rust-2026-template</text>
-<text class="txs" x="758" y="1029" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="442" y="1051" text-anchor="start" dominant-baseline="central" opacity="0.75">A production-ready Rust workspace template with</text>
-<text class="ts" x="442" y="1067" text-anchor="start" dominant-baseline="central" opacity="0.75">modern tooling, CI/CD, and AI agent integration</text>
-<rect x="440" y="1111" width="34" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="457" y="1121" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">cli</text>
-<rect x="480" y="1111" width="34" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="497" y="1121" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">mcp</text>
-<rect x="520" y="1111" width="64" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="552" y="1121" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">parallel</text>
-<rect x="590" y="1111" width="82" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="631" y="1121" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">persistence</text>
-<rect x="440" y="1131" width="88" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="484" y="1141" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">tracing-json</text>
-<rect x="534" y="1131" width="142" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="605" y="1141" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">tracing-opentelemetry</text>
-<rect x="682" y="1131" width="40" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="702" y="1141" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">wasm</text>
+<rect x="430" y="816" width="340" height="138" rx="16" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
+<rect x="438" y="824" width="324" height="4" rx="2" fill="#a855f7" opacity="0.9"/>
+<text class="th" x="442" y="844" text-anchor="start" dominant-baseline="central">rust-2026-template</text>
+<text class="txs" x="758" y="844" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="442" y="866" text-anchor="start" dominant-baseline="central" opacity="0.75">A production-ready Rust workspace template with</text>
+<text class="ts" x="442" y="882" text-anchor="start" dominant-baseline="central" opacity="0.75">modern tooling, CI/CD, and AI agent integration</text>
+<rect x="440" y="926" width="34" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="457" y="936" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">cli</text>
+<rect x="480" y="926" width="34" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="497" y="936" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">mcp</text>
+<rect x="520" y="926" width="64" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="552" y="936" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">parallel</text>
+<rect x="590" y="926" width="82" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="631" y="936" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">persistence</text>
+<rect x="440" y="946" width="88" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="484" y="956" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">tracing-json</text>
+<rect x="534" y="946" width="142" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="605" y="956" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">tracing-opentelemetry</text>
+<rect x="682" y="946" width="40" height="20" rx="10" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1"/><text class="badge" x="702" y="956" text-anchor="middle" dominant-baseline="central" fill="#6b21a8">wasm</text>
 </g>
 </g>
 <g id="layer-other" role="group" aria-label="EXAMPLES">
-<text class="txs" x="30" y="439" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">EXAMPLES</text>
+<text class="txs" x="30" y="439.0" text-anchor="start" dominant-baseline="central" opacity="0.5" font-weight="600">EXAMPLES</text>
 <g id="crate-example-crate" class="card" role="img" aria-label="Crate: example-crate v0.0.0">
 <title>example-crate v0.0.0: Example crate in the rust-2026-template workspace</title>
-<rect x="240" y="1187" width="340" height="112" rx="16" fill="url(#grad-other)" stroke="#86efac" stroke-width="1.5"/>
-<rect x="248" y="1195" width="324" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
-<text class="th" x="252" y="1215" text-anchor="start" dominant-baseline="central">example-crate</text>
-<text class="txs" x="568" y="1215" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="252" y="1237" text-anchor="start" dominant-baseline="central" opacity="0.75">Example crate in the rust-2026-template</text>
-<text class="ts" x="252" y="1253" text-anchor="start" dominant-baseline="central" opacity="0.75">workspace</text>
+<rect x="240" y="1002" width="340" height="112" rx="16" fill="url(#grad-other)" stroke="#86efac" stroke-width="1.5"/>
+<rect x="248" y="1010" width="324" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
+<text class="th" x="252" y="1030" text-anchor="start" dominant-baseline="central">example-crate</text>
+<text class="txs" x="568" y="1030" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="252" y="1052" text-anchor="start" dominant-baseline="central" opacity="0.75">Example crate in the rust-2026-template</text>
+<text class="ts" x="252" y="1068" text-anchor="start" dominant-baseline="central" opacity="0.75">workspace</text>
 </g>
 <g id="crate-example-registry-pattern" class="card" role="img" aria-label="Crate: example-registry-pattern v0.0.0">
 <title>example-registry-pattern v0.0.0: Template pattern: registry-based handler dispatch</title>
-<rect x="620" y="1187" width="340" height="112" rx="16" fill="url(#grad-other)" stroke="#86efac" stroke-width="1.5"/>
-<rect x="628" y="1195" width="324" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
-<text class="th" x="632" y="1215" text-anchor="start" dominant-baseline="central">example-registry-pattern</text>
-<text class="txs" x="948" y="1215" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="632" y="1237" text-anchor="start" dominant-baseline="central" opacity="0.75">Template pattern: registry-based handler</text>
-<text class="ts" x="632" y="1253" text-anchor="start" dominant-baseline="central" opacity="0.75">dispatch</text>
+<rect x="620" y="1002" width="340" height="112" rx="16" fill="url(#grad-other)" stroke="#86efac" stroke-width="1.5"/>
+<rect x="628" y="1010" width="324" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
+<text class="th" x="632" y="1030" text-anchor="start" dominant-baseline="central">example-registry-pattern</text>
+<text class="txs" x="948" y="1030" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="632" y="1052" text-anchor="start" dominant-baseline="central" opacity="0.75">Template pattern: registry-based handler</text>
+<text class="ts" x="632" y="1068" text-anchor="start" dominant-baseline="central" opacity="0.75">dispatch</text>
 </g>
 <g id="crate-example-storage-pattern" class="card" role="img" aria-label="Crate: example-storage-pattern v0.0.0">
 <title>example-storage-pattern v0.0.0: Template pattern: trait-only storage layer with swappable backends</title>
-<rect x="240" y="1329" width="340" height="138" rx="16" fill="url(#grad-other)" stroke="#86efac" stroke-width="1.5"/>
-<rect x="248" y="1337" width="324" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
-<text class="th" x="252" y="1357" text-anchor="start" dominant-baseline="central">example-storage-pattern</text>
-<text class="txs" x="568" y="1357" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
-<text class="ts" x="252" y="1379" text-anchor="start" dominant-baseline="central" opacity="0.75">Template pattern: trait-only storage layer with</text>
-<text class="ts" x="252" y="1395" text-anchor="start" dominant-baseline="central" opacity="0.75">swappable backends</text>
-<rect x="250" y="1439" width="40" height="20" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/><text class="badge" x="270" y="1449" text-anchor="middle" dominant-baseline="central" fill="#166534">mock</text>
-<rect x="296" y="1439" width="52" height="20" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/><text class="badge" x="322" y="1449" text-anchor="middle" dominant-baseline="central" fill="#166534">sqlite</text>
+<rect x="240" y="1144" width="340" height="138" rx="16" fill="url(#grad-other)" stroke="#86efac" stroke-width="1.5"/>
+<rect x="248" y="1152" width="324" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
+<text class="th" x="252" y="1172" text-anchor="start" dominant-baseline="central">example-storage-pattern</text>
+<text class="txs" x="568" y="1172" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.0.0</text>
+<text class="ts" x="252" y="1194" text-anchor="start" dominant-baseline="central" opacity="0.75">Template pattern: trait-only storage layer with</text>
+<text class="ts" x="252" y="1210" text-anchor="start" dominant-baseline="central" opacity="0.75">swappable backends</text>
+<rect x="250" y="1254" width="40" height="20" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/><text class="badge" x="270" y="1264" text-anchor="middle" dominant-baseline="central" fill="#166534">mock</text>
+<rect x="296" y="1254" width="52" height="20" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/><text class="badge" x="322" y="1264" text-anchor="middle" dominant-baseline="central" fill="#166534">sqlite</text>
 </g>
 <g id="crate-hello-world-example" class="card" role="img" aria-label="Crate: hello-world-example v0.1.0">
 <title>hello-world-example v0.1.0: Minimal hello world example crate</title>
-<rect x="620" y="1329" width="340" height="96" rx="16" fill="url(#grad-other)" stroke="#86efac" stroke-width="1.5"/>
-<rect x="628" y="1337" width="324" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
-<text class="th" x="632" y="1357" text-anchor="start" dominant-baseline="central">hello-world-example</text>
-<text class="txs" x="948" y="1357" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.1.0</text>
-<text class="ts" x="632" y="1379" text-anchor="start" dominant-baseline="central" opacity="0.75">Minimal hello world example crate</text>
-<text class="txs" x="948" y="1411" text-anchor="end" dominant-baseline="central" opacity="0.55">deps: 1</text>
+<rect x="620" y="1144" width="340" height="96" rx="16" fill="url(#grad-other)" stroke="#86efac" stroke-width="1.5"/>
+<rect x="628" y="1152" width="324" height="4" rx="2" fill="#22c55e" opacity="0.9"/>
+<text class="th" x="632" y="1172" text-anchor="start" dominant-baseline="central">hello-world-example</text>
+<text class="txs" x="948" y="1172" text-anchor="end" dominant-baseline="central" opacity="0.55">v0.1.0</text>
+<text class="ts" x="632" y="1194" text-anchor="start" dominant-baseline="central" opacity="0.75">Minimal hello world example crate</text>
+<text class="txs" x="948" y="1226" text-anchor="end" dominant-baseline="central" opacity="0.55">deps: 1</text>
 </g>
 </g>
 </g>
-<line x1="30" y1="1497" x2="1170" y2="1497" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="30" y1="1312" x2="1170" y2="1312" stroke="#e2e8f0" stroke-width="1"/>
 <g id="skills" role="region" aria-label="22 active skills">
 <g class="card" role="group" aria-label="Active skills list">
-<rect x="30" y="1527" width="550" height="554" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
-<text class="th" x="305" y="1545" text-anchor="middle" dominant-baseline="central" font-weight="700">22 ACTIVE SKILLS</text>
-<text class="txs" x="305" y="1563" text-anchor="middle" dominant-baseline="central" opacity="0.5">.agents/skills/</text>
+<rect x="30" y="1342" width="550" height="554" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
+<text class="th" x="305" y="1360" text-anchor="middle" dominant-baseline="central" font-weight="700">22 ACTIVE SKILLS</text>
+<text class="txs" x="305" y="1378" text-anchor="middle" dominant-baseline="central" opacity="0.5">.agents/skills/</text>
 </g>
-<text class="ts" x="50" y="1587" text-anchor="start" dominant-baseline="central">anti-ai-slop</text>
-<text class="ts" x="50" y="1609" text-anchor="start" dominant-baseline="central">architecture-diagram</text>
-<text class="ts" x="50" y="1631" text-anchor="start" dominant-baseline="central">atomic-commit</text>
-<text class="ts" x="50" y="1653" text-anchor="start" dominant-baseline="central">build-rust</text>
-<text class="ts" x="50" y="1675" text-anchor="start" dominant-baseline="central">codacy</text>
-<text class="ts" x="50" y="1697" text-anchor="start" dominant-baseline="central">crates-io-name-check</text>
-<text class="ts" x="50" y="1719" text-anchor="start" dominant-baseline="central">dora-report</text>
-<text class="ts" x="50" y="1741" text-anchor="start" dominant-baseline="central">goap-agent</text>
-<text class="ts" x="50" y="1763" text-anchor="start" dominant-baseline="central">harness</text>
-<text class="ts" x="50" y="1785" text-anchor="start" dominant-baseline="central">issue-triage</text>
-<text class="ts" x="50" y="1807" text-anchor="start" dominant-baseline="central">lint-rust</text>
-<text class="ts" x="50" y="1829" text-anchor="start" dominant-baseline="central">metrics-reporter</text>
-<text class="ts" x="50" y="1851" text-anchor="start" dominant-baseline="central">privacy-first</text>
-<text class="ts" x="50" y="1873" text-anchor="start" dominant-baseline="central">release-rust</text>
-<text class="ts" x="50" y="1895" text-anchor="start" dominant-baseline="central">self-fix-loop</text>
-<text class="ts" x="50" y="1917" text-anchor="start" dominant-baseline="central">skill-creator</text>
-<text class="ts" x="50" y="1939" text-anchor="start" dominant-baseline="central">skill-evaluator</text>
-<text class="ts" x="50" y="1961" text-anchor="start" dominant-baseline="central">task-decomposition</text>
-<text class="ts" x="50" y="1983" text-anchor="start" dominant-baseline="central">test-rust</text>
-<text class="ts" x="50" y="2005" text-anchor="start" dominant-baseline="central">triz-analysis</text>
-<text class="ts" x="50" y="2027" text-anchor="start" dominant-baseline="central">triz-solver</text>
-<text class="ts" x="50" y="2049" text-anchor="start" dominant-baseline="central">verify-actions</text>
+<text class="ts" x="50" y="1402" text-anchor="start" dominant-baseline="central">anti-ai-slop</text>
+<text class="ts" x="50" y="1424" text-anchor="start" dominant-baseline="central">architecture-diagram</text>
+<text class="ts" x="50" y="1446" text-anchor="start" dominant-baseline="central">atomic-commit</text>
+<text class="ts" x="50" y="1468" text-anchor="start" dominant-baseline="central">build-rust</text>
+<text class="ts" x="50" y="1490" text-anchor="start" dominant-baseline="central">codacy</text>
+<text class="ts" x="50" y="1512" text-anchor="start" dominant-baseline="central">crates-io-name-check</text>
+<text class="ts" x="50" y="1534" text-anchor="start" dominant-baseline="central">dora-report</text>
+<text class="ts" x="50" y="1556" text-anchor="start" dominant-baseline="central">goap-agent</text>
+<text class="ts" x="50" y="1578" text-anchor="start" dominant-baseline="central">harness</text>
+<text class="ts" x="50" y="1600" text-anchor="start" dominant-baseline="central">issue-triage</text>
+<text class="ts" x="50" y="1622" text-anchor="start" dominant-baseline="central">lint-rust</text>
+<text class="ts" x="50" y="1644" text-anchor="start" dominant-baseline="central">metrics-reporter</text>
+<text class="ts" x="50" y="1666" text-anchor="start" dominant-baseline="central">privacy-first</text>
+<text class="ts" x="50" y="1688" text-anchor="start" dominant-baseline="central">release-rust</text>
+<text class="ts" x="50" y="1710" text-anchor="start" dominant-baseline="central">self-fix-loop</text>
+<text class="ts" x="50" y="1732" text-anchor="start" dominant-baseline="central">skill-creator</text>
+<text class="ts" x="50" y="1754" text-anchor="start" dominant-baseline="central">skill-evaluator</text>
+<text class="ts" x="50" y="1776" text-anchor="start" dominant-baseline="central">task-decomposition</text>
+<text class="ts" x="50" y="1798" text-anchor="start" dominant-baseline="central">test-rust</text>
+<text class="ts" x="50" y="1820" text-anchor="start" dominant-baseline="central">triz-analysis</text>
+<text class="ts" x="50" y="1842" text-anchor="start" dominant-baseline="central">triz-solver</text>
+<text class="ts" x="50" y="1864" text-anchor="start" dominant-baseline="central">verify-actions</text>
 </g>
 <g id="agents" role="region" aria-label="0 cognitive agents">
 <g class="card" role="group" aria-label="Cognitive agents list">
-<rect x="620" y="1527" width="550" height="554" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
-<text class="th" x="895" y="1545" text-anchor="middle" dominant-baseline="central" font-weight="700">0 COGNITIVE AGENTS</text>
-<text class="txs" x="895" y="1563" text-anchor="middle" dominant-baseline="central" opacity="0.5">.opencode/agents/</text>
+<rect x="620" y="1342" width="550" height="554" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4 4"/>
+<text class="th" x="895" y="1360" text-anchor="middle" dominant-baseline="central" font-weight="700">0 COGNITIVE AGENTS</text>
+<text class="txs" x="895" y="1378" text-anchor="middle" dominant-baseline="central" opacity="0.5">.opencode/agents/</text>
 </g>
-<text class="txs" x="895" y="1814" text-anchor="middle" dominant-baseline="central" opacity="0.55">none configured</text>
+<text class="txs" x="895" y="1629" text-anchor="middle" dominant-baseline="central" opacity="0.55">none configured</text>
 </g>
-<line x1="30" y1="2111" x2="1170" y2="2111" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="30" y1="1926" x2="1170" y2="1926" stroke="#e2e8f0" stroke-width="1"/>
 <g id="subagent-workflow" role="region" aria-label="Subagent workflow and orchestration">
-<text class="section-label" x="600" y="2141" text-anchor="middle" dominant-baseline="central">SUBAGENT WORKFLOW · MULTI-AGENT ORCHESTRATION</text>
+<text class="section-label" x="600" y="1956" text-anchor="middle" dominant-baseline="central">SUBAGENT WORKFLOW · MULTI-AGENT ORCHESTRATION</text>
 <g class="card" role="img" aria-label="Agent role: code-agent">
-<rect x="30" y="2176" width="550" height="45" rx="10" fill="url(#grad-teal)" stroke="#5eead4" stroke-width="1.5"/>
-<text class="th" x="45" y="2194" text-anchor="start" dominant-baseline="central" font-weight="600">code-agent</text>
-<text class="txs" x="45" y="2211" text-anchor="start" dominant-baseline="central" opacity="0.6">build-rust</text>
+<rect x="30" y="1991" width="550" height="45" rx="10" fill="url(#grad-teal)" stroke="#5eead4" stroke-width="1.5"/>
+<text class="th" x="45" y="2009" text-anchor="start" dominant-baseline="central" font-weight="600">code-agent</text>
+<text class="txs" x="45" y="2026" text-anchor="start" dominant-baseline="central" opacity="0.6">build-rust</text>
 </g>
 <g class="card" role="img" aria-label="Agent role: release-agent">
-<rect x="620" y="2176" width="550" height="45" rx="10" fill="url(#grad-green)" stroke="#86efac" stroke-width="1.5"/>
-<text class="th" x="635" y="2194" text-anchor="start" dominant-baseline="central" font-weight="600">release-agent</text>
-<text class="txs" x="635" y="2211" text-anchor="start" dominant-baseline="central" opacity="0.6">release-rust</text>
+<rect x="620" y="1991" width="550" height="45" rx="10" fill="url(#grad-green)" stroke="#86efac" stroke-width="1.5"/>
+<text class="th" x="635" y="2009" text-anchor="start" dominant-baseline="central" font-weight="600">release-agent</text>
+<text class="txs" x="635" y="2026" text-anchor="start" dominant-baseline="central" opacity="0.6">release-rust</text>
 </g>
 <g class="card" role="img" aria-label="Agent role: quality-agent">
-<rect x="30" y="2233" width="550" height="45" rx="10" fill="url(#grad-blue)" stroke="#93c5fd" stroke-width="1.5"/>
-<text class="th" x="45" y="2251" text-anchor="start" dominant-baseline="central" font-weight="600">quality-agent</text>
-<text class="txs" x="45" y="2268" text-anchor="start" dominant-baseline="central" opacity="0.6">skill-evaluator</text>
+<rect x="30" y="2048" width="550" height="45" rx="10" fill="url(#grad-blue)" stroke="#93c5fd" stroke-width="1.5"/>
+<text class="th" x="45" y="2066" text-anchor="start" dominant-baseline="central" font-weight="600">quality-agent</text>
+<text class="txs" x="45" y="2083" text-anchor="start" dominant-baseline="central" opacity="0.6">skill-evaluator</text>
 </g>
 <g class="card" role="img" aria-label="Agent role: meta-agent">
-<rect x="620" y="2233" width="550" height="45" rx="10" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
-<text class="th" x="635" y="2251" text-anchor="start" dominant-baseline="central" font-weight="600">meta-agent</text>
-<text class="txs" x="635" y="2268" text-anchor="start" dominant-baseline="central" opacity="0.6">skill-creator</text>
+<rect x="620" y="2048" width="550" height="45" rx="10" fill="url(#grad-templates)" stroke="#d8b4fe" stroke-width="1.5"/>
+<text class="th" x="635" y="2066" text-anchor="start" dominant-baseline="central" font-weight="600">meta-agent</text>
+<text class="txs" x="635" y="2083" text-anchor="start" dominant-baseline="central" opacity="0.6">skill-creator</text>
 </g>
-<text class="section-label" x="600" y="2305" text-anchor="middle" dominant-baseline="central">HANDOFF PROTOCOL</text>
+<text class="section-label" x="600" y="2120" text-anchor="middle" dominant-baseline="central">HANDOFF PROTOCOL</text>
 <g class="card" role="img" aria-label="Handoff: .agents/context/workflow-state.json">
-<rect x="30" y="2330" width="353" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="206" y="2345" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/context/workflow-state.json</text>
-<text class="txs" x="206" y="2360" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
+<rect x="30" y="2145" width="353" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="206" y="2160" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/context/workflow-state.json</text>
+<text class="txs" x="206" y="2175" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
 </g>
 <g class="card" role="img" aria-label="Handoff: workflow-state.json">
-<rect x="423" y="2330" width="353" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="599" y="2345" text-anchor="middle" dominant-baseline="central" font-weight="500">workflow-state.json</text>
-<text class="txs" x="599" y="2360" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
+<rect x="423" y="2145" width="353" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="599" y="2160" text-anchor="middle" dominant-baseline="central" font-weight="500">workflow-state.json</text>
+<text class="txs" x="599" y="2175" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
 </g>
 <g class="card" role="img" aria-label="Handoff: .agents/aggregated/metrics.jsonl">
-<rect x="816" y="2330" width="353" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="992" y="2345" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/aggregated/metrics.jsonl</text>
-<text class="txs" x="992" y="2360" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
+<rect x="816" y="2145" width="353" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="992" y="2160" text-anchor="middle" dominant-baseline="central" font-weight="500">.agents/aggregated/metrics.jsonl</text>
+<text class="txs" x="992" y="2175" text-anchor="middle" dominant-baseline="central" opacity="0.5">Workflow state</text>
 </g>
 </g>
-<line x1="30" y1="2410" x2="1170" y2="2410" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="30" y1="2225" x2="1170" y2="2225" stroke="#e2e8f0" stroke-width="1"/>
 <g id="error-handling" role="region" aria-label="Error handling patterns">
-<text class="section-label" x="600" y="2440" text-anchor="middle" dominant-baseline="central">ERROR HANDLING PATTERNS</text>
+<text class="section-label" x="600" y="2255" text-anchor="middle" dominant-baseline="central">ERROR HANDLING PATTERNS</text>
 <g class="card" role="img" aria-label="Error strategy: thiserror">
-<rect x="30" y="2470" width="550" height="50" rx="10" fill="url(#grad-core)" stroke="#93c5fd" stroke-width="1.5"/>
-<text class="th" x="45" y="2488" text-anchor="start" dominant-baseline="central" font-weight="600">thiserror</text>
-<text class="txs" x="45" y="2505" text-anchor="start" dominant-baseline="central" opacity="0.6">Library error types — 7 crates using derive macro</text>
+<rect x="30.0" y="2285" width="550" height="50" rx="10" fill="url(#grad-core)" stroke="#93c5fd" stroke-width="1.5"/>
+<text class="th" x="45.0" y="2303" text-anchor="start" dominant-baseline="central" font-weight="600">thiserror</text>
+<text class="txs" x="45.0" y="2320" text-anchor="start" dominant-baseline="central" opacity="0.6">Library error types — 7 crates using derive macro</text>
 </g>
 <g class="card" role="img" aria-label="Error strategy: anyhow">
-<rect x="620" y="2470" width="550" height="50" rx="10" fill="url(#grad-apps)" stroke="#fcd34d" stroke-width="1.5"/>
-<text class="th" x="635" y="2488" text-anchor="start" dominant-baseline="central" font-weight="600">anyhow</text>
-<text class="txs" x="635" y="2505" text-anchor="start" dominant-baseline="central" opacity="0.6">Application errors — Context-rich error propagation</text>
+<rect x="620.0" y="2285" width="550" height="50" rx="10" fill="url(#grad-apps)" stroke="#fcd34d" stroke-width="1.5"/>
+<text class="th" x="635.0" y="2303" text-anchor="start" dominant-baseline="central" font-weight="600">anyhow</text>
+<text class="txs" x="635.0" y="2320" text-anchor="start" dominant-baseline="central" opacity="0.6">Application errors — Context-rich error propagation</text>
 </g>
 </g>
-<line x1="30" y1="2560" x2="1170" y2="2560" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="30" y1="2375" x2="1170" y2="2375" stroke="#e2e8f0" stroke-width="1"/>
 <g id="data-flow" role="region" aria-label="Data flow patterns">
-<text class="section-label" x="600" y="2590" text-anchor="middle" dominant-baseline="central">DATA FLOW · COMPONENT INTERACTIONS</text>
-<text class="section-label" x="600" y="2620" text-anchor="middle" dominant-baseline="central">KEY DATA TYPES</text>
-<g class="card-soft" role="img" aria-label="Data type: HybridStorage">
-<rect x="30" y="2645" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="45" y="2660" text-anchor="start" dominant-baseline="central" font-weight="500">HybridStorage</text>
-<text class="txs" x="45" y="2675" text-anchor="start" dominant-baseline="central" opacity="0.5">Hybrid storage combining multiple backends. — hybrid-storage-template</text>
+<text class="section-label" x="600" y="2405" text-anchor="middle" dominant-baseline="central">DATA FLOW · COMPONENT INTERACTIONS</text>
+<text class="section-label" x="600" y="2435" text-anchor="middle" dominant-baseline="central">KEY DATA TYPES</text>
+<g class="card-soft" role="img" aria-label="Data type: EchoTool">
+<rect x="30" y="2460" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="45" y="2475" text-anchor="start" dominant-baseline="central" font-weight="500">EchoTool</text>
+<text class="txs" x="45" y="2490" text-anchor="start" dominant-baseline="central" opacity="0.5">Tool that echoes the input back. — mcp-server-template</text>
 </g>
-<g class="card-soft" role="img" aria-label="Data type: SqliteBackend">
-<rect x="620" y="2645" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="635" y="2660" text-anchor="start" dominant-baseline="central" font-weight="500">SqliteBackend</text>
-<text class="txs" x="635" y="2675" text-anchor="start" dominant-baseline="central" opacity="0.5">SQLite backend using libSQL/Turso. — hybrid-storage-template</text>
+<g class="card-soft" role="img" aria-label="Data type: CalcTool">
+<rect x="620" y="2460" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="635" y="2475" text-anchor="start" dominant-baseline="central" font-weight="500">CalcTool</text>
+<text class="txs" x="635" y="2490" text-anchor="start" dominant-baseline="central" opacity="0.5">Calculator tool supporting basic arithmetic. — mcp-server-template</text>
 </g>
-<g class="card-soft" role="img" aria-label="Data type: MemoryBackend">
-<rect x="30" y="2693" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="45" y="2708" text-anchor="start" dominant-baseline="central" font-weight="500">MemoryBackend</text>
-<text class="txs" x="45" y="2723" text-anchor="start" dominant-baseline="central" opacity="0.5">Memory backend for testing. — hybrid-storage-template</text>
+<g class="card-soft" role="img" aria-label="Data type: McpServer">
+<rect x="30" y="2508" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="45" y="2523" text-anchor="start" dominant-baseline="central" font-weight="500">McpServer</text>
+<text class="txs" x="45" y="2538" text-anchor="start" dominant-baseline="central" opacity="0.5">MCP server with registered tools. — mcp-server-template</text>
 </g>
-<g class="card-soft" role="img" aria-label="Data type: MigrationRegistry">
-<rect x="620" y="2693" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="th" x="635" y="2708" text-anchor="start" dominant-baseline="central" font-weight="500">MigrationRegistry</text>
-<text class="txs" x="635" y="2723" text-anchor="start" dominant-baseline="central" opacity="0.5">Migration registry for handling schema changes. — checkpoint-template</text>
+<g class="card-soft" role="img" aria-label="Data type: Supervisor">
+<rect x="620" y="2508" width="550" height="40" rx="8" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="th" x="635" y="2523" text-anchor="start" dominant-baseline="central" font-weight="500">Supervisor</text>
+<text class="txs" x="635" y="2538" text-anchor="start" dominant-baseline="central" opacity="0.5">Supervises child actors with restart policies. — actor-runtime-template</text>
 </g>
 </g>
-<line x1="30" y1="2776" x2="1170" y2="2776" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="30" y1="2591" x2="1170" y2="2591" stroke="#e2e8f0" stroke-width="1"/>
 <g id="commands" role="region" aria-label="Interface protocols and commands">
-<text class="section-label" x="600" y="2806" text-anchor="middle" dominant-baseline="central">INTERFACE PROTOCOLS</text>
+<text class="section-label" x="600" y="2621" text-anchor="middle" dominant-baseline="central">INTERFACE PROTOCOLS</text>
 <g class="card-soft" role="img" aria-label="Command: /generate-docs">
-<rect x="30" y="2841" width="353" height="30" rx="15" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="ts" x="206" y="2856" text-anchor="middle" dominant-baseline="central" font-weight="500">/generate-docs</text>
+<rect x="30" y="2656" width="353" height="30" rx="15" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="ts" x="206" y="2671" text-anchor="middle" dominant-baseline="central" font-weight="500">/generate-docs</text>
 </g>
 <g class="card-soft" role="img" aria-label="Command: /resume">
-<rect x="423" y="2841" width="353" height="30" rx="15" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="ts" x="599" y="2856" text-anchor="middle" dominant-baseline="central" font-weight="500">/resume</text>
+<rect x="423" y="2656" width="353" height="30" rx="15" fill="url(#grad-interface)" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="ts" x="599" y="2671" text-anchor="middle" dominant-baseline="central" font-weight="500">/resume</text>
 </g>
 </g>
-<line x1="400" y1="2939" x2="800" y2="2939" stroke="#e2e8f0" stroke-width="1"/>
-<text class="txs" x="600" y="2959" text-anchor="middle" dominant-baseline="central" opacity="0.35" font-weight="700">RUST 2026 WORKSPACE · MAINTAINER · 2026 EDITION</text>
+<line x1="400" y1="2754" x2="800" y2="2754" stroke="#e2e8f0" stroke-width="1"/>
+<text class="txs" x="600" y="2774" text-anchor="middle" dominant-baseline="central" opacity="0.35" font-weight="700">RUST 2026 WORKSPACE · MAINTAINER · 2026 EDITION</text>
 </svg>
