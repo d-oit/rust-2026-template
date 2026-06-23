@@ -16,20 +16,20 @@ repos:
   - repo: local
     hooks:
       - id: cargo-fmt
-        name: cargo fmt
-        entry: cargo fmt --all -- --check
+        name: cargo fmt (harness sensor)
+        entry: bash scripts/harness-check.sh fmt
         language: system
         types: [rust]
         pass_filenames: false
       - id: cargo-clippy
-        name: cargo clippy
-        entry: cargo clippy --workspace --all-targets --all-features -- -D warnings
+        name: cargo clippy (harness sensor)
+        entry: bash scripts/harness-check.sh clippy
         language: system
         types: [rust]
         pass_filenames: false
       - id: cargo-deny
-        name: cargo deny
-        entry: cargo deny check
+        name: cargo deny (harness sensor)
+        entry: bash scripts/harness-check.sh deny
         language: system
         pass_filenames: false
 

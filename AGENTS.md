@@ -16,6 +16,7 @@
 ## Project Structure
 
 - `.agents/skills/`: Executable task knowledge and canonical workflows.
+- `.agents/skills/harness/`: Harness engineering — sensor response protocol and self-correction.
 - `crates/`: Workspace members (libraries and applications).
 - `scripts/`: Development, quality, and release automation.
 - `plans/adr/`: Architecture Decision Records.

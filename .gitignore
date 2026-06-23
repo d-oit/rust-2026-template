@@ -77,5 +77,8 @@ default.profraw
 .blackboxcli/
 
 
+# insta pending snapshots
+*.snap.new
+
 # Auto-generated LLM context files
 llms-full.txt

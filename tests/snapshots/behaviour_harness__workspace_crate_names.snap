@@ -1,0 +1,16 @@
+---
+source: tests/behaviour_harness.rs
+assertion_line: 41
+expression: crate_names
+---
+- actor-runtime-template
+- benchmarks
+- checkpoint-template
+- example-crate
+- example-registry-pattern
+- example-storage-pattern
+- hello-world-example
+- hybrid-storage-template
+- mcp-server-template
+- rust-2026-template
+- sample-app
