@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# sync-architecture.sh - Regenerate architecture diagram and sync to docs
+# sync-architecture.sh - Regenerate diagrams and sync to docs
 # Idempotent: safe to re-run.
 set -euo pipefail
 
@@ -10,24 +10,39 @@ log()  { printf '==> %s\n' "$*"; }
 ok()   { printf '  \033[0;32m✓\033[0m %s\n' "$*"; }
 warn() { printf '  ! %s\n' "$*"; }
 
-# --- Generate Excalidraw + SVG ---
+# --- Generate architecture diagram ---
 GEN_SCRIPT=".agents/skills/architecture-diagram/scripts/generate_diagram.py"
-EXCALIDRAW_OUT=".template/architecture.excalidraw"
-SVG_OUT=".template/architecture.svg"
-
 if [[ -f "$GEN_SCRIPT" ]]; then
   log "Generating architecture diagram"
-  python3 "$GEN_SCRIPT" --root . --out "$EXCALIDRAW_OUT" --svg-out "$SVG_OUT"
-  ok "Generated $EXCALIDRAW_OUT and $SVG_OUT"
+  python3 "$GEN_SCRIPT" --root . \
+    --out .template/architecture.excalidraw \
+    --svg-out .template/architecture.svg
+  ok "Generated architecture.excalidraw + architecture.svg"
 else
-  warn "$GEN_SCRIPT not found - skipping generation"
+  warn "$GEN_SCRIPT not found - skipping"
 fi
 
-# --- Sync SVG to docs ---
-if [[ -f "$SVG_OUT" ]]; then
-  mkdir -p docs/src
-  cp "$SVG_OUT" docs/src/architecture.svg
-  ok "Synced to docs/src/architecture.svg"
+# --- Generate overview infographic ---
+OVERVIEW_SCRIPT=".agents/skills/architecture-diagram/scripts/generate_overview.py"
+if [[ -f "$OVERVIEW_SCRIPT" ]]; then
+  log "Generating overview infographic"
+  python3 "$OVERVIEW_SCRIPT" --root . \
+    --out .template/overview.excalidraw \
+    --svg-out .template/overview.svg
+  ok "Generated overview.excalidraw + overview.svg"
+else
+  warn "$OVERVIEW_SCRIPT not found - skipping"
 fi
+
+# --- Sync SVGs to docs ---
+mkdir -p docs/src
+for f in architecture overview; do
+  src=".template/${f}.svg"
+  dst="docs/src/${f}.svg"
+  if [[ -f "$src" ]]; then
+    cp "$src" "$dst"
+    ok "Synced to $dst"
+  fi
+done
 
 log "Done"
