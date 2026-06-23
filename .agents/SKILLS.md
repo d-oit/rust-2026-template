@@ -16,6 +16,7 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `crates-io-name-check` | [skills/crates-io-name-check/SKILL.md](skills/crates-io-name-check/SKILL.md) | Verify that a new Rust crate name is available and appropriate on crates.io |
 | `dora-report` | [skills/dora-report/SKILL.md](skills/dora-report/SKILL.md) | Generate a DORA-REPORT.md for this repository by computing the five core DORA software delivery perf |
 | `goap-agent` | [skills/goap-agent/SKILL.md](skills/goap-agent/SKILL.md) | Invoke for complex multi-step tasks requiring intelligent planning and |
+| `harness` | [skills/harness/SKILL.md](skills/harness/SKILL.md) | Harness engineering guide — maps all sensors and feedforward guides, |
 | `issue-triage` | [skills/issue-triage/SKILL.md](skills/issue-triage/SKILL.md) | Read all open issues (GitHub/GitLab), categorize by type and effort, plan |
 | `lint-rust` | [skills/lint-rust/SKILL.md](skills/lint-rust/SKILL.md) | Run comprehensive linting and static analysis on Rust code including clippy, |
 | `metrics-reporter` | [skills/metrics-reporter/SKILL.md](skills/metrics-reporter/SKILL.md) | Record agentic task completion via event files for DORA observability. |

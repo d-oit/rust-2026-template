@@ -60,6 +60,10 @@ workspace = true
 # crates/sample-app and crates/*-template directly.
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"], optional = true }
 
+[dev-dependencies]
+insta = { workspace = true }
+serde_json = { workspace = true }
+
 [features]
 default = []
 # These features are provided as a demonstration of workspace-level feature

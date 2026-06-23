@@ -1,3 +1,11 @@
+# HARNESS FEEDFORWARD GUIDE: .clippy.toml
+# This file controls cargo clippy configuration for rust-2026-template.
+# Agents: read this file before running clippy to understand which lints are intentionally suppressed.
+#
+# Allowed lints (with rationale):
+# — Add entries here with comments explaining WHY an exception is granted.
+#    Never add exceptions without a rationale comment.
+#
 # .clippy.toml - Clippy lint configuration for Rust 2026 best practices
 
 # Cognitive complexity threshold for functions

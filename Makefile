@@ -1,4 +1,4 @@
-.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools
+.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools harness insta-review
 
 all: ci
 
@@ -35,3 +35,9 @@ docs: ## Auto-generate docs/patterns/ from rustdoc comments (run install-doc-too
 docs-check: docs ## Fail if generated docs differ from committed versions
 	cargo sync-readme --check
 	git diff --exit-code docs/patterns/
+
+harness:  ## Run all harness sensors with agent-optimised output
+	bash scripts/harness-check.sh all
+
+insta-review:  ## Review and approve insta snapshot changes
+	cargo insta review
