@@ -115,9 +115,9 @@ def main():
     use_graphviz = not args.no_graphviz and has_graphviz()
     crate_coords = {}
     if use_graphviz:
-        crate_coords = layout_with_graphviz(d_crates, layers, 200, 1200)
+        crate_coords = layout_with_graphviz(d_crates, layers, 280, 1200)
     if not crate_coords:
-        crate_coords = layout_grid_fallback(d_crates, layers, 200, 1200)
+        crate_coords = layout_grid_fallback(d_crates, layers, 280, 1200)
         use_graphviz = False
 
     overlap_fixes = fix_overlaps(crate_coords)

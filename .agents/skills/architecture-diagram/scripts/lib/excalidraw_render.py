@@ -102,12 +102,41 @@ def _make_text(el_id: str, x: float, y: float, text: str, font_size: int = 20,
 
 
 def _make_arrow(el_id: str, source: SceneNode, target: SceneNode,
-                group_ids: list[str] | None = None) -> dict:
-    sx = source.x + source.w / 2
-    sy = source.y + source.h
-    tx = target.x + target.w / 2
-    ty = target.y
-    return {
+                group_ids: list[str] | None = None,
+                direction: str = "vertical",
+                all_nodes: list[SceneNode] | None = None) -> dict:
+    if direction == "horizontal":
+        sx = source.x + source.w
+        sy = source.y + source.h / 2
+        tx = target.x
+        ty = target.y + target.h / 2
+    else:
+        sx = source.x + source.w / 2
+        sy = source.y + source.h
+        tx = target.x + target.w / 2
+        ty = target.y
+
+    points = [[0, 0], [tx - sx, ty - sy]]
+
+    if direction == "vertical":
+        has_obstacle = False
+        if all_nodes:
+            for node in all_nodes:
+                if node.id in (source.id, target.id):
+                    continue
+                if node.kind in ("pipeline_stage", "section_label"):
+                    continue
+                nx, ny, nw, nh = node.x, node.y, node.w, node.h
+                path_min_x = min(sx, tx)
+                path_max_x = max(sx, tx)
+                if nx <= path_max_x + 20 and nx + nw >= path_min_x - 20 and sy < ny < ty:
+                    has_obstacle = True
+                    break
+        if has_obstacle:
+            mid_y = (sy + ty) / 2
+            points = [[0, 0], [0, mid_y - sy], [tx - sx, mid_y - sy], [tx - sx, ty - sy]]
+
+    result = {
         "id": el_id,
         "type": "arrow",
         "x": sx,
@@ -115,13 +144,13 @@ def _make_arrow(el_id: str, source: SceneNode, target: SceneNode,
         "width": abs(tx - sx) if abs(tx - sx) > 1 else 1,
         "height": abs(ty - sy) if abs(ty - sy) > 1 else 1,
         "angle": 0,
-        "strokeColor": "#6366f1",
+        "strokeColor": "#94a3b8",
         "backgroundColor": "transparent",
         "fillStyle": "solid",
-        "strokeWidth": 2,
-        "strokeStyle": "dashed",
-        "roughness": 1,
-        "opacity": 60,
+        "strokeWidth": 1.5,
+        "strokeStyle": "solid",
+        "roughness": 0,
+        "opacity": 70,
         "groupIds": group_ids or [],
         "frameId": None,
         "index": None,
@@ -134,13 +163,14 @@ def _make_arrow(el_id: str, source: SceneNode, target: SceneNode,
         "updated": 1,
         "link": None,
         "locked": False,
-        "points": [[0, 0], [tx - sx, ty - sy]],
+        "points": points,
         "startBinding": None,
         "endBinding": None,
         "startArrowhead": None,
         "endArrowhead": "arrow",
-        "elbowed": False,
+        "elbowed": len(points) > 2,
     }
+    return result
 
 
 def _make_container_frame(el_id: str, x: float, y: float, w: float, h: float,
@@ -372,7 +402,28 @@ def scene_to_excalidraw(scene: SceneDocument) -> dict:
         source = node_map.get(edge.source_id)
         target = node_map.get(edge.target_id)
         if source and target:
-            elements.append(_make_arrow(f"el_{edge.id}", source, target))
+            direction = "horizontal" if edge.style == "pipeline" else "vertical"
+            elements.append(_make_arrow(
+                f"el_{edge.id}", source, target,
+                direction=direction,
+                all_nodes=scene.all_nodes,
+            ))
+
+    # ── Fix container bounds to encompass all children ──
+    for el in elements:
+        if el["id"].startswith("container_"):
+            section_id = el["id"].replace("container_", "")
+            group_id = f"group_{section_id}"
+            children = [c for c in elements if group_id in c.get("groupIds", []) and c["id"] != el["id"]]
+            if children:
+                min_x = min(c["x"] for c in children)
+                min_y = min(c["y"] for c in children)
+                max_x = max(c["x"] + c.get("width", 0) for c in children)
+                max_y = max(c["y"] + c.get("height", 0) for c in children)
+                el["x"] = min_x - 15
+                el["y"] = min_y - 25
+                el["width"] = max_x - min_x + 30
+                el["height"] = max_y - min_y + 40
 
     return {
         "type": "excalidraw",
