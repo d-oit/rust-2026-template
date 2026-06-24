@@ -16,7 +16,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
@@ -32,7 +32,7 @@
       "locked": false,
       "text": "SYSTEM ARCHITECTURE",
       "fontSize": 28,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
@@ -52,7 +52,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
@@ -68,7 +68,7 @@
       "locked": false,
       "text": "RUST 2026 WORKSPACE",
       "fontSize": 14,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
@@ -88,7 +88,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_pipeline",
@@ -107,7 +107,7 @@
       "label": {
         "text": "ANALYZE\nlint \u00b7 clippy\nEvery push \u00b7 ~2 min",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#0d9488"
@@ -126,7 +126,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_pipeline",
@@ -145,7 +145,7 @@
       "label": {
         "text": "VALIDATE\ntest \u00b7 nextest\nEvery push \u00b7 ~5 min",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#2563eb"
@@ -164,7 +164,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_pipeline",
@@ -183,7 +183,7 @@
       "label": {
         "text": "HARDEN\naudit \u00b7 deny\nWeekly + pre-release",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#e11d48"
@@ -202,7 +202,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_pipeline",
@@ -221,7 +221,7 @@
       "label": {
         "text": "DEPLOY\nrelease \u00b7 publish\nTag-triggered \u00b7 ~4 min",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#16a34a"
@@ -275,7 +275,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -294,7 +294,7 @@
       "label": {
         "text": "sample-app\nv0.0.0\nSample application demonstrating the rust-2026-tem...",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#d97706"
@@ -313,7 +313,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -332,7 +332,7 @@
       "label": {
         "text": "benchmarks\nv0.0.0\nCriterion benchmarks for workspace crates",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#2563eb"
@@ -351,7 +351,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -370,7 +370,7 @@
       "label": {
         "text": "actor-runtime-template\nv0.0.0\nActor runtime template using ractor for message-pa...",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#9333ea"
@@ -389,7 +389,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -408,7 +408,7 @@
       "label": {
         "text": "checkpoint-template\nv0.0.0\nCheckpoint template for serializable application s...",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#9333ea"
@@ -427,7 +427,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -446,7 +446,7 @@
       "label": {
         "text": "hybrid-storage-template\nv0.0.0\nHybrid storage template with SQL + KV backends and...",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#9333ea"
@@ -465,7 +465,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -484,7 +484,7 @@
       "label": {
         "text": "kv",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -503,7 +503,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -522,7 +522,7 @@
       "label": {
         "text": "sqlite",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -541,7 +541,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -560,7 +560,7 @@
       "label": {
         "text": "mcp-server-template\nv0.0.0\nMCP server template crate with tool registration a...",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#9333ea"
@@ -579,7 +579,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -598,7 +598,7 @@
       "label": {
         "text": "rust-2026-template\nv0.0.0\nA production-ready Rust workspace template with mo...",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#9333ea"
@@ -617,7 +617,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -636,7 +636,7 @@
       "label": {
         "text": "cli",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -655,7 +655,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -674,7 +674,7 @@
       "label": {
         "text": "mcp",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -693,7 +693,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -712,7 +712,7 @@
       "label": {
         "text": "parallel",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -731,7 +731,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -750,7 +750,7 @@
       "label": {
         "text": "persistence",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -769,7 +769,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -788,7 +788,7 @@
       "label": {
         "text": "tracing-json",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -807,7 +807,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -826,7 +826,7 @@
       "label": {
         "text": "tracing-opentelemetry",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -845,7 +845,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -864,7 +864,7 @@
       "label": {
         "text": "wasm",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#9333ea"
@@ -883,7 +883,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -902,7 +902,7 @@
       "label": {
         "text": "example-crate\nv0.0.0\nExample crate in the rust-2026-template workspace",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#16a34a"
@@ -921,7 +921,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -940,7 +940,7 @@
       "label": {
         "text": "example-registry-pattern\nv0.0.0\nTemplate pattern: registry-based handler dispatch",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#16a34a"
@@ -959,7 +959,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -978,7 +978,7 @@
       "label": {
         "text": "example-storage-pattern\nv0.0.0\nTemplate pattern: trait-only storage layer with sw...",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#16a34a"
@@ -997,7 +997,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -1016,7 +1016,7 @@
       "label": {
         "text": "mock",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#16a34a"
@@ -1035,7 +1035,7 @@
       "fillStyle": "solid",
       "strokeWidth": 1,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -1054,7 +1054,7 @@
       "label": {
         "text": "sqlite",
         "fontSize": 10,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "center",
         "verticalAlign": "middle",
         "strokeColor": "#16a34a"
@@ -1073,7 +1073,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_workspace",
@@ -1092,7 +1092,7 @@
       "label": {
         "text": "hello-world-example\nv0.1.0\nMinimal hello world example crate",
         "fontSize": 14,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "top",
         "strokeColor": "#16a34a"
@@ -1153,7 +1153,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1172,7 +1172,7 @@
       "label": {
         "text": "anti-ai-slop",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1191,7 +1191,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1210,7 +1210,7 @@
       "label": {
         "text": "architecture-diagram",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1229,7 +1229,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1248,7 +1248,7 @@
       "label": {
         "text": "atomic-commit",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1267,7 +1267,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1286,7 +1286,7 @@
       "label": {
         "text": "build-rust",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1305,7 +1305,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1324,7 +1324,7 @@
       "label": {
         "text": "codacy",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1343,7 +1343,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1362,7 +1362,7 @@
       "label": {
         "text": "crates-io-name-check",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1381,7 +1381,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1400,7 +1400,7 @@
       "label": {
         "text": "dora-report",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1419,7 +1419,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1438,7 +1438,7 @@
       "label": {
         "text": "goap-agent",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1457,7 +1457,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1476,7 +1476,7 @@
       "label": {
         "text": "harness",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1495,7 +1495,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1514,7 +1514,7 @@
       "label": {
         "text": "issue-triage",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1533,7 +1533,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1552,7 +1552,7 @@
       "label": {
         "text": "lint-rust",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1571,7 +1571,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1590,7 +1590,7 @@
       "label": {
         "text": "metrics-reporter",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1609,7 +1609,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1628,7 +1628,7 @@
       "label": {
         "text": "privacy-first",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1647,7 +1647,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1666,7 +1666,7 @@
       "label": {
         "text": "release-rust",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1685,7 +1685,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1704,7 +1704,7 @@
       "label": {
         "text": "self-fix-loop",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1723,7 +1723,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1742,7 +1742,7 @@
       "label": {
         "text": "skill-creator",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1761,7 +1761,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1780,7 +1780,7 @@
       "label": {
         "text": "skill-evaluator",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1799,7 +1799,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1818,7 +1818,7 @@
       "label": {
         "text": "task-decomposition",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1837,7 +1837,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1856,7 +1856,7 @@
       "label": {
         "text": "test-rust",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1875,7 +1875,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1894,7 +1894,7 @@
       "label": {
         "text": "triz-analysis",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1913,7 +1913,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1932,7 +1932,7 @@
       "label": {
         "text": "triz-solver",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -1951,7 +1951,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_skills_agents",
@@ -1970,7 +1970,7 @@
       "label": {
         "text": "verify-actions",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2042,7 +2042,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_subagent_workflow",
@@ -2061,7 +2061,7 @@
       "label": {
         "text": "code-agent",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2080,7 +2080,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_subagent_workflow",
@@ -2099,7 +2099,7 @@
       "label": {
         "text": "release-agent",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2118,7 +2118,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_subagent_workflow",
@@ -2137,7 +2137,7 @@
       "label": {
         "text": "quality-agent",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2156,7 +2156,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_subagent_workflow",
@@ -2175,7 +2175,7 @@
       "label": {
         "text": "meta-agent",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2194,7 +2194,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_subagent_workflow",
@@ -2210,7 +2210,7 @@
       "locked": false,
       "text": ".agents/context/workflow-state.json\nWorkflow state",
       "fontSize": 14,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
@@ -2230,7 +2230,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_subagent_workflow",
@@ -2246,7 +2246,7 @@
       "locked": false,
       "text": "workflow-state.json\nWorkflow state",
       "fontSize": 14,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
@@ -2266,7 +2266,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_subagent_workflow",
@@ -2282,7 +2282,7 @@
       "locked": false,
       "text": ".agents/aggregated/metrics.jsonl\nWorkflow state",
       "fontSize": 14,
-      "fontFamily": 1,
+      "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
@@ -2340,7 +2340,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_error_handling",
@@ -2359,7 +2359,7 @@
       "label": {
         "text": "thiserror\nLibrary error types \u2014 7 crates using derive macro",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#2563eb"
@@ -2378,7 +2378,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_error_handling",
@@ -2397,7 +2397,7 @@
       "label": {
         "text": "anyhow\nApplication errors \u2014 Context-rich error propagation",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#d97706"
@@ -2449,7 +2449,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_data_flow",
@@ -2468,7 +2468,7 @@
       "label": {
         "text": "EchoTool\nTool that echoes the input back. \u2014 mcp-server-template",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2487,7 +2487,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_data_flow",
@@ -2506,7 +2506,7 @@
       "label": {
         "text": "CalcTool\nCalculator tool supporting basic arithmetic. \u2014 mcp-server-template",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2525,7 +2525,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_data_flow",
@@ -2544,7 +2544,7 @@
       "label": {
         "text": "McpServer\nMCP server with registered tools. \u2014 mcp-server-template",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2563,7 +2563,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_data_flow",
@@ -2582,7 +2582,7 @@
       "label": {
         "text": "Supervisor\nSupervises child actors with restart policies. \u2014 actor-runtime-template",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2636,7 +2636,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_commands",
@@ -2655,7 +2655,7 @@
       "label": {
         "text": "/generate-docs",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2674,7 +2674,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": "frame_commands",
@@ -2693,7 +2693,7 @@
       "label": {
         "text": "/resume",
         "fontSize": 12,
-        "fontFamily": 1,
+        "fontFamily": 2,
         "textAlign": "left",
         "verticalAlign": "middle",
         "strokeColor": "#64748b"
@@ -2745,7 +2745,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
@@ -2798,7 +2798,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
@@ -2851,7 +2851,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
@@ -2904,7 +2904,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
@@ -2957,7 +2957,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
@@ -3010,7 +3010,7 @@
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
