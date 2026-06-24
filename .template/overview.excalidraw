@@ -2439,9 +2439,9 @@
     {
       "id": "a_69",
       "type": "arrow",
-      "x": 320,
-      "y": 625,
-      "width": 280,
+      "x": 310,
+      "y": 700.0,
+      "width": 30,
       "height": 1,
       "angle": 0,
       "strokeColor": "#adb5bd",
@@ -2457,9 +2457,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1696257353,
+      "seed": 1424067976,
       "version": 1,
-      "versionNonce": 1897781269,
+      "versionNonce": 1815022932,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -2471,7 +2471,7 @@
           0
         ],
         [
-          280,
+          30,
           0
         ]
       ],
@@ -2498,8 +2498,8 @@
       "id": "a_70",
       "type": "arrow",
       "x": 600,
-      "y": 625,
-      "width": 280,
+      "y": 700.0,
+      "width": 30,
       "height": 1,
       "angle": 0,
       "strokeColor": "#adb5bd",
@@ -2515,9 +2515,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1780297764,
+      "seed": 1470028004,
       "version": 1,
-      "versionNonce": 1981821680,
+      "versionNonce": 1860982960,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -2529,7 +2529,7 @@
           0
         ],
         [
-          280,
+          30,
           0
         ]
       ],
@@ -2555,9 +2555,9 @@
     {
       "id": "a_71",
       "type": "arrow",
-      "x": 880,
-      "y": 625,
-      "width": 280,
+      "x": 890,
+      "y": 700.0,
+      "width": 30,
       "height": 1,
       "angle": 0,
       "strokeColor": "#adb5bd",
@@ -2573,9 +2573,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1844944234,
+      "seed": 58279915,
       "version": 1,
-      "versionNonce": 2046468150,
+      "versionNonce": 449234871,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -2587,7 +2587,7 @@
           0
         ],
         [
-          280,
+          30,
           0
         ]
       ],
@@ -2611,65 +2611,7 @@
       }
     },
     {
-      "id": "a_72",
-      "type": "arrow",
-      "x": 320,
-      "y": 625,
-      "width": 280,
-      "height": 1,
-      "angle": 0,
-      "strokeColor": "#adb5bd",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 0,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": null,
-      "roundness": {
-        "type": 2
-      },
-      "seed": 1696257353,
-      "version": 1,
-      "versionNonce": 1897781269,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          280,
-          0
-        ]
-      ],
-      "startBinding": {
-        "elementId": "eco_crates_",
-        "focus": 0,
-        "gap": 5
-      },
-      "endBinding": {
-        "elementId": "eco_scripts_",
-        "focus": 0,
-        "gap": 5
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false,
-      "label": {
-        "text": "quality gates",
-        "fontSize": 14,
-        "fontFamily": 2
-      }
-    },
-    {
-      "id": "f_73",
+      "id": "f_72",
       "type": "frame",
       "x": 0,
       "y": 0,
@@ -2712,8 +2654,7 @@
         "t_68",
         "a_69",
         "a_70",
-        "a_71",
-        "a_72"
+        "a_71"
       ]
     }
   ],

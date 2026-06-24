@@ -237,20 +237,16 @@
 <text x="935.00" y="694.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#212529" text-anchor="start"><tspan x="935.00" dy="0">Local dev tools.</tspan><tspan x="935.00" dy="15">Quality gates, bootstrap,</tspan><tspan x="935.00" dy="15">release automation.</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M320.00 625.00 C396.40 625.00,472.79 625.00,600.00 625.00 M320.00 625.00 C417.90 625.00,515.80 625.00,600.00 625.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M587.01 632.50 L600.00 625.00 L587.01 617.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M310.00 700.00 C316.65 700.00,323.31 700.00,340.00 700.00 M310.00 700.00 C316.28 700.00,322.57 700.00,340.00 700.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M327.01 707.50 L340.00 700.00 L327.01 692.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M600.00 625.00 C679.48 625.00,758.95 625.00,880.00 625.00 M600.00 625.00 C688.56 625.00,777.12 625.00,880.00 625.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M867.01 632.50 L880.00 625.00 L867.01 617.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M600.00 700.00 C607.17 700.00,614.34 700.00,630.00 700.00 M600.00 700.00 C610.70 700.00,621.40 700.00,630.00 700.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M617.01 707.50 L630.00 700.00 L617.01 692.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M880.00 625.00 C966.15 625.00,1052.30 625.00,1160.00 625.00 M880.00 625.00 C978.60 625.00,1077.21 625.00,1160.00 625.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M1147.01 632.50 L1160.00 625.00 L1147.01 617.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-<g transform="translate(40.00,40.00)">
-<path d="M320.00 625.00 C396.40 625.00,472.79 625.00,600.00 625.00 M320.00 625.00 C417.90 625.00,515.80 625.00,600.00 625.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M587.01 632.50 L600.00 625.00 L587.01 617.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M890.00 700.00 C896.07 700.00,902.15 700.00,920.00 700.00 M890.00 700.00 C897.26 700.00,904.52 700.00,920.00 700.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M907.01 707.50 L920.00 700.00 L907.01 692.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>

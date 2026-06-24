@@ -15,6 +15,49 @@
 <text x="400.00" y="91.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#495057" text-anchor="start"><tspan x="400.00" dy="0">RUST 2026 WORKSPACE</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
+<rect x="50" y="120" width="250" height="50" rx="12.5" fill="#fef3c7" stroke="none"/>
+<rect x="50" y="120" width="250" height="50" rx="12.5" fill="none" stroke="#d97706" stroke-width="2"/>
+</g>
+<g transform="translate(40.00,40.00)">
+<text x="62.00" y="141.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#d97706" text-anchor="start"><tspan x="62.00" dy="0">Applications</tspan></text>
+</g>
+<g transform="translate(40.00,40.00)" opacity="0.80">
+<text x="62.00" y="158.00" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#495057" text-anchor="start"><tspan x="62.00" dy="0">Binary crates and CLI tools</tspan></text>
+</g>
+<g transform="translate(40.00,40.00)">
+<rect x="330" y="120" width="250" height="50" rx="12.5" fill="#dbeafe" stroke="none"/>
+<rect x="330" y="120" width="250" height="50" rx="12.5" fill="none" stroke="#2563eb" stroke-width="2"/>
+</g>
+<g transform="translate(40.00,40.00)">
+<text x="342.00" y="141.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#2563eb" text-anchor="start"><tspan x="342.00" dy="0">Core Libraries</tspan></text>
+</g>
+<g transform="translate(40.00,40.00)" opacity="0.80">
+<text x="342.00" y="158.00" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#495057" text-anchor="start"><tspan x="342.00" dy="0">Shared library crates</tspan></text>
+</g>
+<g transform="translate(40.00,40.00)">
+<rect x="610" y="120" width="250" height="50" rx="12.5" fill="#f3e8ff" stroke="none"/>
+<rect x="610" y="120" width="250" height="50" rx="12.5" fill="none" stroke="#9333ea" stroke-width="2"/>
+</g>
+<g transform="translate(40.00,40.00)">
+<text x="622.00" y="141.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#9333ea" text-anchor="start"><tspan x="622.00" dy="0">Templates</tspan></text>
+</g>
+<g transform="translate(40.00,40.00)" opacity="0.80">
+<text x="622.00" y="158.00" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#495057" text-anchor="start"><tspan x="622.00" dy="0">Reusable architectural patterns</tspan></text>
+</g>
+<g transform="translate(40.00,40.00)">
+<rect x="890" y="120" width="250" height="50" rx="12.5" fill="#dcfce7" stroke="none"/>
+<rect x="890" y="120" width="250" height="50" rx="12.5" fill="none" stroke="#16a34a" stroke-width="2"/>
+</g>
+<g transform="translate(40.00,40.00)">
+<text x="902.00" y="141.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="start"><tspan x="902.00" dy="0">Examples</tspan></text>
+</g>
+<g transform="translate(40.00,40.00)" opacity="0.80">
+<text x="902.00" y="158.00" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#495057" text-anchor="start"><tspan x="902.00" dy="0">Learning references and demos</tspan></text>
+</g>
+<g transform="translate(40.00,40.00)" opacity="0.00">
+<rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
+</g>
+<g transform="translate(40.00,40.00)">
 <rect x="30" y="185" width="270" height="60" rx="15" fill="#ccfbf1" stroke="none"/>
 <rect x="30" y="185" width="270" height="60" rx="15" fill="none" stroke="#0d9488" stroke-width="2"/>
 </g>
@@ -34,21 +77,33 @@
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="430.00" y="290.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="430.00" dy="0">APPLICATIONS</tspan></text>
+<rect x="430" y="268" width="150" height="22" rx="5.5" fill="#fef3c7" stroke="none"/>
+<rect x="430" y="268" width="150" height="22" rx="5.5" fill="none" stroke="#d97706" stroke-width="2"/>
+</g>
+<g transform="translate(40.00,40.00)">
+<text x="442.00" y="291.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#d97706" text-anchor="start"><tspan x="442.00" dy="0">APPLICATIONS</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="430" y="298" width="340" height="112" rx="28" fill="#fef3c7" stroke="none"/>
 <rect x="430" y="298" width="340" height="112" rx="28" fill="none" stroke="#d97706" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="430.00" y="450.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="430.00" dy="0">CORE LIBRARIES</tspan></text>
+<rect x="430" y="428" width="150" height="22" rx="5.5" fill="#dbeafe" stroke="none"/>
+<rect x="430" y="428" width="150" height="22" rx="5.5" fill="none" stroke="#2563eb" stroke-width="2"/>
+</g>
+<g transform="translate(40.00,40.00)">
+<text x="442.00" y="451.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#2563eb" text-anchor="start"><tspan x="442.00" dy="0">CORE LIBRARIES</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="430" y="458" width="340" height="80" rx="20" fill="#dbeafe" stroke="none"/>
 <rect x="430" y="458" width="340" height="80" rx="20" fill="none" stroke="#2563eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="240.00" y="578.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="240.00" dy="0">TEMPLATE CRATES</tspan></text>
+<rect x="240" y="556" width="150" height="22" rx="5.5" fill="#f3e8ff" stroke="none"/>
+<rect x="240" y="556" width="150" height="22" rx="5.5" fill="none" stroke="#9333ea" stroke-width="2"/>
+</g>
+<g transform="translate(40.00,40.00)">
+<text x="252.00" y="579.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#9333ea" text-anchor="start"><tspan x="252.00" dy="0">TEMPLATE CRATES</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="240" y="586" width="340" height="112" rx="28" fill="#f3e8ff" stroke="none"/>
@@ -107,7 +162,11 @@
 <rect x="440" y="1030" width="44" height="18" rx="4.5" fill="none" stroke="#9333ea" stroke-width="1"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="240.00" y="1074.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="240.00" dy="0">EXAMPLES</tspan></text>
+<rect x="240" y="1052" width="150" height="22" rx="5.5" fill="#dcfce7" stroke="none"/>
+<rect x="240" y="1052" width="150" height="22" rx="5.5" fill="none" stroke="#16a34a" stroke-width="2"/>
+</g>
+<g transform="translate(40.00,40.00)">
+<text x="252.00" y="1075.00" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="start"><tspan x="252.00" dy="0">EXAMPLES</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="240" y="1082" width="340" height="112" rx="28" fill="#dcfce7" stroke="none"/>
@@ -297,27 +356,27 @@
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M165.00 245.00 C238.29 229.84,311.58 214.67,455.00 185.00 M165.00 245.00 C277.25 221.78,389.50 198.55,455.00 185.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M443.80 194.98 L455.00 185.00 L440.76 180.29" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M300.00 215.00 C305.05 215.00,310.11 215.00,320.00 215.00 M300.00 215.00 C307.74 215.00,315.48 215.00,320.00 215.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M307.01 222.50 L320.00 215.00 L307.01 207.50" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M455.00 245.00 C567.23 221.78,679.47 198.56,745.00 185.00 M455.00 245.00 C523.13 230.90,591.25 216.81,745.00 185.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M733.80 194.98 L745.00 185.00 L730.76 180.29" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M590.00 215.00 C597.74 215.00,605.48 215.00,610.00 215.00 M590.00 215.00 C594.70 215.00,599.40 215.00,610.00 215.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M597.01 222.50 L610.00 215.00 L597.01 207.50" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M745.00 245.00 C844.43 224.43,943.86 203.86,1035.00 185.00 M745.00 245.00 C858.77 221.46,972.54 197.92,1035.00 185.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M1023.80 194.98 L1035.00 185.00 L1020.76 180.29" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M880.00 215.00 C886.86 215.00,893.71 215.00,900.00 215.00 M880.00 215.00 C887.85 215.00,895.69 215.00,900.00 215.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M887.01 222.50 L900.00 215.00 L887.01 207.50" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M600.00 538.00 C600.00 626.19,600.00 714.38,600.00 896.00 M600.00 538.00 C600.00 634.33,600.00 730.66,600.00 896.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M592.50 883.01 L600.00 896.00 L607.50 883.01" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M600.00 538.00 C600.00 472.56,600.00 407.11,600.00 298.00 M600.00 538.00 C600.00 459.67,600.00 381.35,600.00 298.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M607.50 310.99 L600.00 298.00 L592.50 310.99" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M600.00 458.00 C600.00 444.91,600.00 431.82,600.00 410.00 M600.00 458.00 C600.00 442.33,600.00 426.67,600.00 410.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M607.50 422.99 L600.00 410.00 L592.50 422.99" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M790.00 1304.00 C663.90 1230.33,537.80 1156.66,410.00 1082.00 M790.00 1304.00 C651.91 1223.33,513.83 1142.66,410.00 1082.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M425.00 1082.08 L410.00 1082.00 L417.43 1095.03" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M620.00 1264.00 C616.67 1264.00,603.33 1285.00,600.00 1264.00 C596.67 1243.00,603.33 1159.00,600.00 1138.00 C596.67 1117.00,583.33 1138.00,580.00 1138.00 M620.00 1264.00 C616.67 1264.00,603.33 1285.00,600.00 1264.00 C596.67 1243.00,603.33 1159.00,600.00 1138.00 C596.67 1117.00,583.33 1138.00,580.00 1138.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M592.99 1130.50 L580.00 1138.00 L592.99 1145.50" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 </svg>

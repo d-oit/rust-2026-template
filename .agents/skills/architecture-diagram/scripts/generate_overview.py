@@ -278,7 +278,7 @@ def generate(root: Path) -> dict:
     elements.append(ws_frame)
 
     # ════════════════════════════════════════════════════════════════════
-    # SECTION 4: ECOSYSTEM — How it connects
+    # SECTION 4: ECOSYSTEM — How it connects (FIXED)
     # ════════════════════════════════════════════════════════════════════
     eco_y = 610
     eco_children = []
@@ -287,7 +287,7 @@ def generate(root: Path) -> dict:
     elements.append(eco_title)
     eco_children.append(eco_title["id"])
 
-    # Ecosystem boxes
+    # Ecosystem boxes - FIXED positions
     eco_boxes = [
         ("crates/", f"Your code lives here.\n{len(crates)} workspace members\nwith feature flags.", C["primary"], 50),
         (".agents/skills/", f"AI procedures that\nguide coding agents.\n{len(skills)} reusable skills.", C["teal"], 340),
@@ -297,6 +297,8 @@ def generate(root: Path) -> dict:
 
     box_w, box_h = 260, 120
     box_ids = []
+    box_positions = []  # Store (x, y, w, h) for arrow routing
+
     for label, desc, color, bx in eco_boxes:
         bid = f"eco_{label.replace('/', '_').replace('.', '')}"
         card = _rect(bx, eco_y + 30, box_w, box_h, bg="#f8f9fa",
@@ -305,6 +307,7 @@ def generate(root: Path) -> dict:
         elements.append(card)
         eco_children.append(bid)
         box_ids.append(bid)
+        box_positions.append((bx, eco_y + 30, box_w, box_h))
 
         l = _text(bx + 15, eco_y + 45, label, fs=14, color=color)
         elements.append(l)
@@ -314,19 +317,31 @@ def generate(root: Path) -> dict:
         elements.append(d)
         eco_children.append(d["id"])
 
-    # Connection arrows
+    # FIXED: Connection arrows - sequential left-to-right flow
+    # Only connect adjacent boxes: 0→1, 1→2, 2→3
     connections = [
         (0, 1, "skills use"),
         (1, 2, "CI triggers"),
         (2, 3, "scripts run"),
-        (0, 3, "quality gates"),
     ]
+
     for src_i, tgt_i, label in connections:
-        # Route arrows above the boxes to avoid text overlap
+        src_x, src_y, src_w, src_h = box_positions[src_i]
+        tgt_x, tgt_y, tgt_w, tgt_h = box_positions[tgt_i]
+
+        # Arrow starts from RIGHT edge of source box
+        start_x = src_x + src_w
+        start_y = src_y + src_h / 2
+
+        # Arrow ends at LEFT edge of target box
+        end_x = tgt_x
+        end_y = tgt_y + tgt_h / 2
+
+        # Simple horizontal arrow between adjacent boxes
         arr = _arrow(
-            50 + (src_i + 1) * (box_w + 20) - 10, eco_y + 15,
+            start_x, start_y,
             box_ids[src_i], box_ids[tgt_i],
-            points=[[0, 0], [box_w + 20, 0]],
+            points=[[0, 0], [end_x - start_x, 0]],
             sc="#adb5bd", sw=2, label=label,
         )
         elements.append(arr)
