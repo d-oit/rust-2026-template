@@ -64,12 +64,12 @@ def layout_with_graphviz(crates: list[dict], layers: dict, y_start: int, viewbox
         objects = data.get("objects", [])
         if not objects:
             return {}
-        min_x = min(obj.get("pos", "0,0").split(",")[0].strip("!") for obj in objects if "pos" in obj)
-        max_x = max(obj.get("pos", "0,0").split(",")[0].strip("!") for obj in objects if "pos" in obj)
-        min_y = min(obj.get("pos", "0,0").split(",")[1].strip("!") for obj in objects if "pos" in obj)
-        max_y = max(obj.get("pos", "0,0").split(",")[1].strip("!") for obj in objects if "pos" in obj)
-        range_x = max(float(max_x) - float(min_x), 1)
-        range_y = max(float(max_y) - float(min_y), 1)
+        min_x = min(float(obj.get("pos", "0,0").split(",")[0].strip("!")) for obj in objects if "pos" in obj)
+        max_x = max(float(obj.get("pos", "0,0").split(",")[0].strip("!")) for obj in objects if "pos" in obj)
+        min_y = min(float(obj.get("pos", "0,0").split(",")[1].strip("!")) for obj in objects if "pos" in obj)
+        max_y = max(float(obj.get("pos", "0,0").split(",")[1].strip("!")) for obj in objects if "pos" in obj)
+        range_x = max(max_x - min_x, 1)
+        range_y = max(max_y - min_y, 1)
         margin = 30
         usable_w = viewbox_w - 2 * margin
         scale = usable_w / range_x if range_x > 0 else 1

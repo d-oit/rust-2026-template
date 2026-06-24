@@ -3,6 +3,7 @@
 import json
 import re
 import subprocess  # nosec B404
+import sys
 from pathlib import Path
 
 
@@ -30,10 +31,10 @@ def discover_skills(root: Path) -> list[str]:
 
 
 def discover_agents(root: Path) -> list[str]:
-    agents_dir = root / ".opencode" / "agents"
-    if not agents_dir.is_dir():
-        return []
-    return sorted(p.stem for p in agents_dir.glob("*.md"))
+    for agents_dir in [root / ".opencode" / "agents", root / ".agents" / "agents"]:
+        if agents_dir.is_dir():
+            return sorted(p.stem for p in agents_dir.glob("*.md"))
+    return []
 
 
 def discover_commands(root: Path) -> list[str]:
@@ -68,7 +69,14 @@ def discover_crates(root: Path) -> list[dict]:
                     "description": pkg.get("description", ""),
                 })
         return sorted(crates, key=lambda x: x["name"])
-    except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
+    except FileNotFoundError:
+        print("Warning: 'cargo' not found on PATH — diagram will use placeholder workspace", file=sys.stderr)
+        return []
+    except subprocess.CalledProcessError as e:
+        print(f"Warning: cargo metadata failed (exit {e.returncode}) — diagram will use placeholder workspace", file=sys.stderr)
+        return []
+    except (json.JSONDecodeError, KeyError) as e:
+        print(f"Warning: failed to parse cargo metadata: {e} — diagram will use placeholder workspace", file=sys.stderr)
         return []
 
 
@@ -131,30 +139,42 @@ def discover_agent_roles(root: Path) -> list[dict]:
 
 def discover_handoff_items(root: Path) -> list[dict]:
     orch_file = root / ".agents" / "ORCHESTRATION.md"
-    if not orch_file.exists():
-        return []
-    try:
-        content = orch_file.read_text(encoding="utf-8")
-        items = []
-        seen = set()
-        for match in re.finditer(r'`([^`]+\.(?:json|jsonl|md))`', content):
-            file_path = match.group(1)
-            if file_path not in seen:
-                seen.add(file_path)
-                if file_path.endswith(".jsonl"):
-                    desc = "Metrics & analytics"
-                elif "metrics" in file_path:
-                    desc = "Aggregated metrics"
-                elif "state" in file_path:
-                    desc = "Workflow state"
-                elif file_path.endswith(".md"):
-                    desc = "Documentation"
-                else:
-                    desc = "Configuration"
-                items.append({"path": file_path, "desc": desc})
-        return items[:3]
-    except Exception:
-        return []
+    items = []
+    seen = set()
+
+    # Try ORCHESTRATION.md first
+    if orch_file.exists():
+        try:
+            content = orch_file.read_text(encoding="utf-8")
+            for match in re.finditer(r'`([^`]+\.(?:json|jsonl|md))`', content):
+                file_path = match.group(1)
+                if file_path not in seen:
+                    seen.add(file_path)
+                    if file_path.endswith(".jsonl"):
+                        desc = "Metrics & analytics"
+                    elif "metrics" in file_path:
+                        desc = "Aggregated metrics"
+                    elif "state" in file_path:
+                        desc = "Workflow state"
+                    elif file_path.endswith(".md"):
+                        desc = "Documentation"
+                    else:
+                        desc = "Configuration"
+                    items.append({"path": file_path, "desc": desc})
+        except Exception:
+            pass
+
+    # Fallback: scan .agents/ for .json/.jsonl files
+    if not items:
+        agents_dir = root / ".agents"
+        if agents_dir.is_dir():
+            for f in sorted(agents_dir.glob("*.json")) + sorted(agents_dir.glob("*.jsonl")):
+                if f.name not in seen:
+                    seen.add(f.name)
+                    desc = "Metrics & analytics" if f.suffix == ".jsonl" else "Configuration"
+                    items.append({"path": f.name, "desc": desc})
+
+    return items[:3]
 
 
 def discover_data_types(root: Path) -> list[dict]:
