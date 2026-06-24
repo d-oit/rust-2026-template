@@ -158,7 +158,7 @@
       {
         "type": "content_contains",
         "path": ".template/architecture.svg",
-        "value": "hello-world-example"
+        "value": "hello_world"
       },
       {
         "type": "content_contains",
@@ -226,7 +226,7 @@
       {
         "type": "content_contains",
         "path": ".template/architecture.svg",
-        "value": "Dependency: hello-world-example depends on example-crate"
+        "value": "Dependency: hello_world depends on example-crate"
       }
     ]
   },

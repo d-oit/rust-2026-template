@@ -1205,7 +1205,7 @@
       }
     },
     {
-      "id": "el_crate_hello-world-example",
+      "id": "el_crate_hello_world",
       "type": "rectangle",
       "x": 620,
       "y": 1224,
@@ -1225,16 +1225,16 @@
       "roundness": {
         "type": 3
       },
-      "seed": 2630571104,
+      "seed": 3979682257,
       "version": 1,
-      "versionNonce": 2538063959,
+      "versionNonce": 1953758600,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
       "label": {
-        "text": "hello-world-example\nv0.1.0\nMinimal hello world example crate",
+        "text": "hello_world\nv0.1.0\nMinimal hello world example crate",
         "fontSize": 14,
         "fontFamily": 2,
         "textAlign": "left",
@@ -1285,7 +1285,7 @@
         "el_crate_example-crate",
         "el_crate_example-registry-pattern",
         "el_crate_example-storage-pattern",
-        "el_crate_hello-world-example"
+        "el_crate_hello_world"
       ]
     },
     {
@@ -3146,7 +3146,7 @@
       "elbowed": false
     },
     {
-      "id": "el_dep_hello-world-example_example-crate",
+      "id": "el_dep_hello_world_example-crate",
       "type": "arrow",
       "x": 790.0,
       "y": 1304,
@@ -3166,9 +3166,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 3754383181,
+      "seed": 701650686,
       "version": 1,
-      "versionNonce": 189711364,
+      "versionNonce": 4271414133,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -3185,7 +3185,7 @@
         ]
       ],
       "startBinding": {
-        "elementId": "el_crate_hello-world-example",
+        "elementId": "el_crate_hello_world",
         "focus": 0,
         "gap": 5
       },

@@ -48,7 +48,7 @@ def _classify_crates(crates: list[dict], cfg: dict) -> dict:
             layers["apps"].append(crate)
         elif "-template" in name:
             layers["templates"].append(crate)
-        elif "example-" in name or name == "hello-world-example":
+        elif "example-" in name or name == "hello_world":
             layers["other"].append(crate)
         else:
             layers["core"].append(crate)

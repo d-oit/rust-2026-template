@@ -85,7 +85,7 @@ This repository uses a layered documentation strategy to serve both human develo
 │   ├── mcp-server-template/
 │   └── sample-app/      # Reference application implementing best practices
 ├── examples/            # Example usage of workspace crates
-│   └── hello-world-example/ # Simple hello world example
+│   └── hello_world/ # Simple hello world example
 ├── reports/             # Generated HTML review and analysis output (ignored)
 ├── schema/              # JSON Schema definitions for config/API contracts
 ├── scripts/             # Automation scripts for quality gates and releases

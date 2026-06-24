@@ -1,6 +1,6 @@
 ---
 source: tests/behaviour_harness.rs
-assertion_line: 41
+assertion_line: 46
 expression: crate_names
 ---
 - actor-runtime-template
@@ -9,7 +9,7 @@ expression: crate_names
 - example-crate
 - example-registry-pattern
 - example-storage-pattern
-- hello-world-example
+- hello_world
 - hybrid-storage-template
 - mcp-server-template
 - rust-2026-template

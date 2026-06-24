@@ -2,7 +2,7 @@
   "name": "rust-2026-template",
   "private": true,
   "devDependencies": {
-    "@moona3k/excalidraw-export": "0.2.1"
+    "@moona3k/excalidraw-export": "^0.2.1"
   },
   "scripts": {
     "export:svg": "node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs -i .template/architecture.excalidraw -o .template/architecture.svg -f svg",

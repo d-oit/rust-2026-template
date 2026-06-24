@@ -36,15 +36,17 @@ else
   warn "$OVERVIEW_SCRIPT not found - skipping"
 fi
 
-# --- Sync SVGs to docs ---
+# --- Sync artifacts to docs ---
 mkdir -p docs/src
 for f in architecture overview; do
-  src=".template/${f}.svg"
-  dst="docs/src/${f}.svg"
-  if [[ -f "$src" ]]; then
-    cp "$src" "$dst"
-    ok "Synced to $dst"
-  fi
+  for ext in svg png; do
+    src=".template/${f}.${ext}"
+    dst="docs/src/${f}.${ext}"
+    if [[ -f "$src" ]]; then
+      cp "$src" "$dst"
+      ok "Synced to $dst"
+    fi
+  done
 done
 
 log "Done"

@@ -175,7 +175,7 @@
 <text x="630.00" y="529.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start"><tspan x="630.00" dy="0">Pipeline Stages</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="630.00" y="550.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#212529" text-anchor="start"><tspan x="630.00" dy="0">Lint, test, security,</tspan><tspan x="630.00" dy="15">release automation</tspan></text>
+<text x="630.00" y="550.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#212529" text-anchor="start"><tspan x="630.00" dy="0">Analyze, validate, harden,</tspan><tspan x="630.00" dy="15">deploy automation</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="890" y="450" width="260" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>

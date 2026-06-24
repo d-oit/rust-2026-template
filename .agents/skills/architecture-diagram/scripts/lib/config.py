@@ -43,5 +43,5 @@ DEFAULT_CONFIG = {
 
 DEFAULT_DESCRIPTIONS = {
     "benchmarks": "Criterion benchmarks for workspace crates",
-    "hello-world-example": "Minimal hello world example crate",
+    "hello_world": "Minimal hello world example crate",
 }
