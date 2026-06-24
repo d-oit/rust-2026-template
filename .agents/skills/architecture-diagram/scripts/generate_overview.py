@@ -345,6 +345,7 @@ def main():
     parser.add_argument("--root", default=".")
     parser.add_argument("--out", default=".template/overview.excalidraw")
     parser.add_argument("--svg-out", default=".template/overview.svg")
+    parser.add_argument("--png-out", default=None)
     parser.add_argument("--no-export", action="store_true")
     args = parser.parse_args()
 
@@ -359,14 +360,15 @@ def main():
     print(f"Written: {out}")
 
     if not args.no_export:
-        svg_out = Path(args.svg_out)
-        if not svg_out.is_absolute():
-            svg_out = root / svg_out
-        svg_out.parent.mkdir(parents=True, exist_ok=True)
-
         exporter = Path(__file__).resolve().parent / "export_excalidraw.mjs"
         if exporter.exists():
             import subprocess
+
+            svg_out = Path(args.svg_out)
+            if not svg_out.is_absolute():
+                svg_out = root / svg_out
+            svg_out.parent.mkdir(parents=True, exist_ok=True)
+
             try:
                 subprocess.run(
                     ["node", str(exporter), "-i", str(out), "-o", str(svg_out), "-f", "svg"],
@@ -375,6 +377,20 @@ def main():
                 print(f"Exported: {svg_out}")
             except Exception as e:
                 print(f"Warning: SVG export failed ({e})", file=sys.stderr)
+
+            if args.png_out:
+                png_out = Path(args.png_out)
+                if not png_out.is_absolute():
+                    png_out = root / png_out
+                png_out.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    subprocess.run(
+                        ["node", str(exporter), "-i", str(out), "-o", str(png_out), "-f", "png"],
+                        capture_output=True, text=True, timeout=30, check=True, shell=False,
+                    )
+                    print(f"Exported: {png_out}")
+                except Exception as e:
+                    print(f"Warning: PNG export failed ({e})", file=sys.stderr)
 
 
 if __name__ == "__main__":

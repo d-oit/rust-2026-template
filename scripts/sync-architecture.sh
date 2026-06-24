@@ -16,8 +16,9 @@ if [[ -f "$GEN_SCRIPT" ]]; then
   log "Generating architecture diagram"
   python3 "$GEN_SCRIPT" --root . \
     --out .template/architecture.excalidraw \
-    --svg-out .template/architecture.svg
-  ok "Generated architecture.excalidraw + architecture.svg"
+    --svg-out .template/architecture.svg \
+    --png-out .template/architecture.png
+  ok "Generated architecture.{excalidraw,svg,png}"
 else
   warn "$GEN_SCRIPT not found - skipping"
 fi
@@ -28,8 +29,9 @@ if [[ -f "$OVERVIEW_SCRIPT" ]]; then
   log "Generating overview infographic"
   python3 "$OVERVIEW_SCRIPT" --root . \
     --out .template/overview.excalidraw \
-    --svg-out .template/overview.svg
-  ok "Generated overview.excalidraw + overview.svg"
+    --svg-out .template/overview.svg \
+    --png-out .template/overview.png
+  ok "Generated overview.{excalidraw,svg,png}"
 else
   warn "$OVERVIEW_SCRIPT not found - skipping"
 fi
