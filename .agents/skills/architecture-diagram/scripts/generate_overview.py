@@ -119,14 +119,14 @@ def _frame(name, children):
     return {
         "id": _id("f"), "type": "frame",
         "x": 0, "y": 0, "width": 100, "height": 100,
-        "angle": 0, "strokeColor": "#868e96", "backgroundColor": "transparent",
-        "fillStyle": "solid", "strokeWidth": 1, "strokeStyle": "solid",
-        "roughness": 0, "opacity": 100,
+        "angle": 0, "strokeColor": "transparent", "backgroundColor": "transparent",
+        "fillStyle": "solid", "strokeWidth": 0, "strokeStyle": "solid",
+        "roughness": 0, "opacity": 0,
         "groupIds": [], "frameId": None, "index": None, "roundness": None,
         "seed": _seed("frame"), "version": 1,
         "versionNonce": _seed("framen"), "isDeleted": False,
         "boundElements": None, "updated": 1, "link": None, "locked": False,
-        "name": name, "children": children,
+        "name": "", "children": children,
     }
 
 
@@ -166,9 +166,14 @@ def generate(root: Path) -> dict:
     for feat in features:
         pw = len(feat) * 9 + 24
         pill = _rect(pill_x, 145, pw, 30, bg=C["primary"], stroke=C["primary"],
-                     sw=0, label=feat, lfs=12, lc="#ffffff")
+                     sw=0)
         elements.append(pill)
         hero_children.append(pill["id"])
+        # Add text on top of pill
+        pill_text = _text(pill_x + pw//2 - len(feat)*3, 150, feat, fs=12, color="#ffffff")
+        pill_text["textAlign"] = "center"
+        elements.append(pill_text)
+        hero_children.append(pill_text["id"])
         pill_x += pw + 12
 
     hero_frame = _frame("WHAT IS THIS?", hero_children)
@@ -317,8 +322,9 @@ def generate(root: Path) -> dict:
         (0, 3, "quality gates"),
     ]
     for src_i, tgt_i, label in connections:
+        # Route arrows above the boxes to avoid text overlap
         arr = _arrow(
-            50 + (src_i + 1) * (box_w + 20) - 10, eco_y + 90,
+            50 + (src_i + 1) * (box_w + 20) - 10, eco_y + 15,
             box_ids[src_i], box_ids[tgt_i],
             points=[[0, 0], [box_w + 20, 0]],
             sc="#adb5bd", sw=2, label=label,

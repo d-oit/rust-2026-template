@@ -30,9 +30,8 @@
 <rect x="900" y="185" width="270" height="60" rx="15" fill="#dcfce7" stroke="none"/>
 <rect x="900" y="185" width="270" height="60" rx="15" fill="none" stroke="#16a34a" stroke-width="2"/>
 </g>
-<g transform="translate(40.00,40.00)">
+<g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">PIPELINE</text>
 </g>
 <g transform="translate(40.00,40.00)">
 <text x="430.00" y="290.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="430.00" dy="0">APPLICATIONS</tspan></text>
@@ -134,9 +133,8 @@
 <rect x="620" y="1224" width="340" height="80" rx="20" fill="#dcfce7" stroke="none"/>
 <rect x="620" y="1224" width="340" height="80" rx="20" fill="none" stroke="#16a34a" stroke-width="2"/>
 </g>
-<g transform="translate(40.00,40.00)">
+<g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">WORKSPACE TOPOLOGY</text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="50" y="1452" width="510" height="22" rx="5.5" fill="#f1f5f9" stroke="none"/>
@@ -226,9 +224,8 @@
 <rect x="50" y="1914" width="510" height="22" rx="5.5" fill="#f1f5f9" stroke="none"/>
 <rect x="50" y="1914" width="510" height="22" rx="5.5" fill="none" stroke="#64748b" stroke-width="2"/>
 </g>
-<g transform="translate(40.00,40.00)">
+<g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">SKILLS &amp; AGENTS</text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="30" y="2006" width="550" height="45" rx="11.25" fill="#f1f5f9" stroke="none"/>
@@ -255,9 +252,8 @@
 <g transform="translate(40.00,40.00)">
 <text x="816.00" y="2149.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#495057" text-anchor="start"><tspan x="816.00" dy="0">.agents/aggregated/metrics.jsonl</tspan><tspan x="816.00" dy="17.5">Metrics &amp; analytics</tspan></text>
 </g>
-<g transform="translate(40.00,40.00)">
+<g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">SUBAGENT WORKFLOW</text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="30" y="2215" width="550" height="50" rx="12.5" fill="#dbeafe" stroke="none"/>
@@ -267,9 +263,8 @@
 <rect x="620" y="2215" width="550" height="50" rx="12.5" fill="#fef3c7" stroke="none"/>
 <rect x="620" y="2215" width="550" height="50" rx="12.5" fill="none" stroke="#d97706" stroke-width="2"/>
 </g>
-<g transform="translate(40.00,40.00)">
+<g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">ERROR HANDLING</text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="30" y="2305" width="550" height="40" rx="10" fill="#f1f5f9" stroke="none"/>
@@ -287,9 +282,8 @@
 <rect x="620" y="2353" width="550" height="40" rx="10" fill="#f1f5f9" stroke="none"/>
 <rect x="620" y="2353" width="550" height="40" rx="10" fill="none" stroke="#64748b" stroke-width="2"/>
 </g>
-<g transform="translate(40.00,40.00)">
+<g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">DATA FLOW</text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="30" y="2436" width="353" height="30" rx="7.5" fill="#f1f5f9" stroke="none"/>
@@ -299,9 +293,8 @@
 <rect x="423" y="2436" width="353" height="30" rx="7.5" fill="#f1f5f9" stroke="none"/>
 <rect x="423" y="2436" width="353" height="30" rx="7.5" fill="none" stroke="#64748b" stroke-width="2"/>
 </g>
-<g transform="translate(40.00,40.00)">
+<g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">COMMANDS</text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M165.00 245.00 C238.29 229.84,311.58 214.67,455.00 185.00 M165.00 245.00 C277.25 221.78,389.50 198.55,455.00 185.00" stroke="#868e96" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
