@@ -39,45 +39,27 @@ jobs:
         with:
           python-version: "3.12"
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
+      - name: Install cairosvg (SVG → PNG, pure Python)
+        run: pip install cairosvg
 
-      - name: Install Graphviz
-        run: sudo apt-get install -y graphviz
-
-      - name: Install Node dependencies
-        run: npm ci
-
-      - name: Regenerate architecture diagram
+      - name: Regenerate sketchnote architecture SVG + PNG
         run: |
-          python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
+          python .agents/skills/architecture-diagram/scripts/generate_architecture_svg.py \
             --root . \
-            --out .template/architecture.excalidraw \
-            --svg-out .template/architecture.svg \
-            --png-out .template/architecture.png
+            --svg-out docs/src/architecture.svg \
+            --png-out docs/src/architecture.png
 
-      - name: Regenerate overview diagram
+      - name: Regenerate overview diagram (Excalidraw-based)
         run: |
           python .agents/skills/architecture-diagram/scripts/generate_overview.py \
             --root . \
-            --out .template/overview.excalidraw \
-            --svg-out .template/overview.svg \
-            --png-out .template/overview.png
-
-      - name: Copy diagrams to docs
-        run: |
-          mkdir -p docs/src
-          cp .template/architecture.svg docs/src/architecture.svg
-          cp .template/architecture.png docs/src/architecture.png
-          cp .template/overview.svg     docs/src/overview.svg
-          cp .template/overview.png     docs/src/overview.png
+            --no-export \
+            --out .template/overview.excalidraw
 
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet .template/ docs/src/; then
+          if git diff --quiet docs/src/architecture.svg docs/src/architecture.png .template/overview.excalidraw; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -88,6 +70,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .template/ docs/src/
+          git add docs/src/architecture.svg docs/src/architecture.png .template/overview.excalidraw
           git commit -m "docs: regenerate diagrams [skip ci]"
           git push
