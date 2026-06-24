@@ -178,10 +178,11 @@ def build_scene(
                 label=ag, color_key="interface",
             ))
 
-    scene.sections.append(SceneSection(id="skills_agents", title="Skills & Agents",
-                                       nodes=skill_nodes + agent_nodes))
-    scene.all_nodes.extend(skill_nodes)
-    scene.all_nodes.extend(agent_nodes)
+    all_skill_agent_nodes = skill_nodes + agent_nodes
+    if all_skill_agent_nodes:
+        scene.sections.append(SceneSection(id="skills_agents", title="Skills & Agents",
+                                           nodes=all_skill_agent_nodes))
+        scene.all_nodes.extend(all_skill_agent_nodes)
     y_cursor += max_h + 30
 
     # ── Subagent Workflow ──

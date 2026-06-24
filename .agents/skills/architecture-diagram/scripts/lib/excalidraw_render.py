@@ -266,10 +266,11 @@ def scene_to_excalidraw(scene: SceneDocument) -> dict:
         if section.id != "header":
             continue
         for node in section.nodes:
-            font_size = 28 if node.metadata.get("cls") == "tl" else 14
+            font_size = 28 if node.metadata.get("cls") == "tl" else 16
+            color = "#1e1e1e" if node.metadata.get("cls") == "tl" else "#495057"
             elements.append(_text(
                 f"el_{node.id}", node.x - node.w / 2, node.y,
-                node.label, font_size=font_size, color="#1e1e1e",
+                node.label, font_size=font_size, color=color,
             ))
 
     # ── Sections with frames ──
@@ -285,10 +286,27 @@ def scene_to_excalidraw(scene: SceneDocument) -> dict:
         child_ids = []
 
         # Build child elements first (required by Excalidraw frame ordering)
+        layer_labels = {"apps": "APPLICATIONS", "core": "CORE LIBRARIES",
+                        "templates": "TEMPLATE CRATES", "other": "EXAMPLES"}
+        seen_layers = set()
+
         for node in section_nodes:
             el_id = f"el_{node.id}"
 
             if node.kind == "crate":
+                # Add layer label if not seen yet
+                layer = node.metadata.get("layer", "")
+                if layer and layer not in seen_layers:
+                    seen_layers.add(layer)
+                    layer_label_id = f"el_layer_label_{layer}"
+                    layer_text = layer_labels.get(layer, layer.upper())
+                    elements.append(_text(
+                        layer_label_id, node.x, node.y - 20,
+                        layer_text, font_size=12, color="#868e96",
+                        frame_id=frame_id,
+                    ))
+                    child_ids.append(layer_label_id)
+
                 children = _build_crate(el_id, node, frame_id=frame_id)
                 elements.extend(children)
                 child_ids.append(el_id)

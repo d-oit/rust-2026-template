@@ -141,7 +141,17 @@ def discover_handoff_items(root: Path) -> list[dict]:
             file_path = match.group(1)
             if file_path not in seen:
                 seen.add(file_path)
-                items.append({"path": file_path, "desc": "Workflow state"})
+                if file_path.endswith(".jsonl"):
+                    desc = "Metrics & analytics"
+                elif "metrics" in file_path:
+                    desc = "Aggregated metrics"
+                elif "state" in file_path:
+                    desc = "Workflow state"
+                elif file_path.endswith(".md"):
+                    desc = "Documentation"
+                else:
+                    desc = "Configuration"
+                items.append({"path": file_path, "desc": desc})
         return items[:3]
     except Exception:
         return []

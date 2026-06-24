@@ -270,7 +270,7 @@ def scene_to_svg(scene: SceneDocument, crate_coords: dict, layers: dict, no_grap
         if not layer_crates_nodes:
             continue
         parts.append(f'<g id="layer-{layer_name}" role="group" aria-label="{layer_labels_map.get(layer_name, layer_name)}">')
-        parts.append(_text(VIEWBOX_MARGIN, y_cursor, layer_labels_map.get(layer_name, layer_name.upper()), anchor="start", cls="txs", weight="600", opacity="0.5"))
+        parts.append(_text(VIEWBOX_MARGIN, y_cursor, layer_labels_map.get(layer_name, layer_name.upper()), anchor="start", cls="ts", weight="600", opacity="0.7"))
         y_cursor += 18
         for cn in layer_crates_nodes:
             if cn.label in crate_coords:

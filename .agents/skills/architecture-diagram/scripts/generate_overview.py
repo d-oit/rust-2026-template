@@ -144,7 +144,7 @@ def generate(root: Path) -> dict:
 
     # Background
     hero_bg = _rect(30, 20, 1140, 180, bg="#edf2ff", stroke=C["primary"],
-                    sw=2, rough=1, opacity=100)
+                    sw=2, opacity=100)
     elements.append(hero_bg)
     hero_children.append(hero_bg["id"])
 
@@ -166,7 +166,7 @@ def generate(root: Path) -> dict:
     for feat in features:
         pw = len(feat) * 9 + 24
         pill = _rect(pill_x, 145, pw, 30, bg=C["primary"], stroke=C["primary"],
-                     sw=0, label=feat, lfs=12, lc="#ffffff", rough=1)
+                     sw=0, label=feat, lfs=12, lc="#ffffff")
         elements.append(pill)
         hero_children.append(pill["id"])
         pill_x += pw + 12
@@ -181,7 +181,7 @@ def generate(root: Path) -> dict:
     qs_children = []
 
     # Section title
-    qs_title = _text(50, qs_y, "GETTING STARTED", fs=14, color=C["subtext"])
+    qs_title = _text(50, qs_y, "GETTING STARTED", fs=14, color=C["text"])
     elements.append(qs_title)
     qs_children.append(qs_title["id"])
 
@@ -194,13 +194,13 @@ def generate(root: Path) -> dict:
         ("5. Release", "Tag-triggered CI\npublishes to crates.io", C["purple"]),
     ]
 
-    step_w, step_h, gap = 200, 100, 25
+    step_w, step_h, gap = 200, 110, 25
     sx = 50
     step_ids = []
     for i, (title, desc, color) in enumerate(steps):
         sid = f"step_{i}"
         card = _rect(sx, qs_y + 30, step_w, step_h, bg="#f8f9fa", stroke=color,
-                     sw=2, rough=1, rid=None)
+                     sw=2, rid=None)
         card["id"] = sid
         elements.append(card)
         qs_children.append(sid)
@@ -210,7 +210,7 @@ def generate(root: Path) -> dict:
         elements.append(st)
         qs_children.append(st["id"])
 
-        sd = _text(sx + 15, qs_y + 75, desc, fs=12, color=C["subtext"])
+        sd = _text(sx + 15, qs_y + 75, desc, fs=13, color=C["text"])
         elements.append(sd)
         qs_children.append(sd["id"])
 
@@ -235,7 +235,7 @@ def generate(root: Path) -> dict:
     ws_y = 420
     ws_children = []
 
-    ws_title = _text(50, ws_y, "WHAT'S INSIDE", fs=14, color=C["subtext"])
+    ws_title = _text(50, ws_y, "WHAT'S INSIDE", fs=14, color=C["text"])
     elements.append(ws_title)
     ws_children.append(ws_title["id"])
 
@@ -251,7 +251,7 @@ def generate(root: Path) -> dict:
     stat_x = 50
     for num, label, desc, color in stats:
         card = _rect(stat_x, ws_y + 30, stat_w, stat_h, bg="#f8f9fa",
-                     stroke=color, sw=2, rough=1)
+                     stroke=color, sw=2)
         elements.append(card)
         ws_children.append(card["id"])
 
@@ -263,7 +263,7 @@ def generate(root: Path) -> dict:
         elements.append(l)
         ws_children.append(l["id"])
 
-        d = _text(stat_x + 20, ws_y + 118, desc, fs=11, color=C["subtext"])
+        d = _text(stat_x + 20, ws_y + 118, desc, fs=12, color=C["text"])
         elements.append(d)
         ws_children.append(d["id"])
 
@@ -278,7 +278,7 @@ def generate(root: Path) -> dict:
     eco_y = 610
     eco_children = []
 
-    eco_title = _text(50, eco_y, "HOW IT CONNECTS", fs=14, color=C["subtext"])
+    eco_title = _text(50, eco_y, "HOW IT CONNECTS", fs=14, color=C["text"])
     elements.append(eco_title)
     eco_children.append(eco_title["id"])
 
@@ -295,7 +295,7 @@ def generate(root: Path) -> dict:
     for label, desc, color, bx in eco_boxes:
         bid = f"eco_{label.replace('/', '_').replace('.', '')}"
         card = _rect(bx, eco_y + 30, box_w, box_h, bg="#f8f9fa",
-                     stroke=color, sw=2, rough=1)
+                     stroke=color, sw=2)
         card["id"] = bid
         elements.append(card)
         eco_children.append(bid)
@@ -305,7 +305,7 @@ def generate(root: Path) -> dict:
         elements.append(l)
         eco_children.append(l["id"])
 
-        d = _text(bx + 15, eco_y + 72, desc, fs=11, color=C["subtext"])
+        d = _text(bx + 15, eco_y + 72, desc, fs=12, color=C["text"])
         elements.append(d)
         eco_children.append(d["id"])
 
