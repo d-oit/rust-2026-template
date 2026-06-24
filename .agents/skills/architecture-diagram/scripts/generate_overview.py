@@ -248,7 +248,7 @@ def generate(root: Path) -> dict:
     stats = [
         (f"{len(crates)}", "Workspace Crates", "Libraries, apps,\nand templates", C["primary"]),
         (f"{len(skills)}", "AI Skills", "Reusable procedures\nfor code agents", C["teal"]),
-        ("5", "CI Workflows", "Lint, test, security,\nrelease automation", C["green"]),
+        ("4", "Pipeline Stages", "Analyze, validate, harden,\ndeploy automation", C["green"]),
         ("14", "Quality Checks", "Format, clippy, audit,\ndeny, privacy scan", C["accent"]),
     ]
 
@@ -289,8 +289,8 @@ def generate(root: Path) -> dict:
 
     # Ecosystem boxes
     eco_boxes = [
-        ("crates/", "Your code lives here.\n11 workspace members\nwith feature flags.", C["primary"], 50),
-        (".agents/skills/", "AI procedures that\nguide coding agents.\n22 reusable skills.", C["teal"], 340),
+        ("crates/", f"Your code lives here.\n{len(crates)} workspace members\nwith feature flags.", C["primary"], 50),
+        (".agents/skills/", f"AI procedures that\nguide coding agents.\n{len(skills)} reusable skills.", C["teal"], 340),
         (".github/workflows/", "Automated CI/CD.\nRuns on every push.\nSecurity + quality gates.", C["green"], 630),
         ("scripts/", "Local dev tools.\nQuality gates, bootstrap,\nrelease automation.", C["accent"], 920),
     ]
@@ -366,15 +366,14 @@ def main():
     print(f"Written: {out}")
 
     if not args.no_export:
+        svg_out = Path(args.svg_out)
+        if not svg_out.is_absolute():
+            svg_out = root / svg_out
+        svg_out.parent.mkdir(parents=True, exist_ok=True)
+
         exporter = Path(__file__).resolve().parent / "export_excalidraw.mjs"
         if exporter.exists():
             import subprocess
-
-            svg_out = Path(args.svg_out)
-            if not svg_out.is_absolute():
-                svg_out = root / svg_out
-            svg_out.parent.mkdir(parents=True, exist_ok=True)
-
             try:
                 subprocess.run(
                     ["node", str(exporter), "-i", str(out), "-o", str(svg_out), "-f", "svg"],

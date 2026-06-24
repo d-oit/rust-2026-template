@@ -50,6 +50,10 @@ python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
 python .agents/skills/architecture-diagram/scripts/generate_overview.py \
   --root . --out .template/overview.excalidraw --svg-out .template/overview.svg
 
+# Exporting Excalidraw to PNG (used by CI)
+node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs \
+  -i .template/architecture.excalidraw -o .template/architecture.png -f png
+
 # Sync to docs
 cp .template/architecture.svg docs/src/architecture.svg
 cp .template/overview.svg docs/src/overview.svg
@@ -63,3 +67,4 @@ cp .template/overview.svg docs/src/overview.svg
 | `.template/architecture.svg` | SVG | Published artifact for README and docs |
 | `.template/overview.excalidraw` | Excalidraw | Editable source for overview infographic |
 | `.template/overview.svg` | SVG | Published artifact for docs |
+| `.agents/skills/architecture-diagram/scripts/export_excalidraw.mjs` | Node.js | Script to export Excalidraw files to SVG/PNG |
