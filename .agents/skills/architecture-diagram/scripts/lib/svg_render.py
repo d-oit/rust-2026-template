@@ -300,9 +300,6 @@ def scene_to_svg(scene: SceneDocument, crate_coords: dict, layers: dict, no_grap
         parts.append("</g>")
     parts.append("</g>")
 
-    # ... REST OF THE FILE ...
-    # (Leaving it for now as these are the main points)
-
     # ── Skills & Agents ──
     if crate_coords:
         max_crate_bottom = max(cy + ch for cx, cy, cw, ch in crate_coords.values())

@@ -303,7 +303,7 @@ EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
 EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target|\.opencode|\.mimocode'
 
 if grep -rE "$EMAIL_PATTERN" \
-  --exclude-dir=.git --exclude-dir=target --exclude-dir=.opencode --exclude-dir=.mimocode \
+  --exclude-dir=.git --exclude-dir=target --exclude-dir=.opencode --exclude-dir=.mimocode --exclude-dir=node_modules \
   . 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
   fail "Email address detected in codebase"
 else
@@ -316,7 +316,7 @@ printf "\n"
 # ============================================================
 info "Scanning for potential secrets..."
 SECRET_PATTERN="(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]"
-EXCLUDE_DIR='--exclude-dir=.git --exclude-dir=target --exclude-dir=.agents --exclude-dir=.opencode'
+EXCLUDE_DIR='--exclude-dir=.git --exclude-dir=target --exclude-dir=.agents --exclude-dir=.opencode --exclude-dir=node_modules'
 EXCLUDE_SECRET='example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree'
 
 if grep -rE "$SECRET_PATTERN" $EXCLUDE_DIR . 2>/dev/null | grep -vE "$EXCLUDE_SECRET"; then
