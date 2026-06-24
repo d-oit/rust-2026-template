@@ -11,6 +11,7 @@ Dynamic generation — every stat is discovered at runtime:
 Output: docs/src/architecture.svg  (and optionally docs/src/architecture.png)
 """
 
+import json
 import re
 import sys
 import subprocess
@@ -174,41 +175,55 @@ def crate_card(parent, x, y, w, h, name, version, color, desc=None, flags=None):
 # ── Dynamic discovery ────────────────────────────────────────────────────
 
 def discover_crates(root: Path) -> list:
+    """Discover workspace crates via cargo metadata (reliable) or fallback to glob."""
+    try:
+        res = subprocess.run(
+            ["cargo", "metadata", "--format-version", "1", "--no-deps"],
+            capture_output=True, text=True, check=True, cwd=str(root)
+        )
+        data = json.loads(res.stdout)
+        crates = []
+        members = data.get("workspace_members", [])
+        for pkg in data.get("packages", []):
+            if pkg["id"] in members:
+                feats = [f for f in pkg.get("features", {}).keys() if f not in ("default", "full")]
+                crates.append({
+                    "name": pkg["name"],
+                    "version": pkg["version"],
+                    "desc": (pkg.get("description") or "")[:45],
+                    "flags": sorted(feats)[:4],
+                })
+        return sorted(crates, key=lambda x: x["name"])
+    except Exception:
+        pass
+
+    # Fallback to manual discovery if cargo fails
+    crates = []
     cargo = root / "Cargo.toml"
     if not cargo.exists():
         return []
+
     txt = cargo.read_text(encoding="utf-8")
-    m = re.search(r"\[workspace\].*?members\s*=\s*\[([^\]]*)\]", txt, re.S)
+    m = re.search(r"members\s*=\s*\[([^\]]*)\]", txt, re.S)
     if not m:
         return []
-    members = re.findall(r'"([^"]+)"', m.group(1))
-    crates = []
-    for member in members:
-        member_path = root / member
-        ct = member_path / "Cargo.toml"
-        if not ct.exists():
-            for p in (root / "crates").glob(f"*{member.split('/')[-1]}*/Cargo.toml"):
-                ct = p
-                member_path = p.parent
-                break
-        if ct.exists():
-            ctxt = ct.read_text(encoding="utf-8")
-            name_m = re.search(r'^name\s*=\s*"([^"]+)"', ctxt, re.MULTILINE)
-            ver_m  = re.search(r'^version\s*=\s*"([^"]+)"', ctxt, re.MULTILINE)
-            desc_m = re.search(r'^description\s*=\s*"([^"]+)"', ctxt, re.MULTILINE)
-            feat_m = re.findall(r'^\[features\].*?^(?=\[)', ctxt, re.S | re.MULTILINE)
-            flags = []
-            if feat_m:
-                flags = re.findall(r'^([a-zA-Z][a-zA-Z0-9_-]+)\s*=', feat_m[0], re.MULTILINE)
-                flags = [f for f in flags if f not in ("default", "full")][:4]
-            crates.append({
-                "name":    name_m.group(1) if name_m else member.split("/")[-1],
-                "version": ver_m.group(1)  if ver_m  else "0.0.0",
-                "desc":    desc_m.group(1)[:45] if desc_m else "",
-                "flags":   flags,
-                "path":    str(member_path),
-            })
-    return crates
+
+    member_patterns = re.findall(r'"([^"]+)"', m.group(1))
+    for pat in member_patterns:
+        for p in root.glob(pat):
+            ct = p / "Cargo.toml"
+            if ct.exists():
+                ctxt = ct.read_text(encoding="utf-8")
+                name_m = re.search(r'^name\s*=\s*"([^"]+)"', ctxt, re.MULTILINE)
+                ver_m  = re.search(r'^version\s*=\s*"([^"]+)"', ctxt, re.MULTILINE)
+                desc_m = re.search(r'^description\s*=\s*"([^"]+)"', ctxt, re.MULTILINE)
+                crates.append({
+                    "name": name_m.group(1) if name_m else p.name,
+                    "version": ver_m.group(1) if ver_m else "0.0.0",
+                    "desc": desc_m.group(1)[:45] if desc_m else "",
+                    "flags": []
+                })
+    return sorted(crates, key=lambda x: x["name"])
 
 
 def discover_skills(root: Path) -> list:
