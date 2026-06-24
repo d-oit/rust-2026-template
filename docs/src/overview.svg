@@ -9,241 +9,233 @@
 </style></defs>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <g transform="translate(40.00,40.00)">
-<path d="M29.57 21.85 L1170.66 18.71 L1169.97 198.75 L29.80 201.04" stroke="none" fill="#edf2ff"/>
-<path d="M30.02 20.39 C425.11 20.15,819.71 20.14,1170.12 20.25 M30.35 20.06 C467.18 18.88,904.12 18.84,1170.27 19.79 M1169.49 18.39 C1170.56 73.12,1172.14 124.89,1169.49 199.09 M1169.16 19.18 C1169.39 79.95,1169.40 141.77,1170.83 199.64 M1169.95 200.10 C720.99 196.06,272.84 196.12,30.51 200.61 M1169.77 199.96 C758.92 198.46,348.07 198.88,30.14 199.69 M28.81 199.12 C27.35 128.20,27.05 56.57,28.90 18.27 M30.89 199.29 C31.71 146.31,30.86 91.64,29.55 19.14" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="30" y="20" width="1140" height="180" rx="45" fill="#edf2ff" stroke="none"/>
+<rect x="30" y="20" width="1140" height="180" rx="45" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="80.00" y="86.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="80.00" dy="0">Rust 2026 Template</tspan></text>
+<text x="80.00" y="86.00" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="80.00" dy="0">Rust 2026 Template</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="80.00" y="123.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="18" fill="#868e96" text-anchor="start"><tspan x="80.00" dy="0">Production-ready Rust workspace with AI agents, quality gates, and modern tooling</tspan></text>
+<text x="80.00" y="123.00" font-family="Helvetica, Arial, sans-serif" font-size="18" fill="#868e96" text-anchor="start"><tspan x="80.00" dy="0">Production-ready Rust workspace with AI agents, quality gates, and modern tooling</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M78.49 146.09 L246.09 146.55 L249.30 176.16 L79.95 173.34" stroke="none" fill="#4263eb"/>
-<path d="M79.75 144.24 C130.95 145.37,178.69 145.15,246.63 145.33 M79.11 145.03 C138.56 145.23,198.51 145.16,247.96 144.17 M246.72 144.15 C249.85 153.06,248.36 161.27,248.20 176.78 M247.59 145.20 C247.19 152.54,248.90 160.00,248.45 174.97 M246.35 173.94 C210.15 175.14,173.00 175.84,80.63 176.68 M247.90 175.74 C199.86 176.56,151.51 176.14,80.31 174.12 M80.78 174.68 C79.00 168.01,78.94 155.46,80.11 146.33 M80.52 174.99 C80.81 163.14,79.37 150.71,79.39 145.49" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="80" y="145" width="168" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
+<rect x="80" y="145" width="168" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M260.33 146.45 L411.97 144.16 L409.05 174.46 L259.86 173.98" stroke="none" fill="#4263eb"/>
-<path d="M261.54 144.84 C292.04 144.08,323.92 146.11,411.64 143.06 M259.30 145.28 C295.65 143.61,330.76 144.31,410.65 144.11 M410.63 145.19 C409.89 153.69,410.80 160.69,410.49 173.52 M410.61 144.81 C410.94 152.18,410.79 157.54,410.35 175.00 M411.25 174.76 C350.27 173.64,292.88 172.99,261.43 175.80 M409.66 174.52 C356.61 173.97,304.12 174.22,260.02 174.84 M259.92 176.24 C261.74 167.31,260.28 162.49,261.34 143.95 M259.54 175.80 C259.69 165.41,260.36 155.19,259.18 144.70" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="260" y="145" width="150" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
+<rect x="260" y="145" width="150" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M422.99 146.48 L563.47 145.97 L564.33 176.61 L420.58 173.38" stroke="none" fill="#4263eb"/>
-<path d="M423.21 143.32 C463.01 147.04,501.87 145.40,563.50 143.57 M422.87 144.17 C451.72 145.26,483.23 145.62,562.98 145.94 M564.68 144.83 C562.33 153.07,561.49 156.98,562.16 174.34 M563.58 144.67 C563.90 152.77,562.41 161.88,563.97 175.92 M563.27 174.75 C514.36 175.41,469.10 175.90,420.79 173.58 M563.21 175.94 C518.65 174.18,473.11 172.94,421.91 175.32 M422.72 175.38 C423.05 167.99,420.58 156.08,422.09 146.15 M421.54 174.31 C421.98 165.18,422.26 156.26,421.33 145.94" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="422" y="145" width="141" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
+<rect x="422" y="145" width="141" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M575.47 144.51 L741.40 146.64 L744.34 175.89 L574.78 173.79" stroke="none" fill="#4263eb"/>
-<path d="M575.09 143.32 C633.78 144.45,690.59 144.78,743.66 144.49 M575.98 144.53 C613.69 144.34,653.63 142.94,743.90 144.01 M741.60 144.33 C742.27 155.19,743.08 167.91,743.47 176.07 M743.11 144.63 C744.01 157.19,743.53 167.77,742.01 175.09 M743.58 176.31 C704.89 175.37,664.79 174.93,573.87 176.91 M742.53 174.10 C697.55 175.67,650.03 174.92,574.84 174.60 M573.82 173.61 C573.25 164.68,576.18 154.58,573.36 144.14 M575.36 175.26 C573.95 163.90,574.04 153.85,575.81 145.04" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="575" y="145" width="168" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
+<rect x="575" y="145" width="168" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M753.48 146.40 L912.19 145.04 L915.82 173.72 L756.53 173.44" stroke="none" fill="#4263eb"/>
-<path d="M754.88 143.22 C793.51 145.09,835.70 146.96,914.81 145.03 M755.81 144.85 C797.58 147.52,838.88 146.77,914.41 144.10 M915.01 145.70 C913.19 151.95,913.01 156.75,913.63 175.71 M913.08 144.09 C914.35 154.33,914.09 164.85,913.72 175.58 M914.37 176.56 C864.17 172.82,818.62 172.87,755.94 176.62 M914.83 174.30 C858.57 176.99,803.58 177.02,755.80 174.16 M755.58 176.06 C755.39 162.25,753.95 153.02,755.54 145.21 M754.62 175.53 C754.77 168.99,754.51 161.62,754.10 144.52" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="755" y="145" width="159" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
+<rect x="755" y="145" width="159" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M927.82 143.37 L1041.33 143.14 L1041.21 173.71 L927.77 174.97" stroke="none" fill="#4263eb"/>
-<path d="M927.61 146.40 C962.69 144.80,1004.88 145.59,1040.31 143.55 M926.50 145.45 C956.32 144.66,987.27 146.07,1039.84 144.06 M1040.74 144.20 C1038.57 154.02,1039.02 165.32,1040.54 175.94 M1040.55 144.75 C1039.99 156.20,1039.18 165.56,1040.39 175.28 M1039.78 174.67 C1014.90 175.75,991.75 176.62,924.65 173.37 M1040.76 174.12 C1009.50 175.16,979.66 175.84,926.23 174.17 M925.86 174.86 C927.12 162.38,924.97 153.03,926.99 144.85 M926.25 175.92 C926.72 167.42,926.10 160.04,926.32 145.88" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="926" y="145" width="114" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
+<rect x="926" y="145" width="114" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
 <text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">WHAT IS THIS?</text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="50.00" y="254.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#868e96" text-anchor="start"><tspan x="50.00" dy="0">GETTING STARTED</tspan></text>
+<text x="50.00" y="254.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#868e96" text-anchor="start"><tspan x="50.00" dy="0">GETTING STARTED</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M50.26 269.08 L250.88 269.20 L248.40 371.41 L48.57 370.93" stroke="none" fill="#f8f9fa"/>
-<path d="M50.57 269.06 C99.15 270.94,149.92 270.04,248.33 271.50 M49.53 270.43 C127.23 271.60,204.96 271.78,250.61 269.16 M248.80 269.53 C251.08 293.63,251.27 312.57,248.72 370.45 M249.01 270.89 C249.56 293.64,250.54 317.34,249.32 370.04 M251.39 370.39 C195.66 371.76,137.40 371.69,50.34 371.44 M250.88 370.50 C185.50 371.49,120.22 371.46,49.92 370.58 M49.97 371.10 C49.76 344.62,48.19 315.67,50.80 268.90 M49.79 369.31 C50.42 347.90,50.15 325.10,50.21 269.36" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="50" y="270" width="200" height="100" rx="25" fill="#f8f9fa" stroke="none"/>
+<rect x="50" y="270" width="200" height="100" rx="25" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="65.00" y="301.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#4263eb" text-anchor="start"><tspan x="65.00" dy="0">1. Clone</tspan></text>
+<text x="65.00" y="301.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#4263eb" text-anchor="start"><tspan x="65.00" dy="0">1. Clone</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="65.00" y="327.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#868e96" text-anchor="start"><tspan x="65.00" dy="0">Use this template</tspan><tspan x="65.00" dy="15">to start a new repo</tspan></text>
+<text x="65.00" y="327.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="65.00" dy="0">Use this template</tspan><tspan x="65.00" dy="15">to start a new repo</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M276.22 268.65 L476.53 269.69 L474.71 368.40 L276.78 369.90" stroke="none" fill="#f8f9fa"/>
-<path d="M276.16 270.18 C320.96 273.00,369.19 270.53,474.94 268.23 M274.64 270.45 C320.61 268.97,364.61 267.98,474.41 270.69 M476.06 271.67 C475.53 291.35,477.50 313.39,473.27 368.27 M475.07 270.13 C475.26 306.46,475.73 342.27,474.81 369.44 M475.09 370.38 C397.42 371.72,319.43 371.74,276.35 368.43 M475.59 370.55 C413.68 369.44,351.94 369.85,274.11 369.81 M274.38 370.36 C274.67 333.59,274.67 294.45,274.80 269.10 M275.74 369.18 C274.50 338.98,273.26 308.50,275.20 269.69" stroke="#0c8599" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="275" y="270" width="200" height="100" rx="25" fill="#f8f9fa" stroke="none"/>
+<rect x="275" y="270" width="200" height="100" rx="25" fill="none" stroke="#0c8599" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="290.00" y="301.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#0c8599" text-anchor="start"><tspan x="290.00" dy="0">2. Setup</tspan></text>
+<text x="290.00" y="301.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#0c8599" text-anchor="start"><tspan x="290.00" dy="0">2. Setup</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="290.00" y="327.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#868e96" text-anchor="start"><tspan x="290.00" dy="0">./scripts/bootstrap.sh</tspan><tspan x="290.00" dy="15">installs all tools</tspan></text>
+<text x="290.00" y="327.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="290.00" dy="0">./scripts/bootstrap.sh</tspan><tspan x="290.00" dy="15">installs all tools</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M499.13 268.28 L700.44 270.41 L698.89 368.45 L499.10 369.05" stroke="none" fill="#f8f9fa"/>
-<path d="M498.30 271.26 C543.37 270.78,587.94 270.37,701.24 268.37 M499.46 270.18 C564.58 268.13,628.14 268.99,699.67 269.23 M698.34 268.61 C700.06 291.69,699.15 315.83,699.75 368.65 M699.48 270.68 C701.47 294.08,700.93 317.67,699.30 370.81 M700.12 369.66 C630.57 369.66,559.97 370.85,498.45 370.25 M700.63 369.67 C619.86 370.09,541.52 369.94,500.06 370.62 M501.76 368.33 C501.21 340.90,499.68 309.61,501.29 268.13 M499.71 370.52 C501.45 346.85,501.78 323.32,499.44 269.79" stroke="#2b8a3e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="500" y="270" width="200" height="100" rx="25" fill="#f8f9fa" stroke="none"/>
+<rect x="500" y="270" width="200" height="100" rx="25" fill="none" stroke="#2b8a3e" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="515.00" y="301.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#2b8a3e" text-anchor="start"><tspan x="515.00" dy="0">3. Develop</tspan></text>
+<text x="515.00" y="301.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#2b8a3e" text-anchor="start"><tspan x="515.00" dy="0">3. Develop</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="515.00" y="327.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#868e96" text-anchor="start"><tspan x="515.00" dy="0">Write code in crates/</tspan><tspan x="515.00" dy="15">with feature flags</tspan></text>
+<text x="515.00" y="327.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="515.00" dy="0">Write code in crates/</tspan><tspan x="515.00" dy="15">with feature flags</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M725.25 269.39 L925.98 271.69 L923.93 368.97 L725.15 371.03" stroke="none" fill="#f8f9fa"/>
-<path d="M725.69 271.74 C806.13 270.75,884.27 271.73,925.29 271.22 M724.25 270.27 C785.79 270.51,846.49 270.08,924.21 270.90 M926.09 271.07 C923.32 302.20,924.81 335.40,923.15 369.38 M925.50 269.77 C926.15 304.83,925.17 338.99,925.60 370.66 M924.62 369.14 C853.58 369.22,781.47 372.16,725.61 371.38 M924.92 369.21 C848.09 372.05,771.01 370.64,725.37 370.61 M724.78 368.48 C726.91 332.91,723.96 297.32,726.23 271.78 M725.90 369.85 C724.97 346.13,723.89 320.76,724.92 270.39" stroke="#f76707" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="725" y="270" width="200" height="100" rx="25" fill="#f8f9fa" stroke="none"/>
+<rect x="725" y="270" width="200" height="100" rx="25" fill="none" stroke="#f76707" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="740.00" y="301.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#f76707" text-anchor="start"><tspan x="740.00" dy="0">4. Quality</tspan></text>
+<text x="740.00" y="301.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#f76707" text-anchor="start"><tspan x="740.00" dy="0">4. Quality</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="740.00" y="327.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#868e96" text-anchor="start"><tspan x="740.00" dy="0">./scripts/quality-gates.sh</tspan><tspan x="740.00" dy="15">runs all checks</tspan></text>
+<text x="740.00" y="327.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="740.00" dy="0">./scripts/quality-gates.sh</tspan><tspan x="740.00" dy="15">runs all checks</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M949.66 271.96 L1149.97 271.57 L1150.94 371.97 L951.46 369.30" stroke="none" fill="#f8f9fa"/>
-<path d="M948.97 271.23 C1028.23 267.62,1107.81 267.30,1149.74 269.94 M949.66 269.27 C1002.09 267.55,1055.30 268.14,1149.17 269.77 M1150.92 270.74 C1150.25 297.26,1150.59 319.32,1150.53 370.09 M1150.97 269.22 C1149.32 309.23,1150.45 345.69,1149.53 369.05 M1151.15 371.77 C1103.03 370.53,1053.01 372.51,950.47 370.06 M1150.08 369.35 C1105.54 369.24,1060.91 369.18,949.12 369.94 M951.94 369.19 C949.57 340.64,947.82 313.75,949.96 268.03 M949.32 369.49 C950.29 347.36,951.00 322.94,949.56 270.48" stroke="#7048e8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="950" y="270" width="200" height="100" rx="25" fill="#f8f9fa" stroke="none"/>
+<rect x="950" y="270" width="200" height="100" rx="25" fill="none" stroke="#7048e8" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="965.00" y="301.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#7048e8" text-anchor="start"><tspan x="965.00" dy="0">5. Release</tspan></text>
+<text x="965.00" y="301.00" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#7048e8" text-anchor="start"><tspan x="965.00" dy="0">5. Release</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="965.00" y="327.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#868e96" text-anchor="start"><tspan x="965.00" dy="0">Tag-triggered CI</tspan><tspan x="965.00" dy="15">publishes to crates.io</tspan></text>
+<text x="965.00" y="327.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96" text-anchor="start"><tspan x="965.00" dy="0">Tag-triggered CI</tspan><tspan x="965.00" dy="15">publishes to crates.io</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M251.78 321.54 C258.01 318.64,263.72 320.31,279.82 319.86 M252.49 320.42 C262.87 320.45,272.00 320.87,277.91 319.42" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M265.39 328.95 C267.54 325.06,270.58 323.72,276.84 319.32 M265.47 328.16 C269.32 325.02,273.58 322.15,277.90 320.52" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M278.38 321.45 C275.00 317.52,272.52 316.18,263.85 311.82 M278.46 320.66 C273.77 317.37,269.48 314.49,264.91 313.02" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M253.00 320.00 C258.30 320.00,263.61 320.00,278.00 320.00 M253.00 320.00 C262.84 320.00,272.68 320.00,278.00 320.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M265.01 327.50 L278.00 320.00 L265.01 312.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M479.43 318.08 C488.90 318.29,495.85 321.50,503.76 319.03 M477.25 320.51 C486.84 320.36,495.98 319.36,502.40 319.27" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M489.38 326.35 C495.88 323.42,498.79 321.86,504.05 318.70 M490.30 328.23 C493.56 324.79,497.92 322.47,502.52 320.41" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M502.37 318.85 C498.60 315.83,491.24 314.27,491.06 311.20 M503.29 320.73 C498.43 317.55,494.67 315.23,489.53 312.91" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M478.00 320.00 C487.87 320.00,497.75 320.00,503.00 320.00 M478.00 320.00 C487.44 320.00,496.88 320.00,503.00 320.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M490.01 327.50 L503.00 320.00 L490.01 312.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M701.25 319.28 C710.48 321.22,720.81 318.73,726.20 319.19 M702.05 320.21 C709.58 320.80,717.11 319.86,727.69 319.64" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M714.99 327.25 C718.46 325.80,724.02 323.09,727.13 318.82 M715.14 328.00 C717.47 325.90,719.74 324.42,727.74 320.69" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M727.98 319.75 C721.64 318.41,717.37 315.71,714.14 311.32 M728.13 320.50 C725.12 318.57,722.05 317.09,714.75 313.19" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M703.00 320.00 C712.44 320.00,721.87 320.00,728.00 320.00 M703.00 320.00 C709.76 320.00,716.53 320.00,728.00 320.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M715.01 327.50 L728.00 320.00 L715.01 312.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M928.90 319.82 C936.37 320.88,946.93 319.92,954.14 318.36 M928.81 320.30 C933.55 320.71,941.09 320.34,952.18 319.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M938.98 327.65 C944.21 325.65,950.03 321.23,954.33 321.20 M939.97 328.07 C944.46 324.43,949.43 322.01,952.36 320.58" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M951.97 320.15 C947.83 318.22,944.28 313.80,941.34 313.70 M952.96 320.57 C947.33 316.99,942.18 314.56,939.37 313.08" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M928.00 320.00 C937.01 320.00,946.02 320.00,953.00 320.00 M928.00 320.00 C934.36 320.00,940.72 320.00,953.00 320.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M940.01 327.50 L953.00 320.00 L940.01 312.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
 <text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">HOW TO START</text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="50.00" y="434.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#868e96" text-anchor="start"><tspan x="50.00" dy="0">WHAT'S INSIDE</tspan></text>
+<text x="50.00" y="434.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#868e96" text-anchor="start"><tspan x="50.00" dy="0">WHAT'S INSIDE</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M49.68 449.29 L311.61 449.72 L308.28 580.78 L50.10 579.35" stroke="none" fill="#f8f9fa"/>
-<path d="M49.31 449.82 C117.30 448.56,182.57 449.67,308.45 449.52 M50.76 450.50 C129.47 449.20,207.74 449.70,309.34 449.45 M311.07 451.58 C312.43 496.47,310.87 545.82,311.14 579.45 M310.69 450.24 C309.13 482.99,309.87 516.48,310.12 579.22 M309.80 579.55 C248.69 579.19,189.75 579.95,50.15 579.24 M310.16 579.37 C225.49 578.20,142.94 579.04,50.29 580.38 M49.65 581.57 C50.88 535.14,50.99 491.07,51.55 449.59 M49.19 580.00 C51.30 550.26,50.29 521.55,49.99 449.10" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="50" y="450" width="260" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>
+<rect x="50" y="450" width="260" height="130" rx="32.5" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="70.00" y="501.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="70.00" dy="0">11</tspan></text>
+<text x="70.00" y="501.00" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="70.00" dy="0">11</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="70.00" y="529.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#212529" text-anchor="start"><tspan x="70.00" dy="0">Workspace Crates</tspan></text>
+<text x="70.00" y="529.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start"><tspan x="70.00" dy="0">Workspace Crates</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="70.00" y="549.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="11" fill="#868e96" text-anchor="start"><tspan x="70.00" dy="0">Libraries, apps,</tspan><tspan x="70.00" dy="13.75">and templates</tspan></text>
+<text x="70.00" y="549.00" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="70.00" dy="0">Libraries, apps,</tspan><tspan x="70.00" dy="13.75">and templates</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M328.37 451.03 L590.05 451.24 L589.29 579.09 L329.65 580.14" stroke="none" fill="#f8f9fa"/>
-<path d="M329.70 450.10 C398.84 450.47,469.34 453.37,591.45 449.58 M329.83 449.53 C413.85 452.00,497.80 452.07,589.82 449.65 M588.83 448.79 C589.86 488.17,592.11 523.88,591.07 580.47 M590.81 449.20 C590.01 478.61,589.81 506.39,589.69 580.97 M590.76 579.93 C514.10 580.18,437.78 578.10,330.20 581.29 M589.50 579.65 C516.02 578.83,441.34 578.08,330.27 580.08 M330.64 580.79 C328.05 539.03,329.97 496.74,331.90 448.83 M330.64 579.89 C331.72 531.77,331.55 482.81,329.10 449.57" stroke="#0c8599" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="330" y="450" width="260" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>
+<rect x="330" y="450" width="260" height="130" rx="32.5" fill="none" stroke="#0c8599" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="350.00" y="501.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="36" fill="#0c8599" text-anchor="start"><tspan x="350.00" dy="0">22</tspan></text>
+<text x="350.00" y="501.00" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#0c8599" text-anchor="start"><tspan x="350.00" dy="0">22</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="350.00" y="529.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#212529" text-anchor="start"><tspan x="350.00" dy="0">AI Skills</tspan></text>
+<text x="350.00" y="529.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start"><tspan x="350.00" dy="0">AI Skills</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="350.00" y="549.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="11" fill="#868e96" text-anchor="start"><tspan x="350.00" dy="0">Reusable procedures</tspan><tspan x="350.00" dy="13.75">for code agents</tspan></text>
+<text x="350.00" y="549.00" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="350.00" dy="0">Reusable procedures</tspan><tspan x="350.00" dy="13.75">for code agents</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M611.22 450.30 L868.38 449.54 L869.03 580.93 L611.04 579.95" stroke="none" fill="#f8f9fa"/>
-<path d="M608.49 449.82 C684.28 449.30,756.43 450.23,868.97 448.68 M610.20 450.21 C684.63 450.24,760.20 449.79,869.36 449.97 M871.09 450.32 C867.90 491.51,870.58 530.41,869.85 580.40 M870.88 450.01 C870.20 497.48,871.14 543.34,870.07 579.17 M869.23 579.86 C803.06 581.53,736.58 581.30,611.27 580.62 M870.07 579.47 C802.80 580.46,734.95 581.42,609.65 580.44 M610.24 580.90 C610.34 547.15,611.08 513.70,609.20 451.52 M610.32 579.22 C609.04 547.79,609.25 516.72,610.70 450.32" stroke="#2b8a3e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="610" y="450" width="260" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>
+<rect x="610" y="450" width="260" height="130" rx="32.5" fill="none" stroke="#2b8a3e" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="630.00" y="501.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="36" fill="#2b8a3e" text-anchor="start"><tspan x="630.00" dy="0">5</tspan></text>
+<text x="630.00" y="501.00" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#2b8a3e" text-anchor="start"><tspan x="630.00" dy="0">5</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="630.00" y="529.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#212529" text-anchor="start"><tspan x="630.00" dy="0">CI Workflows</tspan></text>
+<text x="630.00" y="529.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start"><tspan x="630.00" dy="0">CI Workflows</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="630.00" y="549.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="11" fill="#868e96" text-anchor="start"><tspan x="630.00" dy="0">Lint, test, security,</tspan><tspan x="630.00" dy="13.75">release automation</tspan></text>
+<text x="630.00" y="549.00" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="630.00" dy="0">Lint, test, security,</tspan><tspan x="630.00" dy="13.75">release automation</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M891.57 448.52 L1150.79 451.01 L1151.60 581.73 L888.41 578.87" stroke="none" fill="#f8f9fa"/>
-<path d="M891.49 451.32 C970.50 447.27,1049.88 449.63,1151.25 449.71 M889.50 450.24 C975.26 450.24,1059.64 451.74,1150.24 450.59 M1151.91 450.58 C1148.90 478.70,1149.75 508.67,1149.53 580.65 M1150.01 449.72 C1148.63 486.15,1149.82 519.61,1149.90 580.41 M1149.03 579.56 C1061.45 578.64,972.83 578.34,888.40 580.35 M1150.75 580.19 C1052.14 581.93,953.30 581.49,890.27 579.49 M889.62 579.76 C890.76 555.24,889.05 527.06,891.73 451.44 M889.46 580.87 C891.51 531.34,890.33 482.34,890.71 449.05" stroke="#f76707" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="890" y="450" width="260" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>
+<rect x="890" y="450" width="260" height="130" rx="32.5" fill="none" stroke="#f76707" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="910.00" y="501.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="36" fill="#f76707" text-anchor="start"><tspan x="910.00" dy="0">14</tspan></text>
+<text x="910.00" y="501.00" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#f76707" text-anchor="start"><tspan x="910.00" dy="0">14</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="910.00" y="529.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#212529" text-anchor="start"><tspan x="910.00" dy="0">Quality Checks</tspan></text>
+<text x="910.00" y="529.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start"><tspan x="910.00" dy="0">Quality Checks</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="910.00" y="549.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="11" fill="#868e96" text-anchor="start"><tspan x="910.00" dy="0">Format, clippy, audit,</tspan><tspan x="910.00" dy="13.75">deny, privacy scan</tspan></text>
+<text x="910.00" y="549.00" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="910.00" dy="0">Format, clippy, audit,</tspan><tspan x="910.00" dy="13.75">deny, privacy scan</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
 <text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">BY THE NUMBERS</text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="50.00" y="624.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#868e96" text-anchor="start"><tspan x="50.00" dy="0">HOW IT CONNECTS</tspan></text>
+<text x="50.00" y="624.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#868e96" text-anchor="start"><tspan x="50.00" dy="0">HOW IT CONNECTS</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M49.50 639.58 L310.74 638.38 L310.02 759.42 L50.33 759.28" stroke="none" fill="#f8f9fa"/>
-<path d="M48.58 640.39 C120.59 639.34,189.23 637.82,309.50 639.45 M49.46 639.99 C123.35 640.27,195.77 639.76,310.55 639.91 M310.98 639.41 C312.25 670.80,310.39 702.91,310.67 761.50 M310.59 639.81 C310.18 687.35,310.43 732.82,310.52 760.31 M310.48 761.45 C241.19 759.33,169.35 760.25,49.14 761.59 M309.35 760.33 C212.97 761.11,116.65 760.87,50.73 760.48 M48.99 759.31 C49.77 723.59,49.84 690.68,48.64 640.89 M50.35 760.64 C50.84 723.08,50.78 686.57,50.43 640.46" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="50" y="640" width="260" height="120" rx="30" fill="#f8f9fa" stroke="none"/>
+<rect x="50" y="640" width="260" height="120" rx="30" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="65.00" y="669.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#4263eb" text-anchor="start"><tspan x="65.00" dy="0">crates/</tspan></text>
+<text x="65.00" y="669.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#4263eb" text-anchor="start"><tspan x="65.00" dy="0">crates/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="65.00" y="693.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="11" fill="#868e96" text-anchor="start"><tspan x="65.00" dy="0">Your code lives here.</tspan><tspan x="65.00" dy="13.75">11 workspace members</tspan><tspan x="65.00" dy="13.75">with feature flags.</tspan></text>
+<text x="65.00" y="693.00" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="65.00" dy="0">Your code lives here.</tspan><tspan x="65.00" dy="13.75">11 workspace members</tspan><tspan x="65.00" dy="13.75">with feature flags.</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M340.02 641.74 L601.85 638.60 L598.04 760.82 L340.64 758.39" stroke="none" fill="#f8f9fa"/>
-<path d="M341.21 638.91 C398.49 639.54,460.94 639.19,599.83 639.57 M340.71 640.11 C397.58 639.43,454.61 639.60,600.36 640.32 M599.38 640.10 C598.40 680.21,600.26 719.25,598.65 760.98 M599.33 639.40 C599.52 671.60,599.63 703.99,600.40 759.54 M600.16 759.87 C497.68 758.31,395.69 759.23,339.38 760.12 M599.29 760.19 C521.20 757.77,442.27 758.30,339.74 759.48 M340.94 758.97 C339.33 726.09,338.60 689.35,341.03 641.22 M340.58 759.46 C340.17 730.53,340.84 701.19,339.71 640.46" stroke="#0c8599" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="340" y="640" width="260" height="120" rx="30" fill="#f8f9fa" stroke="none"/>
+<rect x="340" y="640" width="260" height="120" rx="30" fill="none" stroke="#0c8599" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="355.00" y="669.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#0c8599" text-anchor="start"><tspan x="355.00" dy="0">.agents/skills/</tspan></text>
+<text x="355.00" y="669.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#0c8599" text-anchor="start"><tspan x="355.00" dy="0">.agents/skills/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="355.00" y="693.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="11" fill="#868e96" text-anchor="start"><tspan x="355.00" dy="0">AI procedures that</tspan><tspan x="355.00" dy="13.75">guide coding agents.</tspan><tspan x="355.00" dy="13.75">22 reusable skills.</tspan></text>
+<text x="355.00" y="693.00" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="355.00" dy="0">AI procedures that</tspan><tspan x="355.00" dy="13.75">guide coding agents.</tspan><tspan x="355.00" dy="13.75">22 reusable skills.</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M630.70 641.45 L888.85 639.61 L888.79 761.75 L628.79 760.53" stroke="none" fill="#f8f9fa"/>
-<path d="M629.03 640.06 C732.29 640.82,833.76 641.07,891.09 638.73 M630.07 640.29 C710.21 639.80,789.77 638.95,889.23 639.26 M888.28 641.12 C891.62 676.31,889.82 710.15,889.48 759.37 M890.02 640.84 C890.05 679.32,890.10 718.65,889.10 759.22 M890.54 761.03 C832.91 759.90,776.81 759.08,630.64 759.12 M890.46 759.58 C827.26 761.18,764.71 760.98,629.74 760.74 M631.50 759.53 C629.89 728.42,629.39 698.52,630.36 640.99 M629.05 759.74 C630.96 723.72,629.91 688.92,629.49 640.73" stroke="#2b8a3e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="630" y="640" width="260" height="120" rx="30" fill="#f8f9fa" stroke="none"/>
+<rect x="630" y="640" width="260" height="120" rx="30" fill="none" stroke="#2b8a3e" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="645.00" y="669.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#2b8a3e" text-anchor="start"><tspan x="645.00" dy="0">.github/workflows/</tspan></text>
+<text x="645.00" y="669.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#2b8a3e" text-anchor="start"><tspan x="645.00" dy="0">.github/workflows/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="645.00" y="693.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="11" fill="#868e96" text-anchor="start"><tspan x="645.00" dy="0">Automated CI/CD.</tspan><tspan x="645.00" dy="13.75">Runs on every push.</tspan><tspan x="645.00" dy="13.75">Security + quality gates.</tspan></text>
+<text x="645.00" y="693.00" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="645.00" dy="0">Automated CI/CD.</tspan><tspan x="645.00" dy="13.75">Runs on every push.</tspan><tspan x="645.00" dy="13.75">Security + quality gates.</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M921.39 641.16 L1179.84 640.63 L1179.53 758.69 L920.94 758.66" stroke="none" fill="#f8f9fa"/>
-<path d="M920.05 641.21 C1010.90 637.94,1105.78 638.79,1179.14 641.09 M919.43 640.46 C1022.85 638.56,1124.94 638.31,1179.70 639.80 M1181.18 638.15 C1180.84 672.41,1179.39 701.05,1180.32 761.76 M1180.71 640.27 C1180.59 687.04,1180.57 733.32,1179.79 760.90 M1180.92 758.99 C1116.14 762.45,1053.92 763.10,918.70 761.33 M1180.03 760.58 C1081.33 760.44,984.74 761.10,919.74 760.41 M918.06 760.08 C920.46 734.75,920.17 703.70,919.69 640.77 M919.52 760.01 C919.75 716.90,920.99 674.66,919.26 639.00" stroke="#f76707" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="920" y="640" width="260" height="120" rx="30" fill="#f8f9fa" stroke="none"/>
+<rect x="920" y="640" width="260" height="120" rx="30" fill="none" stroke="#f76707" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="935.00" y="669.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#f76707" text-anchor="start"><tspan x="935.00" dy="0">scripts/</tspan></text>
+<text x="935.00" y="669.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#f76707" text-anchor="start"><tspan x="935.00" dy="0">scripts/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="935.00" y="693.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="11" fill="#868e96" text-anchor="start"><tspan x="935.00" dy="0">Local dev tools.</tspan><tspan x="935.00" dy="13.75">Quality gates, bootstrap,</tspan><tspan x="935.00" dy="13.75">release automation.</tspan></text>
+<text x="935.00" y="693.00" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#868e96" text-anchor="start"><tspan x="935.00" dy="0">Local dev tools.</tspan><tspan x="935.00" dy="13.75">Quality gates, bootstrap,</tspan><tspan x="935.00" dy="13.75">release automation.</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M320.80 698.49 C397.04 701.08,475.19 700.72,599.32 699.69 M320.67 700.44 C386.78 698.97,453.04 700.39,600.12 699.74" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M586.09 706.32 C590.11 704.04,594.31 703.61,599.82 699.12 M587.01 706.77 C591.95 705.16,596.88 701.51,600.09 700.71" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M599.08 698.82 C595.90 696.65,592.89 696.22,586.83 691.62 M600.00 699.27 C595.23 697.48,590.46 693.84,587.10 693.21" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M320.00 700.00 C397.52 700.00,475.04 700.00,600.00 700.00 M320.00 700.00 C386.71 700.00,453.41 700.00,600.00 700.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M587.01 707.50 L600.00 700.00 L587.01 692.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M599.63 701.28 C679.52 701.06,762.66 701.87,880.01 698.82 M599.49 699.55 C656.92 698.71,714.11 698.10,879.68 700.05" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M867.95 706.05 C869.69 704.65,875.88 702.28,880.49 701.27 M867.36 707.41 C870.88 705.04,875.65 702.66,879.66 699.51" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M880.94 698.55 C875.19 696.97,873.89 694.60,867.50 693.77 M880.35 699.91 C875.04 697.55,870.97 695.17,866.67 692.01" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M600.00 700.00 C680.60 700.00,761.20 700.00,880.00 700.00 M600.00 700.00 C657.36 700.00,714.73 700.00,880.00 700.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M867.01 707.50 L880.00 700.00 L867.01 692.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M879.45 699.66 C966.22 698.97,1053.95 701.15,1159.13 699.81 M880.36 699.58 C946.68 698.75,1014.96 698.46,1160.53 700.64" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M1147.76 707.45 C1150.07 704.31,1154.54 703.10,1159.63 699.24 M1146.71 707.44 C1152.59 704.35,1157.35 702.03,1160.49 700.09" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M1160.75 699.95 C1154.95 696.87,1151.31 695.66,1146.64 691.74 M1159.70 699.94 C1155.82 696.80,1150.80 694.48,1147.50 692.59" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M880.00 700.00 C967.28 700.00,1054.55 700.00,1160.00 700.00 M880.00 700.00 C947.41 700.00,1014.82 700.00,1160.00 700.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1147.01 707.50 L1160.00 700.00 L1147.01 692.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M320.80 698.49 C397.04 701.08,475.19 700.72,599.32 699.69 M320.67 700.44 C386.78 698.97,453.04 700.39,600.12 699.74" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M586.09 706.32 C590.11 704.04,594.31 703.61,599.82 699.12 M587.01 706.77 C591.95 705.16,596.88 701.51,600.09 700.71" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M599.08 698.82 C595.90 696.65,592.89 696.22,586.83 691.62 M600.00 699.27 C595.23 697.48,590.46 693.84,587.10 693.21" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M320.00 700.00 C397.52 700.00,475.04 700.00,600.00 700.00 M320.00 700.00 C386.71 700.00,453.41 700.00,600.00 700.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M587.01 707.50 L600.00 700.00 L587.01 692.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>

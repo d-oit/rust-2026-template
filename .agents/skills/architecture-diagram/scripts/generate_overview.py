@@ -55,7 +55,7 @@ def _rect(x, y, w, h, bg=C["card"], stroke="#dee2e6", sw=1, label=None,
         "x": x, "y": y, "width": w, "height": h,
         "angle": 0, "strokeColor": stroke, "backgroundColor": bg,
         "fillStyle": "solid", "strokeWidth": sw, "strokeStyle": "solid",
-        "roughness": rough, "opacity": opacity,
+        "roughness": 0, "opacity": opacity,
         "groupIds": [], "frameId": rid, "index": None,
         "roundness": {"type": 3}, "seed": _seed(f"r{x}{y}"),
         "version": 1, "versionNonce": _seed(f"rn{x}{y}"),
@@ -63,7 +63,7 @@ def _rect(x, y, w, h, bg=C["card"], stroke="#dee2e6", sw=1, label=None,
         "updated": 1, "link": None, "locked": False,
     }
     if label:
-        el["label"] = {"text": label, "fontSize": lfs, "fontFamily": 1,
+        el["label"] = {"text": label, "fontSize": lfs, "fontFamily": 2,
                         "textAlign": lac, "verticalAlign": lvc,
                         "strokeColor": lc}
     return el
@@ -77,13 +77,13 @@ def _text(x, y, text, fs=16, color=C["text"], align="left", rid=None):
         "height": fs * 1.25,
         "angle": 0, "strokeColor": color, "backgroundColor": "transparent",
         "fillStyle": "solid", "strokeWidth": 2, "strokeStyle": "solid",
-        "roughness": 1, "opacity": 100,
+        "roughness": 0, "opacity": 100,
         "groupIds": [], "frameId": rid, "index": None, "roundness": None,
         "seed": _seed(f"t{x}{y}"), "version": 1,
         "versionNonce": _seed(f"tn{x}{y}"),
         "isDeleted": False, "boundElements": None,
         "updated": 1, "link": None, "locked": False,
-        "text": text, "fontSize": fs, "fontFamily": 1,
+        "text": text, "fontSize": fs, "fontFamily": 2,
         "textAlign": align, "verticalAlign": "top",
         "containerId": None, "originalText": text, "lineHeight": 1.25,
     }
@@ -99,7 +99,7 @@ def _arrow(x, y, start_id, end_id, points=None, sc="#adb5bd", sw=2, label=None):
         "height": abs(points[-1][1]) or 1,
         "angle": 0, "strokeColor": sc, "backgroundColor": "transparent",
         "fillStyle": "solid", "strokeWidth": sw, "strokeStyle": "solid",
-        "roughness": 1, "opacity": 100,
+        "roughness": 0, "opacity": 100,
         "groupIds": [], "frameId": None, "index": None,
         "roundness": {"type": 2}, "seed": _seed(f"a{x}{y}"),
         "version": 1, "versionNonce": _seed(f"an{x}{y}"),
@@ -111,7 +111,7 @@ def _arrow(x, y, start_id, end_id, points=None, sc="#adb5bd", sw=2, label=None):
         "startArrowhead": None, "endArrowhead": "arrow", "elbowed": False,
     }
     if label:
-        el["label"] = {"text": label, "fontSize": 14, "fontFamily": 1}
+        el["label"] = {"text": label, "fontSize": 14, "fontFamily": 2}
     return el
 
 
