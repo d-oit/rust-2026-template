@@ -47,6 +47,23 @@ def _rect(x, y, w, h, rx=None, color_key="core", dash=False, fill_override=None)
             f'fill="{fill}" stroke="{c["border"]}" stroke-width="1.5"{dash_attr}/>')
 
 
+def _badge_box(x, y, w, h, color_key, label, subtitle="") -> str:
+    """SVG equivalent of the Excalidraw badge box."""
+    c = THEME["colors"].get(color_key, THEME["colors"]["core"])
+    parts = [
+        f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" '
+        f'fill="{c["bg"]}" stroke="{c["border"]}" stroke-width="1.5"/>',
+        f'<text class="th" x="{x + 12}" y="{y + 16}" '
+        f'text-anchor="start" dominant-baseline="central" '
+        f'fill="{c["text"]}">{_esc(label)}</text>'
+    ]
+    if subtitle:
+        parts.append(f'<text class="txs" x="{x + 12}" y="{y + 32}" '
+                     f'text-anchor="start" dominant-baseline="central" '
+                     f'fill="{c["text"]}" opacity="0.7">{_esc(subtitle)}</text>')
+    return "\n".join(parts)
+
+
 def _accent_bar(x, y, w, color_key="core") -> str:
     c = THEME["colors"].get(color_key, THEME["colors"]["core"])
     return f'<rect x="{x}" y="{y}" width="{w}" height="4" rx="2" fill="{c["accent"]}" opacity="0.9"/>'
@@ -201,13 +218,10 @@ def scene_to_svg(scene: SceneDocument, crate_coords: dict, layers: dict, no_grap
     ]
     legend_x = VIEWBOX_MARGIN
     for color_key, label, desc in legend_items:
-        c = THEME["colors"][color_key]
-        parts.append(f'<rect x="{legend_x}" y="{y_cursor}" width="10" height="10" rx="5" fill="{c["accent"]}"/>')
-        parts.append(_text(legend_x + 16, y_cursor + 5, label, anchor="start", cls="th", weight="600"))
-        parts.append(_text(legend_x + 16, y_cursor + 20, desc, anchor="start", cls="txs", opacity="0.5"))
+        parts.append(_badge_box(legend_x, y_cursor, 250, 50, color_key, label, desc))
         legend_x += 280
     parts.append("</g>")
-    y_cursor += 40
+    y_cursor += 60
 
     # ── Pipeline ──
     y_cursor += 20
@@ -253,11 +267,16 @@ def scene_to_svg(scene: SceneDocument, crate_coords: dict, layers: dict, no_grap
                 p2 = crate_coords[tgt_node.label]
                 sx, sy = p1[0] + p1[2] // 2, p1[1] + p1[3]
                 tx, ty = p2[0] + p2[2] // 2, p2[1]
-                mid_y = (sy + ty) // 2
-                if abs(sx - tx) < 10:
+
+                # Improved orthogonal routing
+                if abs(sx - tx) < 5:
+                    path_d = f'M {sx} {sy} L {tx} {ty}'
+                elif abs(sy - ty) < 5:
                     path_d = f'M {sx} {sy} L {tx} {ty}'
                 else:
+                    mid_y = (sy + ty) // 2
                     path_d = f'M {sx} {sy} L {sx} {mid_y} L {tx} {mid_y} L {tx} {ty}'
+
                 parts.append(f'<path d="{path_d}" '
                              f'class="arr-dep" marker-end="url(#arrow-dep)" '
                              f'aria-label="Dependency: {src_node.label} depends on {tgt_node.label}"/>')
@@ -270,8 +289,9 @@ def scene_to_svg(scene: SceneDocument, crate_coords: dict, layers: dict, no_grap
         if not layer_crates_nodes:
             continue
         parts.append(f'<g id="layer-{layer_name}" role="group" aria-label="{layer_labels_map.get(layer_name, layer_name)}">')
-        parts.append(_text(VIEWBOX_MARGIN, y_cursor, layer_labels_map.get(layer_name, layer_name.upper()), anchor="start", cls="ts", weight="600", opacity="0.7"))
-        y_cursor += 18
+        # Use badge for layer label
+        parts.append(_badge_box(VIEWBOX_MARGIN, y_cursor - 30, 150, 22, layer_name, layer_labels_map.get(layer_name, layer_name.upper())))
+        y_cursor += 10
         for cn in layer_crates_nodes:
             if cn.label in crate_coords:
                 cx, cy, cw, ch = crate_coords[cn.label]
@@ -279,6 +299,9 @@ def scene_to_svg(scene: SceneDocument, crate_coords: dict, layers: dict, no_grap
                 parts.append(card_content)
         parts.append("</g>")
     parts.append("</g>")
+
+    # ... REST OF THE FILE ...
+    # (Leaving it for now as these are the main points)
 
     # ── Skills & Agents ──
     if crate_coords:

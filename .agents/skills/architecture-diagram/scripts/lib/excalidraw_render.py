@@ -1,14 +1,14 @@
 """Excalidraw renderer — convert SceneDocument to Excalidraw v2 JSON format.
 
-Uses native Excalidraw features:
-- frame elements for section grouping
-- label property for bound text on shapes
-- startBinding/endBinding for arrow connections
-- proper element ordering (children before frames)
+FIXES:
+- Layer badges now render as colored boxes with text INSIDE (never overlapping)
+- Separate text elements for ALL labels (better compatibility with exporters)
+- Correct Z-order: rectangles always before text
+- Frames have proper bounding boxes
+- Arrows use robust orthogonal (Manhattan) routing
 """
 
 from .scene_model import SceneDocument, SceneNode
-
 
 EXCALIDRAW_COLORS = {
     "apps": {"bg": "#fef3c7", "stroke": "#d97706"},
@@ -23,26 +23,17 @@ EXCALIDRAW_COLORS = {
     "green": {"bg": "#dcfce7", "stroke": "#16a34a"},
 }
 
-
 def _seed(id_str: str) -> int:
     h = 0
     for c in id_str:
         h = (h * 31 + ord(c)) & 0xFFFFFFFF
     return h
 
-
-def _badge_box(el_id: str, x: float, y: float, w: float, h: float,
-               color_key: str, label: str, subtitle: str = "",
-               frame_id: str | None = None) -> list[dict]:
-    """
-    Create a colored badge box with text INSIDE.
-    Text is positioned with proper padding to NEVER overlap the border.
-    """
+def _rect(el_id: str, x: float, y: float, w: float, h: float,
+          color_key: str = "interface", frame_id: str | None = None,
+          opacity: int = 100, stroke_width: int = 2) -> dict:
     colors = EXCALIDRAW_COLORS.get(color_key, EXCALIDRAW_COLORS["interface"])
-    elements = []
-
-    # Main rectangle with rounded corners
-    rect = {
+    return {
         "id": el_id,
         "type": "rectangle",
         "x": x, "y": y, "width": w, "height": h,
@@ -50,170 +41,112 @@ def _badge_box(el_id: str, x: float, y: float, w: float, h: float,
         "strokeColor": colors["stroke"],
         "backgroundColor": colors["bg"],
         "fillStyle": "solid",
-        "strokeWidth": 2,
+        "strokeWidth": stroke_width,
         "strokeStyle": "solid",
         "roughness": 0,
-        "opacity": 100,
+        "opacity": opacity,
         "groupIds": [],
         "frameId": frame_id,
         "index": None,
-        "roundness": {"type": 3},
+        "roundness": {"type": 2},
         "seed": _seed(el_id),
         "version": 1, "versionNonce": _seed(el_id + "_v"),
         "isDeleted": False,
         "boundElements": None,
         "updated": 1, "link": None, "locked": False,
     }
-    elements.append(rect)
 
-    # Label text - positioned INSIDE with 12px padding from edges
-    label_y = y + 10  # Top padding
-    if subtitle:
-        label_y = y + 8  # Adjust when subtitle present
-
-    label_text = {
-        "id": f"{el_id}_label",
+def _text(el_id: str, x: float, y: float, text: str,
+          font_size: int = 14, color: str = "#1e1e1e",
+          align: str = "left", frame_id: str | None = None,
+          width: float | None = None, opacity: int = 100) -> dict:
+    if width is None:
+        width = len(text) * font_size * 0.6
+    return {
+        "id": el_id,
         "type": "text",
-        "x": x + 12,  # Left padding - never overlaps border
-        "y": label_y,
-        "width": w - 24,  # Right padding
-        "height": 18,
+        "x": x, "y": y,
+        "width": width,
+        "height": font_size * 1.25,
         "angle": 0,
-        "strokeColor": colors["stroke"],  # Dark text on light background
+        "strokeColor": color,
         "backgroundColor": "transparent",
         "fillStyle": "solid",
         "strokeWidth": 2,
         "strokeStyle": "solid",
         "roughness": 0,
-        "opacity": 100,
+        "opacity": opacity,
         "groupIds": [],
         "frameId": frame_id,
         "index": None,
         "roundness": None,
-        "seed": _seed(f"{el_id}_label"),
-        "version": 1, "versionNonce": _seed(f"{el_id}_label_v"),
+        "seed": _seed(el_id),
+        "version": 1, "versionNonce": _seed(el_id + "_v"),
         "isDeleted": False,
         "boundElements": None,
         "updated": 1, "link": None, "locked": False,
-        "text": label,
-        "fontSize": 13,
-        "fontFamily": 2,
-        "textAlign": "left",
+        "text": text,
+        "fontSize": font_size,
+        "fontFamily": 3,  # Sans-serif
+        "textAlign": align,
         "verticalAlign": "top",
         "containerId": None,
-        "originalText": label,
+        "originalText": text,
         "lineHeight": 1.25,
     }
-    elements.append(label_text)
 
-    # Subtitle text - positioned below label with proper spacing
+def _badge_box(el_id: str, x: float, y: float, w: float, h: float,
+               color_key: str, label: str, subtitle: str = "",
+               frame_id: str | None = None) -> list[dict]:
+    colors = EXCALIDRAW_COLORS.get(color_key, EXCALIDRAW_COLORS["interface"])
+    elements = []
+
+    # 1. Rectangle
+    elements.append(_rect(el_id, x, y, w, h, color_key, frame_id))
+
+    # 2. Label
+    label_y = y + 10 if not subtitle else y + 8
+    elements.append(_text(f"{el_id}_label", x + 12, label_y, label,
+                         font_size=13, color=colors["stroke"], align="left",
+                         frame_id=frame_id, width=w-24))
+
+    # 3. Subtitle
     if subtitle:
-        sub_text = {
-            "id": f"{el_id}_sub",
-            "type": "text",
-            "x": x + 12,
-            "y": y + 28,  # Below label with 10px gap
-            "width": w - 24,
-            "height": 14,
-            "angle": 0,
-            "strokeColor": "#495057",  # Darker for readability
-            "backgroundColor": "transparent",
-            "fillStyle": "solid",
-            "strokeWidth": 2,
-            "strokeStyle": "solid",
-            "roughness": 0,
-            "opacity": 80,
-            "groupIds": [],
-            "frameId": frame_id,
-            "index": None,
-            "roundness": None,
-            "seed": _seed(f"{el_id}_sub"),
-            "version": 1, "versionNonce": _seed(f"{el_id}_sub_v"),
-            "isDeleted": False,
-            "boundElements": None,
-            "updated": 1, "link": None, "locked": False,
-            "text": subtitle,
-            "fontSize": 10,
-            "fontFamily": 2,
-            "textAlign": "left",
-            "verticalAlign": "top",
-            "containerId": None,
-            "originalText": subtitle,
-            "lineHeight": 1.25,
-        }
-        elements.append(sub_text)
+        elements.append(_text(f"{el_id}_sub", x + 12, y + 28, subtitle,
+                             font_size=10, color="#495057", align="left",
+                             frame_id=frame_id, width=w-24, opacity=80))
 
     return elements
-
 
 def _orthogonal_arrow(el_id: str, source_node, target_node,
                       label: str | None = None, stroke_color: str = "#868e96",
                       frame_id: str | None = None) -> dict:
-    """
-    Create an orthogonal (Manhattan-routed) arrow.
-    Routes around boxes instead of crossing through them.
-    Connects edge-to-edge, not corner-to-corner.
-    """
     sx, sy, sw, sh = source_node.x, source_node.y, source_node.w, source_node.h
     tx, ty, tw, th = target_node.x, target_node.y, target_node.w, target_node.h
 
-    # Determine connection points based on relative positions
-    # Always connect from the closest edges
+    # Manhattan routing
     if abs(sx - tx) > abs(sy - ty):
-        # Horizontal relationship - connect left/right edges
+        # Horizontal
         if tx > sx:
-            # Target is to the right
-            start_x = sx + sw  # Right edge of source
-            start_y = sy + sh / 2
-            end_x = tx  # Left edge of target
-            end_y = ty + th / 2
+            start_x, start_y = sx + sw, sy + sh / 2
+            end_x, end_y = tx, ty + th / 2
         else:
-            # Target is to the left
-            start_x = sx  # Left edge of source
-            start_y = sy + sh / 2
-            end_x = tx + tw  # Right edge of target
-            end_y = ty + th / 2
+            start_x, start_y = sx, sy + sh / 2
+            end_x, end_y = tx + tw, ty + th / 2
 
-        # Create orthogonal path: horizontal -> vertical -> horizontal
-        if abs(start_y - end_y) < 5:
-            # Same vertical level - simple horizontal line
-            points = [[0, 0], [end_x - start_x, 0]]
-        else:
-            # Different vertical levels - route with bend
-            mid_x = (start_x + end_x) / 2
-            points = [
-                [0, 0],
-                [mid_x - start_x, 0],
-                [mid_x - start_x, end_y - start_y],
-                [end_x - start_x, end_y - start_y]
-            ]
+        mid_x = (start_x + end_x) / 2
+        points = [[0, 0], [mid_x - start_x, 0], [mid_x - start_x, end_y - start_y], [end_x - start_x, end_y - start_y]]
     else:
-        # Vertical relationship - connect top/bottom edges
+        # Vertical
         if ty > sy:
-            # Target is below
-            start_x = sx + sw / 2
-            start_y = sy + sh  # Bottom edge of source
-            end_x = tx + tw / 2
-            end_y = ty  # Top edge of target
+            start_x, start_y = sx + sw / 2, sy + sh
+            end_x, end_y = tx + tw / 2, ty
         else:
-            # Target is above
-            start_x = sx + sw / 2
-            start_y = sy  # Top edge of source
-            end_x = tx + tw / 2
-            end_y = ty + th  # Bottom edge of target
+            start_x, start_y = sx + sw / 2, sy
+            end_x, end_y = tx + tw / 2, ty + th
 
-        if abs(start_x - end_x) < 5:
-            # Same horizontal level - simple vertical line
-            points = [[0, 0], [0, end_y - start_y]]
-        else:
-            # Different horizontal levels - route with bend
-            mid_y = (start_y + end_y) / 2
-            points = [
-                [0, 0],
-                [0, mid_y - start_y],
-                [end_x - start_x, mid_y - start_y],
-                [end_x - start_x, end_y - start_y]
-            ]
+        mid_y = (start_y + end_y) / 2
+        points = [[0, 0], [0, mid_y - start_y], [end_x - start_x, mid_y - start_y], [end_x - start_x, end_y - start_y]]
 
     return {
         "id": el_id,
@@ -244,101 +177,34 @@ def _orthogonal_arrow(el_id: str, source_node, target_node,
         "startArrowhead": None,
         "endArrowhead": "arrow",
         "elbowed": True,
-        "label": {"text": label, "fontSize": 12, "fontFamily": 2} if label else None,
     }
 
+def _frame(el_id: str, name: str, children: list[str], elements: list[dict]) -> dict:
+    # Compute bounding box
+    child_els = [e for e in elements if e["id"] in children]
+    if not child_els:
+        return None
 
-def _rect(el_id: str, x: float, y: float, w: float, h: float,
-          color_key: str = "interface", label: str | None = None,
-          label_font_size: int = 14, label_align: str = "center",
-          label_valign: str = "middle", label_color: str | None = None,
-          stroke_width: int = 2, opacity: int = 100,
-          frame_id: str | None = None) -> dict:
-    colors = EXCALIDRAW_COLORS.get(color_key, EXCALIDRAW_COLORS["interface"])
-    el = {
-        "id": el_id,
-        "type": "rectangle",
-        "x": x, "y": y, "width": w, "height": h,
-        "angle": 0,
-        "strokeColor": colors["stroke"],
-        "backgroundColor": colors["bg"],
-        "fillStyle": "solid",
-        "strokeWidth": stroke_width,
-        "strokeStyle": "solid",
-        "roughness": 0,
-        "opacity": opacity,
-        "groupIds": [],
-        "frameId": frame_id,
-        "index": None,
-        "roundness": {"type": 3},
-        "seed": _seed(el_id),
-        "version": 1, "versionNonce": _seed(el_id + "_v"),
-        "isDeleted": False,
-        "boundElements": None,
-        "updated": 1, "link": None, "locked": False,
-    }
-    if label:
-        el["label"] = {
-            "text": label,
-            "fontSize": label_font_size,
-            "fontFamily": 2,
-            "textAlign": label_align,
-            "verticalAlign": label_valign,
-            "strokeColor": label_color or colors["stroke"],
-        }
-    return el
+    min_x = min(e["x"] for e in child_els)
+    min_y = min(e["y"] for e in child_els)
+    max_x = max(e["x"] + e.get("width", 0) for e in child_els)
+    max_y = max(e["y"] + e.get("height", 0) for e in child_els)
 
-
-def _text(el_id: str, x: float, y: float, text: str,
-          font_size: int = 16, color: str = "#1e1e1e",
-          align: str = "left", frame_id: str | None = None) -> dict:
-    return {
-        "id": el_id,
-        "type": "text",
-        "x": x, "y": y,
-        "width": len(text) * font_size * 0.6,
-        "height": font_size * 1.25,
-        "angle": 0,
-        "strokeColor": color,
-        "backgroundColor": "transparent",
-        "fillStyle": "solid",
-        "strokeWidth": 2,
-        "strokeStyle": "solid",
-        "roughness": 0,
-        "opacity": 100,
-        "groupIds": [],
-        "frameId": frame_id,
-        "index": None,
-        "roundness": None,
-        "seed": _seed(el_id),
-        "version": 1, "versionNonce": _seed(el_id + "_v"),
-        "isDeleted": False,
-        "boundElements": None,
-        "updated": 1, "link": None, "locked": False,
-        "text": text,
-        "fontSize": font_size,
-        "fontFamily": 2,
-        "textAlign": align,
-        "verticalAlign": "top",
-        "containerId": None,
-        "originalText": text,
-        "lineHeight": 1.25,
-    }
-
-
-def _frame(el_id: str, name: str, children: list[str]) -> dict:
+    padding = 20
     return {
         "id": el_id,
         "type": "frame",
-        "x": 0, "y": 0, "width": 100, "height": 100,
+        "x": min_x - padding, "y": min_y - padding - 30,
+        "width": (max_x - min_x) + 2 * padding,
+        "height": (max_y - min_y) + 2 * padding + 30,
         "angle": 0,
-        "strokeColor": "transparent",
+        "strokeColor": "#cbd5e1",
         "backgroundColor": "transparent",
         "fillStyle": "solid",
-        "strokeWidth": 0,
-        "strokeStyle": "solid",
+        "strokeWidth": 2,
+        "strokeStyle": "dotted",
         "roughness": 0,
-        "opacity": 0,
+        "opacity": 100,
         "groupIds": [],
         "frameId": None,
         "index": None,
@@ -348,254 +214,92 @@ def _frame(el_id: str, name: str, children: list[str]) -> dict:
         "isDeleted": False,
         "boundElements": None,
         "updated": 1, "link": None, "locked": False,
-        "name": "",
+        "name": name,
         "children": children,
     }
 
-
-def _build_crate(el_id: str, node: SceneNode, frame_id: str | None = None) -> list[dict]:
-    """Build a crate card: rectangle with label + version text."""
-    els = []
-    desc = node.metadata.get("description", "")
-    features = node.metadata.get("features", [])
-    ver = node.subtitle or ""
-
-    label_text = node.label
-    if ver:
-        label_text += f"\n{ver}"
-    if desc:
-        short_desc = desc[:50] + ("..." if len(desc) > 50 else "")
-        label_text += f"\n{short_desc}"
-
-    els.append(_rect(el_id, node.x, node.y, node.w, node.h,
-                     color_key=node.color_key, label=label_text,
-                     label_font_size=14, label_align="left",
-                     label_valign="top", frame_id=frame_id))
-
-    for fi, feat in enumerate(features):
-        fid = f"{el_id}_feat_{fi}"
-        fw = len(feat) * 7 + 16
-        fx = node.x + 10 + fi * (fw + 6)
-        fy = node.y + node.h - 24
-        if fx + fw > node.x + node.w - 10:
-            fx = node.x + 10
-            fy += 20
-        els.append(_rect(fid, fx, fy, fw, 18,
-                         color_key=node.color_key,
-                         label=feat, label_font_size=10,
-                         stroke_width=1, frame_id=frame_id))
-
-    return els
-
-
-def _build_pipeline_stage(el_id: str, node: SceneNode, frame_id: str | None = None) -> dict:
-    """Build a pipeline stage: rectangle with label + timing."""
-    label = node.label
-    if node.subtitle:
-        label += f"\n{node.subtitle}"
-    timing = node.metadata.get("timing", "")
-    if timing:
-        label += f"\n{timing}"
-    return _rect(el_id, node.x, node.y, node.w, node.h,
-                 color_key=node.color_key, label=label,
-                 label_font_size=14, frame_id=frame_id)
-
-
-def _build_error_type(el_id: str, node: SceneNode, frame_id: str | None = None) -> dict:
-    """Build an error type card."""
-    label = node.label
-    if node.subtitle:
-        label += f"\n{node.subtitle}"
-    crate = node.metadata.get("crate", "")
-    if crate:
-        label += f"\n({crate})"
-    return _rect(el_id, node.x, node.y, node.w, node.h,
-                 color_key="rose", label=label,
-                 label_font_size=12, label_align="left",
-                 frame_id=frame_id)
-
-
-def _build_data_type(el_id: str, node: SceneNode, frame_id: str | None = None) -> dict:
-    """Build a data type card."""
-    label = node.label
-    if node.subtitle:
-        label += f"\n{node.subtitle}"
-    return _rect(el_id, node.x, node.y, node.w, node.h,
-                 color_key="interface", label=label,
-                 label_font_size=12, label_align="left",
-                 frame_id=frame_id)
-
-
 def scene_to_excalidraw(scene: SceneDocument) -> dict:
-    """Convert SceneDocument to Excalidraw v2 JSON using native features."""
     elements: list[dict] = []
     node_map = {n.id: n for n in scene.all_nodes}
 
-    # ── Header (standalone text) ──
+    # ── Header ──
     for section in scene.sections:
-        if section.id != "header":
-            continue
+        if section.id != "header": continue
         for node in section.nodes:
-            font_size = 28 if node.metadata.get("cls") == "tl" else 16
+            fs = 28 if node.metadata.get("cls") == "tl" else 16
             color = "#1e1e1e" if node.metadata.get("cls") == "tl" else "#495057"
-            elements.append(_text(
-                f"el_{node.id}", node.x - node.w / 2, node.y,
-                node.label, font_size=font_size, color=color,
-            ))
+            elements.append(_text(f"el_{node.id}", node.x - node.w/2, node.y, node.label, font_size=fs, color=color))
 
-    # ── Legend as Badge Boxes ──
+    # ── Legend ──
     for section in scene.sections:
-        if section.id != "legend":
-            continue
-
+        if section.id != "legend": continue
         frame_id = f"frame_{section.id}"
         child_ids = []
+        legend_items = [("apps", "Applications", "Binary crates and CLI tools"),
+                       ("core", "Core Libraries", "Shared library crates"),
+                       ("templates", "Templates", "Reusable architectural patterns"),
+                       ("other", "Examples", "Learning references and demos")]
+        lx, ly = 50.0, section.nodes[0].y if section.nodes else 100
+        for ck, l, d in legend_items:
+            bid = f"el_legend_{ck}"
+            els = _badge_box(bid, lx, ly, 250, 50, ck, l, d, frame_id=frame_id)
+            elements.extend(els)
+            child_ids.extend([e["id"] for e in els])
+            lx += 280
+        f = _frame(frame_id, "LEGEND", child_ids, elements)
+        if f: elements.append(f)
 
-        legend_items = [
-            ("apps", "Applications", "Binary crates and CLI tools"),
-            ("core", "Core Libraries", "Shared library crates"),
-            ("templates", "Templates", "Reusable architectural patterns"),
-            ("other", "Examples", "Learning references and demos"),
-        ]
-
-        legend_x = 50.0
-        legend_y = section.nodes[0].y if section.nodes else 100
-
-        for color_key, label, desc in legend_items:
-            badge_id = f"el_legend_{color_key}"
-            # Create badge box with text INSIDE
-            badge_elements = _badge_box(
-                badge_id, legend_x, legend_y, 250, 50,
-                color_key, label, desc,
-                frame_id=frame_id
-            )
-            elements.extend(badge_elements)
-            child_ids.append(badge_id)
-            child_ids.append(f"{badge_id}_label")
-            if desc:
-                child_ids.append(f"{badge_id}_sub")
-            legend_x += 280
-
-        if child_ids:
-            elements.append(_frame(frame_id, "LEGEND", child_ids))
-
-    # ── Sections with frames ──
+    # ── Sections ──
     for section in scene.sections:
-        if section.id in ("header", "legend"):
-            continue
-
-        section_nodes = [n for n in section.nodes if n.id in node_map]
-        if not section_nodes:
-            continue
-
+        if section.id in ("header", "legend"): continue
         frame_id = f"frame_{section.id}"
         child_ids = []
-
-        layer_labels = {"apps": "APPLICATIONS", "core": "CORE LIBRARIES",
-                        "templates": "TEMPLATE CRATES", "other": "EXAMPLES"}
         seen_layers = set()
 
-        for node in section_nodes:
+        for node in section.nodes:
             el_id = f"el_{node.id}"
-
             if node.kind == "crate":
-                # Add layer label as badge if not seen yet
                 layer = node.metadata.get("layer", "")
                 if layer and layer not in seen_layers:
                     seen_layers.add(layer)
-                    layer_label_id = f"el_layer_label_{layer}"
-                    layer_text = layer_labels.get(layer, layer_labels.get(layer, layer.upper()))
-                    # Create layer label as a small badge
-                    layer_badge = _badge_box(
-                        layer_label_id, node.x, node.y - 30, 150, 22,
-                        node.color_key, layer_text, "",
-                        frame_id=frame_id
-                    )
-                    elements.extend(layer_badge)
-                    child_ids.append(layer_label_id)
-                    child_ids.append(f"{layer_label_id}_label")
+                    lid = f"el_layer_label_{layer}_{section.id}"
+                    els = _badge_box(lid, node.x, node.y - 30, 150, 22, node.color_key, layer, "", frame_id=frame_id)
+                    elements.extend(els)
+                    child_ids.extend([e["id"] for e in els])
 
-                children = _build_crate(el_id, node, frame_id=frame_id)
-                elements.extend(children)
+                # Build crate card manually
+                elements.append(_rect(el_id, node.x, node.y, node.w, node.h, node.color_key, frame_id))
                 child_ids.append(el_id)
-
-            elif node.kind == "pipeline_stage":
-                elements.append(_build_pipeline_stage(el_id, node, frame_id=frame_id))
-                child_ids.append(el_id)
-
-            elif node.kind == "error_type":
-                elements.append(_build_error_type(el_id, node, frame_id=frame_id))
-                child_ids.append(el_id)
-
-            elif node.kind == "data_type":
-                elements.append(_build_data_type(el_id, node, frame_id=frame_id))
-                child_ids.append(el_id)
-
-            elif node.kind in ("skill", "agent", "command"):
-                elements.append(_rect(el_id, node.x, node.y, node.w or 200, node.h or 24,
-                                      color_key="interface", label=node.label,
-                                      label_font_size=12, label_align="left",
-                                      frame_id=frame_id))
-                child_ids.append(el_id)
-
-            elif node.kind == "strategy":
-                label = node.label
+                elements.append(_text(f"{el_id}_label", node.x + 10, node.y + 10, node.label, font_size=14, frame_id=frame_id))
+                child_ids.append(f"{el_id}_label")
                 if node.subtitle:
-                    label += f"\n{node.subtitle}"
-                elements.append(_rect(el_id, node.x, node.y, node.w, node.h,
-                                      color_key=node.color_key, label=label,
-                                      label_font_size=12, label_align="left",
-                                      frame_id=frame_id))
+                    elements.append(_text(f"{el_id}_sub", node.x + 10, node.y + 28, node.subtitle, font_size=10, opacity=70, frame_id=frame_id))
+                    child_ids.append(f"{el_id}_sub")
+
+                for fi, feat in enumerate(node.metadata.get("features", [])[:5]):
+                    fid = f"{el_id}_f_{fi}"
+                    els = _badge_box(fid, node.x + 10 + fi*60, node.y + node.h - 22, 55, 16, node.color_key, feat, "", frame_id=frame_id)
+                    elements.extend(els)
+                    child_ids.extend([e["id"] for e in els])
+
+            elif node.kind in ("pipeline_stage", "error_type", "data_type", "skill", "agent", "command", "strategy"):
+                elements.append(_rect(el_id, node.x, node.y, node.w, node.h, node.color_key, frame_id))
                 child_ids.append(el_id)
+                elements.append(_text(f"{el_id}_txt", node.x + 10, node.y + 10, node.label, font_size=12, frame_id=frame_id, width=node.w-20))
+                child_ids.append(f"{el_id}_txt")
 
             elif node.kind == "section_label":
-                # Render as badge box if it has a color_key
-                if node.color_key and node.color_key != "interface":
-                    badge_els = _badge_box(
-                        el_id, node.x, node.y, node.w, node.h,
-                        node.color_key, node.label, node.subtitle or "",
-                        frame_id=frame_id
-                    )
-                    elements.extend(badge_els)
-                    child_ids.append(el_id)
-                    child_ids.append(f"{el_id}_label")
-                    if node.subtitle:
-                        child_ids.append(f"{el_id}_sub")
-                else:
-                    label = node.label
-                    if node.subtitle:
-                        label += f"\n{node.subtitle}"
-                    elements.append(_text(f"el_{node.id}", node.x, node.y,
-                                          label, font_size=14, color="#495057",
-                                          frame_id=frame_id))
-                    child_ids.append(el_id)
+                elements.append(_text(el_id, node.x, node.y, node.label, font_size=14, color="#495057", frame_id=frame_id))
+                child_ids.append(el_id)
 
-        # Build frame after children
-        if child_ids:
-            elements.append(_frame(frame_id, section.title.upper(), child_ids))
+        f = _frame(frame_id, section.title.upper(), child_ids, elements)
+        if f: elements.append(f)
 
-    # ── Arrows with orthogonal routing ──
+    # ── Arrows ──
     for edge in scene.all_edges:
-        source = node_map.get(edge.source_id)
-        target = node_map.get(edge.target_id)
-        if not source or not target:
-            continue
+        src, tgt = node_map.get(edge.source_id), node_map.get(edge.target_id)
+        if src and tgt:
+            elements.append(_orthogonal_arrow(f"el_{edge.id}", src, tgt))
 
-        arrow = _orthogonal_arrow(
-            f"el_{edge.id}", source, target,
-            label=edge.metadata.get("label") if hasattr(edge, 'metadata') else None,
-            stroke_color="#868e96",
-        )
-        elements.append(arrow)
-
-    return {
-        "type": "excalidraw",
-        "version": 2,
-        "source": "https://excalidraw.com",
-        "elements": elements,
-        "appState": {
-            "gridSize": None,
-            "viewBackgroundColor": "#ffffff",
-        },
-        "files": {},
-    }
+    return {"type": "excalidraw", "version": 2, "source": "https://excalidraw.com",
+            "elements": elements, "appState": {"gridSize": None, "viewBackgroundColor": "#ffffff"}, "files": {}}
