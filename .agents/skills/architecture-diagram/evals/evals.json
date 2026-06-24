@@ -393,5 +393,163 @@
         "value": "</svg>"
       }
     ]
+  },
+  {
+    "id": "excalidraw-schema",
+    "prompt": "Generate the Excalidraw diagram and verify valid JSON schema",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
+    "expected_output": "Excalidraw JSON has correct schema with type, version, source, elements, appState, files",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"source\": \"https://excalidraw.com\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"appState\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"files\": {}"
+      }
+    ]
+  },
+  {
+    "id": "excalidraw-frames",
+    "prompt": "Generate the Excalidraw diagram and verify frames are present",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
+    "expected_output": "Excalidraw JSON contains frame elements for section grouping",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"type\": \"frame\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"name\": \"PIPELINE\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"name\": \"WORKSPACE TOPOLOGY\""
+      }
+    ]
+  },
+  {
+    "id": "excalidraw-arrow-bindings",
+    "prompt": "Generate the Excalidraw diagram and verify arrow bindings",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
+    "expected_output": "Excalidraw JSON contains arrows with startBinding and endBinding",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"startBinding\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"endBinding\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"endArrowhead\": \"arrow\""
+      }
+    ]
+  },
+  {
+    "id": "excalidraw-labels",
+    "prompt": "Generate the Excalidraw diagram and verify shapes have labels",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
+    "expected_output": "Excalidraw JSON contains rectangles with label property for bound text",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"label\": {"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"fontFamily\": 2"
+      }
+    ]
+  },
+  {
+    "id": "excalidraw-no-roughness",
+    "prompt": "Generate the Excalidraw diagram and verify clean rendering",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
+    "expected_output": "Excalidraw JSON elements use roughness 0 for clean rendering",
+    "assertions": [
+      {
+        "type": "content_not_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"roughness\": 1"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/architecture.excalidraw",
+        "value": "\"roughness\": 0"
+      }
+    ]
+  },
+  {
+    "id": "overview-excalidraw",
+    "prompt": "Generate the overview diagram in Excalidraw format",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out .template/overview.excalidraw",
+    "expected_output": "Overview Excalidraw JSON file with 4 frames and clean rendering",
+    "assertions": [
+      {
+        "type": "file_exists",
+        "path": ".template/overview.excalidraw"
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/overview.excalidraw",
+        "value": "\"type\": \"excalidraw\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/overview.excalidraw",
+        "value": "\"WHAT IS THIS?\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/overview.excalidraw",
+        "value": "\"GETTING STARTED\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/overview.excalidraw",
+        "value": "\"WHAT'S INSIDE\""
+      },
+      {
+        "type": "content_contains",
+        "path": ".template/overview.excalidraw",
+        "value": "\"HOW IT CONNECTS\""
+      }
+    ]
+  },
+  {
+    "id": "png-files-exist",
+    "prompt": "Generate diagrams with PNG export",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --out .template/architecture.excalidraw --svg-out .template/architecture.svg --png-out .template/architecture.png && python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --out .template/overview.excalidraw --svg-out .template/overview.svg --png-out .template/overview.png",
+    "expected_output": "PNG files exist for both diagrams",
+    "assertions": [
+      {
+        "type": "file_exists",
+        "path": ".template/architecture.png"
+      },
+      {
+        "type": "file_exists",
+        "path": ".template/overview.png"
+      }
+    ]
   }
 ]
