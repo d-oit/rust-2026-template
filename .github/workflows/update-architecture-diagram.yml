@@ -7,9 +7,19 @@ on:
       - "crates/**/Cargo.toml"
       - "crates/*/src/**/*.rs"
       - ".agents/skills/*/SKILL.md"
+      - ".agents/skills/architecture-diagram/scripts/**"
       - ".agents/ORCHESTRATION.md"
       - "docs/diagram-config.json"
-    branches: [main]
+    branches:
+      - main
+      - "chore/**"
+      - "feat/**"
+      - "fix/**"
+  pull_request:
+    paths:
+      - ".agents/skills/architecture-diagram/scripts/**"
+      - "Cargo.toml"
+      - "crates/**/Cargo.toml"
   workflow_dispatch:
 
 permissions:
@@ -20,6 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # On pull_request events check out the actual head branch so we can push back to it.
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -52,15 +66,18 @@ jobs:
             --svg-out .template/overview.svg \
             --png-out .template/overview.png
 
-      - name: Copy SVGs to docs
+      - name: Copy diagrams to docs
         run: |
+          mkdir -p docs/src
           cp .template/architecture.svg docs/src/architecture.svg
-          cp .template/overview.svg docs/src/overview.svg
+          cp .template/architecture.png docs/src/architecture.png
+          cp .template/overview.svg     docs/src/overview.svg
+          cp .template/overview.png     docs/src/overview.png
 
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet .template/ docs/src/architecture.svg docs/src/overview.svg; then
+          if git diff --quiet .template/ docs/src/; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -69,8 +86,8 @@ jobs:
       - name: Commit and push
         if: steps.changes.outputs.changed == 'true'
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .template/ docs/src/architecture.svg docs/src/overview.svg
+          git add .template/ docs/src/
           git commit -m "docs: regenerate diagrams [skip ci]"
           git push
