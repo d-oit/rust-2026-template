@@ -2585,7 +2585,7 @@
       ]
     },
     {
-      "id": "el_data_EchoTool",
+      "id": "el_data_HybridStorage",
       "type": "rectangle",
       "x": 30.0,
       "y": 2305,
@@ -2605,16 +2605,16 @@
       "roundness": {
         "type": 3
       },
-      "seed": 121209050,
+      "seed": 1186879362,
       "version": 1,
-      "versionNonce": 517783121,
+      "versionNonce": 2424736505,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
       "label": {
-        "text": "EchoTool\nTool that echoes the input back. \u2014 mcp-server-template",
+        "text": "HybridStorage\nHybrid storage combining multiple backends. \u2014 hybrid-storage-template",
         "fontSize": 12,
         "fontFamily": 2,
         "textAlign": "left",
@@ -2623,7 +2623,7 @@
       }
     },
     {
-      "id": "el_data_CalcTool",
+      "id": "el_data_SqliteBackend",
       "type": "rectangle",
       "x": 620.0,
       "y": 2305,
@@ -2643,16 +2643,16 @@
       "roundness": {
         "type": 3
       },
-      "seed": 3553949962,
+      "seed": 2778475403,
       "version": 1,
-      "versionNonce": 846916225,
+      "versionNonce": 2940174530,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
       "label": {
-        "text": "CalcTool\nCalculator tool supporting basic arithmetic. \u2014 mcp-server-template",
+        "text": "SqliteBackend\nSQLite backend using libSQL/Turso. \u2014 hybrid-storage-template",
         "fontSize": 12,
         "fontFamily": 2,
         "textAlign": "left",
@@ -2661,7 +2661,7 @@
       }
     },
     {
-      "id": "el_data_McpServer",
+      "id": "el_data_MemoryBackend",
       "type": "rectangle",
       "x": 30.0,
       "y": 2353,
@@ -2681,16 +2681,16 @@
       "roundness": {
         "type": 3
       },
-      "seed": 4201988512,
+      "seed": 4125245686,
       "version": 1,
-      "versionNonce": 841704855,
+      "versionNonce": 106293101,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
       "label": {
-        "text": "McpServer\nMCP server with registered tools. \u2014 mcp-server-template",
+        "text": "MemoryBackend\nMemory backend for testing. \u2014 hybrid-storage-template",
         "fontSize": 12,
         "fontFamily": 2,
         "textAlign": "left",
@@ -2699,7 +2699,7 @@
       }
     },
     {
-      "id": "el_data_Supervisor",
+      "id": "el_data_MigrationRegistry",
       "type": "rectangle",
       "x": 620.0,
       "y": 2353,
@@ -2719,16 +2719,16 @@
       "roundness": {
         "type": 3
       },
-      "seed": 1229798309,
+      "seed": 355918670,
       "version": 1,
-      "versionNonce": 720171612,
+      "versionNonce": 2735428549,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
       "label": {
-        "text": "Supervisor\nSupervises child actors with restart policies. \u2014 actor-runtime-template",
+        "text": "MigrationRegistry\nMigration registry for handling schema changes. \u2014 checkpoint-template",
         "fontSize": 12,
         "fontFamily": 2,
         "textAlign": "left",
@@ -2765,10 +2765,10 @@
       "locked": false,
       "name": "",
       "children": [
-        "el_data_EchoTool",
-        "el_data_CalcTool",
-        "el_data_McpServer",
-        "el_data_Supervisor"
+        "el_data_HybridStorage",
+        "el_data_SqliteBackend",
+        "el_data_MemoryBackend",
+        "el_data_MigrationRegistry"
       ]
     },
     {

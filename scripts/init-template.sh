@@ -219,9 +219,9 @@ if [[ -f "$EXAMPLE_LIB" ]]; then
 fi
 
 # --- rewrite examples ---
-EXAMPLES_DIR="examples/hello_world"
+EXAMPLES_DIR="examples/hello-world-example"
 if [[ -f "$EXAMPLES_DIR/src/main.rs" ]]; then
-  log "Updating examples/hello_world/src/main.rs"
+  log "Updating examples/hello-world-example/src/main.rs"
   replace_in_file "$EXAMPLES_DIR/src/main.rs" 'example_crate' "$CrateName"
 fi
 

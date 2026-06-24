@@ -17,8 +17,6 @@ and AI agent integration.
 
 ![Architecture](.template/architecture.svg)
 
-> **Editing the diagram:** The editable source is `.template/architecture.excalidraw`. The SVG above is auto-generated from it.
-
 This template is designed for Rust developers who want to start new projects with best practices baked in. It provides a modular workspace structure, comprehensive quality gates, and built-in support for AI-assisted development.
 
 ## Features
@@ -86,6 +84,8 @@ This repository uses a layered documentation strategy to serve both human develo
 │   ├── hybrid-storage-template/
 │   ├── mcp-server-template/
 │   └── sample-app/      # Reference application implementing best practices
+├── examples/            # Example usage of workspace crates
+│   └── hello-world-example/ # Simple hello world example
 ├── reports/             # Generated HTML review and analysis output (ignored)
 ├── schema/              # JSON Schema definitions for config/API contracts
 ├── scripts/             # Automation scripts for quality gates and releases
