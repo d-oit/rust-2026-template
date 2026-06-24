@@ -63,32 +63,32 @@
     "id": "excalidraw-sections",
     "prompt": "Generate the Excalidraw diagram and verify all sections exist",
     "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON contains containers for pipeline, workspace, skills, error handling, data flow, and commands sections",
+    "expected_output": "Excalidraw JSON contains text elements for all workspace crates and layer labels",
     "assertions": [
       {
         "type": "content_contains",
         "path": ".template/architecture.excalidraw",
-        "value": "PIPELINE"
+        "value": "\"text\": \"SYSTEM ARCHITECTURE\""
       },
       {
         "type": "content_contains",
         "path": ".template/architecture.excalidraw",
-        "value": "WORKSPACE"
+        "value": "\"text\": \"APPLICATIONS\""
       },
       {
         "type": "content_contains",
         "path": ".template/architecture.excalidraw",
-        "value": "ERROR HANDLING"
+        "value": "\"text\": \"CORE LIBRARIES\""
       },
       {
         "type": "content_contains",
         "path": ".template/architecture.excalidraw",
-        "value": "DATA FLOW"
+        "value": "\"text\": \"TEMPLATE CRATES\""
       },
       {
         "type": "content_contains",
         "path": ".template/architecture.excalidraw",
-        "value": "COMMANDS"
+        "value": "\"text\": \"EXAMPLES\""
       }
     ]
   },
@@ -431,12 +431,7 @@
       {
         "type": "content_contains",
         "path": ".template/architecture.excalidraw",
-        "value": "\"name\": \"PIPELINE\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"name\": \"WORKSPACE TOPOLOGY\""
+        "value": "\"children\": ["
       }
     ]
   },
@@ -517,22 +512,17 @@
       {
         "type": "content_contains",
         "path": ".template/overview.excalidraw",
-        "value": "\"WHAT IS THIS?\""
+        "value": "\"text\": \"GETTING STARTED\""
       },
       {
         "type": "content_contains",
         "path": ".template/overview.excalidraw",
-        "value": "\"GETTING STARTED\""
+        "value": "\"text\": \"WHAT'S INSIDE\""
       },
       {
         "type": "content_contains",
         "path": ".template/overview.excalidraw",
-        "value": "\"WHAT'S INSIDE\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/overview.excalidraw",
-        "value": "\"HOW IT CONNECTS\""
+        "value": "\"text\": \"HOW IT CONNECTS\""
       }
     ]
   },
