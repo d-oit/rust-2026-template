@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-06-25T08:18:04Z",
-  "commit": "9872f3e56533894ab4f7959727d14a784ad1b5ff",
+  "timestamp": "2026-06-25T14:03:21Z",
+  "commit": "1f022b5ec903926956d7c39ad4479a4287c2e585",
   "branch": "main",
   "jobs": {
-    "validate-agents": "success",
+    "validate-agents": "failure",
     "lint": "success",
     "shellcheck": "success",
     "gitleaks": "success",
