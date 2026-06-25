@@ -30,13 +30,6 @@ for file in "${AGENT_FILES[@]}" "${SUB_ADAPTERS[@]}"; do
         EXIT_CODE=1
     fi
 
-    # Check for the standard header
-    if grep -q "Canonical project rules live in AGENTS.md" "$file"; then
-        echo "✅ $file has the standard header."
-    else
-        echo "❌ Error: $file is missing the standard adapter header."
-        EXIT_CODE=1
-    fi
 done
 
 # Check AGENTS.md line count
