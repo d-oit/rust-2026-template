@@ -268,7 +268,6 @@ def discover_ecosystem(root: Path, crates: list, skills_count: int) -> list:
 
 def get_project_name(root: Path) -> str:
     try:
-        root.name  # noqa: just validate
         return root.name.replace("-", " ").upper()
     except Exception:
         return "RUST WORKSPACE"
