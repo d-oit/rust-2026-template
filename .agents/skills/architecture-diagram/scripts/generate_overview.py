@@ -192,40 +192,6 @@ def _count_quality_checks(root: Path) -> int:
         return 14
 
 
-def _discover_feature_pills(root: Path) -> list[str]:
-    """Dynamically determine key feature pills from workspace config."""
-    pills = []
-    # Check for MCP server template
-    if (root / "crates" / "mcp-server-template").exists():
-        pills.append("MCP Server")
-    # Check for actor runtime
-    if (root / "crates" / "actor-runtime-template").exists():
-        pills.append("Actor Runtime")
-    # Check for hybrid storage
-    if (root / "crates" / "hybrid-storage-template").exists():
-        pills.append("Hybrid Storage")
-    # Check for AI skills
-    if (root / ".agents" / "skills").exists():
-        pills.append("AI-Native Skills")
-    # Check for CI workflows
-    if (root / ".github" / "workflows").exists():
-        pills.append("CI/CD Pipeline")
-    # Check for quality gates script
-    if list(root.glob("scripts/quality*.sh")):
-        pills.append("Quality Gates")
-    # Check for security audit config
-    if (root / "deny.toml").exists() or (root / ".cargo" / "audit.toml").exists():
-        pills.append("Security Audits")
-    # Always include mutation testing if cargo-mutants config exists
-    if (root / ".cargo" / "mutants.toml").exists() or list(root.glob(".mutants*")):
-        pills.append("Mutation Testing")
-    # Fallback defaults if nothing was discovered
-    if not pills:
-        pills = ["AI-Native Skills", "CI/CD Pipeline", "Quality Gates",
-                 "Mutation Testing", "Security Audits", "MCP Server"]
-    return pills
-
-
 def _discover_ecosystem_dirs(root: Path, crates, skills) -> list[tuple]:
     """Discover ecosystem directories dynamically."""
     dirs = []
@@ -281,7 +247,6 @@ def generate(root: Path) -> dict:
 
     pipeline_stage_count = _count_pipeline_stages(root)
     quality_check_count  = _count_quality_checks(root)
-    feature_pills        = _discover_feature_pills(root)
     ecosystem_dirs       = _discover_ecosystem_dirs(root, crates, skills)
 
     # Project name from root Cargo.toml [package] or directory name
@@ -327,19 +292,6 @@ def generate(root: Path) -> dict:
     tagline = _text(80, 105, tagline_str, fs=18, color=C["subtext"])
     elements.append(tagline)
     hero_children.append(tagline["id"])
-
-    # Dynamic feature pills
-    pill_x = 80
-    for feat in feature_pills[:8]:  # cap at 8 pills
-        pw = len(feat) * 9 + 24
-        pill = _rect(pill_x, 150, pw, 30, bg=C["primary"], stroke=C["primary"], sw=0)
-        elements.append(pill)
-        hero_children.append(pill["id"])
-        pt = _text(pill_x + pw // 2 - len(feat) * 3, 155, feat, fs=12, color="#ffffff")
-        pt["textAlign"] = "center"
-        elements.append(pt)
-        hero_children.append(pt["id"])
-        pill_x += pw + 12
 
     hero_frame = _frame("WHAT IS THIS?", hero_children)
     elements.append(hero_frame)
@@ -536,7 +488,6 @@ def main():
         agents   = discover_agents(root)
         pipeline = _count_pipeline_stages(root)
         quality  = _count_quality_checks(root)
-        pills    = _discover_feature_pills(root)
         eco      = _discover_ecosystem_dirs(root, crates, skills)
         print(json.dumps({
             "crates":           len(crates),
@@ -544,7 +495,6 @@ def main():
             "agents":           len(agents),
             "pipeline_stages":  pipeline,
             "quality_checks":   quality,
-            "feature_pills":    pills,
             "ecosystem_dirs":   [d[0] for d in eco],
         }, indent=2))
         return

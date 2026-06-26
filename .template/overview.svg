@@ -16,56 +16,7 @@
 <text x="80.00" y="86.00" font-family="Cascadia, Fira Code, monospace" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="80.00" dy="0">Rust 2026 Template</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="80.00" y="123.00" font-family="Cascadia, Fira Code, monospace" font-size="18" fill="#868e96" text-anchor="start"><tspan x="80.00" dy="0">[![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://gith</tspan></text>
-</g>
-<g transform="translate(40.00,40.00)">
-<rect x="80" y="150" width="114" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
-<rect x="80" y="150" width="114" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
-</g>
-<g transform="translate(40.00,40.00)">
-<text x="140.00" y="167.00" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#ffffff" text-anchor="middle"><tspan x="140.00" dy="0">MCP Server</tspan></text>
-</g>
-<g transform="translate(40.00,40.00)">
-<rect x="206" y="150" width="141" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
-<rect x="206" y="150" width="141" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
-</g>
-<g transform="translate(40.00,40.00)">
-<text x="279.90" y="167.00" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#ffffff" text-anchor="middle"><tspan x="279.90" dy="0">Actor Runtime</tspan></text>
-</g>
-<g transform="translate(40.00,40.00)">
-<rect x="359" y="150" width="150" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
-<rect x="359" y="150" width="150" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
-</g>
-<g transform="translate(40.00,40.00)">
-<text x="438.20" y="167.00" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#ffffff" text-anchor="middle"><tspan x="438.20" dy="0">Hybrid Storage</tspan></text>
-</g>
-<g transform="translate(40.00,40.00)">
-<rect x="521" y="150" width="168" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
-<rect x="521" y="150" width="168" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
-</g>
-<g transform="translate(40.00,40.00)">
-<text x="609.80" y="167.00" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#ffffff" text-anchor="middle"><tspan x="609.80" dy="0">AI-Native Skills</tspan></text>
-</g>
-<g transform="translate(40.00,40.00)">
-<rect x="701" y="150" width="150" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
-<rect x="701" y="150" width="150" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
-</g>
-<g transform="translate(40.00,40.00)">
-<text x="780.20" y="167.00" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#ffffff" text-anchor="middle"><tspan x="780.20" dy="0">CI/CD Pipeline</tspan></text>
-</g>
-<g transform="translate(40.00,40.00)">
-<rect x="863" y="150" width="141" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
-<rect x="863" y="150" width="141" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
-</g>
-<g transform="translate(40.00,40.00)">
-<text x="936.90" y="167.00" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#ffffff" text-anchor="middle"><tspan x="936.90" dy="0">Quality Gates</tspan></text>
-</g>
-<g transform="translate(40.00,40.00)">
-<rect x="1016" y="150" width="159" height="30" rx="7.5" fill="#4263eb" stroke="none"/>
-<rect x="1016" y="150" width="159" height="30" rx="7.5" fill="none" stroke="#4263eb" stroke-width="2"/>
-</g>
-<g transform="translate(40.00,40.00)">
-<text x="1099.50" y="167.00" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#ffffff" text-anchor="middle"><tspan x="1099.50" dy="0">Security Audits</tspan></text>
+<text x="80.00" y="123.00" font-family="Cascadia, Fira Code, monospace" font-size="18" fill="#868e96" text-anchor="start"><tspan x="80.00" dy="0">&lt;!-- cargo-sync-readme start --&gt;</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
