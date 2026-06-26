@@ -15,7 +15,7 @@ and AI agent integration.
 
 ## Overview
 
-![Architecture](.template/architecture.svg)
+<img width="1672" height="941" alt="Overview" src="https://github.com/user-attachments/assets/2ecff276-0c3d-45da-8912-cafc5066b6f6" />
 
 This template is designed for Rust developers who want to start new projects with best practices baked in. It provides a modular workspace structure, comprehensive quality gates, and built-in support for AI-assisted development.
 
