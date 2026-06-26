@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="865" viewBox="0 0 1250 865">
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="458" viewBox="0 0 1250 458">
 <defs><style>
 @font-face {
   font-family: 'Virgil';
@@ -9,118 +9,121 @@
 </style></defs>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <g transform="translate(40.00,40.00)">
-<rect x="30" y="20" width="1140" height="110" rx="27.5" fill="#edf2ff" stroke="none"/>
-<rect x="30" y="20" width="1140" height="110" rx="27.5" fill="none" stroke="#4263eb" stroke-width="2"/>
+<path d="M29.96 31.92 L1169.07 30.85 L1171.84 108.00 L28.49 108.54" stroke="none" fill="#edf2ff"/>
+<path d="M30.25 30.34 C425.30 34.25,820.28 33.56,1170.68 29.52 M29.90 29.74 C310.00 27.22,589.94 27.31,1169.88 29.93 M1171.13 28.16 C1168.86 49.36,1167.88 66.23,1170.59 108.14 M1169.39 29.40 C1170.82 50.11,1170.55 71.25,1170.45 109.56 M1169.40 109.86 C851.90 113.66,532.23 113.39,30.08 109.61 M1169.68 110.18 C926.28 111.43,682.44 110.88,30.18 109.81 M28.47 110.40 C29.50 88.93,31.49 66.37,29.25 28.88 M30.64 109.23 C29.72 80.73,30.56 50.11,30.21 30.77" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="80.00" y="86.00" font-family="Cascadia, Fira Code, monospace" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="80.00" dy="0">Rust 2026 Template</tspan></text>
+<text x="50.00" y="70.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="28" fill="#4263eb" text-anchor="start"><tspan x="50.00" dy="0">Rust 2026 Template</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="80.00" y="123.00" font-family="Cascadia, Fira Code, monospace" font-size="18" fill="#868e96" text-anchor="start"><tspan x="80.00" dy="0">A production-ready Rust workspace template with modern tooling, CI/CD,</tspan></text>
+<text x="50.00" y="91.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="13" fill="#868e96" text-anchor="start"><tspan x="50.00" dy="0">A production-ready Rust workspace template with modern tooling, CI/CD,</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">WHAT IS THIS?</text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="50.00" y="269.00" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#212529" text-anchor="start"><tspan x="50.00" dy="0">GETTING STARTED</tspan></text>
+<text x="30.00" y="130.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="start"><tspan x="30.00" dy="0">GETTING STARTED</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="50" y="285" width="200" height="110" rx="27.5" fill="#f8f9fa" stroke="none"/>
-<rect x="50" y="285" width="200" height="110" rx="27.5" fill="none" stroke="#4263eb" stroke-width="2"/>
+<path d="M31.33 136.29 L241.40 137.69 L240.65 204.65 L30.37 206.73" stroke="none" fill="#f8f9fa"/>
+<path d="M30.04 137.17 C102.44 138.74,171.88 137.38,239.20 136.16 M30.81 135.32 C95.73 137.49,158.84 137.61,239.63 135.33 M241.42 134.19 C238.84 150.65,241.03 170.20,240.22 205.56 M239.58 135.06 C239.65 150.73,240.63 164.89,240.68 206.02 M238.92 207.47 C187.73 207.02,137.66 206.40,30.32 205.83 M240.38 205.74 C159.07 205.05,77.34 204.15,30.20 206.21 M31.58 207.92 C30.65 182.17,31.59 156.73,30.17 136.09 M30.04 205.35 C31.14 182.70,31.05 157.15,29.31 135.23" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="275" y="285" width="200" height="110" rx="27.5" fill="#f8f9fa" stroke="none"/>
-<rect x="275" y="285" width="200" height="110" rx="27.5" fill="none" stroke="#0c8599" stroke-width="2"/>
+<path d="M252.82 137.36 L461.99 134.94 L460.24 205.86 L253.83 205.08" stroke="none" fill="#f8f9fa"/>
+<path d="M250.68 135.39 C320.15 137.14,388.80 136.12,462.73 134.54 M251.33 136.25 C307.18 136.35,363.17 134.74,461.15 136.47 M463.81 134.44 C460.37 162.27,463.70 190.95,462.34 206.24 M461.30 136.81 C461.21 164.66,461.60 191.45,462.37 205.34 M461.38 205.50 C407.05 208.29,353.11 208.14,253.64 204.74 M461.97 206.46 C392.30 204.51,322.12 205.44,251.62 206.56 M253.54 204.82 C252.17 186.90,251.44 170.30,250.20 137.35 M252.53 206.04 C252.41 181.61,251.74 157.81,251.99 135.34" stroke="#0c8599" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="500" y="285" width="200" height="110" rx="27.5" fill="#f8f9fa" stroke="none"/>
-<rect x="500" y="285" width="200" height="110" rx="27.5" fill="none" stroke="#2b8a3e" stroke-width="2"/>
+<path d="M474.48 135.98 L682.46 136.99 L682.57 206.60 L475.13 206.45" stroke="none" fill="#f8f9fa"/>
+<path d="M473.07 136.50 C538.77 136.98,602.77 135.67,683.73 135.39 M473.29 135.48 C549.71 138.52,627.37 136.84,683.40 135.97 M682.69 135.02 C682.91 155.83,684.01 172.73,683.32 205.82 M684.97 136.42 C685.40 161.20,685.28 187.76,684.86 205.11 M684.61 206.57 C606.54 209.12,529.45 207.54,474.55 207.70 M683.16 206.67 C623.72 204.31,564.51 205.41,474.14 205.88 M474.11 206.61 C472.74 183.49,475.36 162.42,475.16 134.05 M473.25 206.18 C473.06 186.41,473.37 167.91,473.17 135.73" stroke="#2b8a3e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="725" y="285" width="200" height="110" rx="27.5" fill="#f8f9fa" stroke="none"/>
-<rect x="725" y="285" width="200" height="110" rx="27.5" fill="none" stroke="#f76707" stroke-width="2"/>
+<path d="M696.14 134.60 L906.94 135.04 L904.90 207.33 L696.43 207.82" stroke="none" fill="#f8f9fa"/>
+<path d="M695.46 137.62 C757.40 136.99,816.75 138.93,904.74 136.25 M695.25 136.46 C752.01 135.21,807.56 135.24,905.66 135.48 M905.58 135.59 C906.85 159.38,905.71 178.52,904.30 205.40 M906.63 136.03 C906.20 159.73,905.57 184.06,905.36 206.88 M904.32 207.64 C848.04 206.41,789.79 206.94,695.46 207.13 M906.11 205.12 C855.14 204.10,805.14 205.37,696.66 205.19 M694.69 204.39 C694.71 180.08,696.68 154.54,696.13 134.76 M695.97 206.32 C695.72 177.21,695.00 150.00,696.35 136.12" stroke="#f76707" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="950" y="285" width="200" height="110" rx="27.5" fill="#f8f9fa" stroke="none"/>
-<rect x="950" y="285" width="200" height="110" rx="27.5" fill="none" stroke="#7048e8" stroke-width="2"/>
+<path d="M916.31 134.28 L1127.34 137.92 L1128.39 205.11 L917.74 206.07" stroke="none" fill="#f8f9fa"/>
+<path d="M916.73 136.77 C972.63 137.72,1025.68 135.61,1127.56 134.97 M918.39 136.40 C979.73 135.85,1043.30 136.63,1128.20 136.42 M1129.91 137.45 C1128.97 155.34,1127.84 173.07,1128.38 204.66 M1127.24 136.76 C1127.92 160.49,1127.65 185.09,1128.41 205.63 M1129.61 205.42 C1068.84 207.45,1010.33 205.10,917.19 206.12 M1127.17 206.10 C1076.50 205.59,1024.31 205.14,917.80 205.96 M919.48 207.44 C917.16 193.81,915.75 176.50,919.85 134.24 M917.23 206.16 C917.58 186.83,917.62 169.09,917.13 136.53" stroke="#7048e8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M253.00 335.00 C258.31 335.00,263.61 335.00,278.00 335.00 M253.00 335.00 C262.06 335.00,271.12 335.00,278.00 335.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M265.01 342.50 L278.00 335.00 L265.01 327.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M241.35 170.61 C246.42 171.67,249.37 170.97,252.16 170.27 M240.45 171.27 C245.43 171.11,249.57 170.71,252.73 170.64" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M238.74 178.30 C245.97 176.66,248.87 171.90,252.43 169.52 M240.18 179.18 C243.95 175.67,248.04 173.59,252.63 171.51" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M251.73 170.80 C248.96 169.36,241.85 164.61,239.44 162.02 M253.17 171.68 C248.82 168.41,244.79 166.34,239.64 164.01" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M478.00 335.00 C487.88 335.00,497.76 335.00,503.00 335.00 M478.00 335.00 C486.65 335.00,495.31 335.00,503.00 335.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M490.01 342.50 L503.00 335.00 L490.01 327.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M463.62 171.37 C466.20 170.31,470.86 171.82,475.88 170.85 M462.43 170.74 C465.76 171.04,470.19 170.59,474.90 171.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M461.07 179.25 C465.30 175.08,470.38 173.23,473.58 170.24 M462.14 178.52 C465.50 176.59,467.16 175.20,474.85 171.09" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M474.07 171.75 C468.78 167.48,464.35 165.62,460.59 162.74 M475.13 171.02 C472.94 169.04,469.05 167.65,461.86 163.59" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M703.00 335.00 C712.44 335.00,721.88 335.00,728.00 335.00 M703.00 335.00 C708.98 335.00,714.96 335.00,728.00 335.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M715.01 342.50 L728.00 335.00 L715.01 327.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M685.88 172.13 C688.37 171.12,692.36 170.03,697.20 171.44 M685.60 171.41 C689.68 171.20,694.41 170.71,697.07 171.17" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M683.41 177.20 C687.49 176.25,691.74 174.29,697.74 170.97 M684.11 177.86 C688.16 175.75,691.48 173.55,697.06 170.67" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M696.40 169.70 C691.46 168.85,686.70 166.89,684.75 163.47 M697.10 170.36 C692.97 168.42,688.11 166.21,684.07 163.17" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M928.00 335.00 C937.01 335.00,946.03 335.00,953.00 335.00 M928.00 335.00 C933.58 335.00,939.15 335.00,953.00 335.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M940.01 342.50 L953.00 335.00 L940.01 327.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M907.39 171.55 C909.92 170.01,913.78 170.97,919.76 170.57 M907.18 171.37 C908.99 171.38,912.58 171.40,919.44 170.61" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M904.79 179.47 C909.01 175.37,913.18 173.21,920.43 169.89 M905.58 177.81 C909.84 175.74,914.68 173.94,919.52 171.47" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M917.78 171.97 C913.81 167.64,909.78 165.48,907.44 162.39 M918.57 170.31 C913.82 168.35,909.64 166.55,906.53 163.97" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">HOW TO START</text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="50.00" y="449.00" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#212529" text-anchor="start"><tspan x="50.00" dy="0">BY THE NUMBERS</tspan></text>
+<text x="30.00" y="226.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="start"><tspan x="30.00" dy="0">BY THE NUMBERS</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="50" y="465" width="240" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>
-<rect x="50" y="465" width="240" height="130" rx="32.5" fill="none" stroke="#4263eb" stroke-width="2"/>
+<path d="M29.83 232.78 L300.00 232.84 L301.44 295.66 L30.13 298.32" stroke="none" fill="#f8f9fa"/>
+<path d="M28.79 233.38 C123.89 232.14,216.67 230.21,301.27 233.29 M29.33 231.57 C122.93 233.01,215.54 232.19,299.34 232.54 M298.04 233.98 C299.93 258.55,299.91 283.05,300.97 298.59 M299.46 231.15 C300.44 249.13,300.94 265.09,299.06 297.12 M300.24 296.53 C233.37 298.53,167.57 297.86,29.89 296.72 M300.44 296.34 C208.99 296.47,119.54 295.84,29.84 296.44 M31.96 295.56 C31.50 282.29,30.50 265.55,30.53 231.87 M29.63 296.65 C29.88 279.52,30.08 262.64,30.10 231.77" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="310" y="465" width="240" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>
-<rect x="310" y="465" width="240" height="130" rx="32.5" fill="none" stroke="#0c8599" stroke-width="2"/>
+<path d="M312.83 233.51 L580.48 231.18 L580.25 296.49 L310.17 295.51" stroke="none" fill="#f8f9fa"/>
+<path d="M312.32 232.23 C372.24 232.77,433.33 233.57,583.11 233.45 M311.36 231.65 C405.96 230.47,501.30 230.62,581.92 231.39 M581.72 232.45 C583.56 254.12,582.44 276.79,582.51 297.70 M581.81 231.77 C582.12 257.60,581.73 281.08,581.17 296.26 M583.20 295.97 C500.02 295.60,417.83 295.05,311.75 296.59 M582.39 296.73 C494.18 295.55,406.89 294.63,312.21 297.06 M311.91 296.35 C313.56 279.87,312.52 263.10,313.53 230.41 M311.38 296.66 C312.65 274.67,313.42 254.11,311.41 231.05" stroke="#0c8599" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="570" y="465" width="240" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>
-<rect x="570" y="465" width="240" height="130" rx="32.5" fill="none" stroke="#2b8a3e" stroke-width="2"/>
+<path d="M593.49 230.72 L864.94 233.47 L864.63 295.81 L592.05 298.85" stroke="none" fill="#f8f9fa"/>
+<path d="M595.28 232.27 C679.35 229.34,764.87 229.37,864.24 231.43 M593.63 232.71 C695.38 233.56,796.75 233.86,863.33 232.21 M864.44 233.96 C863.35 249.22,863.50 266.80,863.81 296.05 M863.18 231.12 C864.19 247.72,864.11 264.65,863.54 296.88 M865.03 297.88 C759.49 295.11,655.94 294.27,593.88 297.31 M864.08 297.57 C792.25 295.51,720.73 296.05,593.66 297.05 M594.26 296.79 C594.13 276.05,592.80 257.12,594.71 233.62 M594.83 296.43 C593.66 272.82,594.78 245.87,593.62 232.59" stroke="#2b8a3e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="830" y="465" width="240" height="130" rx="32.5" fill="#f8f9fa" stroke="none"/>
-<rect x="830" y="465" width="240" height="130" rx="32.5" fill="none" stroke="#f76707" stroke-width="2"/>
+<path d="M876.66 232.99 L1145.31 232.59 L1146.17 296.17 L877.94 295.06" stroke="none" fill="#f8f9fa"/>
+<path d="M877.24 230.57 C982.37 230.98,1089.77 230.05,1146.98 230.65 M875.37 231.26 C965.86 232.19,1053.78 231.80,1146.55 232.74 M1144.62 232.75 C1148.03 250.25,1147.70 272.62,1144.21 298.07 M1145.48 231.59 C1146.45 254.90,1145.56 276.61,1146.46 296.47 M1145.54 296.88 C1050.66 295.79,958.85 296.52,876.74 297.65 M1145.66 297.51 C1075.22 297.23,1004.73 297.57,875.44 296.75 M876.83 298.48 C876.58 275.29,876.24 256.83,874.65 231.61 M876.82 297.89 C875.81 271.49,877.05 248.01,875.43 232.14" stroke="#f76707" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">BY THE NUMBERS</text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="50.00" y="644.00" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#212529" text-anchor="start"><tspan x="50.00" dy="0">HOW IT CONNECTS</tspan></text>
+<text x="30.00" y="317.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="start"><tspan x="30.00" dy="0">HOW IT CONNECTS</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="50" y="660" width="260" height="125" rx="31.25" fill="#f8f9fa" stroke="none"/>
-<rect x="50" y="660" width="260" height="125" rx="31.25" fill="none" stroke="#4263eb" stroke-width="2"/>
+<path d="M49.61 324.17 L310.73 321.33 L311.64 376.77 L51.34 376.71" stroke="none" fill="#f8f9fa"/>
+<path d="M50.13 323.59 C114.52 321.15,182.26 322.98,308.50 323.85 M49.76 322.63 C118.16 323.57,186.66 323.04,310.12 322.28 M310.00 321.24 C311.16 342.92,310.80 366.20,311.68 377.14 M310.83 322.28 C310.15 342.46,309.17 362.75,309.49 378.01 M309.41 379.41 C217.76 376.40,122.64 376.57,50.05 378.92 M310.60 377.42 C248.45 377.45,187.07 377.73,50.42 377.59 M49.00 377.39 C51.77 360.89,48.66 344.75,51.56 324.18 M49.12 377.87 C49.15 361.04,50.28 343.94,49.77 322.68" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="330" y="660" width="260" height="125" rx="31.25" fill="#f8f9fa" stroke="none"/>
-<rect x="330" y="660" width="260" height="125" rx="31.25" fill="none" stroke="#0c8599" stroke-width="2"/>
+<path d="M328.29 321.90 L589.17 322.84 L588.65 379.08 L330.89 377.50" stroke="none" fill="#f8f9fa"/>
+<path d="M330.51 323.87 C399.26 326.26,469.04 323.48,591.50 323.91 M330.43 323.26 C402.54 322.20,476.73 322.86,590.60 322.48 M591.76 322.44 C588.78 340.59,592.22 356.20,591.60 378.16 M590.95 323.24 C589.04 340.67,589.11 359.83,589.06 377.76 M590.36 376.59 C531.98 378.36,474.67 378.88,330.11 377.77 M589.93 377.70 C537.38 378.08,483.87 378.37,330.40 377.29 M329.99 376.61 C329.34 362.95,328.04 346.74,331.92 323.42 M330.56 377.75 C331.19 364.54,331.16 349.18,330.88 323.15" stroke="#0c8599" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="610" y="660" width="260" height="125" rx="31.25" fill="#f8f9fa" stroke="none"/>
-<rect x="610" y="660" width="260" height="125" rx="31.25" fill="none" stroke="#2b8a3e" stroke-width="2"/>
+<path d="M611.15 321.18 L871.51 321.15 L868.39 376.92 L608.28 377.31" stroke="none" fill="#f8f9fa"/>
+<path d="M609.30 323.58 C681.50 321.89,752.92 323.53,869.02 323.01 M610.80 322.33 C674.92 324.60,739.12 324.74,870.14 322.80 M870.02 323.98 C871.50 338.76,871.37 356.39,870.38 378.09 M869.02 322.05 C870.40 337.81,869.61 353.33,869.44 377.97 M868.83 376.52 C768.93 378.75,669.47 377.91,611.18 377.10 M870.50 377.52 C772.16 375.54,675.08 375.95,609.78 377.66 M609.59 376.73 C611.20 366.27,608.73 354.10,609.22 322.11 M610.24 377.09 C609.50 359.79,609.85 341.54,610.48 323.90" stroke="#2b8a3e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<rect x="890" y="660" width="260" height="125" rx="31.25" fill="#f8f9fa" stroke="none"/>
-<rect x="890" y="660" width="260" height="125" rx="31.25" fill="none" stroke="#f76707" stroke-width="2"/>
+<path d="M891.50 323.39 L1149.92 322.61 L1150.96 377.72 L889.65 376.23" stroke="none" fill="#f8f9fa"/>
+<path d="M889.10 321.88 C967.72 319.86,1046.37 319.73,1151.30 324.04 M890.10 322.36 C963.95 322.05,1038.57 320.92,1149.42 323.42 M1150.83 324.23 C1151.76 335.97,1149.80 346.69,1150.06 378.34 M1150.15 323.75 C1149.80 344.23,1149.27 365.09,1149.27 377.20 M1148.63 379.42 C1079.33 375.86,1009.72 374.95,891.51 376.83 M1149.58 378.24 C1073.49 377.02,997.43 377.62,890.40 378.31 M888.98 379.58 C891.18 359.67,890.26 338.07,891.75 322.03 M889.38 378.74 C891.00 364.13,889.96 350.75,890.49 322.63" stroke="#f76707" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M310.00 722.50 C315.97 722.50,321.93 722.50,330.00 722.50 M310.00 722.50 C316.86 722.50,323.72 722.50,330.00 722.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M317.01 730.00 L330.00 722.50 L317.01 715.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M311.80 348.47 C314.48 352.07,322.81 349.89,330.02 348.19 M310.07 350.10 C316.32 350.65,323.70 350.64,329.00 349.26" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M316.65 356.64 C319.72 353.92,325.33 351.97,330.49 351.07 M316.41 357.92 C320.17 355.50,324.68 352.62,330.72 350.40" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M329.64 349.14 C324.69 346.26,322.26 344.31,317.50 343.57 M329.40 350.42 C325.74 348.05,322.82 345.17,317.73 342.90" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M590.00 722.50 C594.23 722.50,598.46 722.50,610.00 722.50 M590.00 722.50 C594.32 722.50,598.63 722.50,610.00 722.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M597.01 730.00 L610.00 722.50 L597.01 715.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M591.55 350.34 C594.98 351.82,605.08 351.44,608.86 349.48 M589.20 350.13 C598.67 350.11,606.13 350.52,610.10 350.03" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M596.47 358.05 C600.10 353.58,606.99 352.79,609.63 349.03 M597.26 357.94 C601.88 354.82,604.88 351.99,610.05 349.48" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M609.46 350.55 C604.45 346.16,602.68 345.38,596.64 341.53 M610.25 350.44 C606.51 347.30,601.15 344.47,597.06 341.98" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<path d="M870.00 722.50 C877.57 722.50,885.14 722.50,890.00 722.50 M870.00 722.50 C877.01 722.50,884.03 722.50,890.00 722.50" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M877.01 730.00 L890.00 722.50 L877.01 715.00" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M870.04 349.98 C878.43 348.38,883.22 349.52,889.76 348.35 M869.66 350.98 C877.32 349.99,884.48 349.76,889.53 350.43" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M878.33 357.78 C882.68 354.19,885.56 351.46,890.30 351.19 M877.61 357.08 C880.97 354.70,885.30 353.14,889.62 349.79" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M891.32 350.28 C886.74 346.48,880.69 343.75,877.31 343.69 M890.60 349.58 C886.47 347.36,883.31 345.80,876.63 342.29" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
-<text x="8" y="-6" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#868e96">ECOSYSTEM MAP</text>
 </g>
 </svg>

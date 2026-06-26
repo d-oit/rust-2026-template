@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
-"""Generate a human-friendly overview diagram in Excalidraw format.
+"""Generate a compact, modern overview diagram in Excalidraw format.
 
-Dynamic generation — every stat and section is discovered at runtime:
-  - Workspace crates  → Cargo.toml workspace members
-  - AI skills         → .agents/skills/ directories
-  - AI agents         → .agents/ directories
-  - Pipeline stages   → .github/workflows/ YAML job counts
-  - Quality checks    → scripts/quality-gates.sh command count
-  - Ecosystem dirs    → discovered from filesystem layout
-
-Outputs: .template/overview.excalidraw  +  .template/overview.svg
+All text is bound inside elements using Excalidraw's native label property.
+Layout is compact with minimal spacing between sections.
 """
 
 import json
@@ -21,7 +14,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lib.discovery import discover_crates, discover_skills, discover_agents, discover_commands
 
-# ── Palette (friendly, non-technical) ──────────────────────────────────
 C = {
     "bg":      "#ffffff",
     "primary": "#4263eb",
@@ -29,8 +21,6 @@ C = {
     "green":   "#2b8a3e",
     "teal":    "#0c8599",
     "purple":  "#7048e8",
-    "rose":    "#e03131",
-    "muted":   "#f1f3f5",
     "text":    "#212529",
     "subtext": "#868e96",
     "card":    "#f8f9fa",
@@ -38,6 +28,10 @@ C = {
 
 _seed_counter = 0
 
+def _id(prefix: str) -> str:
+    global _seed_counter
+    _seed_counter += 1
+    return f"{prefix}_{_seed_counter}"
 
 def _seed(s: str) -> int:
     h = 0
@@ -45,16 +39,8 @@ def _seed(s: str) -> int:
         h = (h * 31 + ord(c)) & 0xFFFFFFFF
     return h
 
-
-def _id(prefix: str) -> str:
-    global _seed_counter
-    _seed_counter += 1
-    return f"{prefix}_{_seed_counter}"
-
-
 def _rect(x, y, w, h, bg=None, stroke="#dee2e6", sw=1, label=None,
-          lfs=16, lac="center", lvc="middle", lc=None, rid=None,
-          rough=0, opacity=100):
+          lfs=14, lac="center", lvc="middle", lc=None, rid=None, rough=1):
     bg = bg or C["card"]
     lc = lc or C["text"]
     el = {
@@ -62,7 +48,7 @@ def _rect(x, y, w, h, bg=None, stroke="#dee2e6", sw=1, label=None,
         "x": x, "y": y, "width": w, "height": h,
         "angle": 0, "strokeColor": stroke, "backgroundColor": bg,
         "fillStyle": "solid", "strokeWidth": sw, "strokeStyle": "solid",
-        "roughness": 0, "opacity": opacity,
+        "roughness": rough, "opacity": 100,
         "groupIds": [], "frameId": rid, "index": None,
         "roundness": {"type": 3}, "seed": _seed(f"r{x}{y}"),
         "version": 1, "versionNonce": _seed(f"rn{x}{y}"),
@@ -70,19 +56,17 @@ def _rect(x, y, w, h, bg=None, stroke="#dee2e6", sw=1, label=None,
         "updated": 1, "link": None, "locked": False,
     }
     if label:
-        el["label"] = {"text": label, "fontSize": lfs, "fontFamily": 3,
+        el["label"] = {"text": label, "fontSize": lfs, "fontFamily": 1,
                         "textAlign": lac, "verticalAlign": lvc,
                         "strokeColor": lc}
     return el
 
-
-def _text(x, y, text, fs=16, color=None, align="left", rid=None):
+def _text(x, y, text, fs=14, color=None, align="left", rid=None):
     color = color or C["text"]
     return {
         "id": _id("t"), "type": "text",
         "x": x, "y": y,
-        "width": len(text) * fs * 0.55,
-        "height": fs * 1.25,
+        "width": len(text) * fs * 0.55, "height": fs * 1.25,
         "angle": 0, "strokeColor": color, "backgroundColor": "transparent",
         "fillStyle": "solid", "strokeWidth": 2, "strokeStyle": "solid",
         "roughness": 0, "opacity": 100,
@@ -91,23 +75,21 @@ def _text(x, y, text, fs=16, color=None, align="left", rid=None):
         "versionNonce": _seed(f"tn{x}{y}{text[:8]}"),
         "isDeleted": False, "boundElements": None,
         "updated": 1, "link": None, "locked": False,
-        "text": text, "fontSize": fs, "fontFamily": 3,
+        "text": text, "fontSize": fs, "fontFamily": 1,
         "textAlign": align, "verticalAlign": "top",
         "containerId": None, "originalText": text, "lineHeight": 1.25,
     }
 
-
-def _arrow(x, y, start_id, end_id, points=None, sc="#adb5bd", sw=2, label=None):
+def _arrow(x, y, start_id, end_id, points=None, sc="#adb5bd", sw=2):
     if points is None:
         points = [[0, 0], [100, 0]]
-    el = {
+    return {
         "id": _id("a"), "type": "arrow",
         "x": x, "y": y,
-        "width": abs(points[-1][0]) or 1,
-        "height": abs(points[-1][1]) or 1,
+        "width": abs(points[-1][0]) or 1, "height": abs(points[-1][1]) or 1,
         "angle": 0, "strokeColor": sc, "backgroundColor": "transparent",
         "fillStyle": "solid", "strokeWidth": sw, "strokeStyle": "solid",
-        "roughness": 0, "opacity": 100,
+        "roughness": 1, "opacity": 100,
         "groupIds": [], "frameId": None, "index": None,
         "roundness": {"type": 2}, "seed": _seed(f"a{x}{y}"),
         "version": 1, "versionNonce": _seed(f"an{x}{y}"),
@@ -116,15 +98,10 @@ def _arrow(x, y, start_id, end_id, points=None, sc="#adb5bd", sw=2, label=None):
         "points": points,
         "startBinding": {"elementId": start_id, "focus": 0, "gap": 5},
         "endBinding": {"elementId": end_id, "focus": 0, "gap": 5},
-        "startArrowhead": None, "endArrowhead": "arrow", "elbowed": True,
+        "startArrowhead": None, "endArrowhead": "arrow", "elbowed": False,
     }
-    if label:
-        el["label"] = {"text": label, "fontSize": 13, "fontFamily": 3}
-    return el
-
 
 def _frame(name, children):
-    """Invisible logical grouping frame."""
     return {
         "id": _id("f"), "type": "frame",
         "x": 0, "y": 0, "width": 100, "height": 100,
@@ -132,25 +109,21 @@ def _frame(name, children):
         "fillStyle": "solid", "strokeWidth": 0, "strokeStyle": "solid",
         "roughness": 0, "opacity": 0,
         "groupIds": [], "frameId": None, "index": None, "roundness": None,
-        "seed": _seed(name), "version": 1,
-        "versionNonce": _seed(name + "_n"), "isDeleted": False,
+        "seed": _seed("frame"), "version": 1,
+        "versionNonce": _seed("framen"), "isDeleted": False,
         "boundElements": None, "updated": 1, "link": None, "locked": False,
-        "name": name, "children": children,
+        "name": "", "children": children,
     }
 
 
-# ── Dynamic discovery helpers ───────────────────────────────────────────
-
 def _count_pipeline_stages(root: Path) -> int:
-    """Count distinct CI/CD jobs across all workflow YAML files."""
     workflows_dir = root / ".github" / "workflows"
     if not workflows_dir.exists():
-        return 4  # sensible fallback
+        return 4
     job_names: set[str] = set()
     for wf in workflows_dir.glob("*.yml"):
         try:
             text = wf.read_text(encoding="utf-8")
-            # Simple heuristic: lines with `  <name>:` under a `jobs:` block
             in_jobs = False
             for line in text.splitlines():
                 if re.match(r"^jobs:\s*$", line):
@@ -164,92 +137,53 @@ def _count_pipeline_stages(root: Path) -> int:
             continue
     return len(job_names) if job_names else 4
 
-
 def _count_quality_checks(root: Path) -> int:
-    """Count distinct quality checks in scripts/quality-gates.sh."""
     qg = root / "scripts" / "quality-gates.sh"
     if not qg.exists():
-        # Try alternate locations
-        for candidate in root.glob("scripts/quality*.sh"):
-            qg = candidate
-            break
-    if not qg.exists():
-        return 14  # sensible fallback
+        return 14
     try:
         text = qg.read_text(encoding="utf-8")
-        # Count non-blank, non-comment lines that look like commands
         count = sum(
             1 for line in text.splitlines()
             if line.strip() and not line.strip().startswith("#")
             and any(cmd in line for cmd in [
                 "cargo", "rustfmt", "clippy", "audit", "deny",
-                "nextest", "llvm-cov", "mutants", "cargo-semver",
-                "udeps", "machete", "pants", "typos",
+                "nextest", "llvm-cov", "mutants", "machete",
             ])
         )
         return count if count > 0 else 14
     except OSError:
         return 14
 
-
 def _discover_ecosystem_dirs(root: Path, crates, skills) -> list[tuple]:
-    """Discover ecosystem directories dynamically."""
     dirs = []
-    # crates/
     if (root / "crates").exists():
-        dirs.append((
-            "crates/",
-            f"Your code lives here.\n{len(crates)} workspace members\nwith feature flags.",
-            C["primary"],
-        ))
-    # .agents/skills/
+        dirs.append(("crates/", f"{len(crates)} workspace members", C["primary"]))
     if (root / ".agents" / "skills").exists():
-        dirs.append((
-            ".agents/skills/",
-            f"AI procedures that\nguide coding agents.\n{len(skills)} reusable skills.",
-            C["teal"],
-        ))
-    # .github/workflows/
+        dirs.append((".agents/skills/", f"{len(skills)} reusable skills", C["teal"]))
     if (root / ".github" / "workflows").exists():
         wf_count = len(list((root / ".github" / "workflows").glob("*.yml")))
-        dirs.append((
-            ".github/workflows/",
-            f"Automated CI/CD.\n{wf_count} workflow file(s).\nSecurity + quality gates.",
-            C["green"],
-        ))
-    # scripts/
+        dirs.append((".github/workflows/", f"{wf_count} workflow files", C["green"]))
     if (root / "scripts").exists():
         script_count = len(list((root / "scripts").glob("*.sh")))
-        dirs.append((
-            "scripts/",
-            f"Local dev tools.\n{script_count} shell scripts.\nQuality, bootstrap, release.",
-            C["accent"],
-        ))
-    # Fallback
+        dirs.append(("scripts/", f"{script_count} shell scripts", C["accent"]))
     if not dirs:
         dirs = [
-            ("crates/", f"Your code lives here.\n{len(crates)} workspace members.", C["primary"]),
-            (".agents/skills/", f"{len(skills)} AI skills.", C["teal"]),
-            (".github/workflows/", "Automated CI/CD.", C["green"]),
-            ("scripts/", "Local dev tools.", C["accent"]),
+            ("crates/", f"{len(crates)} crates", C["primary"]),
+            (".agents/skills/", f"{len(skills)} skills", C["teal"]),
+            (".github/workflows/", "CI/CD", C["green"]),
+            ("scripts/", "tools", C["accent"]),
         ]
     return dirs
 
 
-# ── Main diagram generator ──────────────────────────────────────────────
-
 def generate(root: Path) -> dict:
-    # ── Discover everything dynamically ────────────────────────────────
-    crates   = discover_crates(root)
-    skills   = discover_skills(root)
-    agents   = discover_agents(root)
-    commands = discover_commands(root)
+    crates = discover_crates(root)
+    skills = discover_skills(root)
+    pipeline_count = _count_pipeline_stages(root)
+    quality_count = _count_quality_checks(root)
+    ecosystem_dirs = _discover_ecosystem_dirs(root, crates, skills)
 
-    pipeline_stage_count = _count_pipeline_stages(root)
-    quality_check_count  = _count_quality_checks(root)
-    ecosystem_dirs       = _discover_ecosystem_dirs(root, crates, skills)
-
-    # Project name from root Cargo.toml [package] or directory name
     project_name = root.name
     try:
         cargo_toml = (root / "Cargo.toml").read_text(encoding="utf-8")
@@ -260,22 +194,22 @@ def generate(root: Path) -> dict:
         pass
 
     elements = []
+    PAD = 30
+    SECTION_GAP = 8
+    CARD_PAD = 8
 
-    # ════════════════════════════════════════════════════════════════════
-    # SECTION 1: HERO — What is this?
-    # ════════════════════════════════════════════════════════════════════
+    # ── HERO ────────────────────────────────────────────────────────────
     hero_children = []
-
-    hero_bg = _rect(30, 20, 1140, 110, bg="#edf2ff", stroke=C["primary"], sw=2)
+    hero_h = 80
+    hero_bg = _rect(PAD, PAD, 1140, hero_h, bg="#edf2ff", stroke=C["primary"], sw=2)
     elements.append(hero_bg)
     hero_children.append(hero_bg["id"])
 
     title_text = project_name.replace("-", " ").title()
-    title = _text(80, 50, title_text, fs=36, color=C["primary"])
+    title = _text(PAD + 20, PAD + 12, title_text, fs=28, color=C["primary"])
     elements.append(title)
     hero_children.append(title["id"])
 
-    # Tagline from README if available, else generic
     tagline_str = "Production-ready Rust workspace with AI agents, quality gates, and modern tooling"
     readme = root / "README.md"
     if readme.exists():
@@ -289,144 +223,128 @@ def generate(root: Path) -> dict:
         except OSError:
             pass
 
-    tagline = _text(80, 105, tagline_str, fs=18, color=C["subtext"])
+    tagline = _text(PAD + 20, PAD + 48, tagline_str, fs=13, color=C["subtext"])
     elements.append(tagline)
     hero_children.append(tagline["id"])
 
-    hero_frame = _frame("WHAT IS THIS?", hero_children)
+    hero_frame = _frame("HEADER", hero_children)
     elements.append(hero_frame)
 
-    # ════════════════════════════════════════════════════════════════════
-    # SECTION 2: QUICK START — How to get started
-    # ════════════════════════════════════════════════════════════════════
-    qs_y = 255
-    qs_children = []
+    y_cursor = PAD + hero_h + SECTION_GAP
 
-    qs_title = _text(50, qs_y, "GETTING STARTED", fs=14, color=C["text"])
+    # ── GETTING STARTED ─────────────────────────────────────────────────
+    qs_children = []
+    qs_title = _text(PAD, y_cursor, "GETTING STARTED", fs=12, color=C["text"])
     elements.append(qs_title)
     qs_children.append(qs_title["id"])
+    y_cursor += 18
 
-    # Check which bootstrap scripts actually exist
     bootstrap_cmd = "./scripts/bootstrap.sh" if (root / "scripts" / "bootstrap.sh").exists() else "cargo build"
-    quality_cmd   = "./scripts/quality-gates.sh" if list(root.glob("scripts/quality*.sh")) else "cargo clippy"
+    quality_cmd = "./scripts/quality-gates.sh" if list(root.glob("scripts/quality*.sh")) else "cargo clippy"
 
     steps = [
-        ("1. Clone",    "Use this template\nto start a new repo",           C["primary"]),
-        ("2. Setup",    f"{bootstrap_cmd}\ninstalls all tools",              C["teal"]),
-        ("3. Develop",  "Write code in crates/\nwith feature flags",         C["green"]),
-        ("4. Quality",  f"{quality_cmd}\nruns all checks",                   C["accent"]),
-        ("5. Release",  "Tag-triggered CI\npublishes to crates.io",          C["purple"]),
+        ("1. Clone",    f"Use this template\nto start a new repo",          C["primary"]),
+        ("2. Setup",    f"{bootstrap_cmd}\ninstalls all tools",             C["teal"]),
+        ("3. Develop",  f"Write code in crates/\nwith feature flags",       C["green"]),
+        ("4. Quality",  f"{quality_cmd}\nruns all checks",                  C["accent"]),
+        ("5. Release",  f"Tag-triggered CI\npublishes to crates.io",        C["purple"]),
     ]
 
-    step_w, step_h, gap = 200, 110, 25
-    sx = 50
+    step_w = 210
+    step_h = 70
+    step_gap = 12
+    sx = PAD
     step_ids = []
     for i, (step_title, desc, color) in enumerate(steps):
         sid = f"step_{i}"
-        label_text = f"{step_title}\n{desc}"
-        card = _rect(sx, qs_y + 30, step_w, step_h, bg=C["card"], stroke=color, sw=2,
-                     label=label_text, lfs=13, lac="left", lvc="top", lc=C["text"])
+        card = _rect(sx, y_cursor, step_w, step_h, bg=C["card"], stroke=color, sw=2,
+                     label=f"{step_title}\n{desc}", lfs=12, lac="left", lvc="top", lc=C["text"])
         card["id"] = sid
         elements.append(card)
         qs_children.append(sid)
         step_ids.append(sid)
-
-        sx += step_w + gap
+        sx += step_w + step_gap
 
     for i in range(len(step_ids) - 1):
-        mid_x = 50 + (i + 1) * (step_w + gap) - gap // 2
-        arr = _arrow(mid_x - 10, qs_y + 80, step_ids[i], step_ids[i + 1],
-                     points=[[0, 0], [gap, 0]], sc="#adb5bd", sw=2)
+        mid_x = PAD + (i + 1) * (step_w + step_gap) - step_gap // 2
+        arr = _arrow(mid_x - 5, y_cursor + step_h // 2, step_ids[i], step_ids[i + 1],
+                     points=[[0, 0], [step_gap, 0]], sc="#adb5bd", sw=2)
         elements.append(arr)
         qs_children.append(arr["id"])
 
-    qs_frame = _frame("HOW TO START", qs_children)
+    qs_frame = _frame("STEPS", qs_children)
     elements.append(qs_frame)
+    y_cursor += step_h + SECTION_GAP
 
-    # ════════════════════════════════════════════════════════════════════
-    # SECTION 3: BY THE NUMBERS — Dynamic stats cards
-    # ════════════════════════════════════════════════════════════════════
-    ws_y = 435
+    # ── BY THE NUMBERS ──────────────────────────────────────────────────
     ws_children = []
-
-    ws_title = _text(50, ws_y, "BY THE NUMBERS", fs=14, color=C["text"])
+    ws_title = _text(PAD, y_cursor, "BY THE NUMBERS", fs=12, color=C["text"])
     elements.append(ws_title)
     ws_children.append(ws_title["id"])
+    y_cursor += 18
 
-    stats: list[tuple[str, str, str, str]] = [
-        (str(len(crates)),               "Workspace Crates",   "Libraries, apps,\nand templates",               C["primary"]),
-        (str(len(skills)),               "AI Skills",          "Reusable procedures\nfor code agents",          C["teal"]),
-        (str(pipeline_stage_count),      "Pipeline Jobs",      "CI/CD jobs discovered\nin .github/workflows/",  C["green"]),
-        (str(quality_check_count),       "Quality Checks",     "Commands in\nquality-gates.sh",                 C["accent"]),
+    stats = [
+        (str(len(crates)),          "Crates",           C["primary"]),
+        (str(len(skills)),          "AI Skills",        C["teal"]),
+        (str(pipeline_count),       "Pipeline Jobs",    C["green"]),
+        (str(quality_count),        "Quality Checks",   C["accent"]),
     ]
-    # Add agents row if any agents found
-    if agents:
-        stats.append((str(len(agents)), "AI Agents",  "Orchestrated agents\nin .agents/",  C["purple"]))
 
-    stat_w, stat_h, stat_gap = 240, 130, 20
-    stat_x = 50
-    for num, label, desc, color in stats:
-        label_text = f"{num}\n{label}\n{desc}"
-        card = _rect(stat_x, ws_y + 30, stat_w, stat_h, bg=C["card"], stroke=color, sw=2,
-                     label=label_text, lfs=13, lac="left", lvc="top", lc=C["text"])
+    stat_w = 270
+    stat_h = 65
+    stat_gap = 12
+    stat_x = PAD
+    for num, label, color in stats:
+        card = _rect(stat_x, y_cursor, stat_w, stat_h, bg=C["card"], stroke=color, sw=2,
+                     label=f"{num}  {label}", lfs=18, lac="center", lvc="middle", lc=color)
+        card["id"] = _id("s")
         elements.append(card)
         ws_children.append(card["id"])
-
         stat_x += stat_w + stat_gap
 
-    ws_frame = _frame("BY THE NUMBERS", ws_children)
+    ws_frame = _frame("STATS", ws_children)
     elements.append(ws_frame)
+    y_cursor += stat_h + SECTION_GAP
 
-    # ════════════════════════════════════════════════════════════════════
-    # SECTION 4: ECOSYSTEM MAP — How it connects
-    # ════════════════════════════════════════════════════════════════════
-    eco_y = 630
+    # ── HOW IT CONNECTS ─────────────────────────────────────────────────
     eco_children = []
-
-    eco_title = _text(50, eco_y, "HOW IT CONNECTS", fs=14, color=C["text"])
+    eco_title = _text(PAD, y_cursor, "HOW IT CONNECTS", fs=12, color=C["text"])
     elements.append(eco_title)
     eco_children.append(eco_title["id"])
+    y_cursor += 18
 
-    box_w, box_h = 260, 125
-    spacing = 20
-    total_w  = len(ecosystem_dirs) * box_w + (len(ecosystem_dirs) - 1) * spacing
-    start_x  = max(50, (1200 - total_w) // 2)
+    box_w = 260
+    box_h = 55
+    box_spacing = 20
+    total_w = len(ecosystem_dirs) * box_w + (len(ecosystem_dirs) - 1) * box_spacing
+    bx_start = max(PAD, (1200 - total_w) // 2)
 
-    box_ids: list[str] = []
-    box_positions: list[tuple[int, int, int, int]] = []
-
+    box_ids = []
+    box_positions = []
     for i, (label, desc, color) in enumerate(ecosystem_dirs):
-        bx = start_x + i * (box_w + spacing)
+        bx = bx_start + i * (box_w + box_spacing)
         bid = f"eco_{i}"
-        label_text = f"{label}\n{desc}"
-        card = _rect(bx, eco_y + 30, box_w, box_h, bg=C["card"], stroke=color, sw=2,
-                     label=label_text, lfs=13, lac="left", lvc="top", lc=C["text"])
+        card = _rect(bx, y_cursor, box_w, box_h, bg=C["card"], stroke=color, sw=2,
+                     label=f"{label}  —  {desc}", lfs=12, lac="center", lvc="middle", lc=C["text"])
         card["id"] = bid
         elements.append(card)
         eco_children.append(bid)
         box_ids.append(bid)
-        box_positions.append((bx, eco_y + 30, box_w, box_h))
+        box_positions.append((bx, y_cursor, box_w, box_h))
 
-    # Sequential left-to-right arrows between adjacent boxes
-    connection_labels = ["skills use", "CI triggers", "scripts run", "config feeds", "→"]
     for idx in range(len(box_ids) - 1):
-        src_x, src_y, src_w, src_h = box_positions[idx]
-        tgt_x, tgt_y, _tw, tgt_h  = box_positions[idx + 1]
-        start_x_arrow = src_x + src_w
-        start_y_arrow = src_y + src_h / 2
-        end_x_arrow   = tgt_x
-        end_y_arrow   = tgt_y + tgt_h / 2
-        lbl = connection_labels[idx] if idx < len(connection_labels) else "→"
-        arr = _arrow(
-            start_x_arrow, start_y_arrow,
-            box_ids[idx], box_ids[idx + 1],
-            points=[[0, 0], [end_x_arrow - start_x_arrow, end_y_arrow - start_y_arrow]],
-            sc="#adb5bd", sw=2, label=lbl,
-        )
+        src_x, src_y, src_w, _ = box_positions[idx]
+        tgt_x, tgt_y, _, _ = box_positions[idx + 1]
+        sx_arr = src_x + src_w
+        sy_arr = src_y + box_h // 2
+        ex_arr = tgt_x
+        ey_arr = tgt_y + box_h // 2
+        arr = _arrow(sx_arr, sy_arr, box_ids[idx], box_ids[idx + 1],
+                     points=[[0, 0], [ex_arr - sx_arr, ey_arr - sy_arr]], sc="#adb5bd", sw=2)
         elements.append(arr)
         eco_children.append(arr["id"])
 
-    eco_frame = _frame("ECOSYSTEM MAP", eco_children)
+    eco_frame = _frame("ECOSYSTEM", eco_children)
     elements.append(eco_frame)
 
     return {
@@ -441,43 +359,32 @@ def generate(root: Path) -> dict:
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(
-        description="Generate a dynamic human-friendly overview diagram"
-    )
-    parser.add_argument("--root",    default=".",
-                        help="Workspace root (default: current directory)")
-    parser.add_argument("--out",     default=".template/overview.excalidraw",
-                        help="Output .excalidraw file")
-    parser.add_argument("--svg-out", default=".template/overview.svg",
-                        help="Output SVG file")
-    parser.add_argument("--png-out", default=None,
-                        help="Output PNG file (optional)")
-    parser.add_argument("--no-export", action="store_true",
-                        help="Skip SVG/PNG export step")
-    parser.add_argument("--print-stats", action="store_true",
-                        help="Print discovered stats to stdout and exit")
+    parser = argparse.ArgumentParser(description="Generate compact overview diagram")
+    parser.add_argument("--root", default=".")
+    parser.add_argument("--out", default=".template/overview.excalidraw")
+    parser.add_argument("--svg-out", default=".template/overview.svg")
+    parser.add_argument("--png-out", default=None)
+    parser.add_argument("--no-export", action="store_true")
+    parser.add_argument("--print-stats", action="store_true")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
 
     if args.print_stats:
-        crates   = discover_crates(root)
-        skills   = discover_skills(root)
-        agents   = discover_agents(root)
+        crates = discover_crates(root)
+        skills = discover_skills(root)
+        agents = discover_agents(root)
         pipeline = _count_pipeline_stages(root)
-        quality  = _count_quality_checks(root)
-        eco      = _discover_ecosystem_dirs(root, crates, skills)
+        quality = _count_quality_checks(root)
+        eco = _discover_ecosystem_dirs(root, crates, skills)
         print(json.dumps({
-            "crates":           len(crates),
-            "skills":           len(skills),
-            "agents":           len(agents),
-            "pipeline_stages":  pipeline,
-            "quality_checks":   quality,
-            "ecosystem_dirs":   [d[0] for d in eco],
+            "crates": len(crates), "skills": len(skills), "agents": len(agents),
+            "pipeline_stages": pipeline, "quality_checks": quality,
+            "ecosystem_dirs": [d[0] for d in eco],
         }, indent=2))
         return
 
-    out = Path(args.out)
+    out = Path(args.out) if args.out else root / ".template" / "overview.excalidraw"
     if not out.is_absolute():
         out = root / out
     out.parent.mkdir(parents=True, exist_ok=True)
