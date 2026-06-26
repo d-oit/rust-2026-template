@@ -266,7 +266,7 @@ def generate(root: Path) -> dict:
     # ════════════════════════════════════════════════════════════════════
     hero_children = []
 
-    hero_bg = _rect(30, 20, 1140, 190, bg="#edf2ff", stroke=C["primary"], sw=2)
+    hero_bg = _rect(30, 20, 1140, 110, bg="#edf2ff", stroke=C["primary"], sw=2)
     elements.append(hero_bg)
     hero_children.append(hero_bg["id"])
 
@@ -323,19 +323,13 @@ def generate(root: Path) -> dict:
     step_ids = []
     for i, (step_title, desc, color) in enumerate(steps):
         sid = f"step_{i}"
-        card = _rect(sx, qs_y + 30, step_w, step_h, bg=C["card"], stroke=color, sw=2)
+        label_text = f"{step_title}\n{desc}"
+        card = _rect(sx, qs_y + 30, step_w, step_h, bg=C["card"], stroke=color, sw=2,
+                     label=label_text, lfs=13, lac="left", lvc="top", lc=C["text"])
         card["id"] = sid
         elements.append(card)
         qs_children.append(sid)
         step_ids.append(sid)
-
-        st = _text(sx + 15, qs_y + 45, step_title, fs=16, color=color)
-        elements.append(st)
-        qs_children.append(st["id"])
-
-        sd = _text(sx + 15, qs_y + 75, desc, fs=12, color=C["text"])
-        elements.append(sd)
-        qs_children.append(sd["id"])
 
         sx += step_w + gap
 
@@ -372,21 +366,11 @@ def generate(root: Path) -> dict:
     stat_w, stat_h, stat_gap = 240, 130, 20
     stat_x = 50
     for num, label, desc, color in stats:
-        card = _rect(stat_x, ws_y + 30, stat_w, stat_h, bg=C["card"], stroke=color, sw=2)
+        label_text = f"{num}\n{label}\n{desc}"
+        card = _rect(stat_x, ws_y + 30, stat_w, stat_h, bg=C["card"], stroke=color, sw=2,
+                     label=label_text, lfs=13, lac="left", lvc="top", lc=C["text"])
         elements.append(card)
         ws_children.append(card["id"])
-
-        n = _text(stat_x + 20, ws_y + 45, num, fs=36, color=color)
-        elements.append(n)
-        ws_children.append(n["id"])
-
-        l = _text(stat_x + 20, ws_y + 93, label, fs=14, color=C["text"])
-        elements.append(l)
-        ws_children.append(l["id"])
-
-        d = _text(stat_x + 20, ws_y + 113, desc, fs=11, color=C["subtext"])
-        elements.append(d)
-        ws_children.append(d["id"])
 
         stat_x += stat_w + stat_gap
 
@@ -414,20 +398,14 @@ def generate(root: Path) -> dict:
     for i, (label, desc, color) in enumerate(ecosystem_dirs):
         bx = start_x + i * (box_w + spacing)
         bid = f"eco_{i}"
-        card = _rect(bx, eco_y + 30, box_w, box_h, bg=C["card"], stroke=color, sw=2)
+        label_text = f"{label}\n{desc}"
+        card = _rect(bx, eco_y + 30, box_w, box_h, bg=C["card"], stroke=color, sw=2,
+                     label=label_text, lfs=13, lac="left", lvc="top", lc=C["text"])
         card["id"] = bid
         elements.append(card)
         eco_children.append(bid)
         box_ids.append(bid)
         box_positions.append((bx, eco_y + 30, box_w, box_h))
-
-        l = _text(bx + 15, eco_y + 45, label, fs=14, color=color)
-        elements.append(l)
-        eco_children.append(l["id"])
-
-        d = _text(bx + 15, eco_y + 72, desc, fs=11, color=C["text"])
-        elements.append(d)
-        eco_children.append(d["id"])
 
     # Sequential left-to-right arrows between adjacent boxes
     connection_labels = ["skills use", "CI triggers", "scripts run", "config feeds", "→"]
