@@ -6,18 +6,11 @@ A human-friendly overview of the project — what it is, how to get started, and
 
 ![Overview](overview.svg)
 
-## Technical Architecture
-
-The detailed system architecture showing crate dependencies, pipeline stages, skills, and data flow.
-
-![System Architecture](architecture.svg)
-
 ## What the Diagram Shows
 
-- **Pipeline Orchestration** — CI/CD stages from analysis to deployment with timing info
-- **Workspace Topology** — All crates organized by layer with purpose descriptions
-- **Active Skills** — Agent skills for development workflows
-- **Interface Protocols** — Slash commands and tool integrations
+- **Getting Started** — Clone, setup, develop, quality, release workflow
+- **What's Inside** — Workspace crates, AI skills, pipeline stages, quality checks
+- **How It Connects** — Ecosystem directories and their relationships
 
 ## Crate Layers
 
@@ -39,23 +32,14 @@ The detailed system architecture showing crate dependencies, pipeline stages, sk
 
 Dependencies flow upward only: examples → templates → core → applications. This is enforced by `cargo deny`.
 
-## Regenerating the Diagrams
+## Regenerating the Diagram
 
 ```bash
-# Architecture diagram (Excalidraw source + SVG export)
-python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
-  --root . --out .template/architecture.excalidraw --svg-out .template/architecture.svg
-
 # Overview infographic
 python .agents/skills/architecture-diagram/scripts/generate_overview.py \
   --root . --out .template/overview.excalidraw --svg-out .template/overview.svg
 
-# Exporting Excalidraw to PNG (used by CI)
-node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs \
-  -i .template/architecture.excalidraw -o .template/architecture.png -f png
-
 # Sync to docs
-cp .template/architecture.svg docs/src/architecture.svg
 cp .template/overview.svg docs/src/overview.svg
 ```
 
@@ -63,8 +47,5 @@ cp .template/overview.svg docs/src/overview.svg
 
 | File | Format | Purpose |
 |------|--------|---------|
-| `.template/architecture.excalidraw` | Excalidraw | Editable source for technical diagram |
-| `.template/architecture.svg` | SVG | Published artifact for README and docs |
 | `.template/overview.excalidraw` | Excalidraw | Editable source for overview infographic |
 | `.template/overview.svg` | SVG | Published artifact for docs |
-| `.agents/skills/architecture-diagram/scripts/export_excalidraw.mjs` | Node.js | Script to export Excalidraw files to SVG/PNG |

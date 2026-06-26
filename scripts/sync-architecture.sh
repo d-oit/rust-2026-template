@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# sync-architecture.sh - Regenerate diagrams and sync to docs
+# sync-architecture.sh - Regenerate overview diagram and sync to docs
 # Idempotent: safe to re-run.
 set -euo pipefail
 
@@ -9,19 +9,6 @@ cd "$REPO_ROOT"
 log()  { printf '==> %s\n' "$*"; }
 ok()   { printf '  \033[0;32m✓\033[0m %s\n' "$*"; }
 warn() { printf '  ! %s\n' "$*"; }
-
-# --- Generate architecture diagram ---
-GEN_SCRIPT=".agents/skills/architecture-diagram/scripts/generate_diagram.py"
-if [[ -f "$GEN_SCRIPT" ]]; then
-  log "Generating architecture diagram"
-  python3 "$GEN_SCRIPT" --root . \
-    --out .template/architecture.excalidraw \
-    --svg-out .template/architecture.svg \
-    --png-out .template/architecture.png
-  ok "Generated architecture.{excalidraw,svg,png}"
-else
-  warn "$GEN_SCRIPT not found - skipping"
-fi
 
 # --- Generate overview infographic ---
 OVERVIEW_SCRIPT=".agents/skills/architecture-diagram/scripts/generate_overview.py"
@@ -38,13 +25,11 @@ fi
 
 # --- Sync SVGs to docs ---
 mkdir -p docs/src
-for f in architecture overview; do
-  src=".template/${f}.svg"
-  dst="docs/src/${f}.svg"
-  if [[ -f "$src" ]]; then
-    cp "$src" "$dst"
-    ok "Synced to $dst"
-  fi
-done
+src=".template/overview.svg"
+dst="docs/src/overview.svg"
+if [[ -f "$src" ]]; then
+  cp "$src" "$dst"
+  ok "Synced to $dst"
+fi
 
 log "Done"

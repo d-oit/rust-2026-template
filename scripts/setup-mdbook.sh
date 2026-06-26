@@ -83,14 +83,14 @@ else
 fi
 
 # --- Copy SVG ---
-SVG_SRC=".template/architecture.svg"
-SVG_DST="docs/src/architecture.svg"
+SVG_SRC=".template/overview.svg"
+SVG_DST="docs/src/overview.svg"
 
 if [[ -f "$SVG_SRC" ]]; then
   cp "$SVG_SRC" "$SVG_DST"
   ok "Copied $SVG_SRC → $SVG_DST"
 else
-  warn "$SVG_SRC not found - run architecture diagram generator first"
+  warn "$SVG_SRC not found - run overview diagram generator first"
 fi
 
 # --- Sync existing docs into src/ ---

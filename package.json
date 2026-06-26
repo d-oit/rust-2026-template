@@ -5,7 +5,7 @@
     "@moona3k/excalidraw-export": "0.2.1"
   },
   "scripts": {
-    "export:svg": "node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs -i .template/architecture.excalidraw -o .template/architecture.svg -f svg",
-    "export:png": "node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs -i .template/architecture.excalidraw -o .template/architecture.png -f png"
+    "export:svg": "node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs -i .template/overview.excalidraw -o .template/overview.svg -f svg",
+    "export:png": "node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs -i .template/overview.excalidraw -o .template/overview.png -f png"
   }
 }
