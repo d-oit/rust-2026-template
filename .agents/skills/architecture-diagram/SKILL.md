@@ -1,7 +1,7 @@
 ---
-name: architecture-diagram
-version: 0.5.0
-description: Generate an Excalidraw source file and rendered SVG diagram by scanning the live project structure, including Rust workspace crates and dependencies. Use this skill whenever the user asks to regenerate, refresh, or update the architecture diagram, or when crates, skills, agents, or commands have been added/removed and the diagram is stale. Triggers on phrases like "update the diagram", "regenerate the architecture SVG", "sync the architecture", or "show crate dependencies".
+name: overview-diagram
+version: 1.0.0
+description: Generate a human-friendly overview infographic by scanning the live project structure, including workspace crates, skills, and scripts. Use this skill whenever the user asks to regenerate, refresh, or update the overview diagram. Triggers on phrases like "update the overview", "regenerate the overview SVG", or "sync the overview".
 category: documentation
 license: MIT
 metadata:
@@ -10,144 +10,86 @@ metadata:
   platform: agentskills.io
 ---
 
-# Architecture Diagram
+# Overview Diagram
 
-Generates an Excalidraw source file and rendered SVG diagram by scanning the live project structure, including Rust workspace crates, dependencies, and agentic skills.
+Generates a human-friendly overview infographic showing what the project is, how to get started, what's inside, and how it all connects.
 
 ## When to Use
 
-- User asks to update / regenerate / sync the architecture diagram.
-- Crates in the Rust workspace have been added, removed, or their dependencies changed.
-- Skills, agents, or commands have changed.
+- User asks to update / regenerate / sync the overview diagram.
+- Crates, skills, scripts, or workflows have changed.
 - First-time setup (diagram doesn't exist yet).
 
 ## Execution
 
 ### Step 1 — Locate Project Root
 
-Use the bash tool to find the project root (directory containing `.agents/` and `Cargo.toml`):
-
 ```bash
-pwd
 ls .agents/ Cargo.toml 2>/dev/null || echo "NOT_FOUND"
 ```
 
-### Step 2 — Run the Generator Script
-
-Run the script from the project root:
+### Step 2 — Generate the Diagram
 
 ```bash
-python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
+python .agents/skills/architecture-diagram/scripts/generate_overview.py \
   --root . \
-  --out .template/architecture.excalidraw \
-  --svg-out .template/architecture.svg
+  --out .template/overview.excalidraw \
+  --svg-out .template/overview.svg
 ```
 
-The script auto-discovers:
-- **Rust Workspace** → Parses `Cargo.toml` and uses `cargo metadata` to map crate dependencies and features.
-- **Skills** → `.agents/skills/*/SKILL.md` (reads `name:` from frontmatter).
-- **Agents** → `.opencode/agents/*.md` (uses filename stem).
-- **Commands** → `.opencode/commands/*.md` (uses filename stem, strips leading `/`).
+The script auto-discovers at runtime:
+- **Workspace crates** → `cargo metadata` (with Cargo.toml glob fallback)
+- **AI skills** → `.agents/skills/*/` directories
+- **Commands** → `.opencode/commands/*.md`
 
-**Default mode (Excalidraw):**
-1. Generates `.template/architecture.excalidraw` (editable source)
-2. Exports `.template/architecture.svg` via Node.js (`@excalidraw/utils`)
-3. Requires Node.js for SVG export
-
-**Legacy SVG mode** (no Node.js required):
+### Step 3 — Sync to Docs
 
 ```bash
-python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
-  --root . --legacy-svg --out .template/architecture.svg
+cp .template/overview.svg docs/src/overview.svg
 ```
 
-**Layout engine:**
-- With Graphviz installed: uses `dot` for auto-layout — nodes placed by dependency hierarchy, edges routed orthogonally.
-- Without Graphviz (or with `--no-graphviz`): falls back to an enhanced grid layout with obstacle-avoiding edge routing.
-- Overlap detection runs post-layout and pushes apart any colliding elements.
-
-### Step 3 — Confirm and Report
+### Step 4 — Confirm and Report
 
 After the script exits:
 1. Tell the user the output path.
-2. Report counts: N crates · M skills · K agents · L commands.
-3. If counts differ from the last known state, summarize what changed (e.g., "Added `new-crate`, removed `old-skill`").
+2. Report counts: N crates · M skills.
+3. If counts differ from the last known state, summarize what changed.
 
 ## Output
 
-- `.template/architecture.excalidraw` — editable Excalidraw source of truth
-- `.template/architecture.svg` — generated SVG for README embedding
-
-The SVG embeds in GitHub README without changes:
-`![Architecture](.template/architecture.svg)`
+- `.template/overview.excalidraw` — editable Excalidraw source
+- `.template/overview.svg` — generated SVG for docs embedding
 
 ## Optional Dependencies
 
-### Node.js (for SVG export from Excalidraw)
+### Node.js (for SVG export)
 
-Required only when using default Excalidraw mode:
+Required for SVG/PNG export from Excalidraw:
 
 ```bash
 npm ci
 ```
 
-### Graphviz (for optimal layout)
-
-For optimal layout (auto-positioned nodes, orthogonal edge routing), install Graphviz:
-
-```bash
-# macOS
-brew install graphviz
-
-# Ubuntu/Debian
-sudo apt install graphviz
-
-# Verify
-dot -V
-```
-
-Without Graphviz, the script uses an enhanced grid layout with obstacle-avoiding arrows. Both modes produce overlap-free, readable diagrams.
-
-## Customization
-
-The script reads an optional `docs/diagram-config.json` if present:
-
-```json
-{
-  "title": "Project Architecture",
-  "project_name": "My Project",
-  "author": "maintainer",
-  "pipeline_stages": [
-    {"name": "build", "color": "teal"},
-    {"name": "test", "color": "blue"},
-    {"name": "deploy", "color": "green"}
-  ]
-}
-```
+Without Node.js, use `--no-export` to generate only the `.excalidraw` source.
 
 ## CLI Flags
 
 | Flag | Description |
 |------|-------------|
 | `--root PATH` | Workspace root (default: `.`) |
-| `--format excalidraw\|svg` | Output format (default: `excalidraw`) |
-| `--out PATH` | Primary output path |
-| `--svg-out PATH` | SVG export path (default: `.template/architecture.svg`) |
+| `--out PATH` | Excalidraw output path (default: `.template/overview.excalidraw`) |
+| `--svg-out PATH` | SVG export path (default: `.template/overview.svg`) |
 | `--png-out PATH` | PNG export path (optional) |
 | `--no-export` | Skip SVG/PNG export (Excalidraw only) |
-| `--legacy-svg` | Direct SVG generation via Python (no Node.js) |
-| `--no-graphviz` | Force grid layout |
 
 ## Rationalizations
 
 | Rationalization | Reality |
 |-----------------|---------|
-| "The diagram is close enough, no need to regenerate" | Stale diagrams mislead new contributors and mask architectural drift, especially in complex Rust workspaces. |
-| "I'll update the diagram manually in an editor" | Manual SVG edits break on next regeneration and introduce inconsistencies between code and docs. |
-| "Architecture diagrams are just decoration" | Diagrams are the primary onboarding tool for understanding system structure and crate layering. |
+| "The overview is close enough, no need to regenerate" | Stale diagrams mislead new contributors about project structure. |
+| "I'll update the diagram manually" | Manual edits break on next regeneration and introduce inconsistencies. |
 
 ## Red Flags
 
-- [ ] Committing workspace changes without regenerating the diagram.
+- [ ] Committing workspace changes without regenerating the overview.
 - [ ] Manually editing the SVG instead of using the generator script.
-- [ ] Ignoring diagram regeneration when adding/removing crates or skills.

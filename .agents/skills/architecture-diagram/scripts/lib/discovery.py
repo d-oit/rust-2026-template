@@ -47,6 +47,36 @@ def discover_commands(root: Path) -> list[str]:
     )
 
 
+def _discover_crates_from_cargo_toml(root: Path) -> list[dict]:
+    """Fallback: parse workspace members from Cargo.toml without cargo binary."""
+    cargo = root / "Cargo.toml"
+    if not cargo.exists():
+        return []
+    txt = cargo.read_text(encoding="utf-8")
+    m = re.search(r"members\s*=\s*\[([^\]]*)\]", txt, re.S)
+    if not m:
+        return []
+    crates = []
+    for pat in re.findall(r'"([^"]+)"', m.group(1)):
+        for p in root.glob(pat):
+            ct = p / "Cargo.toml"
+            if ct.exists():
+                ctxt = ct.read_text(encoding="utf-8")
+                nm = re.search(r'^name\s*=\s*"([^"]+)"', ctxt, re.M)
+                vm = re.search(r'^version\s*=\s*"([^"]+)"', ctxt, re.M)
+                dm = re.search(r'^description\s*=\s*"([^"]+)"', ctxt, re.M)
+                feats = re.findall(r'^(\w[\w-]*)\s*=', ctxt, re.M)
+                feats = [f for f in feats if f not in ("default", "full", "features", "dependencies", "dev-dependencies", "build-dependencies", "workspace")]
+                crates.append({
+                    "name": nm.group(1) if nm else p.name,
+                    "version": vm.group(1) if vm else "0.0.0",
+                    "dependencies": [],
+                    "features": sorted(set(feats))[:4],
+                    "description": dm.group(1) if dm else "",
+                })
+    return sorted(crates, key=lambda x: x["name"])
+
+
 def discover_crates(root: Path) -> list[dict]:
     try:
         result = subprocess.run(  # nosec B603
@@ -70,14 +100,14 @@ def discover_crates(root: Path) -> list[dict]:
                 })
         return sorted(crates, key=lambda x: x["name"])
     except FileNotFoundError:
-        print("Warning: 'cargo' not found on PATH — diagram will use placeholder workspace", file=sys.stderr)
-        return []
+        print("Warning: 'cargo' not found on PATH — falling back to Cargo.toml glob", file=sys.stderr)
+        return _discover_crates_from_cargo_toml(root)
     except subprocess.CalledProcessError as e:
-        print(f"Warning: cargo metadata failed (exit {e.returncode}) — diagram will use placeholder workspace", file=sys.stderr)
-        return []
+        print(f"Warning: cargo metadata failed (exit {e.returncode}) — falling back to Cargo.toml glob", file=sys.stderr)
+        return _discover_crates_from_cargo_toml(root)
     except (json.JSONDecodeError, KeyError) as e:
-        print(f"Warning: failed to parse cargo metadata: {e} — diagram will use placeholder workspace", file=sys.stderr)
-        return []
+        print(f"Warning: failed to parse cargo metadata: {e} — falling back to Cargo.toml glob", file=sys.stderr)
+        return _discover_crates_from_cargo_toml(root)
 
 
 def discover_error_types(root: Path) -> list[dict]:

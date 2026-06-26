@@ -1,544 +1,119 @@
 [
   {
-    "id": "excalidraw-generation",
-    "prompt": "Generate the architecture diagram in Excalidraw format",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON file written to .template/architecture.excalidraw with valid schema",
-    "assertions": [
-      {
-        "type": "file_exists",
-        "path": ".template/architecture.excalidraw"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"type\": \"excalidraw\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"version\": 2"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"elements\""
-      }
-    ]
-  },
-  {
-    "id": "excalidraw-crate-elements",
-    "prompt": "Generate the Excalidraw diagram and verify all workspace crates are present",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON contains text elements for all workspace crates",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "rust-2026-template"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "sample-app"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "benchmarks"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "hybrid-storage-template"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "mcp-server-template"
-      }
-    ]
-  },
-  {
-    "id": "excalidraw-sections",
-    "prompt": "Generate the Excalidraw diagram and verify all sections exist",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON contains text elements for all workspace crates and layer labels",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"text\": \"SYSTEM ARCHITECTURE\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"text\": \"APPLICATIONS\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"text\": \"CORE LIBRARIES\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"text\": \"TEMPLATE CRATES\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"text\": \"EXAMPLES\""
-      }
-    ]
-  },
-  {
-    "id": "basic-generation",
-    "prompt": "Generate the architecture diagram for this workspace",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG file written to .template/architecture.svg containing workspace topology, crate cards, dependency arrows, skills list, and pipeline stages",
-    "assertions": [
-      {
-        "type": "file_exists",
-        "path": ".template/architecture.svg"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "<svg"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "SYSTEM ARCHITECTURE"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "WORKSPACE TOPOLOGY"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "PIPELINE ORCHESTRATION"
-      }
-    ]
-  },
-  {
-    "id": "crate-discovery",
-    "prompt": "Generate the architecture diagram and verify all workspace crates are discovered",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG contains cards for all workspace crates",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "rust-2026-template"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "sample-app"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "benchmarks"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "hybrid-storage-template"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "mcp-server-template"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "hello-world-example"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "example-crate"
-      }
-    ]
-  },
-  {
-    "id": "no-overlaps",
-    "prompt": "Generate the architecture diagram and verify no overlapping elements",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG cards have non-overlapping bounding boxes, no text is clipped",
-    "assertions": [
-      {
-        "type": "file_exists",
-        "path": ".template/architecture.svg"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "role=\"img\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "aria-label"
-      }
-    ]
-  },
-  {
-    "id": "text-readability",
-    "prompt": "Generate the architecture diagram and verify text is readable (no tiny fonts)",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG uses font-size >= 11px for body text elements (badge labels may use 10px)",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "font-size:11px"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "font-size:12.5px"
-      }
-    ]
-  },
-  {
-    "id": "dependency-arrows",
-    "prompt": "Generate the architecture diagram and verify dependency arrows exist",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG contains dependency arrow paths",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "Dependency: benchmarks depends on rust-2026-template"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "Dependency: benchmarks depends on sample-app"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "Dependency: hello-world-example depends on example-crate"
-      }
-    ]
-  },
-  {
-    "id": "grid-fallback",
-    "prompt": "Generate the architecture diagram with --no-graphviz flag",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --no-graphviz --out .template/architecture.svg",
-    "expected_output": "SVG file written successfully using grid layout fallback",
-    "assertions": [
-      {
-        "type": "file_exists",
-        "path": ".template/architecture.svg"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "WORKSPACE TOPOLOGY"
-      }
-    ]
-  },
-  {
-    "id": "custom-output-path",
-    "prompt": "Generate the architecture diagram to a custom output path",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out /tmp/custom-diagram.svg",
-    "expected_output": "SVG file written to custom path",
-    "assertions": [
-      {
-        "type": "file_exists",
-        "path": "/tmp/custom-diagram.svg"
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/custom-diagram.svg",
-        "value": "<svg"
-      }
-    ]
-  },
-  {
-    "id": "skills-discovery",
-    "prompt": "Generate the diagram and verify skills are discovered from .agents/skills/",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG contains a skills section listing discovered skills",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "ACTIVE SKILLS"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "architecture-diagram"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "anti-ai-slop"
-      }
-    ]
-  },
-  {
-    "id": "accessibility",
-    "prompt": "Generate the diagram and verify accessibility attributes",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG contains ARIA labels, role attributes, and semantic grouping",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "role=\"banner\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "role=\"region\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "role=\"group\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "aria-label=\"System architecture header\""
-      }
-    ]
-  },
-  {
-    "id": "feature-badges",
-    "prompt": "Generate the diagram and verify feature badges are rendered",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG contains feature badges for crates with features",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": ">cli</text>"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": ">mcp</text>"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": ">wasm</text>"
-      }
-    ]
-  },
-  {
-    "id": "pipeline-stages",
-    "prompt": "Generate the diagram and verify all 4 pipeline stages exist",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG contains ANALYZE, VALIDATE, HARDEN, DEPLOY pipeline stages",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "ANALYZE"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "VALIDATE"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "HARDEN"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "DEPLOY"
-      }
-    ]
-  },
-  {
-    "id": "svg-structure",
-    "prompt": "Generate the diagram and verify SVG structure is valid",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --legacy-svg --out .template/architecture.svg",
-    "expected_output": "SVG has proper viewBox, xmlns, and defs section",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "viewBox=\"0 0 1200"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "xmlns=\"http://www.w3.org/2000/svg\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "<defs>"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.svg",
-        "value": "</svg>"
-      }
-    ]
-  },
-  {
-    "id": "excalidraw-schema",
-    "prompt": "Generate the Excalidraw diagram and verify valid JSON schema",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON has correct schema with type, version, source, elements, appState, files",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"source\": \"https://excalidraw.com\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"appState\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"files\": {}"
-      }
-    ]
-  },
-  {
-    "id": "excalidraw-frames",
-    "prompt": "Generate the Excalidraw diagram and verify frames are present",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON contains frame elements for section grouping",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"type\": \"frame\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"children\": ["
-      }
-    ]
-  },
-  {
-    "id": "excalidraw-arrow-bindings",
-    "prompt": "Generate the Excalidraw diagram and verify arrow bindings",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON contains arrows with startBinding and endBinding",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"startBinding\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"endBinding\""
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"endArrowhead\": \"arrow\""
-      }
-    ]
-  },
-  {
-    "id": "excalidraw-labels",
-    "prompt": "Generate the Excalidraw diagram and verify shapes have labels",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON contains rectangles with label property for bound text",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"label\": {"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"fontFamily\": 2"
-      }
-    ]
-  },
-  {
-    "id": "excalidraw-no-roughness",
-    "prompt": "Generate the Excalidraw diagram and verify clean rendering",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --no-export --out .template/architecture.excalidraw",
-    "expected_output": "Excalidraw JSON elements use roughness 0 for clean rendering",
-    "assertions": [
-      {
-        "type": "content_not_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"roughness\": 1"
-      },
-      {
-        "type": "content_contains",
-        "path": ".template/architecture.excalidraw",
-        "value": "\"roughness\": 0"
-      }
-    ]
-  },
-  {
     "id": "overview-excalidraw",
     "prompt": "Generate the overview diagram in Excalidraw format",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out .template/overview.excalidraw",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/test-overview.excalidraw",
     "expected_output": "Overview Excalidraw JSON file with 4 frames and clean rendering",
     "assertions": [
       {
         "type": "file_exists",
-        "path": ".template/overview.excalidraw"
+        "path": "/tmp/test-overview.excalidraw"
       },
       {
         "type": "content_contains",
-        "path": ".template/overview.excalidraw",
+        "path": "/tmp/test-overview.excalidraw",
         "value": "\"type\": \"excalidraw\""
       },
       {
         "type": "content_contains",
-        "path": ".template/overview.excalidraw",
+        "path": "/tmp/test-overview.excalidraw",
         "value": "\"text\": \"GETTING STARTED\""
       },
       {
         "type": "content_contains",
-        "path": ".template/overview.excalidraw",
+        "path": "/tmp/test-overview.excalidraw",
         "value": "\"text\": \"WHAT'S INSIDE\""
       },
       {
         "type": "content_contains",
-        "path": ".template/overview.excalidraw",
+        "path": "/tmp/test-overview.excalidraw",
         "value": "\"text\": \"HOW IT CONNECTS\""
       }
     ]
   },
   {
-    "id": "png-files-exist",
-    "prompt": "Generate diagrams with PNG export",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_diagram.py --root . --out .template/architecture.excalidraw --svg-out .template/architecture.svg --png-out .template/architecture.png && python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --out .template/overview.excalidraw --svg-out .template/overview.svg --png-out .template/overview.png",
-    "expected_output": "PNG files exist for both diagrams",
+    "id": "overview-sections",
+    "prompt": "Generate the overview diagram and verify all 4 sections exist",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/test-overview.excalidraw",
+    "expected_output": "Excalidraw JSON contains WHAT IS THIS, HOW TO START, BY THE NUMBERS, ECOSYSTEM MAP frames",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"WHAT IS THIS?\""
+      },
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"HOW TO START\""
+      },
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"BY THE NUMBERS\""
+      },
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"ECOSYSTEM MAP\""
+      }
+    ]
+  },
+  {
+    "id": "overview-arrows",
+    "prompt": "Generate the overview diagram and verify arrows exist between steps and ecosystem boxes",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/test-overview.excalidraw",
+    "expected_output": "Excalidraw JSON contains arrow elements with startBinding and endBinding",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"type\": \"arrow\""
+      },
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"startBinding\""
+      },
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"endBinding\""
+      }
+    ]
+  },
+  {
+    "id": "overview-frames",
+    "prompt": "Generate the overview diagram and verify frames are present",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/test-overview.excalidraw",
+    "expected_output": "Excalidraw JSON contains frame elements for section grouping",
+    "assertions": [
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"type\": \"frame\""
+      },
+      {
+        "type": "content_contains",
+        "path": "/tmp/test-overview.excalidraw",
+        "value": "\"children\": ["
+      }
+    ]
+  },
+  {
+    "id": "overview-custom-path",
+    "prompt": "Generate the overview diagram to a custom output path",
+    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/custom-overview.excalidraw",
+    "expected_output": "Excalidraw file written to custom path",
     "assertions": [
       {
         "type": "file_exists",
-        "path": ".template/architecture.png"
+        "path": "/tmp/custom-overview.excalidraw"
       },
       {
-        "type": "file_exists",
-        "path": ".template/overview.png"
+        "type": "content_contains",
+        "path": "/tmp/custom-overview.excalidraw",
+        "value": "\"type\": \"excalidraw\""
       }
     ]
   }

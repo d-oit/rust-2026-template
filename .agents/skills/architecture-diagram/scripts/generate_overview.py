@@ -130,10 +130,33 @@ def _frame(name, children):
     }
 
 
+def _discover_workflows(root: Path) -> int:
+    """Count CI workflow files."""
+    wf_dir = root / ".github" / "workflows"
+    if not wf_dir.is_dir():
+        return 0
+    return len(list(wf_dir.glob("*.yml")))
+
+
+def _discover_quality_checks(root: Path) -> int:
+    """Count quality gate sections from quality-gates.sh."""
+    script = root / "scripts" / "quality-gates.sh"
+    if not script.exists():
+        return 0
+    try:
+        import re as _re
+        content = script.read_text(encoding="utf-8")
+        return len(_re.findall(r"^# \d+\.", content, _re.MULTILINE))
+    except Exception:
+        return 0
+
+
 def generate(root: Path) -> dict:
     crates = discover_crates(root)
     skills = discover_skills(root)
     commands = discover_commands(root)
+    workflow_count = _discover_workflows(root)
+    quality_count = _discover_quality_checks(root)
 
     elements = []
 
@@ -226,7 +249,7 @@ def generate(root: Path) -> dict:
         src = step_ids[i]
         tgt = step_ids[i + 1]
         sx_pos = 50 + (i + 1) * (step_w + gap) - gap // 2
-        arr = _arrow(sx_pos - 10, qs_y + 80, src, tgt,
+        arr = _arrow(sx_pos - 10, qs_y + 30 + step_h // 2, src, tgt,
                      points=[[0, 0], [gap, 0]], sc="#adb5bd", sw=2)
         elements.append(arr)
         qs_children.append(arr["id"])
@@ -248,8 +271,8 @@ def generate(root: Path) -> dict:
     stats = [
         (f"{len(crates)}", "Workspace Crates", "Libraries, apps,\nand templates", C["primary"]),
         (f"{len(skills)}", "AI Skills", "Reusable procedures\nfor code agents", C["teal"]),
-        ("4", "Pipeline Stages", "Analyze, validate, harden,\ndeploy automation", C["green"]),
-        ("14", "Quality Checks", "Format, clippy, audit,\ndeny, privacy scan", C["accent"]),
+        (f"{workflow_count}", "CI Workflows", "Automated pipelines\nfor quality and deploy", C["green"]),
+        (f"{quality_count}", "Quality Checks", "Format, clippy, audit,\ndeny, privacy scan", C["accent"]),
     ]
 
     stat_w, stat_h, stat_gap = 260, 130, 20
@@ -288,11 +311,12 @@ def generate(root: Path) -> dict:
     eco_children.append(eco_title["id"])
 
     # Ecosystem boxes
+    scripts_count = len(list((root / "scripts").glob("*.sh"))) if (root / "scripts").is_dir() else 0
     eco_boxes = [
         ("crates/", f"Your code lives here.\n{len(crates)} workspace members\nwith feature flags.", C["primary"], 50),
         (".agents/skills/", f"AI procedures that\nguide coding agents.\n{len(skills)} reusable skills.", C["teal"], 340),
-        (".github/workflows/", "Automated CI/CD.\nRuns on every push.\nSecurity + quality gates.", C["green"], 630),
-        ("scripts/", "Local dev tools.\nQuality gates, bootstrap,\nrelease automation.", C["accent"], 920),
+        (".github/workflows/", f"Automated CI/CD.\n{workflow_count} workflows.\nSecurity + quality gates.", C["green"], 630),
+        ("scripts/", f"Local dev tools.\n{scripts_count} shell scripts.\nRelease automation.", C["accent"], 920),
     ]
 
     box_w, box_h = 260, 120
@@ -314,21 +338,21 @@ def generate(root: Path) -> dict:
         elements.append(d)
         eco_children.append(d["id"])
 
-    # Connection arrows
-    connections = [
-        (0, 1, "skills use"),
-        (1, 2, "CI triggers"),
-        (2, 3, "scripts run"),
-        (0, 3, "quality gates"),
-    ]
-    for src_i, tgt_i, label in connections:
-        # Route arrows above the boxes to avoid text overlap
-        arr = _arrow(
-            50 + (src_i + 1) * (box_w + 20) - 10, eco_y + 15,
-            box_ids[src_i], box_ids[tgt_i],
-            points=[[0, 0], [box_w + 20, 0]],
-            sc="#adb5bd", sw=2, label=label,
-        )
+    # Sequential left→right arrows between ADJACENT boxes only (i → i+1).
+    # Arrow origin is placed in the gap between box[i] right edge and box[i+1] left edge.
+    # Using fixed gap = box_x[i+1] - (box_x[i] + box_w) which is 340-50-260=30 for first pair.
+    gap_labels = ["skills use", "CI triggers", "scripts run"]
+    for i in range(len(box_ids) - 1):
+        src_id = box_ids[i]
+        tgt_id = box_ids[i + 1]
+        # Arrow starts at right edge of box i
+        ax = eco_boxes[i][3] + box_w + 2
+        ay = eco_y + 30 + box_h // 2
+        gap_w = eco_boxes[i + 1][3] - ax - 2
+        lbl = gap_labels[i] if i < len(gap_labels) else None
+        arr = _arrow(ax, ay, src_id, tgt_id,
+                     points=[[0, 0], [gap_w, 0]],
+                     sc="#adb5bd", sw=2, label=lbl)
         elements.append(arr)
         eco_children.append(arr["id"])
 

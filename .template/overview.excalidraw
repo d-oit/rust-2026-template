@@ -1097,7 +1097,7 @@
       "id": "a_33",
       "type": "arrow",
       "x": 253,
-      "y": 320,
+      "y": 325,
       "width": 25,
       "height": 1,
       "angle": 0,
@@ -1114,9 +1114,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1670485250,
+      "seed": 1670485255,
       "version": 1,
-      "versionNonce": 1872009166,
+      "versionNonce": 1872009171,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -1150,7 +1150,7 @@
       "id": "a_34",
       "type": "arrow",
       "x": 478,
-      "y": 320,
+      "y": 325,
       "width": 25,
       "height": 1,
       "angle": 0,
@@ -1167,9 +1167,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1729739549,
+      "seed": 1729739554,
       "version": 1,
-      "versionNonce": 1931263465,
+      "versionNonce": 1931263470,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -1203,7 +1203,7 @@
       "id": "a_35",
       "type": "arrow",
       "x": 703,
-      "y": 320,
+      "y": 325,
       "width": 25,
       "height": 1,
       "angle": 0,
@@ -1220,9 +1220,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1809013400,
+      "seed": 1809013405,
       "version": 1,
-      "versionNonce": 2010537316,
+      "versionNonce": 2010537321,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -1256,7 +1256,7 @@
       "id": "a_36",
       "type": "arrow",
       "x": 928,
-      "y": 320,
+      "y": 325,
       "width": 25,
       "height": 1,
       "angle": 0,
@@ -1273,9 +1273,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1868267699,
+      "seed": 1868267704,
       "version": 1,
-      "versionNonce": 2069791615,
+      "versionNonce": 2069791620,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -1449,13 +1449,13 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "11",
+      "text": "10",
       "fontSize": 36,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "11",
+      "originalText": "10",
       "lineHeight": 1.25
     },
     {
@@ -1703,7 +1703,7 @@
       "type": "text",
       "x": 630,
       "y": 465,
-      "width": 19.8,
+      "width": 39.6,
       "height": 45.0,
       "angle": 0,
       "strokeColor": "#2b8a3e",
@@ -1725,13 +1725,13 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "4",
+      "text": "20",
       "fontSize": 36,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "4",
+      "originalText": "20",
       "lineHeight": 1.25
     },
     {
@@ -1739,7 +1739,7 @@
       "type": "text",
       "x": 630,
       "y": 515,
-      "width": 115.50000000000001,
+      "width": 92.4,
       "height": 17.5,
       "angle": 0,
       "strokeColor": "#212529",
@@ -1761,13 +1761,13 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Pipeline Stages",
+      "text": "CI Workflows",
       "fontSize": 14,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Pipeline Stages",
+      "originalText": "CI Workflows",
       "lineHeight": 1.25
     },
     {
@@ -1775,7 +1775,7 @@
       "type": "text",
       "x": 630,
       "y": 538,
-      "width": 290.40000000000003,
+      "width": 277.20000000000005,
       "height": 15.0,
       "angle": 0,
       "strokeColor": "#212529",
@@ -1797,13 +1797,13 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Analyze, validate, harden,\ndeploy automation",
+      "text": "Automated pipelines\nfor quality and deploy",
       "fontSize": 12,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Analyze, validate, harden,\ndeploy automation",
+      "originalText": "Automated pipelines\nfor quality and deploy",
       "lineHeight": 1.25
     },
     {
@@ -1863,13 +1863,13 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "14",
+      "text": "13",
       "fontSize": 36,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "14",
+      "originalText": "13",
       "lineHeight": 1.25
     },
     {
@@ -2121,13 +2121,13 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Your code lives here.\n11 workspace members\nwith feature flags.",
+      "text": "Your code lives here.\n10 workspace members\nwith feature flags.",
       "fontSize": 12,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Your code lives here.\n11 workspace members\nwith feature flags.",
+      "originalText": "Your code lives here.\n10 workspace members\nwith feature flags.",
       "lineHeight": 1.25
     },
     {
@@ -2303,7 +2303,7 @@
       "type": "text",
       "x": 645,
       "y": 682,
-      "width": 409.20000000000005,
+      "width": 369.6,
       "height": 15.0,
       "angle": 0,
       "strokeColor": "#212529",
@@ -2325,13 +2325,13 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Automated CI/CD.\nRuns on every push.\nSecurity + quality gates.",
+      "text": "Automated CI/CD.\n20 workflows.\nSecurity + quality gates.",
       "fontSize": 12,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Automated CI/CD.\nRuns on every push.\nSecurity + quality gates.",
+      "originalText": "Automated CI/CD.\n20 workflows.\nSecurity + quality gates.",
       "lineHeight": 1.25
     },
     {
@@ -2405,7 +2405,7 @@
       "type": "text",
       "x": 935,
       "y": 682,
-      "width": 409.20000000000005,
+      "width": 356.40000000000003,
       "height": 15.0,
       "angle": 0,
       "strokeColor": "#212529",
@@ -2427,21 +2427,21 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Local dev tools.\nQuality gates, bootstrap,\nrelease automation.",
+      "text": "Local dev tools.\n26 shell scripts.\nRelease automation.",
       "fontSize": 12,
       "fontFamily": 2,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Local dev tools.\nQuality gates, bootstrap,\nrelease automation.",
+      "originalText": "Local dev tools.\n26 shell scripts.\nRelease automation.",
       "lineHeight": 1.25
     },
     {
       "id": "a_69",
       "type": "arrow",
-      "x": 320,
-      "y": 625,
-      "width": 280,
+      "x": 312,
+      "y": 700,
+      "width": 26,
       "height": 1,
       "angle": 0,
       "strokeColor": "#adb5bd",
@@ -2457,9 +2457,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1696257353,
+      "seed": 1695394308,
       "version": 1,
-      "versionNonce": 1897781269,
+      "versionNonce": 1896918224,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -2471,7 +2471,7 @@
           0
         ],
         [
-          280,
+          26,
           0
         ]
       ],
@@ -2497,9 +2497,9 @@
     {
       "id": "a_70",
       "type": "arrow",
-      "x": 600,
-      "y": 625,
-      "width": 280,
+      "x": 602,
+      "y": 700,
+      "width": 26,
       "height": 1,
       "angle": 0,
       "strokeColor": "#adb5bd",
@@ -2515,9 +2515,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1780297764,
+      "seed": 1780358240,
       "version": 1,
-      "versionNonce": 1981821680,
+      "versionNonce": 1981882156,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -2529,7 +2529,7 @@
           0
         ],
         [
-          280,
+          26,
           0
         ]
       ],
@@ -2555,9 +2555,9 @@
     {
       "id": "a_71",
       "type": "arrow",
-      "x": 880,
-      "y": 625,
-      "width": 280,
+      "x": 892,
+      "y": 700,
+      "width": 26,
       "height": 1,
       "angle": 0,
       "strokeColor": "#adb5bd",
@@ -2573,9 +2573,9 @@
       "roundness": {
         "type": 2
       },
-      "seed": 1844944234,
+      "seed": 1845928231,
       "version": 1,
-      "versionNonce": 2046468150,
+      "versionNonce": 2047452147,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -2587,7 +2587,7 @@
           0
         ],
         [
-          280,
+          26,
           0
         ]
       ],
@@ -2611,65 +2611,7 @@
       }
     },
     {
-      "id": "a_72",
-      "type": "arrow",
-      "x": 320,
-      "y": 625,
-      "width": 280,
-      "height": 1,
-      "angle": 0,
-      "strokeColor": "#adb5bd",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 0,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": null,
-      "roundness": {
-        "type": 2
-      },
-      "seed": 1696257353,
-      "version": 1,
-      "versionNonce": 1897781269,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          280,
-          0
-        ]
-      ],
-      "startBinding": {
-        "elementId": "eco_crates_",
-        "focus": 0,
-        "gap": 5
-      },
-      "endBinding": {
-        "elementId": "eco_scripts_",
-        "focus": 0,
-        "gap": 5
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false,
-      "label": {
-        "text": "quality gates",
-        "fontSize": 14,
-        "fontFamily": 2
-      }
-    },
-    {
-      "id": "f_73",
+      "id": "f_72",
       "type": "frame",
       "x": 0,
       "y": 0,
@@ -2712,8 +2654,7 @@
         "t_68",
         "a_69",
         "a_70",
-        "a_71",
-        "a_72"
+        "a_71"
       ]
     }
   ],

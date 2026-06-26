@@ -1,14 +1,11 @@
-name: Update Architecture Diagram
+name: Update Overview Diagram
 
 on:
   push:
     paths:
       - "Cargo.toml"
       - "crates/**/Cargo.toml"
-      - "crates/*/src/**/*.rs"
       - ".agents/skills/*/SKILL.md"
-      - ".agents/ORCHESTRATION.md"
-      - "docs/diagram-config.json"
     branches: [main]
   workflow_dispatch:
 
@@ -30,19 +27,8 @@ jobs:
           node-version: "22"
           cache: "npm"
 
-      - name: Install Graphviz
-        run: sudo apt-get install -y graphviz
-
       - name: Install Node dependencies
         run: npm ci
-
-      - name: Regenerate architecture diagram
-        run: |
-          python .agents/skills/architecture-diagram/scripts/generate_diagram.py \
-            --root . \
-            --out .template/architecture.excalidraw \
-            --svg-out .template/architecture.svg \
-            --png-out .template/architecture.png
 
       - name: Regenerate overview diagram
         run: |
@@ -52,15 +38,14 @@ jobs:
             --svg-out .template/overview.svg \
             --png-out .template/overview.png
 
-      - name: Copy SVGs to docs
+      - name: Copy SVG to docs
         run: |
-          cp .template/architecture.svg docs/src/architecture.svg
           cp .template/overview.svg docs/src/overview.svg
 
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet .template/ docs/src/architecture.svg docs/src/overview.svg; then
+          if git diff --quiet .template/ docs/src/overview.svg; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -71,6 +56,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .template/ docs/src/architecture.svg docs/src/overview.svg
-          git commit -m "docs: regenerate diagrams [skip ci]"
+          git add .template/ docs/src/overview.svg
+          git commit -m "docs: regenerate overview diagram [skip ci]"
           git push
