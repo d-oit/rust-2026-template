@@ -15,7 +15,7 @@ and AI agent integration.
 
 ## Overview
 
-<img width="1672" height="941" alt="image" src="https://github.com/user-attachments/assets/2ecff276-0c3d-45da-8912-cafc5066b6f6" />
+![Architecture](.template/architecture.svg)
 
 This template is designed for Rust developers who want to start new projects with best practices baked in. It provides a modular workspace structure, comprehensive quality gates, and built-in support for AI-assisted development.
 
@@ -85,7 +85,7 @@ This repository uses a layered documentation strategy to serve both human develo
 │   ├── mcp-server-template/
 │   └── sample-app/      # Reference application implementing best practices
 ├── examples/            # Example usage of workspace crates
-│   └── hello-world-example/ # Simple hello world example
+│   └── hello_world/ # Simple hello world example
 ├── reports/             # Generated HTML review and analysis output (ignored)
 ├── schema/              # JSON Schema definitions for config/API contracts
 ├── scripts/             # Automation scripts for quality gates and releases

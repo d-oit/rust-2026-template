@@ -1,5 +1,8 @@
 # Agent Coding Contract
 
+> **2026 Best Practice Rust Template** - This is the single canonical instruction file for all AI agents.
+> Tool-specific files (`CLAUDE.md`, `.cursorrules`, etc.) are thin adapters that point here.
+
 ## Quick Reference
 
 | Task | Command |
