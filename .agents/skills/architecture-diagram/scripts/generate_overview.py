@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Generate a compact, modern overview diagram in Excalidraw format.
+"""Generate a compact hand-drawn overview diagram in Excalidraw format.
 
-All text is bound inside elements using Excalidraw's native label property.
-Layout is compact with minimal spacing between sections.
+Text is rendered as separate text elements positioned inside rectangles.
+All elements use roughness=1 for a sketchy hand-drawn look.
 """
 
 import json
@@ -39,27 +39,20 @@ def _seed(s: str) -> int:
         h = (h * 31 + ord(c)) & 0xFFFFFFFF
     return h
 
-def _rect(x, y, w, h, bg=None, stroke="#dee2e6", sw=1, label=None,
-          lfs=14, lac="center", lvc="middle", lc=None, rid=None, rough=1):
+def _rect(x, y, w, h, bg=None, stroke="#dee2e6", sw=1, rid=None):
     bg = bg or C["card"]
-    lc = lc or C["text"]
-    el = {
+    return {
         "id": _id("r"), "type": "rectangle",
         "x": x, "y": y, "width": w, "height": h,
         "angle": 0, "strokeColor": stroke, "backgroundColor": bg,
         "fillStyle": "solid", "strokeWidth": sw, "strokeStyle": "solid",
-        "roughness": rough, "opacity": 100,
+        "roughness": 1, "opacity": 100,
         "groupIds": [], "frameId": rid, "index": None,
         "roundness": {"type": 3}, "seed": _seed(f"r{x}{y}"),
         "version": 1, "versionNonce": _seed(f"rn{x}{y}"),
         "isDeleted": False, "boundElements": None,
         "updated": 1, "link": None, "locked": False,
     }
-    if label:
-        el["label"] = {"text": label, "fontSize": lfs, "fontFamily": 1,
-                        "textAlign": lac, "verticalAlign": lvc,
-                        "strokeColor": lc}
-    return el
 
 def _text(x, y, text, fs=14, color=None, align="left", rid=None):
     color = color or C["text"]
@@ -195,8 +188,7 @@ def generate(root: Path) -> dict:
 
     elements = []
     PAD = 30
-    SECTION_GAP = 8
-    CARD_PAD = 8
+    GAP = 8
 
     # ── HERO ────────────────────────────────────────────────────────────
     hero_children = []
@@ -205,8 +197,8 @@ def generate(root: Path) -> dict:
     elements.append(hero_bg)
     hero_children.append(hero_bg["id"])
 
-    title_text = project_name.replace("-", " ").title()
-    title = _text(PAD + 20, PAD + 12, title_text, fs=28, color=C["primary"])
+    title = _text(PAD + 20, PAD + 12, project_name.replace("-", " ").title(),
+                  fs=28, color=C["primary"])
     elements.append(title)
     hero_children.append(title["id"])
 
@@ -230,14 +222,14 @@ def generate(root: Path) -> dict:
     hero_frame = _frame("HEADER", hero_children)
     elements.append(hero_frame)
 
-    y_cursor = PAD + hero_h + SECTION_GAP
+    y = PAD + hero_h + GAP
 
     # ── GETTING STARTED ─────────────────────────────────────────────────
     qs_children = []
-    qs_title = _text(PAD, y_cursor, "GETTING STARTED", fs=12, color=C["text"])
+    qs_title = _text(PAD, y, "GETTING STARTED", fs=12, color=C["text"])
     elements.append(qs_title)
     qs_children.append(qs_title["id"])
-    y_cursor += 18
+    y += 18
 
     bootstrap_cmd = "./scripts/bootstrap.sh" if (root / "scripts" / "bootstrap.sh").exists() else "cargo build"
     quality_cmd = "./scripts/quality-gates.sh" if list(root.glob("scripts/quality*.sh")) else "cargo clippy"
@@ -250,72 +242,75 @@ def generate(root: Path) -> dict:
         ("5. Release",  f"Tag-triggered CI\npublishes to crates.io",        C["purple"]),
     ]
 
-    step_w = 210
-    step_h = 70
-    step_gap = 12
+    step_w, step_h, step_gap = 210, 70, 12
     sx = PAD
     step_ids = []
     for i, (step_title, desc, color) in enumerate(steps):
         sid = f"step_{i}"
-        card = _rect(sx, y_cursor, step_w, step_h, bg=C["card"], stroke=color, sw=2,
-                     label=f"{step_title}\n{desc}", lfs=12, lac="left", lvc="top", lc=C["text"])
+        card = _rect(sx, y, step_w, step_h, bg=C["card"], stroke=color, sw=2)
         card["id"] = sid
         elements.append(card)
         qs_children.append(sid)
         step_ids.append(sid)
+
+        elements.append(_text(sx + 10, y + 8, step_title, fs=13, color=color))
+        qs_children.append(elements[-1]["id"])
+        elements.append(_text(sx + 10, y + 28, desc, fs=10, color=C["text"]))
+        qs_children.append(elements[-1]["id"])
+
         sx += step_w + step_gap
 
     for i in range(len(step_ids) - 1):
         mid_x = PAD + (i + 1) * (step_w + step_gap) - step_gap // 2
-        arr = _arrow(mid_x - 5, y_cursor + step_h // 2, step_ids[i], step_ids[i + 1],
+        arr = _arrow(mid_x - 5, y + step_h // 2, step_ids[i], step_ids[i + 1],
                      points=[[0, 0], [step_gap, 0]], sc="#adb5bd", sw=2)
         elements.append(arr)
         qs_children.append(arr["id"])
 
     qs_frame = _frame("STEPS", qs_children)
     elements.append(qs_frame)
-    y_cursor += step_h + SECTION_GAP
+    y += step_h + GAP
 
     # ── BY THE NUMBERS ──────────────────────────────────────────────────
     ws_children = []
-    ws_title = _text(PAD, y_cursor, "BY THE NUMBERS", fs=12, color=C["text"])
+    ws_title = _text(PAD, y, "BY THE NUMBERS", fs=12, color=C["text"])
     elements.append(ws_title)
     ws_children.append(ws_title["id"])
-    y_cursor += 18
+    y += 18
 
     stats = [
-        (str(len(crates)),          "Crates",           C["primary"]),
-        (str(len(skills)),          "AI Skills",        C["teal"]),
-        (str(pipeline_count),       "Pipeline Jobs",    C["green"]),
-        (str(quality_count),        "Quality Checks",   C["accent"]),
+        (str(len(crates)),    "Crates",         C["primary"]),
+        (str(len(skills)),    "AI Skills",      C["teal"]),
+        (str(pipeline_count), "Pipeline Jobs",  C["green"]),
+        (str(quality_count),  "Quality Checks", C["accent"]),
     ]
 
-    stat_w = 270
-    stat_h = 65
-    stat_gap = 12
+    stat_w, stat_h, stat_gap = 270, 65, 12
     stat_x = PAD
     for num, label, color in stats:
-        card = _rect(stat_x, y_cursor, stat_w, stat_h, bg=C["card"], stroke=color, sw=2,
-                     label=f"{num}  {label}", lfs=18, lac="center", lvc="middle", lc=color)
-        card["id"] = _id("s")
+        card = _rect(stat_x, y, stat_w, stat_h, bg=C["card"], stroke=color, sw=2)
         elements.append(card)
         ws_children.append(card["id"])
+
+        elements.append(_text(stat_x + stat_w // 2 - len(num) * 5, y + 8, num, fs=22, color=color, align="center"))
+        ws_children.append(elements[-1]["id"])
+        elements.append(_text(stat_x + stat_w // 2 - len(label) * 3, y + 38, label, fs=12, color=C["text"], align="center"))
+        ws_children.append(elements[-1]["id"])
+
         stat_x += stat_w + stat_gap
 
     ws_frame = _frame("STATS", ws_children)
     elements.append(ws_frame)
-    y_cursor += stat_h + SECTION_GAP
+    y += stat_h + GAP
 
     # ── HOW IT CONNECTS ─────────────────────────────────────────────────
     eco_children = []
-    eco_title = _text(PAD, y_cursor, "HOW IT CONNECTS", fs=12, color=C["text"])
+    eco_title = _text(PAD, y, "HOW IT CONNECTS", fs=12, color=C["text"])
     elements.append(eco_title)
     eco_children.append(eco_title["id"])
-    y_cursor += 18
+    y += 18
 
-    box_w = 260
-    box_h = 55
-    box_spacing = 20
+    box_w, box_h, box_spacing = 260, 55, 20
     total_w = len(ecosystem_dirs) * box_w + (len(ecosystem_dirs) - 1) * box_spacing
     bx_start = max(PAD, (1200 - total_w) // 2)
 
@@ -324,13 +319,17 @@ def generate(root: Path) -> dict:
     for i, (label, desc, color) in enumerate(ecosystem_dirs):
         bx = bx_start + i * (box_w + box_spacing)
         bid = f"eco_{i}"
-        card = _rect(bx, y_cursor, box_w, box_h, bg=C["card"], stroke=color, sw=2,
-                     label=f"{label}  —  {desc}", lfs=12, lac="center", lvc="middle", lc=C["text"])
+        card = _rect(bx, y, box_w, box_h, bg=C["card"], stroke=color, sw=2)
         card["id"] = bid
         elements.append(card)
         eco_children.append(bid)
         box_ids.append(bid)
-        box_positions.append((bx, y_cursor, box_w, box_h))
+        box_positions.append((bx, y, box_w, box_h))
+
+        elements.append(_text(bx + 10, y + 8, label, fs=12, color=color))
+        eco_children.append(elements[-1]["id"])
+        elements.append(_text(bx + 10, y + 28, desc, fs=10, color=C["text"]))
+        eco_children.append(elements[-1]["id"])
 
     for idx in range(len(box_ids) - 1):
         src_x, src_y, src_w, _ = box_positions[idx]
