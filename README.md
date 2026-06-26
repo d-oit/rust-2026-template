@@ -1,13 +1,5 @@
 # Rust 2026 Template
 
-[![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/d-oit/rust-2026-template/branch/main/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)](https://www.rust-lang.org)
-[![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
-[![Template Version](https://img.shields.io/badge/version-0.3.2-blue)](.template/CHANGELOG-TEMPLATE.md#032---2026-06-17)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-
 <!-- cargo-sync-readme start -->
 
 A production-ready Rust workspace template with modern tooling, CI/CD,
