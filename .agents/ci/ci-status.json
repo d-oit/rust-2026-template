@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-06-24T12:03:46Z",
-  "commit": "4992c65b006927cf01742aa42b6b3c738532a4af",
+  "timestamp": "2026-06-26T21:44:43Z",
+  "commit": "6a9057ac4f1676d5040b2ad5b99d9c263b8ea53b",
   "branch": "main",
   "jobs": {
     "validate-agents": "success",
@@ -13,7 +13,7 @@
     "security": "success",
     "deny": "success",
     "bench": "success",
-    "version-check": "success",
+    "version-check": "failure",
     "msrv": "success"
   },
   "overall": "success"
