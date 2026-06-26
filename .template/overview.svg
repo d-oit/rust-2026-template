@@ -143,7 +143,7 @@
 <rect x="50" y="450" width="260" height="130" rx="32.5" fill="none" stroke="#4263eb" stroke-width="2"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="70.00" y="501.00" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="70.00" dy="0">10</tspan></text>
+<text x="70.00" y="501.00" font-family="Helvetica, Arial, sans-serif" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="70.00" dy="0">11</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <text x="70.00" y="529.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#212529" text-anchor="start"><tspan x="70.00" dy="0">Workspace Crates</tspan></text>
@@ -204,7 +204,7 @@
 <text x="65.00" y="669.00" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#4263eb" text-anchor="start"><tspan x="65.00" dy="0">crates/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="65.00" y="694.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#212529" text-anchor="start"><tspan x="65.00" dy="0">Your code lives here.</tspan><tspan x="65.00" dy="15">10 workspace members</tspan><tspan x="65.00" dy="15">with feature flags.</tspan></text>
+<text x="65.00" y="694.00" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#212529" text-anchor="start"><tspan x="65.00" dy="0">Your code lives here.</tspan><tspan x="65.00" dy="15">11 workspace members</tspan><tspan x="65.00" dy="15">with feature flags.</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <rect x="340" y="640" width="260" height="120" rx="30" fill="#f8f9fa" stroke="none"/>
