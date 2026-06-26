@@ -16,7 +16,7 @@
 <text x="80.00" y="86.00" font-family="Cascadia, Fira Code, monospace" font-size="36" fill="#4263eb" text-anchor="start"><tspan x="80.00" dy="0">Rust 2026 Template</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="80.00" y="123.00" font-family="Cascadia, Fira Code, monospace" font-size="18" fill="#868e96" text-anchor="start"><tspan x="80.00" dy="0">&lt;!-- cargo-sync-readme start --&gt;</tspan></text>
+<text x="80.00" y="123.00" font-family="Cascadia, Fira Code, monospace" font-size="18" fill="#868e96" text-anchor="start"><tspan x="80.00" dy="0">A production-ready Rust workspace template with modern tooling, CI/CD,</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)" opacity="0.00">
 <rect x="0" y="0" width="100" height="100" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="8 4" rx="4"/>
