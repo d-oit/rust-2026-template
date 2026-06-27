@@ -240,6 +240,33 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_load_version_mismatch() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("version_mismatch.ckpt");
+
+        let header = CheckpointHeader {
+            version: 99, // Mismatched version
+            created_at: SystemTime::UNIX_EPOCH,
+            app_name: "test".to_string(),
+        };
+        let state = TestState { value: 42 };
+
+        use bincode::Options;
+        let options = bincode::options();
+        let state_data = options.serialize(&state).unwrap();
+        let mut combined = options.serialize(&header).unwrap();
+        combined.extend_from_slice(&state_data);
+        std::fs::write(&path, combined).unwrap();
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await;
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(matches!(err, CheckpointError::VersionMismatch { .. }));
+    }
+
+    #[tokio::test]
     async fn test_checkpoint_manager_save_load() {
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("test.ckpt");
