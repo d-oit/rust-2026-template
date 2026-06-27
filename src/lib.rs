@@ -1,5 +1,4 @@
-//! A production-ready Rust workspace template with modern tooling, CI/CD,
-//! and AI agent integration.
+//! A production-ready Rust workspace template with modern tooling, CI/CD and AI agent integration.
 //!
 //! ## Overview
 //!
