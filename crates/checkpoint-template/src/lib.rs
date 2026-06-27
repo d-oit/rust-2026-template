@@ -189,9 +189,17 @@ impl<T: Storable> CheckpointManager<T> {
             )));
         }
 
-        if header.app_name.chars().any(|c| c.is_control()) {
+        if header.app_name.chars().any(|c| {
+            c.is_control()
+                || matches!(
+                    c,
+                    '\u{200b}'..='\u{200f}'
+                        | '\u{202a}'..='\u{202e}'
+                        | '\u{2066}'..='\u{2069}'
+                )
+        }) {
             return Err(CheckpointError::Serialization(
-                "app_name contains control characters".to_string(),
+                "app_name contains control or Bidi characters".to_string(),
             ));
         }
 
@@ -229,6 +237,33 @@ mod tests {
         fn version() -> u32 {
             1
         }
+    }
+
+    #[tokio::test]
+    async fn test_load_version_mismatch() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("version_mismatch.ckpt");
+
+        let header = CheckpointHeader {
+            version: 99, // Mismatched version
+            created_at: SystemTime::UNIX_EPOCH,
+            app_name: "test".to_string(),
+        };
+        let state = TestState { value: 42 };
+
+        use bincode::Options;
+        let options = bincode::options();
+        let state_data = options.serialize(&state).unwrap();
+        let mut combined = options.serialize(&header).unwrap();
+        combined.extend_from_slice(&state_data);
+        std::fs::write(&path, combined).unwrap();
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await;
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(matches!(err, CheckpointError::VersionMismatch { .. }));
     }
 
     #[tokio::test]
@@ -346,7 +381,37 @@ mod tests {
 
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
-        assert!(err.contains("control characters"));
+        assert!(err.contains("control or Bidi characters"));
+    }
+
+    #[tokio::test]
+    async fn test_load_config_app_name_bidi_chars() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("bidi_chars.ckpt");
+
+        let header = CheckpointHeader {
+            version: 1,
+            created_at: SystemTime::UNIX_EPOCH,
+            // Use a Bidi control character (U+202A: LEFT-TO-RIGHT EMBEDDING)
+            app_name: "test\u{202a}app".to_string(),
+        };
+        let state = TestState { value: 42 };
+
+        use bincode::Options;
+        let options = bincode::options();
+        let state_data = options.serialize(&state).unwrap();
+
+        let mut combined = options.serialize(&header).unwrap();
+        combined.extend_from_slice(&state_data);
+
+        std::fs::write(&path, combined).unwrap();
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await;
+
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("control or Bidi characters"));
     }
 
     #[tokio::test]
