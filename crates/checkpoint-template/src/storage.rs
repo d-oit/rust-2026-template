@@ -54,17 +54,19 @@ impl FileStorage {
         use bincode::Options;
         let options = bincode::options();
 
-        let combined: Vec<u8> = options
+        // Security (2026): Write header and data sequentially to avoid large intermediate Vec
+        let header_bytes = options
             .serialize(header)
-            .map_err(|_| StorageError::Serialization)?
-            .into_iter()
-            .chain(data.iter().copied())
-            .collect();
+            .map_err(|_| StorageError::Serialization)?;
 
         let mut file = fs::File::create(&temp_path)
             .await
             .map_err(StorageError::Io)?;
-        file.write_all(&combined).await.map_err(StorageError::Io)?;
+
+        file.write_all(&header_bytes)
+            .await
+            .map_err(StorageError::Io)?;
+        file.write_all(data).await.map_err(StorageError::Io)?;
         file.sync_all().await.map_err(StorageError::Io)?;
 
         fs::rename(&temp_path, &final_path)
@@ -128,8 +130,8 @@ impl FileStorage {
 
         let payload_start =
             usize::try_from(cursor.position()).map_err(|_| StorageError::Serialization)?;
-        let payload = data[payload_start..].to_vec();
-        Ok((header, payload))
+        data.drain(..payload_start);
+        Ok((header, data))
     }
 
     /// Load checkpoint data using default limit (10MB).
