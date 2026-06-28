@@ -147,7 +147,7 @@ clap = { version = "4", features = ["derive", "env"] }
 async-trait = "0.1" # Required for dyn Trait + async fn (not yet native in Rust 2024)
 tokio-test = "0.4"
 proptest = "1"
-insta = { version = "=1.47.2", features = ["yaml"] }
+insta = { version = "=1.48.0", features = ["yaml"] }
 colored = "3"
 libsql = { version = "0.9", default-features = false }
 rayon = "1"
@@ -158,7 +158,7 @@ wasm-bindgen-futures = "0.4"
 console_error_panic_hook = "0.1"
 tracing-opentelemetry = "0.33"
 opentelemetry = "0.32"
-rmcp = { version = "=1.7.0", features = ["server", "macros"] }
+rmcp = { version = "=1.8.0", features = ["server", "macros"] }
 
 # ─── Build profiles ───────────────────────────────────────────────────────────
 [profile.dev]
