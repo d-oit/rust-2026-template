@@ -38,3 +38,5 @@ lint = "clippy --workspace --all-targets --all-features -- -D warnings"
 release-check = "semver-checks check-release"
 # Dependency audit
 audit-check = "deny check"
+# Roast Scorer
+roast = "run --example roast-scorer"

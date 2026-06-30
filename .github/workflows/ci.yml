@@ -348,9 +348,27 @@ jobs:
         run: cargo check --workspace
 
   # ───────────────────────────────────────────────────
+  roast:
+    name: Roast Scorer
+    needs: [validate-agents, lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
+      - uses: ./.github/actions/setup-rust
+      - name: Run Roast Scorer
+        run: ./scripts/roast-scorer.sh
+      - name: Upload Roast Report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: roast-report
+          path: reports/roast-report.json
+
+  # ───────────────────────────────────────────────────
   ci-success:
     name: CI Success
-    needs: [validate-agents, lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv]
+    needs: [validate-agents, lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv, roast]
     runs-on: ubuntu-latest
     if: always()
     permissions:
@@ -384,7 +402,8 @@ jobs:
               "deny": "${{ needs.deny.result }}",
               "bench": "${{ needs.bench.result }}",
               "version-check": "${{ needs.version-check.result }}",
-              "msrv": "${{ needs.msrv.result }}"
+            "msrv": "${{ needs.msrv.result }}",
+            "roast": "${{ needs.roast.result }}"
             },
             "overall": "${{ job.status }}"
           }
@@ -412,6 +431,11 @@ jobs:
           else
             STATUS_BENCH="❌ failed"
           fi
+          if [[ "${{ needs.roast.result }}" == "success" || "${{ needs.roast.result }}" == "skipped" ]]; then
+            STATUS_ROAST="✅ success"
+          else
+            STATUS_ROAST="❌ failed"
+          fi
 
           cat > .agents/ci/ci-summary.md << EOF
           # CI Status Summary
@@ -428,6 +452,7 @@ jobs:
           | test | $STATUS_TEST |
           | security | $STATUS_SECURITY |
           | bench | $STATUS_BENCH |
+          | roast | $STATUS_ROAST |
 
           ## Known Issues
           - None
@@ -469,6 +494,7 @@ jobs:
             "${{ needs.bench.result }}"
             "${{ needs.version-check.result }}"
             "${{ needs.msrv.result }}"
+            "${{ needs.roast.result }}"
           )
           for res in "${results[@]}"; do
             if [[ "$res" == "failure" || "$res" == "cancelled" ]]; then

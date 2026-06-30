@@ -383,6 +383,21 @@ fi
 printf "\n"
 
 # ============================================================
+# 15. ROAST SCORER
+# ============================================================
+info "Running Roast Scorer..."
+if [[ -f "./scripts/roast-scorer.sh" ]]; then
+  if ./scripts/roast-scorer.sh; then
+    pass "Roast Scorer: PASSED"
+  else
+    fail "Roast Scorer: FAILED (Score below threshold)"
+  fi
+else
+  warn "Roast Scorer: scripts/roast-scorer.sh not found"
+fi
+printf "\n"
+
+# ============================================================
 # SUMMARY
 # ============================================================
 if [[ $FAILED -ne 0 ]]; then
