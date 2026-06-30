@@ -368,7 +368,20 @@ jobs:
   # ───────────────────────────────────────────────────
   ci-success:
     name: CI Success
-    needs: [validate-agents, lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv, roast]
+    needs:
+      - validate-agents
+      - lint
+      - shellcheck
+      - gitleaks
+      - fmt
+      - clippy
+      - test
+      - security
+      - deny
+      - bench
+      - version-check
+      - msrv
+      - roast
     runs-on: ubuntu-latest
     if: always()
     permissions:
