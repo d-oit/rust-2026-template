@@ -17,10 +17,9 @@ if [[ -t 1 ]] && [[ "${FORCE_COLOR:-}" != "0" ]]; then
 else
   RED=''
   GREEN=''
-  YELLOW=''
-  BLUE=''
   NC=''
 fi
+
 
 # --- State ---
 declare -A SCORES

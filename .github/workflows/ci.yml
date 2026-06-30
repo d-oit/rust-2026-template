@@ -350,7 +350,19 @@ jobs:
   # ───────────────────────────────────────────────────
   roast:
     name: Roast Scorer
-    needs: [validate-agents, lint, shellcheck, gitleaks, fmt, clippy, test, security, deny, bench, version-check, msrv]
+    needs:
+      - validate-agents
+      - lint
+      - shellcheck
+      - gitleaks
+      - fmt
+      - clippy
+      - test
+      - security
+      - deny
+      - bench
+      - version-check
+      - msrv
     if: always()
     runs-on: ubuntu-latest
     steps:
