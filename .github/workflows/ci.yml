@@ -197,6 +197,11 @@ jobs:
         with:
           components: clippy
       - uses: ./.github/actions/setup-rust
+        # Clippy is the only job where a failed run can poison the cache
+        # with stale `.fingerprint/` metadata. Disable cache-on-failure
+        # only for this job; other jobs keep the safe `true` default.
+        with:
+          cache-on-failure: false
       # `cargo clean -p` only removes compiled artifacts, NOT the
       # `.fingerprint/` directory that Rust 1.66+ uses to cache and replay
       # clippy diagnostics for example/test targets that have been removed.
