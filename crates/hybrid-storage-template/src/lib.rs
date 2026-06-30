@@ -28,9 +28,12 @@
 //! - Cache layer with TTL
 //! - Feature-gated backend selection
 
+#![forbid(unsafe_code)]
+
 pub mod backends;
 
-use async_trait::async_trait;
+use std::future::Future;
+use std::pin::Pin;
 use std::sync::Arc;
 use thiserror::Error;
 
@@ -59,19 +62,31 @@ pub enum StorageError {
 }
 
 /// Backend trait for storage implementations.
-#[async_trait]
 pub trait Backend: Send + Sync {
     /// Get a value by key.
-    async fn get(&self, key: &str) -> Result<Option<String>, StorageError>;
+    fn get(
+        &self,
+        key: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<String>, StorageError>> + Send + '_>>;
 
     /// Set a value by key.
-    async fn set(&self, key: &str, value: &str) -> Result<(), StorageError>;
+    fn set(
+        &self,
+        key: &str,
+        value: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + '_>>;
 
     /// Delete a value by key.
-    async fn delete(&self, key: &str) -> Result<bool, StorageError>;
+    fn delete(
+        &self,
+        key: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<bool, StorageError>> + Send + '_>>;
 
     /// List keys matching prefix.
-    async fn list_keys(&self, prefix: &str) -> Result<Vec<String>, StorageError>;
+    fn list_keys(
+        &self,
+        prefix: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<Vec<String>, StorageError>> + Send + '_>>;
 }
 
 /// Hybrid storage combining multiple backends.
@@ -109,6 +124,8 @@ impl Default for HybridStorage {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::*;
     use backends::MemoryBackend;
 

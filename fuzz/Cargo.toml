@@ -12,9 +12,10 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 rust-2026-template = { path = ".." }
+sample-app = { path = "../crates/sample-app" }
 
 [[bin]]
-name = "fuzz_parse_input"
-path = "fuzz_targets/fuzz_parse_input.rs"
+name = "fuzz_sanitize"
+path = "fuzz_targets/fuzz_sanitize.rs"
 test = false
 doc = false

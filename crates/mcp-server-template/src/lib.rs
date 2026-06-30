@@ -28,6 +28,8 @@
 //! - Request/response validation
 //! - JSON schema generation
 
+#![forbid(unsafe_code)]
+
 pub mod tool;
 pub mod tools;
 
@@ -138,6 +140,8 @@ impl Default for McpServer {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::*;
     use serde_json::Value;
 

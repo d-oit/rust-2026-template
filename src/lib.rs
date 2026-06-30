@@ -23,13 +23,7 @@
 //! assert_eq!(result, 5);
 //! ```
 
-// For library crates where docs.rs is the primary surface, you can instead
-// make README.md the source of truth and include it directly:
-//
-// #![doc = include_str!("../README.md")]
-//
-// This is stable since Rust 1.54. The README renders verbatim on docs.rs.
-// Use this OR cargo-sync-readme — not both.
+#![forbid(unsafe_code)]
 
 /// Adds two numbers together.
 ///

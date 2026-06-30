@@ -1,13 +1,13 @@
 //! Example tool implementations.
 
 use super::tool::{Tool, ToolError, ToolRequest, ToolResponse};
-use async_trait::async_trait;
 use serde_json::Value;
+use std::future::Future;
+use std::pin::Pin;
 
 /// Tool that echoes the input back.
 pub struct EchoTool;
 
-#[async_trait]
 impl Tool for EchoTool {
     fn name(&self) -> &'static str {
         "echo"
@@ -24,15 +24,17 @@ impl Tool for EchoTool {
         Ok(())
     }
 
-    async fn handle(&self, request: ToolRequest) -> Result<ToolResponse, ToolError> {
-        Ok(ToolResponse::success(request.input))
+    fn handle(
+        &self,
+        request: ToolRequest,
+    ) -> Pin<Box<dyn Future<Output = Result<ToolResponse, ToolError>> + Send>> {
+        Box::pin(async move { Ok(ToolResponse::success(request.input)) })
     }
 }
 
 /// Calculator tool supporting basic arithmetic.
 pub struct CalcTool;
 
-#[async_trait]
 impl Tool for CalcTool {
     fn name(&self) -> &'static str {
         "calc"
@@ -76,49 +78,56 @@ impl Tool for CalcTool {
         Ok(())
     }
 
-    async fn handle(&self, request: ToolRequest) -> Result<ToolResponse, ToolError> {
-        let obj = request
-            .input
-            .as_object()
-            .ok_or_else(|| ToolError::Execution("Invalid request format".to_string()))?;
+    fn handle(
+        &self,
+        request: ToolRequest,
+    ) -> Pin<Box<dyn Future<Output = Result<ToolResponse, ToolError>> + Send>> {
+        Box::pin(async move {
+            let obj = request
+                .input
+                .as_object()
+                .ok_or_else(|| ToolError::Execution("Invalid request format".to_string()))?;
 
-        let op = obj
-            .get("op")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| ToolError::InvalidInput("Missing op field".to_string()))?;
+            let op = obj
+                .get("op")
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| ToolError::InvalidInput("Missing op field".to_string()))?;
 
-        let a = obj
-            .get("a")
-            .and_then(|v| v.as_f64())
-            .ok_or_else(|| ToolError::InvalidInput("Missing a field".to_string()))?;
+            let a = obj
+                .get("a")
+                .and_then(|v| v.as_f64())
+                .ok_or_else(|| ToolError::InvalidInput("Missing a field".to_string()))?;
 
-        let b = obj
-            .get("b")
-            .and_then(|v| v.as_f64())
-            .ok_or_else(|| ToolError::InvalidInput("Missing b field".to_string()))?;
+            let b = obj
+                .get("b")
+                .and_then(|v| v.as_f64())
+                .ok_or_else(|| ToolError::InvalidInput("Missing b field".to_string()))?;
 
-        let result = match op {
-            "add" => a + b,
-            "sub" => a - b,
-            "mul" => a * b,
-            "div" => {
-                if b == 0.0 {
-                    return Err(ToolError::Execution("Division by zero".to_string()));
+            let result = match op {
+                "add" => a + b,
+                "sub" => a - b,
+                "mul" => a * b,
+                "div" => {
+                    if b == 0.0 {
+                        return Err(ToolError::Execution("Division by zero".to_string()));
+                    }
+                    a / b
                 }
-                a / b
-            }
-            _ => return Err(ToolError::InvalidInput(format!("Unknown operation: {op}"))),
-        };
+                _ => return Err(ToolError::InvalidInput(format!("Unknown operation: {op}"))),
+            };
 
-        let result_num = serde_json::Number::from_f64(result)
-            .ok_or_else(|| ToolError::Execution("Result is not a finite number".to_string()))?;
+            let result_num = serde_json::Number::from_f64(result)
+                .ok_or_else(|| ToolError::Execution("Result is not a finite number".to_string()))?;
 
-        Ok(ToolResponse::success(Value::Number(result_num)))
+            Ok(ToolResponse::success(Value::Number(result_num)))
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::*;
 
     #[tokio::test]

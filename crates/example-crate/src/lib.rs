@@ -7,6 +7,8 @@
 //!
 //! Add this to your workspace member and start building!
 
+#![forbid(unsafe_code)]
+
 /// Returns a greeting string.
 ///
 /// # Examples

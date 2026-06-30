@@ -24,6 +24,8 @@
 //! └─────────────────────────────────────┘
 //! ```
 
+#![forbid(unsafe_code)]
+
 pub mod migration;
 pub mod storage;
 
@@ -38,11 +40,15 @@ pub use migration::MigrationError;
 use storage::{DEFAULT_MAX_CHECKPOINT_SIZE, FileStorage};
 
 /// Checkpoint header stored with each checkpoint file.
+/// Checkpoint header stored with each checkpoint file.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct CheckpointHeader {
+    /// Schema version of the checkpoint.
     pub version: u32,
+    /// Timestamp when the checkpoint was created.
     pub created_at: SystemTime,
+    /// Name of the application that created the checkpoint.
     pub app_name: String,
 }
 
@@ -225,6 +231,8 @@ impl<T: Storable> CheckpointManager<T> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::*;
     use tempfile::TempDir;
 

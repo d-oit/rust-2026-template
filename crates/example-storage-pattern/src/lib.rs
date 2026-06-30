@@ -18,17 +18,33 @@
 //!              your-business-logic (depends only on the trait)
 //! ```
 
-use async_trait::async_trait;
+#![forbid(unsafe_code)]
+
+use std::future::Future;
+use std::pin::Pin;
 
 /// Minimal CRUD surface. Implement this trait for each backend.
 /// Consumer code depends only on `dyn Backend`, never on a concrete type.
-#[async_trait]
 pub trait Backend: Send + Sync {
+    /// The error type returned by backend operations.
     type Error: std::error::Error + Send + Sync + 'static;
 
-    async fn get(&self, key: &str) -> Result<Option<String>, Self::Error>;
-    async fn set(&self, key: &str, value: &str) -> Result<(), Self::Error>;
-    async fn delete(&self, key: &str) -> Result<bool, Self::Error>;
+    /// Get a value by key.
+    fn get(
+        &self,
+        key: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<String>, Self::Error>> + Send + '_>>;
+    /// Set a value by key.
+    fn set(
+        &self,
+        key: &str,
+        value: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<(), Self::Error>> + Send + '_>>;
+    /// Delete a value by key.
+    fn delete(
+        &self,
+        key: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<bool, Self::Error>> + Send + '_>>;
 }
 
 /// In-memory mock backend for use in tests. Never use in production.
@@ -38,44 +54,67 @@ pub mod mock {
     use std::collections::HashMap;
     use std::sync::Mutex;
 
+    /// In-memory backend for testing.
     #[derive(Default)]
     pub struct MockBackend(Mutex<HashMap<String, String>>);
 
-    #[derive(Debug, thiserror::Error)]
+    /// Error type for mock backend operations.
+    #[derive(Debug, Clone, thiserror::Error)]
     #[error("mock error: {0}")]
     pub struct MockError(String);
 
-    #[async_trait]
     impl Backend for MockBackend {
         type Error = MockError;
-        async fn get(&self, key: &str) -> Result<Option<String>, MockError> {
-            Ok(self
-                .0
-                .lock()
-                .map_err(|_| MockError("mutex poisoned".into()))?
-                .get(key)
-                .cloned())
+        fn get(
+            &self,
+            key: &str,
+        ) -> Pin<Box<dyn Future<Output = Result<Option<String>, MockError>> + Send + '_>> {
+            let key = key.to_string();
+            Box::pin(async move {
+                Ok(self
+                    .0
+                    .lock()
+                    .map_err(|_| MockError("mutex poisoned".into()))?
+                    .get(&key)
+                    .cloned())
+            })
         }
-        async fn set(&self, key: &str, value: &str) -> Result<(), MockError> {
-            self.0
-                .lock()
-                .map_err(|_| MockError("mutex poisoned".into()))?
-                .insert(key.into(), value.into());
-            Ok(())
+        fn set(
+            &self,
+            key: &str,
+            value: &str,
+        ) -> Pin<Box<dyn Future<Output = Result<(), MockError>> + Send + '_>> {
+            let key = key.to_string();
+            let value = value.to_string();
+            Box::pin(async move {
+                self.0
+                    .lock()
+                    .map_err(|_| MockError("mutex poisoned".into()))?
+                    .insert(key, value);
+                Ok(())
+            })
         }
-        async fn delete(&self, key: &str) -> Result<bool, MockError> {
-            Ok(self
-                .0
-                .lock()
-                .map_err(|_| MockError("mutex poisoned".into()))?
-                .remove(key)
-                .is_some())
+        fn delete(
+            &self,
+            key: &str,
+        ) -> Pin<Box<dyn Future<Output = Result<bool, MockError>> + Send + '_>> {
+            let key = key.to_string();
+            Box::pin(async move {
+                Ok(self
+                    .0
+                    .lock()
+                    .map_err(|_| MockError("mutex poisoned".into()))?
+                    .remove(&key)
+                    .is_some())
+            })
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::{Backend, mock::MockBackend};
 
     #[tokio::test]

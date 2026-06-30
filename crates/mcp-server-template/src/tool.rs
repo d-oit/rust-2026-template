@@ -1,8 +1,9 @@
 //! Tool trait and associated types.
 
-use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::future::Future;
+use std::pin::Pin;
 use thiserror::Error;
 
 /// Request to a tool containing JSON input.
@@ -90,7 +91,6 @@ pub enum ValidationError {
 }
 
 /// Implement this trait for each MCP tool.
-#[async_trait]
 pub trait Tool: Send + Sync {
     /// Returns the tool's unique name.
     fn name(&self) -> &'static str;
@@ -105,10 +105,13 @@ pub trait Tool: Send + Sync {
     }
 
     /// Handle the tool execution.
-    async fn handle(&self, request: ToolRequest) -> Result<ToolResponse, ToolError>;
+    fn handle(
+        &self,
+        request: ToolRequest,
+    ) -> Pin<Box<dyn Future<Output = Result<ToolResponse, ToolError>> + Send>>;
 
     /// Called once at server startup for initialization.
-    async fn init(&self) -> Result<(), ToolError> {
-        Ok(())
+    fn init(&self) -> Pin<Box<dyn Future<Output = Result<(), ToolError>> + Send>> {
+        Box::pin(async { Ok(()) })
     }
 }

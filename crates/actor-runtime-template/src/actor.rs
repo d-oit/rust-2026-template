@@ -15,11 +15,17 @@ pub enum ActorMessage<S: ActorState> {
     /// Process a work item.
     Process(String),
     /// Get current state.
-    GetState { respond_to: mpsc::Sender<S> },
+    GetState {
+        /// Channel to send the state on.
+        respond_to: mpsc::Sender<S>,
+    },
     /// Stop the actor.
     Stop,
     /// Health check ping.
-    Ping { respond_to: mpsc::Sender<()> },
+    Ping {
+        /// Channel to send the response on.
+        respond_to: mpsc::Sender<()>,
+    },
 }
 
 /// Actor handle for external control.
@@ -120,6 +126,8 @@ impl<S: ActorState> Actor<S> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::*;
     use serde::{Deserialize, Serialize};
 
