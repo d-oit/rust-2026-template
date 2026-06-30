@@ -13,17 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `setup-rust` composite action now exposes a `cache-on-failure` input
-  (default `true`); the Clippy job in CI overrides it to `false` so a
-  failed run cannot re-upload poisoned `.fingerprint/` metadata to the
-  rust-cache. Other jobs (Format, Test, Security, deny, Benchmarks, MSRV,
-  Version-check) keep the safe `true` default.
-- `examples/roast-scorer.rs` now uses `Result<(), Box<dyn std::error::Error>>`-
-  returning `main` with `?`-propagation (no `.expect()` calls) and
-  `#![allow(missing_docs)]`, replacing the pre-merge version on
-  `origin/main` that violated `clippy::expect_used` and `missing_docs`
-  under `-D warnings`. Behaviour for callers invoking
-  `cargo run --example roast-scorer` is unchanged.
+- for changes in existing functionality.
 
 ### Deprecated
 
