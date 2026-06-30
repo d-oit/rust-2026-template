@@ -11,6 +11,13 @@ inputs:
     description: Additional rustup components to install
     required: false
     default: ""
+  cache-on-failure:
+    description: >-
+      Whether `Swatinem/rust-cache` should save the cache when the workflow
+      fails. Default `true` (safe for most jobs). Set to `false` for jobs
+      that can poison the cache with stale `.fingerprint/` lint metadata.
+    required: false
+    default: "true"
 
 runs:
   using: composite
@@ -26,7 +33,4 @@ runs:
 
     - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
       with:
-        # Don't save the cache when the workflow fails — otherwise a Clippy
-        # failure leaves phantom `.fingerprint/` metadata in `target/` that
-        # gets re-uploaded, replaying stale diagnostics on the next PR.
-        cache-on-failure: false
+        cache-on-failure: ${{ inputs.cache-on-failure }}
