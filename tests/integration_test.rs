@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
 use rust_2026_template::add;
 
 #[test]

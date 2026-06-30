@@ -17,18 +17,24 @@
 //! | Independent handler tests | harder | easy |
 //! | Adding a new operation | edit central file | add new struct |
 
+#![forbid(unsafe_code)]
+
 use std::collections::HashMap;
 
+/// Errors that can occur during command dispatch.
 #[derive(Debug, thiserror::Error)]
 pub enum DispatchError {
+    /// The command was not found in the registry.
     #[error("unknown command: {0}")]
     Unknown(String),
+    /// The handler returned an error.
     #[error("handler error: {0}")]
     Handler(String),
 }
 
 /// Implement this trait for each command/operation.
 pub trait Handler: Send + Sync {
+    /// Handle a command and return the result.
     fn handle(&self, input: &str) -> Result<String, DispatchError>;
 }
 
@@ -39,10 +45,12 @@ pub struct Registry {
 }
 
 impl Registry {
+    /// Register a handler for the given command name.
     pub fn register(&mut self, name: &'static str, handler: Box<dyn Handler>) {
         self.handlers.insert(name, handler);
     }
 
+    /// Dispatch a command to its registered handler.
     pub fn dispatch(&self, command: &str, input: &str) -> Result<String, DispatchError> {
         self.handlers
             .get(command)
@@ -53,6 +61,7 @@ impl Registry {
 
 // ── Example handlers ──────────────────────────────────────────────────────────
 
+/// Handler that echoes the input back.
 pub struct EchoHandler;
 impl Handler for EchoHandler {
     fn handle(&self, input: &str) -> Result<String, DispatchError> {
@@ -60,6 +69,7 @@ impl Handler for EchoHandler {
     }
 }
 
+/// Handler that reverses the input.
 pub struct ReverseHandler;
 impl Handler for ReverseHandler {
     fn handle(&self, input: &str) -> Result<String, DispatchError> {
@@ -69,6 +79,8 @@ impl Handler for ReverseHandler {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::*;
 
     fn build_registry() -> Registry {

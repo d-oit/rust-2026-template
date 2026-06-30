@@ -15,7 +15,6 @@ mock = []
 
 [dependencies]
 rusqlite = { version = "0.32", optional = true }
-async-trait = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]

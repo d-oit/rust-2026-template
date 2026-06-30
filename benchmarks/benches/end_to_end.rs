@@ -1,10 +1,22 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
 use criterion::{Criterion, criterion_group, criterion_main};
 
-fn bench_end_to_end(c: &mut Criterion) {
-    c.bench_function("end_to_end_placeholder", |b| {
-        b.iter(|| std::hint::black_box(42))
+fn bench_add(c: &mut Criterion) {
+    c.bench_function("add_basic", |b| {
+        b.iter(|| std::hint::black_box(rust_2026_template::add(2, 3)))
     });
 }
 
-criterion_group!(benches, bench_end_to_end);
+fn bench_process_items(c: &mut Criterion) {
+    let mut group = c.benchmark_group("process_items");
+    for count in [10, 100, 1000] {
+        group.bench_function(format!("count_{count}"), |b| {
+            b.iter(|| std::hint::black_box(sample_app::process_items(count, 10000).unwrap()))
+        });
+    }
+    group.finish();
+}
+
+criterion_group!(benches, bench_add, bench_process_items);
 criterion_main!(benches);

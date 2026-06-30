@@ -1,4 +1,7 @@
-use super::*;
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
+use crate::{Args, Config, LogLevel, is_safe_char, load_config, process_items};
+use clap::Parser;
 
 #[test]
 fn test_config_default() {
@@ -95,8 +98,8 @@ fn test_load_config_from_directory() {
 
 #[test]
 fn test_load_config_app_name_too_long() {
-    let temp_dir = std::env::temp_dir();
-    let file_path = temp_dir.join("too_long_config.json");
+    let dir = tempfile::tempdir().unwrap();
+    let file_path = dir.path().join("too_long_config.json");
     let json = r#"{
         "app_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "log_level": "info",
@@ -104,7 +107,7 @@ fn test_load_config_app_name_too_long() {
     }"#;
     std::fs::write(&file_path, json).unwrap();
 
-    let result = load_config(Some(file_path.clone()));
+    let result = load_config(Some(file_path));
     assert!(result.is_err());
     assert!(
         result
@@ -112,14 +115,12 @@ fn test_load_config_app_name_too_long() {
             .to_string()
             .contains("app_name too long")
     );
-
-    let _ = std::fs::remove_file(file_path);
 }
 
 #[test]
 fn test_load_config_app_name_multibyte_too_long() {
-    let temp_dir = std::env::temp_dir();
-    let file_path = temp_dir.join("multibyte_too_long_config.json");
+    let dir = tempfile::tempdir().unwrap();
+    let file_path = dir.path().join("multibyte_too_long_config.json");
     let app_name = format!("{}🦀", "a".repeat(63));
     let json = format!(
         r#"{{
@@ -130,7 +131,7 @@ fn test_load_config_app_name_multibyte_too_long() {
     );
     std::fs::write(&file_path, json).unwrap();
 
-    let result = load_config(Some(file_path.clone()));
+    let result = load_config(Some(file_path));
     assert!(result.is_err());
     assert!(
         result
@@ -138,8 +139,6 @@ fn test_load_config_app_name_multibyte_too_long() {
             .to_string()
             .contains("app_name too long")
     );
-
-    let _ = std::fs::remove_file(file_path);
 }
 
 #[test]

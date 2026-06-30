@@ -62,6 +62,8 @@ impl MigrationRegistry {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::*;
 
     #[test]

@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
 use std::collections::HashMap;
 
 /// Parses `cargo metadata` and returns a map of crate names to their workspace dependency names.

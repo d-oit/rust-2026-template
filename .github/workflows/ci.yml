@@ -197,6 +197,16 @@ jobs:
         with:
           components: clippy
       - uses: ./.github/actions/setup-rust
+      # `cargo clean -p` only removes compiled artifacts, NOT the
+      # `.fingerprint/` directory that Rust 1.66+ uses to cache and replay
+      # clippy diagnostics for example/test targets that have been removed.
+      # Wipe the root crate's fingerprint entries; cargo will rebuild just
+      # the root crate's metadata, leaving dependency caches intact.
+      - name: Clear stale root-crate fingerprint metadata
+        continue-on-error: true
+        run: |
+          set -x
+          find target/.fingerprint -maxdepth 1 -name 'rust-2026-template-*' -print -delete || true
       - name: Clippy (all targets, all features)
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 

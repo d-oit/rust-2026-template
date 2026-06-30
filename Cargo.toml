@@ -12,6 +12,7 @@ version = "0.0.0"
 edition = "2024"
 rust-version = "1.88"
 license = "MIT"
+# TODO: Replace these with your actual project metadata
 authors = ["Your Name"]
 repository = "https://github.com/your-org/your-repo"
 homepage = "https://github.com/your-org/your-repo"
@@ -86,7 +87,7 @@ tracing-json = []
 tracing-opentelemetry = []
 
 [workspace.lints.rust]
-missing_docs = "allow"
+missing_docs = "warn"
 unsafe_code = "forbid"
 dead_code = "allow"
 
@@ -113,9 +114,14 @@ must_use_candidate = "allow"
 
 # Justified allows for template hot-path patterns
 too_many_arguments = "allow"
+# `unwrap_used` / `expect_used` are kept at `warn` so production code surfaces
+# them, but every `#[cfg(test)] mod tests { ... }` and benchmark file opts back
+# in via `#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic,
+# missing_docs)]` at the top — intentional panics and unwraps are idiomatic
+# inside tests.
 type_complexity = "allow"
-unwrap_used = "allow"
-expect_used = "allow"
+unwrap_used = "warn"
+expect_used = "warn"
 panic = "allow"
 print_stdout = "allow"
 print_stderr = "allow"

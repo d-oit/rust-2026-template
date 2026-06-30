@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
 use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use sample_app::{is_safe_char, sanitize_str};
 

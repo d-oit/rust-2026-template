@@ -4,6 +4,8 @@
 pub mod sqlite;
 
 use crate::StorageError;
+use std::future::Future;
+use std::pin::Pin;
 
 /// Memory backend for testing.
 pub struct MemoryBackend {
@@ -25,48 +27,75 @@ impl MemoryBackend {
     }
 }
 
-#[async_trait::async_trait]
 impl crate::Backend for MemoryBackend {
-    async fn get(&self, key: &str) -> Result<Option<String>, StorageError> {
-        Ok(self
-            .data
-            .lock()
-            .map_err(|_| StorageError::Poisoned)?
-            .get(key)
-            .cloned())
+    fn get(
+        &self,
+        key: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<String>, StorageError>> + Send + '_>> {
+        let key = key.to_string();
+        Box::pin(async move {
+            Ok(self
+                .data
+                .lock()
+                .map_err(|_| StorageError::Poisoned)?
+                .get(&key)
+                .cloned())
+        })
     }
 
-    async fn set(&self, key: &str, value: &str) -> Result<(), StorageError> {
-        self.data
-            .lock()
-            .map_err(|_| StorageError::Poisoned)?
-            .insert(key.to_string(), value.to_string());
-        Ok(())
+    fn set(
+        &self,
+        key: &str,
+        value: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + '_>> {
+        let key = key.to_string();
+        let value = value.to_string();
+        Box::pin(async move {
+            self.data
+                .lock()
+                .map_err(|_| StorageError::Poisoned)?
+                .insert(key, value);
+            Ok(())
+        })
     }
 
-    async fn delete(&self, key: &str) -> Result<bool, StorageError> {
-        Ok(self
-            .data
-            .lock()
-            .map_err(|_| StorageError::Poisoned)?
-            .remove(key)
-            .is_some())
+    fn delete(
+        &self,
+        key: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<bool, StorageError>> + Send + '_>> {
+        let key = key.to_string();
+        Box::pin(async move {
+            Ok(self
+                .data
+                .lock()
+                .map_err(|_| StorageError::Poisoned)?
+                .remove(&key)
+                .is_some())
+        })
     }
 
-    async fn list_keys(&self, prefix: &str) -> Result<Vec<String>, StorageError> {
-        Ok(self
-            .data
-            .lock()
-            .map_err(|_| StorageError::Poisoned)?
-            .keys()
-            .filter(|k| k.starts_with(prefix))
-            .cloned()
-            .collect())
+    fn list_keys(
+        &self,
+        prefix: &str,
+    ) -> Pin<Box<dyn Future<Output = Result<Vec<String>, StorageError>> + Send + '_>> {
+        let prefix = prefix.to_string();
+        Box::pin(async move {
+            Ok(self
+                .data
+                .lock()
+                .map_err(|_| StorageError::Poisoned)?
+                .keys()
+                .filter(|k| k.starts_with(&prefix))
+                .cloned()
+                .collect())
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
     use super::*;
     use crate::Backend;
 
