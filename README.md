@@ -1,5 +1,8 @@
 # Rust 2026 Template
 
+[![Version](https://img.shields.io/badge/version-0.3.2-blue.svg)](.template/CHANGELOG-TEMPLATE.md)
+[![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml)
+
 <!-- cargo-sync-readme start -->
 
 A production-ready Rust workspace template with modern tooling, CI/CD and AI agent integration.
