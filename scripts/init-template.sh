@@ -171,8 +171,14 @@ replace_in_file "QWEN.md" 'rust-2026-template' "$PROJECT_NAME"
 
 # --- rewrite README.md ---
 log "Updating README.md"
+# Specific badge-URL rewrites must run BEFORE the generic `rust-2026-template`
+# substitution below, otherwise the generic replace would mangle the badge URLs.
+# The version-badge search pattern is version-flexible (matches any semver) so
+# the script stays correct when the template's own version is bumped.
 replace_in_file "README.md" '# Rust 2026 Template' "# $PROJECT_NAME"
+replace_in_file "README.md" 'version-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*-blue\.svg' "version-$(cat VERSION)-blue.svg"
 replace_in_file "README.md" 'https://github.com/d-oit/rust-2026-template' "$REPO_URL"
+replace_in_file "README.md" 'https://codecov.io/gh/d-oit/rust-2026-template' "https://codecov.io/gh/${REPO}"
 replace_in_file "README.md" 'rust-2026-template' "$PROJECT_NAME"
 
 # --- rewrite CONTRIBUTING.md ---
