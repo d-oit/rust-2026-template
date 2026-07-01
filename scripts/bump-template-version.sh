@@ -6,23 +6,28 @@ set -euo pipefail
 # (e.g. `[0.3.2]: https://...compare/v0.3.1...v0.3.2`). Mirrors the structure
 # of the standard Keep-a-Changelog footer.
 #
-# What this script updates:
-#   1. `.template/CHANGELOG-TEMPLATE.md`
-#      - Promotes `## [Unreleased]` → `## [NEXT] - <DATE>`
-#      - Inserts a fresh `[Unreleased]` skeleton above the new entry
-#      - Updates the `[Unreleased]` diff link to start from the new version
-#      - Adds a new `[NEXT]` link comparing the previous version to the new one
-#   2. `README.md`
-#      - Rewrites the version badge from any semver to `<NEXT>-blue.svg`
-#        (color-flexible; also handles `informational`, `green`, etc.)
+# Design principle: `.template/CHANGELOG-TEMPLATE.md` is the SOLE source of
+# truth for the template's own version. All other files that could otherwise
+# carry a version are intentionally NOT touched, so a `bump-template-version`
+# run mutates exactly one file and produces a clean atomic diff.
 #
-# Files intentionally NOT touched:
-#   - VERSION                   (per-instance init value, stays 0.0.0)
+# What this script updates:
+#   - `.template/CHANGELOG-TEMPLATE.md`:
+#       - Promotes `## [Unreleased]` → `## [NEXT] - <DATE>`
+#       - Inserts a fresh `[Unreleased]` skeleton above the new entry
+#       - Updates the `[Unreleased]` diff link to start from the new version
+#       - Adds a new `[NEXT]` link comparing the previous version to the new one
+#
+# Files intentionally NOT touched (this is the whole point):
+#   - VERSION                   (per-template init value; intentionally stays 0.0.0)
+#   - CHANGELOG.md              (per-template generated-project changelog; intentionally
+#                                stays in its initial skeleton state — derived repos
+#                                own this file via scripts/bump-version.sh)
 #   - Cargo.toml workspace.package.version
-#                                (workspace baseline, stays 0.0.0 — derived
-#                                 repos get their own versioning via
-#                                 scripts/bump-version.sh after init)
-#   - CHANGELOG.md              (per-instance template-skeleton, stays empty)
+#                                (workspace baseline; intentionally stays 0.0.0 —
+#                                 derived repos inherit and bump separately)
+#   - README.md                 (no version badge — the changelog-template IS the
+#                                single source of truth for the template's version)
 #   - rust-toolchain.toml       (toolchain channel, not crate version)
 #   - deny.toml                 (supply-chain policy)
 #
@@ -74,7 +79,6 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
 CHANGELOG="$ROOT/.template/CHANGELOG-TEMPLATE.md"
-README="$ROOT/README.md"
 [[ -f "$CHANGELOG" ]] || die "Changelog not found at $CHANGELOG"
 
 # ── Helper: sed in-place (portable GNU + BSD/macOS) ───────────────────────────
@@ -154,33 +158,14 @@ else
   warn "Would update $CHANGELOG (promote [Unreleased] → [$NEXT_VERSION] - $DATE_OVERRIDE)"
 fi
 
-# ── 2. Update `README.md` version badge ──────────────────────────────────────
-# Color-flexible: matches version-<SEMVER>-<ANYCOLOR>.svg and rewrites to
-# version-<NEXT>-blue.svg. Works for blue, informational, green, yellow, etc.
-if [[ -f "$README" ]]; then
-  BADGE_PATTERN='version-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*-[a-zA-Z][a-zA-Z]*\.svg'
-  BADGE_REPLACE="version-${NEXT_VERSION}-blue.svg"
-
-  if grep -qE "$BADGE_PATTERN" "$README"; then
-    if $EXECUTE; then
-      sedi "s|${BADGE_PATTERN}|${BADGE_REPLACE}|g" "$README"
-      ok "Updated $README (version badge: ${CURRENT_VERSION} → ${NEXT_VERSION})"
-    else
-      warn "Would update $README (version badge: ${CURRENT_VERSION} → ${NEXT_VERSION})"
-    fi
-  else
-    warn "No version badge found in $README (pattern: ${BADGE_PATTERN}) — skipping"
-  fi
-fi
-
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 if $EXECUTE; then
   ok "Template version bumped: $CURRENT_VERSION → $NEXT_VERSION"
   info "Next steps:"
-  echo "  1. Review changes: git diff .template/CHANGELOG-TEMPLATE.md README.md"
+  echo "  1. Review changes: git diff .template/CHANGELOG-TEMPLATE.md"
   echo "  2. Validate:       bash scripts/quality-gates.sh"
-  echo "  3. Commit:         git add .template/CHANGELOG-TEMPLATE.md README.md && \\"
+  echo "  3. Commit:         git add .template/CHANGELOG-TEMPLATE.md && \\"
   echo "                       git commit -m 'chore(template): bump version to $NEXT_VERSION'"
   echo "  4. Tag:            git tag v${NEXT_VERSION} && git push origin main --tags"
 else
