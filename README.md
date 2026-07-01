@@ -2,6 +2,9 @@
 
 [![Version](https://img.shields.io/badge/version-0.3.2-blue.svg)](.template/CHANGELOG-TEMPLATE.md)
 [![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/d-oit/rust-2026-template/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![MSRV](https://img.shields.io/badge/MSRV-1.88-blue.svg)](https://www.rust-lang.org)
 
 <!-- cargo-sync-readme start -->
 
