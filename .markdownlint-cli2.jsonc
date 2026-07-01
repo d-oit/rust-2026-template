@@ -15,9 +15,10 @@
     "MD060": false
   },
   "ignores": [
-    "node_modules/**",
+    "**/node_modules/**",
     ".mimocode/**",
     ".claude/skills/**",
-    ".qwen/skills/**"
+    ".qwen/skills/**",
+    ".opencode/node_modules/**"
   ]
 }
