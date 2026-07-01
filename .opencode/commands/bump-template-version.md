@@ -2,11 +2,16 @@
 
 ## Description
 Bumps the **template** repository's own internal version — the version tracked
-in `.template/CHANGELOG-TEMPLATE.md`'s link footer and reflected in the
-`README.md` version badge. This is **distinct** from the per-repo version
-tracked in `VERSION` / `Cargo.toml` `[workspace.package].version`, which stays
-at `0.0.0` (the init value that derived repos inherit) and is bumped separately
-by `scripts/bump-version.sh` after a repo is initialized via `init-template.sh`.
+in `.template/CHANGELOG-TEMPLATE.md`'s link footer. **This is the SOLE place
+where the template's version lives**, by design — `VERSION`, `CHANGELOG.md`,
+`Cargo.toml [workspace.package].version`, and the `README.md` version badge are
+all kept free of any version number so a `bump-template-version` run mutates
+exactly one file.
+
+The per-repo version that derived repos use (in their own `VERSION` /
+`Cargo.toml [workspace.package].version` / `CHANGELOG.md`) starts at `0.0.0`
+(the init value they inherit) and is bumped separately by
+`scripts/bump-version.sh` after a repo is initialized via `init-template.sh`.
 
 ## When to use
 After merging a batch of template improvements (CI/workflow fixes, new
@@ -17,15 +22,18 @@ template version. Typical cadence: few times per month, not per-PR.
 1. **Pre-flight (required):**
    - Ensure `.template/CHANGELOG-TEMPLATE.md` has a populated `## [Unreleased]`
      section with the changes you want to publish.
-   - Confirm `VERSION` and `Cargo.toml` `[workspace.package].version` are
-     still at `0.0.0` (the script will refuse to touch them, but verify
-     anyway as a sanity check).
+   - Confirm `VERSION`, `CHANGELOG.md`, and `Cargo.toml [workspace.package].version`
+     are still in their initial (untouched) state (`VERSION` = `0.0.0`, the
+     generated-project starter version; `CHANGELOG.md` = empty Keep-a-Changelog
+     skeleton). The script will refuse to touch them, but verify as a sanity
+     check.
 2. **Dry run (always do this first):**
    ```bash
    bash scripts/bump-template-version.sh
    ```
    Default: auto-increments the PATCH component of the current version.
-   Prints exactly which files/lines would change without modifying anything.
+   Prints exactly which lines in `.template/CHANGELOG-TEMPLATE.md` would
+   change without modifying anything.
 3. **Apply:**
    ```bash
    bash scripts/bump-template-version.sh --execute
@@ -35,8 +43,8 @@ template version. Typical cadence: few times per month, not per-PR.
    - `--version=X.Y.Z` to set an explicit version (skips auto-increment).
    - `--date=YYYY-MM-DD` to override today's date in the changelog.
 4. **Review and commit:**
-   - `git diff .template/CHANGELOG-TEMPLATE.md README.md`
-   - `git add .template/CHANGELOG-TEMPLATE.md README.md`
+   - `git diff .template/CHANGELOG-TEMPLATE.md` (should be exactly ONE file)
+   - `git add .template/CHANGELOG-TEMPLATE.md`
    - `git commit -m 'chore(template): bump version to X.Y.Z'`
 5. **Tag and push:**
    ```bash
@@ -44,28 +52,24 @@ template version. Typical cadence: few times per month, not per-PR.
    git push origin main --tags
    ```
 
-## Color-flexibility
-The version badge rewrite is regex-driven:
-`version-<DIGITS>.<DIGITS>.<DIGITS>-<ANYCOLOR>.svg` → `version-<NEXT>-blue.svg`.
-It tolerates `blue`, `informational`, `green`, etc. so a shields.io colour
-change in `README.md` won't break the script.
-
-## What it does NOT touch
-- `VERSION` (per-instance init value, must stay at `0.0.0`)
-- `Cargo.toml` `[workspace.package].version` (workspace baseline)
-- `CHANGELOG.md` (per-instance template skeleton, stays empty)
+## What it does NOT touch (intentionally single-file)
+- `.template/CHANGELOG-TEMPLATE.md` is the **only** file mutated.
+- `VERSION` (kept at `0.0.0` — this is the generated-project starter version, not the template's own)
+- `CHANGELOG.md` (kept in its initial Keep-a-Changelog skeleton state — this is the generated-project changelog, not the template's own)
+- `Cargo.toml` `[workspace.package].version` (workspace baseline; stays `0.0.0` — derived repos inherit and bump locally via `scripts/bump-version.sh`)
+- `README.md` (no version badge — the changelog IS the source of truth)
 - `rust-toolchain.toml` (toolchain channel, not crate version)
 - `deny.toml`, `target/`, `.git/`
 
 ## Goal
-Automate semantic version promotion for the **template infrastructure** (the
-files other repos consume) without colliding with the per-repo versioning
-that derived repos do on their own.
+Keep the **template's own version** atomic to a single file so the diff for
+any `bump-template-version` run is trivially reviewable and reviewable in
+isolation from per-repo version changes.
 
 ## Scope note: template-only
 `scripts/bump-template-version.sh` is **template-infrastructure only**: it
-bumps `.template/CHANGELOG-TEMPLATE.md` and `README.md` on the rust-2026-template
-repo itself. **`init-template.sh` does NOT install this script into derived
+bumps `.template/CHANGELOG-TEMPLATE.md` on the rust-2026-template repo
+itself. **`init-template.sh` does NOT install this script into derived
 repos** — derived repos use `scripts/bump-version.sh` for their own per-repo
 versioning (which lives in `VERSION` / `Cargo.toml [workspace.package].version` /
 their own `CHANGELOG.md`, not in the template's `.template/` directory).
