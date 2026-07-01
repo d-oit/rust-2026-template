@@ -28,16 +28,20 @@ template version. Typical cadence: few times per month, not per-PR.
      skeleton). The script will refuse to touch them, but verify as a sanity
      check.
 2. **Dry run (always do this first):**
+
    ```bash
    bash scripts/bump-template-version.sh
    ```
+
    Default: auto-increments the PATCH component of the current version.
    Prints exactly which lines in `.template/CHANGELOG-TEMPLATE.md` would
    change without modifying anything.
 3. **Apply:**
+
    ```bash
    bash scripts/bump-template-version.sh --execute
    ```
+
    Optional flags:
    - `--minor`, `--major` to bump a non-patch component.
    - `--version=X.Y.Z` to set an explicit version (skips auto-increment).
@@ -47,6 +51,7 @@ template version. Typical cadence: few times per month, not per-PR.
    - `git add .template/CHANGELOG-TEMPLATE.md`
    - `git commit -m 'chore(template): bump version to X.Y.Z'`
 5. **Tag and push:**
+
    ```bash
    git tag vX.Y.Z
    git push origin main --tags
