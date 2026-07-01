@@ -19,3 +19,10 @@ thiserror = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
+
+# `rusqlite` is intentionally declared as the SQLite backend sketch for the
+# `sqlite` feature even though the current trait-only implementation does
+# not yet use it.  Once a real backend is added in a follow-up, drop this
+# ignore entry.
+[package.metadata.cargo-machete]
+ignored = ["rusqlite"]

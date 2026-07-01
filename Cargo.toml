@@ -86,6 +86,15 @@ mcp = ["cli"]
 tracing-json = []
 tracing-opentelemetry = []
 
+# `tokio` is intentionally included here as a demonstration of how an optional
+# workspace dependency pulled in via a feature flag should be declared.  The
+# root crate's `src/lib.rs` is a minimal example and does not currently use
+# tokio itself; downstream binaries that enable `--features cli|mcp` are
+# expected to consume it.  Silence cargo-machete so the demonstration isn't
+# flagged as actually-unused.
+[package.metadata.cargo-machete]
+ignored = ["tokio"]
+
 [workspace.lints.rust]
 missing_docs = "warn"
 unsafe_code = "forbid"
@@ -164,7 +173,9 @@ wasm-bindgen-futures = "0.4"
 console_error_panic_hook = "0.1"
 tracing-opentelemetry = "0.33"
 opentelemetry = "0.32"
-rmcp = { version = "=1.8.0", features = ["server", "macros"] }
+# rmcp removed: the workspace's mcp_server_template crate compiles its server
+# using raw tokio/serde rather than the rmcp framework, so no member
+# consumer remains.  Reintroduce rmcp here when a downstream crate needs it.
 
 # ─── Build profiles ───────────────────────────────────────────────────────────
 [profile.dev]

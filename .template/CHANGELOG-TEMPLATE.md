@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `cargo clippy --all-targets -- -D warnings` (which enforces
   `clippy::expect_used` and `missing_docs`). Behaviour for callers
   invoking `cargo run --example roast-scorer` is unchanged.
+- `hybrid-storage-template`: the `redb` KV backend is now opt-in via
+  `--features kv` (it was previously always compiled because `redb` was a
+  non-optional dependency). To restore prior compile parity, add `kv`
+  to your default features in `Cargo.toml`. The `sqlite` feature
+  (`libsql` backend) remains on by default.
+- `hybrid-storage-template`: dropped unused direct dependencies
+  `serde`, `serde_json`, and `tracing` from the manifest.
 
 ### Deprecated
 
@@ -31,7 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- for now removed features.
+- `mcp-server-template` and the workspace `rmcp` direct dependency.
+  The `rmcp` MCP framework was not used in any in-tree code path (only
+  in a documentation banner comment); enable the root `cli` feature
+  for the demo CLI instead.
+- `fuzz/Cargo.toml`: dropped the unused `rust-2026-template = { path = ".." }`
+  dependency; the fuzz targets only sample the workspace's `sample-app`.
 
 ### Fixed
 
