@@ -195,15 +195,34 @@ impl<T: Storable> CheckpointManager<T> {
             )));
         }
 
-        if header.app_name.chars().any(|c| {
-            c.is_control()
-                || matches!(
-                    c,
-                    '\u{200b}'..='\u{200f}'
-                        | '\u{202a}'..='\u{202e}'
-                        | '\u{2066}'..='\u{2069}'
-                )
-        }) {
+        // Bolt: ASCII printable fast path to bypass UTF-8 decoding for clean strings.
+        let is_invalid = {
+            let bytes = header.app_name.as_bytes();
+            let mut i = 0;
+            while i < bytes.len() {
+                let b = bytes[i];
+                if !(0x20..=0x7E).contains(&b) {
+                    break;
+                }
+                i += 1;
+            }
+
+            if i == bytes.len() {
+                false
+            } else {
+                header.app_name[i..].chars().any(|c| {
+                    c.is_control()
+                        || matches!(
+                            c,
+                            '\u{200b}'..='\u{200f}'
+                                | '\u{202a}'..='\u{202e}'
+                                | '\u{2066}'..='\u{2069}'
+                        )
+                })
+            }
+        };
+
+        if is_invalid {
             return Err(CheckpointError::Serialization(
                 "app_name contains control or Bidi characters".to_string(),
             ));
