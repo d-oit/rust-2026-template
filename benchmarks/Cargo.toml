@@ -28,3 +28,8 @@ harness = false
 name = "sanitization"
 path = "benches/sanitization_bench.rs"
 harness = false
+
+[[bench]]
+name = "checkpoint"
+path = "benches/checkpoint_bench.rs"
+harness = false
