@@ -442,6 +442,30 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_load_config_app_name_safe_unicode() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("safe_unicode.ckpt");
+
+        let header = CheckpointHeader {
+            version: 1,
+            created_at: SystemTime::UNIX_EPOCH,
+            app_name: "safe-🦀-app".to_string(),
+        };
+        let state = TestState { value: 42 };
+
+        use bincode::Options;
+        let options = bincode::options();
+        let state_data = options.serialize(&state).unwrap();
+        let mut combined = options.serialize(&header).unwrap();
+        combined.extend_from_slice(&state_data);
+        std::fs::write(&path, combined).unwrap();
+
+        let manager = CheckpointManager::<TestState>::new(&path);
+        let result = manager.load().await.unwrap();
+        assert_eq!(result, Some(state));
+    }
+
+    #[tokio::test]
     async fn test_with_custom_config() {
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("custom.ckpt");
