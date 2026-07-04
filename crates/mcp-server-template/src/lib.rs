@@ -104,6 +104,20 @@ impl McpServer {
         name: &str,
         request: ToolRequest,
     ) -> Result<ToolResponse, ServerError> {
+        // Security: Validate tool name to prevent log injection and resource exhaustion.
+        const MAX_TOOL_NAME_LEN: usize = 64;
+        if name.len() > MAX_TOOL_NAME_LEN {
+            return Err(ServerError::ToolNotFound(format!(
+                "Tool name too long (max {MAX_TOOL_NAME_LEN})"
+            )));
+        }
+
+        if name.chars().any(|c| c.is_control()) {
+            return Err(ServerError::ToolNotFound(
+                "Tool name contains control characters".to_string(),
+            ));
+        }
+
         let tool = {
             let tools = self.tools.read().await;
             tools
@@ -217,5 +231,25 @@ mod tests {
         let response = ToolResponse::failure("error message".to_string());
         assert!(!response.success);
         assert_eq!(response.result, Value::String("error message".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_execute_tool_name_too_long() {
+        let server = McpServer::new();
+        let name = "a".repeat(65);
+        let request = ToolRequest::new(Value::Null);
+        let result = server.execute_tool(&name, request).await;
+        assert!(matches!(result, Err(ServerError::ToolNotFound(msg)) if msg.contains("too long")));
+    }
+
+    #[tokio::test]
+    async fn test_execute_tool_name_control_chars() {
+        let server = McpServer::new();
+        let name = "tool\nname";
+        let request = ToolRequest::new(Value::Null);
+        let result = server.execute_tool(name, request).await;
+        assert!(
+            matches!(result, Err(ServerError::ToolNotFound(msg)) if msg.contains("control characters"))
+        );
     }
 }

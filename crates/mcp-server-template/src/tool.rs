@@ -8,6 +8,7 @@ use thiserror::Error;
 
 /// Request to a tool containing JSON input.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ToolRequest {
     /// The input value for the tool.
     pub input: Value,
@@ -35,6 +36,7 @@ impl ToolRequest {
 
 /// Response from a tool containing JSON result.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ToolResponse {
     /// The output value from the tool.
     pub result: Value,
@@ -113,5 +115,35 @@ pub trait Tool: Send + Sync {
     /// Called once at server startup for initialization.
     fn init(&self) -> Pin<Box<dyn Future<Output = Result<(), ToolError>> + Send>> {
         Box::pin(async { Ok(()) })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn test_tool_request_deny_unknown_fields() {
+        let json = json!({
+            "input": "test",
+            "unknown_field": "oops"
+        });
+        let result: Result<ToolRequest, _> = serde_json::from_value(json);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("unknown field"));
+    }
+
+    #[test]
+    fn test_tool_response_deny_unknown_fields() {
+        let json = json!({
+            "result": "test",
+            "success": true,
+            "unknown_field": "oops"
+        });
+        let result: Result<ToolResponse, _> = serde_json::from_value(json);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("unknown field"));
     }
 }

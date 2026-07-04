@@ -6,12 +6,8 @@
 # Requires: apt install mold clang  (Ubuntu/Debian)  or  brew install mold (Linuxbrew)
 # If mold is not installed, Rust 1.90+ falls back to rust-lld automatically.
 [target.x86_64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 [target.aarch64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 # ─── macOS: default linker ──────────────────────────────────────────────────
 # macOS's default ld64 is already fast, especially on Apple Silicon.
