@@ -144,6 +144,13 @@ else
 fi
 
 # --- quality gate ---
+log "Checking linker configuration"
+if [[ $DRY_RUN -eq 1 ]]; then
+  ok "Linker check (dry run - would run ./scripts/check-linker.sh)"
+else
+  bash scripts/check-linker.sh
+fi
+
 log "Running quality gate"
 if [[ $DRY_RUN -eq 1 ]]; then
   ok "Quality gate (dry run - would run ./scripts/quality-gates.sh)"

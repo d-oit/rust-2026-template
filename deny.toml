@@ -16,10 +16,7 @@ feature-depth = 1
 [advisories]
 version = 2
 # Deny crates with security vulnerabilities
-ignore = [
-  # paste is unmaintained but is a transitive dep of rmcp (MCP SDK); no replacement available yet
-  { id = "RUSTSEC-2024-0436", reason = "paste is a transitive dep of rmcp; no drop-in replacement" },
-]
+ignore = []
 
 # ============================================================
 # LICENSES - Enforce acceptable licenses (cargo-deny v2 format)

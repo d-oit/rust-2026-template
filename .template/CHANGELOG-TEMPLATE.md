@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
@@ -13,17 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `setup-rust` composite action now exposes a `cache-on-failure` input
-  (default `true`); the Clippy job in CI overrides it to `false` so a
-  failed run cannot re-upload poisoned `.fingerprint/` metadata to the
-  rust-cache. Other jobs (Format, Test, Security, deny, Benchmarks, MSRV,
-  Version-check) keep the safe `true` default.
-- `examples/roast-scorer.rs` uses `Result<(), Box<dyn std::error::Error>>`-
-  returning `main` with `?`-propagation (no `.expect()` calls) and
-  `#![allow(missing_docs)]` so the example compiles under
-  `cargo clippy --all-targets -- -D warnings` (which enforces
-  `clippy::expect_used` and `missing_docs`). Behaviour for callers
-  invoking `cargo run --example roast-scorer` is unchanged.
+- for changes in existing functionality.
 
 ### Deprecated
 
@@ -36,6 +26,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - for any bug fixes.
+
+### Security
+
+- in case of vulnerabilities.
+
+---
+
+## [0.3.3] - 2026-07-01
+
+### Added
+
+- for new features.
+
+### Changed
+
+- `CHANGELOG.md` reset to a clean skeleton (placeholder text only); all
+  template-specific changelog entries now live exclusively in this file
+  (`.template/CHANGELOG-TEMPLATE.md`). The `VERSION` file stays at `0.0.0`
+  as the derived-project starter value.
+- `scripts/bump-version.sh`: aligned the `[Unreleased]` skeleton block to
+  the full 6-section Keep-a-Changelog format (Added/Changed/Deprecated/
+  Removed/Fixed/Security) matching `CHANGELOG.md`; switched from literal
+  `\n` to `printf` for BSD/macOS sed compatibility; changed the new-version
+  diff link to `/compare/` format (Keep-a-Changelog standard) instead of
+  `/releases/tag/`; replaced the hardcoded `d-oit/rust-2026-template` URL
+  with a `your-org/your-repo` placeholder for derived-project genericness;
+  fixed duplicate step numbers in the header comment.
+- `scripts/init-template.sh`: added `release.toml`, `scripts/bump-version.sh`,
+  and `CHANGELOG.md` to the list of files whose placeholder URLs get
+  rewritten during template initialization.
+- `setup-rust` composite action now exposes a `cache-on-failure` input
+  (default `true`); the Clippy job in CI overrides it to `false` so a
+  failed run cannot re-upload poisoned `.fingerprint/` metadata to the
+  rust-cache. Other jobs (Format, Test, Security, deny, Benchmarks, MSRV,
+  Version-check) keep the safe `true` default.
+- `examples/roast-scorer.rs` uses `Result<(), Box<dyn std::error::Error>>`-
+  returning `main` with `?`-propagation (no `.expect()` calls) and
+  `#![allow(missing_docs)]` so the example compiles under
+  `cargo clippy --all-targets -- -D warnings` (which enforces
+  `clippy::expect_used` and `missing_docs`). Behaviour for callers
+  invoking `cargo run --example roast-scorer` is unchanged.
+- `hybrid-storage-template`: the `redb` KV backend is now opt-in via
+  `--features kv` (it was previously always compiled because `redb` was a
+  non-optional dependency). To restore prior compile parity, add `kv`
+  to your default features in `Cargo.toml`. The `sqlite` feature
+  (`libsql` backend) remains on by default.
+- `hybrid-storage-template`: dropped unused direct dependencies
+  `serde`, `serde_json`, and `tracing` from the manifest.
+
+### Deprecated
+
+- for soon-to-be removed features.
+
+### Removed
+
+- `[workspace.dependencies].rmcp` — the `rmcp` MCP framework was not used
+  in any in-tree code path (only in a documentation banner comment). The
+  `crates/mcp-server-template` crate itself remains and now uses raw
+  `tokio`/`serde` for its server implementation.
+- `fuzz/Cargo.toml`: dropped the unused `rust-2026-template = { path = ".." }`
+  dependency; the fuzz targets only sample the workspace's `sample-app`.
+- No-op `mcp` feature flag removed from root `Cargo.toml` — it had no
+  `#[cfg(feature = "mcp")]` in any source file and only aliased `cli`.
+  Stale `rmcp` references cleaned from `Cargo.toml` comments,
+  `mcp-server-template/src/lib.rs` doc diagram, `README.md`, and
+  `docs/src/getting-started.md` feature tables.
+- Stale `RUSTSEC-2024-0436` advisory ignore removed from `deny.toml`
+  (`paste` is no longer a transitive dependency after `rmcp` removal).
+
+### Fixed
+
+- `docs/src/architecture.md`: corrected crate name `hello-world-example` →
+  `hello_world` to match the actual directory name.
 
 ### Security
 
@@ -252,7 +315,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/d-oit/rust-2026-template/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/d-oit/rust-2026-template/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/d-oit/rust-2026-template/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/d-oit/rust-2026-template/compare/v0.2.3...v0.3.0

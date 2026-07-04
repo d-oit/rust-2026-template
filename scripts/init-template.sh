@@ -203,6 +203,18 @@ replace_in_file "MIGRATION.md" 'rust-2026-template' "$PROJECT_NAME"
 log "Updating flake.nix"
 replace_in_file "flake.nix" 'rust-2026-template' "$PROJECT_NAME"
 
+# --- rewrite release.toml ---
+log "Updating release.toml"
+replace_in_file "release.toml" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite scripts/bump-version.sh ---
+log "Updating scripts/bump-version.sh"
+replace_in_file "scripts/bump-version.sh" 'your-org/your-repo' "$REPO"
+
+# --- rewrite CHANGELOG.md link footer ---
+log "Updating CHANGELOG.md"
+replace_in_file "CHANGELOG.md" 'your-org/your-repo' "$REPO"
+
 # --- rewrite llms.txt header ---
 log "Updating llms.txt"
 replace_in_file "llms.txt" 'rust-2026-template' "$PROJECT_NAME"

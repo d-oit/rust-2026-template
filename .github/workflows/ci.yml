@@ -239,7 +239,7 @@ jobs:
         with:
           tool: cargo-nextest,cargo-llvm-cov
       - name: Build workspace
-        run: cargo build --workspace --all-features
+        run: cargo build --workspace --all-features --profile ci
       - name: Generate coverage report
         run: cargo llvm-cov nextest --workspace --all-features --profile ci --lcov --output-path lcov.info
       - name: Run doc tests

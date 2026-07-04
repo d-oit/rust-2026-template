@@ -26,7 +26,7 @@ A human-friendly overview of the project — what it is, how to get started, and
 | Examples | `example-crate` | Basic example crate |
 | | `example-registry-pattern` | Registry dispatch pattern example |
 | | `example-storage-pattern` | Storage abstraction pattern example |
-| | `hello-world-example` | Simple hello world example |
+| | `hello_world` | Simple hello world example |
 
 ## Dependency Flow
 

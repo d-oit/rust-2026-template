@@ -1,11 +1,48 @@
-# .cargo/config.toml
-# WSL2/Linux disk space optimization + fast linker config
-# See: AGENTS.md - Disk Space Management section
+# .cargo/config.toml — Cross-platform linker configuration
+# Works on: Linux, macOS, WSL2, and Windows (MSVC + GNU)
 
-# ─── Linker (Linux/WSL2 only) ───────────────────────────────────────────────
-# Use mold linker for 2-5x faster link times on Linux.
-# Install: apt install mold  OR  cargo install mold
-[target.'cfg(target_os = "linux")']
+# ─── Linux: mold linker via clang ───────────────────────────────────────────
+# mold is the fastest available linker on Linux, ~7x faster than default ld.
+# Requires: apt install mold clang  (Ubuntu/Debian)  or  brew install mold (Linuxbrew)
+# If mold is not installed, Rust 1.90+ falls back to rust-lld automatically.
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+[target.aarch64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+# ─── macOS: default linker ──────────────────────────────────────────────────
+# macOS's default ld64 is already fast, especially on Apple Silicon.
+# No custom config needed — leaving these targets unconfigured.
+# If you want to experiment with mold on macOS (sold), uncomment:
+# [target.aarch64-apple-darwin]
+# rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/ld64.mold"]
+# [target.x86_64-apple-darwin]
+# rustflags = ["-C", "link-arg=-fuse-ld=/usr/local/bin/ld64.mold"]
+
+# ─── Windows MSVC: rust-lld ─────────────────────────────────────────────────
+# rust-lld ships with the Rust toolchain — no extra install needed.
+# Benchmarks show 2-5x faster linking vs default MSVC link.exe.
+[target.x86_64-pc-windows-msvc]
+linker = "rust-lld"
+
+[target.aarch64-pc-windows-msvc]
+linker = "rust-lld"
+
+# ─── Windows GNU (MinGW): rust-lld ──────────────────────────────────────────
+[target.x86_64-pc-windows-gnu]
+linker = "rust-lld"
+
+[target.aarch64-pc-windows-gnu]
+linker = "rust-lld"
+
+# ─── WSL2 note ──────────────────────────────────────────────────────────────
+# WSL2 uses the Linux x86_64 target, so it benefits from mold automatically.
+# If mold/clang are not installed in your WSL2 distro, either:
+#   1. sudo apt install mold clang
+#   2. Remove the linux target block above — Rust 1.90+ uses rust-lld by default
 
 # ─── Dev profile disk space optimization ────────────────────────────────────
 # Reduces target/ from ~5GB to ~2GB in large workspaces.

@@ -13,21 +13,29 @@ readme = "README.md"
 workspace = true
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
-tracing = { workspace = true }
 
 # Optional backends
-libsql = { workspace = true, optional = true }
-redb = "1"
+libsql = { version = "0.9", default-features = false, optional = true }
+# `redb` is consumed only when `--features kv` is opted in (off by
+# default so downstream template users aren't forced to pay the redb
+# compile cost).  Downstream consumers who want the prior compile
+# parity (redb always linked) should add `kv` to their default features.
+redb = { version = "1", optional = true }
 
 [features]
 default = ["sqlite"]
 sqlite = ["dep:libsql"]
-kv = []
+kv = ["dep:redb"]
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 tempfile = "3"
+
+# `redb` is the backend pulled in by `--features kv`.  cargo-machete's
+# default scan does not enable that feature, so silence the dep via a
+# per-package ignore entry.  (cargo-machete 0.9.x does not yet support
+# --all-features; revisit when it does.)
+[package.metadata.cargo-machete]
+ignored = ["redb"]
