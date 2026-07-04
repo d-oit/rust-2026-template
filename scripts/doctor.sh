@@ -42,6 +42,11 @@ for cmd in cargo-nextest cargo-audit cargo-deny cargo-machete shellcheck markdow
 done
 echo ""
 
+# --- Linker check ---
+echo "Linker configuration:"
+bash "$(dirname "${BASH_SOURCE[0]}")/check-linker.sh" 2>/dev/null || warn "check-linker.sh not found or failed"
+echo ""
+
 # --- Git state ---
 echo "Git state:"
 BRANCH=$(git branch --show-current 2>/dev/null || echo "detached")

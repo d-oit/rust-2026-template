@@ -1,7 +1,10 @@
 ---
-# .pre-commit-config.yaml
+# .pre-commit-config.yaml — Split fast (commit) vs thorough (push)
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+#
+# Install push hooks: pre-commit install --hook-type pre-push
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -15,23 +18,31 @@ repos:
 
   - repo: local
     hooks:
+      # FAST: format check only — runs on every commit
       - id: cargo-fmt
-        name: cargo fmt (harness sensor)
+        name: cargo fmt (fast)
         entry: bash scripts/harness-check.sh fmt
         language: system
         types: [rust]
         pass_filenames: false
+        stages: [pre-commit]
+
+      # THOROUGH: clippy — runs only on push
       - id: cargo-clippy
-        name: cargo clippy (harness sensor)
+        name: cargo clippy (thorough)
         entry: bash scripts/harness-check.sh clippy
         language: system
         types: [rust]
         pass_filenames: false
+        stages: [pre-push]
+
+      # THOROUGH: deny — runs only on push
       - id: cargo-deny
-        name: cargo deny (harness sensor)
+        name: cargo deny (thorough)
         entry: bash scripts/harness-check.sh deny
         language: system
         pass_filenames: false
+        stages: [pre-push]
 
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.21.0

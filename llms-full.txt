@@ -87,21 +87,19 @@ rust-2026-template/
 # Rust 2026 Template
 
 [![CI](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/d-oit/rust-2026-template/branch/main/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)](https://www.rust-lang.org)
-[![Mutation Testing](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml/badge.svg)](https://github.com/d-oit/rust-2026-template/actions/workflows/mutants.yml)
-[![Template Version](https://img.shields.io/badge/version-0.3.2-blue)](.template/CHANGELOG-TEMPLATE.md#032---2026-06-17)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![codecov](https://codecov.io/gh/d-oit/rust-2026-template/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![MSRV](https://img.shields.io/badge/MSRV-1.88-blue.svg)](https://www.rust-lang.org)
+
+**Latest release:** see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) — the changelog is the single source of truth for the template's version history.
 
 <!-- cargo-sync-readme start -->
 
-A production-ready Rust workspace template with modern tooling, CI/CD,
-and AI agent integration.
+A production-ready Rust workspace template with modern tooling, CI/CD and AI agent integration.
 
 ## Overview
 
-![Architecture](.template/architecture.svg)
+![Overview](.template/overview.svg)
 
 This template is designed for Rust developers who want to start new projects with best practices baked in. It provides a modular workspace structure, comprehensive quality gates, and built-in support for AI-assisted development.
 
@@ -170,6 +168,8 @@ This repository uses a layered documentation strategy to serve both human develo
 │   ├── hybrid-storage-template/
 │   ├── mcp-server-template/
 │   └── sample-app/      # Reference application implementing best practices
+├── examples/            # Example usage of workspace crates
+│   └── hello_world/ # Simple hello world example
 ├── reports/             # Generated HTML review and analysis output (ignored)
 ├── schema/              # JSON Schema definitions for config/API contracts
 ├── scripts/             # Automation scripts for quality gates and releases
@@ -197,7 +197,6 @@ The template demonstrates composable feature flags for pluggable backends:
 | `persistence` | Persistence backend (libsql) | No |
 | `parallel` | CPU parallelism (rayon) | No |
 | `wasm` | WASM build target support | No |
-| `mcp` | MCP server support (requires cli) | No |
 | `tracing-json` | JSON tracing output | No |
 | `tracing-opentelemetry` | OpenTelemetry tracing backend | No |
 
@@ -283,6 +282,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Project Structure
 
 - `.agents/skills/`: Executable task knowledge and canonical workflows.
+- `.agents/skills/harness/`: Harness engineering — sensor response protocol and self-correction.
 - `crates/`: Workspace members (libraries and applications).
 - `scripts/`: Development, quality, and release automation.
 - `plans/adr/`: Architecture Decision Records.

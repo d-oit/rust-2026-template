@@ -111,7 +111,6 @@ The template demonstrates composable feature flags for pluggable backends:
 | `persistence` | Persistence backend (libsql) | No |
 | `parallel` | CPU parallelism (rayon) | No |
 | `wasm` | WASM build target support | No |
-| `mcp` | MCP server support (requires cli) | No |
 | `tracing-json` | JSON tracing output | No |
 | `tracing-opentelemetry` | OpenTelemetry tracing backend | No |
 

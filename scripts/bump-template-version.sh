@@ -137,21 +137,27 @@ if $EXECUTE; then
   sedi "s/^## \\[Unreleased\\]/## [${NEXT_VERSION}] - ${DATE_OVERRIDE}/" "$CHANGELOG"
 
   # b) Insert a fresh [Unreleased] skeleton above the new versioned entry.
-  #    Using `printf` instead of literal `\n` escapes — GNU sed interprets
-  #    `\n` in inserted text as newlines, but BSD sed (macOS) treats them
-  #    literally, which would render the block on a single line. `printf`
-  #    expands `\n` at the shell level so both sed variants see real newlines.
-  UNRELEASED_BLOCK=$(printf '## [Unreleased]\n\n### Added\n\n### Changed\n\n### Deprecated\n\n### Removed\n\n### Fixed\n\n### Security\n\n---\n')
-  sedi "/^## \\[${NEXT_VERSION}\\]/i\\\\
-${UNRELEASED_BLOCK}" "$CHANGELOG"
+  #    Using `awk` instead of `sed`'s `i\` insert because the block contains
+  #    lines starting with `-` (the `---` separator) that sed misinterprets as
+  #    commands.  `awk` inserts the block once before `## [NEXT_VERSION]` and
+  #    is portable across GNU and BSD.
+  UNRELEASED_BLOCK=$(printf '## [Unreleased]\n\n### Added\n\n- for new features.\n\n### Changed\n\n- for changes in existing functionality.\n\n### Deprecated\n\n- for soon-to-be removed features.\n\n### Removed\n\n- for now removed features.\n\n### Fixed\n\n- for any bug fixes.\n\n### Security\n\n- in case of vulnerabilities.\n\n---\n\n')
+  awk -v block="$UNRELEASED_BLOCK" -v ver="## [${NEXT_VERSION}]" '
+    index($0, ver) == 1 && !done { printf "%s", block; done=1 }
+    { print }
+  ' "$CHANGELOG" > "${CHANGELOG}.tmp" && mv "${CHANGELOG}.tmp" "$CHANGELOG"
 
   # c) Update the [Unreleased] diff link (compare starts at the new version)
   sedi "s|compare/v${CURRENT_VERSION}\\.\\.\\.HEAD|compare/v${NEXT_VERSION}...HEAD|g" "$CHANGELOG"
 
-  # d) Add the [NEXT_VERSION] link directly below the [Unreleased] link
+  # d) Add the [NEXT_VERSION] link directly below the [Unreleased] link.
+  #    Using `awk` instead of `sed`'s `a\` append because the `[` character
+  #    in the link line is misinterpreted by sed as a command.
   NEW_LINK="[${NEXT_VERSION}]: https://github.com/d-oit/rust-2026-template/compare/v${CURRENT_VERSION}...v${NEXT_VERSION}"
-  sedi "/^\\[Unreleased\\]:/a\\\\
-${NEW_LINK}\\" "$CHANGELOG"
+  awk -v new_link="$NEW_LINK" '
+    { print }
+    /^\[Unreleased\]:/ && !done { print new_link; done=1 }
+  ' "$CHANGELOG" > "${CHANGELOG}.tmp" && mv "${CHANGELOG}.tmp" "$CHANGELOG"
 
   ok "Updated $CHANGELOG ([Unreleased] promoted to [$NEXT_VERSION] - $DATE_OVERRIDE)"
 else

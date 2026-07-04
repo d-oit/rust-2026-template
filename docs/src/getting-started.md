@@ -86,7 +86,6 @@ rust-2026-template = { path = "..", features = ["cli", "persistence"] }
 | `persistence` | SQL persistence backend (libsql) |
 | `parallel` | CPU parallelism (rayon) |
 | `wasm` | WASM build target support |
-| `mcp` | MCP server support (requires cli) |
 | `tracing-json` | JSON tracing output |
 | `tracing-opentelemetry` | OpenTelemetry backend |
 

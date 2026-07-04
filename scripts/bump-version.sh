@@ -7,13 +7,14 @@ set -euo pipefail
 # What this script updates:
 #   1. VERSION             — plain-text version "X.Y.Z" (template starter: 0.0.0)
 #   2. Cargo.toml          — [workspace.package] version = "X.Y.Z"
-#   3. Cargo.lock          — regenerated via `cargo update --workspace`
+#   3. Crate Cargo.toml    — standalone (non-workspace) version lines, if any
 #   4. CHANGELOG.md        — promotes [Unreleased] to [X.Y.Z] and inserts a
 #                            fresh [Unreleased] header; updates diff links
-#   4. README.md           — badge URL containing the old version string
-#   5. Any *.md / *.toml / *.yml / *.yaml / *.json file that contains an
-#      explicit "version = \"OLD\"" or "version: OLD" line that matches the
+#   5. README.md           — badge URL containing the old version string
+#   6. Broad scan          — any *.md / *.toml / *.yml / *.yaml / *.json file
+#      with an explicit "version = \"OLD\"" or "version: OLD" line matching the
 #      workspace version exactly (skips dependency version lines)
+#   7. Cargo.lock          — regenerated via `cargo update --workspace`
 #
 # Files intentionally NOT touched:
 #   - Dependency version specs in [dependencies] / [workspace.dependencies]
@@ -150,20 +151,30 @@ if [[ -f "$CHANGELOG" ]]; then
     # a) Rename ## [Unreleased] → ## [NEXT_VERSION] - DATE
     sedi "s/^## \\[Unreleased\\]/## [${NEXT_VERSION}] - ${TODAY}/" "$CHANGELOG"
 
-    # b) Insert a blank [Unreleased] section above the new versioned entry
-    UNRELEASED_BLOCK="## [Unreleased]\n\n### Added\n\n### Changed\n\n### Fixed\n\n---\n"
-    sedi "/^## \\[${NEXT_VERSION}\\]/i\\
-${UNRELEASED_BLOCK}" "$CHANGELOG"
+    # b) Insert a blank [Unreleased] section above the new versioned entry.
+    #    Using `awk` instead of `sed`'s `i\` insert because the block contains
+    #    lines starting with `-` (the `---` separator) that sed misinterprets as
+    #    commands.  `awk` inserts the block once before `## [NEXT_VERSION]` and
+    #    is portable across GNU and BSD.
+    UNRELEASED_BLOCK=$(printf '## [Unreleased]\n\n### Added\n\n- for new features.\n\n### Changed\n\n- for changes in existing functionality.\n\n### Deprecated\n\n- for soon-to-be removed features.\n\n### Removed\n\n- for now removed features.\n\n### Fixed\n\n- for any bug fixes.\n\n### Security\n\n- in case of vulnerabilities.\n\n---\n\n')
+    awk -v block="$UNRELEASED_BLOCK" -v ver="## [${NEXT_VERSION}]" '
+      index($0, ver) == 1 && !done { printf "%s", block; done=1 }
+      { print }
+    ' "$CHANGELOG" > "${CHANGELOG}.tmp" && mv "${CHANGELOG}.tmp" "$CHANGELOG"
 
     # c) Update the [Unreleased] diff link
     sedi "s|compare/v${CURRENT_VERSION}\.\.\.HEAD|compare/v${NEXT_VERSION}...HEAD|g" "$CHANGELOG"
 
-    # d) Add the new version diff link (after the existing [Unreleased] link line)
-    NEW_LINK="[${NEXT_VERSION}]: https://github.com/d-oit/rust-2026-template/releases/tag/v${NEXT_VERSION}"
+    # d) Add the new version diff link (after the existing [Unreleased] link line).
+    #    Using `awk` instead of `sed`'s `a\` append because the `[` character
+    #    in the link line is misinterpreted by sed as a command.
+    NEW_LINK="[${NEXT_VERSION}]: https://github.com/your-org/your-repo/compare/v${CURRENT_VERSION}...v${NEXT_VERSION}"
     # Insert after the [Unreleased] link line if not already present
     if ! grep -qF "[$NEXT_VERSION]:" "$CHANGELOG"; then
-      sedi "/^\[Unreleased\]:/a\\
-${NEW_LINK}" "$CHANGELOG"
+      awk -v new_link="$NEW_LINK" '
+        { print }
+        /^\[Unreleased\]:/ && !done { print new_link; done=1 }
+      ' "$CHANGELOG" > "${CHANGELOG}.tmp" && mv "${CHANGELOG}.tmp" "$CHANGELOG"
     fi
 
     ok "Updated  $CHANGELOG  (promoted [Unreleased] → [$NEXT_VERSION])"

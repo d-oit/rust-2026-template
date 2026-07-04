@@ -30,3 +30,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - in case of vulnerabilities.
+
+[Unreleased]: https://github.com/your-org/your-repo/compare/v0.0.0...HEAD

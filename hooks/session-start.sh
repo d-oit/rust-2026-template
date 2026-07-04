@@ -22,7 +22,7 @@ if [ -f "Cargo.toml" ]; then
     /^\[/ { in_ws=0; next }
     in_ws && /^members/ {
       if (match($0, /\[.*\]/)) {
-        gsub(/[\[\]"',]/, " ")
+        gsub(/[\[\]"'\'',]/, " ")
         print
         next
       }
@@ -30,7 +30,7 @@ if [ -f "Cargo.toml" ]; then
       next
     }
     in_members && /^\]/ { in_members=0; next }
-    in_members { gsub(/[[:space:]]*["',]/, " "); print }
+    in_members { gsub(/[[:space:]]*["'\'',]/, " "); print }
   ' Cargo.toml | tr -s ' ' | sed 's/^ *//' | head -20
 fi
 

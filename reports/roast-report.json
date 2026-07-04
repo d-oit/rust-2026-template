@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-07-03T10:12:35Z",
-  "total_score": 96,
+  "timestamp": "2026-07-01T19:41:16Z",
+  "total_score": 95,
   "pass_threshold": 80,
   "pass": true,
   "dimensions": {
@@ -13,6 +13,6 @@
     "build_health": { "name": "Build Health", "score": 10, "reason": "Clean build, no warnings" },
     "performance": { "name": "Performance", "score": 10, "reason": "Benchmarks compile, release profile optimized" },
     "agent_readiness": { "name": "Agent Readiness", "score": 10, "reason": "All agent artifacts present and valid" },
-    "release_readiness": { "name": "Release Readiness", "score": 10, "reason": "VERSION matches, CHANGELOG present, commits conventional" }
+    "release_readiness": { "name": "Release Readiness", "score": 9, "reason": "Issues: some commits non-conventional" }
   }
 }

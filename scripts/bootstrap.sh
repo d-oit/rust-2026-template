@@ -79,6 +79,26 @@ ok "cargo present"
 
 # --- linker hints ---
 case "$PLATFORM" in
+  linux)
+    CLANG_MISSING=0
+    MOLD_MISSING=0
+    command -v clang >/dev/null 2>&1 || CLANG_MISSING=1
+    command -v mold >/dev/null 2>&1 || MOLD_MISSING=1
+    if [[ $CLANG_MISSING -eq 1 || $MOLD_MISSING -eq 1 ]]; then
+      MISSING=()
+      [[ $CLANG_MISSING -eq 1 ]] && MISSING+=("clang")
+      [[ $MOLD_MISSING -eq 1 ]] && MISSING+=("mold")
+      if [[ $DRY_RUN -eq 0 ]]; then
+        log "Installing ${MISSING[*]}..."
+        sudo apt-get update && sudo apt-get install -y "${MISSING[@]}"
+      else
+        warn "Would install: ${MISSING[*]} (dry run)"
+      fi
+      ok "${MISSING[*]} installed"
+    else
+      ok "mold + clang detected — maximum link speed"
+    fi
+    ;;
   macos)
     if command -v mold >/dev/null 2>&1; then
       ok "mold linker found"
@@ -133,6 +153,15 @@ else
   fi
 fi
 
+# --- pre-push hooks (for split commit/push pre-commit stages) ---
+if command -v pre-commit &>/dev/null; then
+  if [[ $DRY_RUN -eq 1 ]]; then
+    ok "Pre-push hooks (dry run - would run pre-commit install --hook-type pre-push)"
+  else
+    pre-commit install --hook-type pre-push 2>/dev/null || warn "pre-commit install --hook-type pre-push failed (non-fatal)"
+  fi
+fi
+
 # --- validate ---
 log "Validating skills"
 if [[ $DRY_RUN -eq 1 ]]; then
@@ -144,6 +173,13 @@ else
 fi
 
 # --- quality gate ---
+log "Checking linker configuration"
+if [[ $DRY_RUN -eq 1 ]]; then
+  ok "Linker check (dry run - would run ./scripts/check-linker.sh)"
+else
+  bash scripts/check-linker.sh
+fi
+
 log "Running quality gate"
 if [[ $DRY_RUN -eq 1 ]]; then
   ok "Quality gate (dry run - would run ./scripts/quality-gates.sh)"
