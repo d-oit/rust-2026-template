@@ -120,6 +120,7 @@ pub trait Tool: Send + Sync {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used)]
     use super::*;
     use serde_json::json;
 
