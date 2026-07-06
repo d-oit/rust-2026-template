@@ -22,6 +22,7 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `metrics-reporter` | [skills/metrics-reporter/SKILL.md](skills/metrics-reporter/SKILL.md) | Record agentic task completion via event files for DORA observability. |
 | `privacy-first` | [skills/privacy-first/SKILL.md](skills/privacy-first/SKILL.md) | Prevent email addresses and personal data from entering the codebase. |
 | `release-rust` | [skills/release-rust/SKILL.md](skills/release-rust/SKILL.md) | Create and publish a new release of the Rust project. Handles version bumping, |
+| `secret-lint` | [skills/secret-lint/SKILL.md](skills/secret-lint/SKILL.md) | Automated secret scanning using secretlint to prevent credential leaks. |
 | `self-fix-loop` | [skills/self-fix-loop/SKILL.md](skills/self-fix-loop/SKILL.md) | Self-learning fix loop - commit, push, monitor CI, auto-fix failures using |
 | `skill-creator` | [skills/skill-creator/SKILL.md](skills/skill-creator/SKILL.md) | Create new skills, modify and improve existing skills, and measure skill performance. Use when users |
 | `skill-evaluator` | [skills/skill-evaluator/SKILL.md](skills/skill-evaluator/SKILL.md) | Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usa |

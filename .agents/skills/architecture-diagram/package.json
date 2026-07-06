@@ -1,0 +1,11 @@
+{
+  "name": "skill-architecture-diagram",
+  "private": true,
+  "devDependencies": {
+    "@moona3k/excalidraw-export": "^0.2.1"
+  },
+  "scripts": {
+    "export:svg": "node scripts/export_excalidraw.mjs -i ../../../.template/overview.excalidraw -o ../../../.template/overview.svg -f svg",
+    "export:png": "node scripts/export_excalidraw.mjs -i ../../../.template/overview.excalidraw -o ../../../.template/overview.png -f png"
+  }
+}

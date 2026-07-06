@@ -44,8 +44,9 @@ insta-review:  ## Review and approve insta snapshot changes
 
 ## secrets-lint: Run secretlint secret scanning
 secrets-lint:
-	npx secretlint "**/*"
+	./.agents/skills/secret-lint/node_modules/.bin/secretlint "**/*"
 
 ## secrets-all: Run all secret scanning (gitleaks + secretlint)
 secrets-all: secrets-lint
-	gitleaks detect --source . --verbose
+	@command -v gitleaks >/dev/null 2>&1 || (echo "gitleaks not found, skipping")
+	@if command -v gitleaks >/dev/null 2>&1; then gitleaks detect --source . --verbose; fi

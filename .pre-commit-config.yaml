@@ -46,8 +46,8 @@ repos:
 
       - id: secretlint
         name: secretlint
-        language: node
-        entry: npx secretlint
+        language: system
+        entry: ./.agents/skills/secret-lint/node_modules/.bin/secretlint
         args: ["**/*"]
         pass_filenames: false
         stages: [pre-commit]
