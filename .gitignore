@@ -93,3 +93,7 @@ node_modules/
 # MiMoCode local state
 .mimocode/
 docs/book/
+
+# Monitoring runtime volumes (if bind-mounted locally)
+monitoring/grafana-data/
+monitoring/prometheus-data/

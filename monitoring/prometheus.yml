@@ -1,0 +1,10 @@
+# monitoring/prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'rust-app'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+    metrics_path: /metrics
