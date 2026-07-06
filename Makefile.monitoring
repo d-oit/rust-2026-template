@@ -1,0 +1,46 @@
+# Makefile.monitoring
+# Observability and monitoring targets
+# Included by the main Makefile via: include Makefile.monitoring
+# Prerequisites:
+#   - Docker + Docker Compose V2 (for Prometheus/Grafana stack)
+#   - prometheus binary (optional, for local scrape testing)
+#   - open / xdg-open for browser targets
+
+GRAFANA_PORT     ?= 3000
+PROMETHEUS_PORT  ?= 9090
+APP_METRICS_PORT ?= 8080
+MONITORING_DIR   ?= monitoring
+
+## monitoring-up: Start the monitoring stack (Prometheus + Grafana) via Docker Compose
+monitoring-up:
+	@echo "Starting monitoring stack..."
+	docker compose -f $(MONITORING_DIR)/docker-compose.monitoring.yml up -d
+	@echo "Grafana:    http://localhost:$(GRAFANA_PORT)"
+	@echo "Prometheus: http://localhost:$(PROMETHEUS_PORT)"
+
+## monitoring-down: Stop the monitoring stack
+monitoring-down:
+	@echo "Stopping monitoring stack..."
+	docker compose -f $(MONITORING_DIR)/docker-compose.monitoring.yml down
+
+## monitoring-logs: Tail logs from the monitoring stack
+monitoring-logs:
+	docker compose -f $(MONITORING_DIR)/docker-compose.monitoring.yml logs -f
+
+## grafana-open: Open Grafana in the default browser
+grafana-open:
+	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:$(GRAFANA_PORT) || \
+	 command -v open >/dev/null 2>&1 && open http://localhost:$(GRAFANA_PORT) || \
+	 echo "Open http://localhost:$(GRAFANA_PORT) in your browser"
+
+## prometheus-open: Open Prometheus in the default browser
+prometheus-open:
+	@command -v xdg-open >/dev/null 2>&1 && xdg-open http://localhost:$(PROMETHEUS_PORT) || \
+	 command -v open >/dev/null 2>&1 && open http://localhost:$(PROMETHEUS_PORT) || \
+	 echo "Open http://localhost:$(PROMETHEUS_PORT) in your browser"
+
+## monitoring-status: Show running status of monitoring containers
+monitoring-status:
+	docker compose -f $(MONITORING_DIR)/docker-compose.monitoring.yml ps
+
+.PHONY: monitoring-up monitoring-down monitoring-logs grafana-open prometheus-open monitoring-status

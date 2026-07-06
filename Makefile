@@ -41,3 +41,10 @@ harness:  ## Run all harness sensors with agent-optimised output
 
 insta-review:  ## Review and approve insta snapshot changes
 	cargo insta review
+
+# Include monitoring targets (opt-in observability stack)
+-include Makefile.monitoring
+
+## monitoring-help: Show available monitoring targets
+monitoring-help:
+	@grep -E '^## ' Makefile.monitoring | sed 's/## /  /'
