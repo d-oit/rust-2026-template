@@ -99,6 +99,11 @@ all = { level = "warn", priority = -1 }
 pedantic = { level = "allow", priority = -1 }
 nursery = { level = "allow", priority = -1 }
 
+# ── Agent-safety: prevent silencing lints instead of fixing code ──────────────
+# allow_attributes = "deny" blocks any #[allow(clippy::...)] annotation from
+# being introduced by AI agents or contributors. Fixes must be real, not silenced.
+allow_attributes = "deny"
+
 # Promoted from pedantic — correctness signals (Phase A)
 float_cmp = "warn"
 significant_drop_tightening = "warn"
@@ -117,14 +122,14 @@ must_use_candidate = "allow"
 
 # Justified allows for template hot-path patterns
 too_many_arguments = "allow"
-# `unwrap_used` / `expect_used` are kept at `warn` so production code surfaces
-# them, but every `#[cfg(test)] mod tests { ... }` and benchmark file opts back
-# in via `#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic,
-# missing_docs)]` at the top — intentional panics and unwraps are idiomatic
-# inside tests.
+# `unwrap_used` / `expect_used` upgraded to deny (was: warn).
+# Production code must use proper error handling. Tests may use
+# #![allow(clippy::unwrap_used)] at module level (not attribute-level).
+# NOTE: allow_attributes = "deny" above prevents per-call-site suppression;
+# only module-level #![allow(...)] in test modules is permitted.
 type_complexity = "allow"
-unwrap_used = "warn"
-expect_used = "warn"
+unwrap_used = "deny"
+expect_used = "deny"
 panic = "allow"
 print_stdout = "allow"
 print_stderr = "allow"
@@ -165,15 +170,6 @@ criterion = { version = "0.5", features = ["html_reports"] }
 opt-level = 0
 
 # Optimised release: maximum runtime performance at the cost of build time.
-# - lto = "fat"       — Full cross-crate link-time optimisation; slower builds,
-#                        smaller and faster binaries. Use "thin" for faster CI
-#                        iterations during development.
-# - codegen-units = 1 — Maximises inlining across modules; hurts parallelism.
-# - panic = "unwind"  — Keeps stack unwinding (required for catch_unwind in
-#                        libraries). Switch to "abort" for binaries when you
-#                        don't need panic handling — cuts binary size ~10 %.
-# - strip = "symbols" — Remove all symbol info; use "debuginfo" if you need
-#                        production backtraces.
 [profile.release]
 opt-level = 3
 lto = "fat"
@@ -182,18 +178,15 @@ panic = "unwind"
 strip = "symbols"
 
 # Alias for release with the same settings — kept for backward compatibility
-# with tooling that references "release-full".
-# All fields are inherited from [profile.release]; no need to duplicate them.
 [profile.release-full]
 inherits = "release"
 
 # Fast CI profile: 95% of release perf at ~50% compile time.
-# Usage: cargo build --profile ci  |  cargo nextest run --profile ci
 [profile.ci]
 inherits = "release"
-lto = "thin"        # 95% of fat LTO benefit at ~50% compile time
-codegen-units = 16  # Parallel codegen (vs 1 in release)
-strip = false       # Keep symbols for profiling/flamegraph in CI
+lto = "thin"
+codegen-units = 16
+strip = false
 
 [profile.bench]
 opt-level = 3

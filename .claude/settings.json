@@ -1,5 +1,42 @@
 {
   "hooks": {
-    "SessionStart": "bash hooks/session-start.sh"
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash hooks/session-start.sh"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": { "tool_name": "write_file|edit_file|multiedit" },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-rust-lint.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": { "tool_name": "write_file|edit_file" },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/guard-lint-config.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'result=$(cargo test 2>&1 | tail -10); jq -Rn --arg msg \"$result\" \'{ hookSpecificOutput: { additionalContext: $msg } }\''"
+          }
+        ]
+      }
+    ]
   }
 }
