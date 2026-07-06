@@ -2,9 +2,13 @@
   "name": "rust-2026-template",
   "private": true,
   "devDependencies": {
-    "@moona3k/excalidraw-export": "^0.2.1"
+    "@moona3k/excalidraw-export": "^0.2.1",
+    "@secretlint/secretlint-rule-preset-recommend": "^8.0.0",
+    "secretlint": "^8.0.0"
   },
   "scripts": {
+    "secretlint": "secretlint \"**/*\"",
+    "secretlint:ci": "secretlint --format junit \"**/*\"",
     "export:svg": "node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs -i .template/overview.excalidraw -o .template/overview.svg -f svg",
     "export:png": "node .agents/skills/architecture-diagram/scripts/export_excalidraw.mjs -i .template/overview.excalidraw -o .template/overview.png -f png"
   }

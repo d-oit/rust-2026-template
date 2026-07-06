@@ -1,4 +1,4 @@
-.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools harness insta-review
+.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools harness insta-review secrets-lint secrets-all
 
 all: ci
 
@@ -41,3 +41,11 @@ harness:  ## Run all harness sensors with agent-optimised output
 
 insta-review:  ## Review and approve insta snapshot changes
 	cargo insta review
+
+## secrets-lint: Run secretlint secret scanning
+secrets-lint:
+	npx secretlint "**/*"
+
+## secrets-all: Run all secret scanning (gitleaks + secretlint)
+secrets-all: secrets-lint
+	gitleaks detect --source . --verbose
