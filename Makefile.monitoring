@@ -13,7 +13,7 @@ MONITORING_DIR   ?= monitoring
 
 ## monitoring-up: Start the monitoring stack (Prometheus + Grafana) via Docker Compose
 monitoring-up:
-	@echo "Starting monitoring stack..."
+	@echo "Starting monitoring stack for version $(VERSION)..."
 	docker compose -f $(MONITORING_DIR)/docker-compose.monitoring.yml up -d
 	@echo "Grafana:    http://localhost:$(GRAFANA_PORT)"
 	@echo "Prometheus: http://localhost:$(PROMETHEUS_PORT)"

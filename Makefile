@@ -1,8 +1,11 @@
-.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools harness insta-review
+# VERSION is the single source of truth for the project version
+VERSION := $(shell cat VERSION 2>/dev/null || echo "0.0.0")
+
+.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools harness insta-review version version-check version-propagate
 
 all: ci
 
-ci: fmt clippy test build
+ci: version-check fmt clippy test build
 
 fmt:
 	cargo fmt --all -- --check
@@ -15,6 +18,15 @@ test:
 
 build:
 	cargo build --workspace
+
+version: ## Show the current project version
+	@echo $(VERSION)
+
+version-check: ## Verify that the VERSION file matches the Cargo.toml version
+	@bash scripts/propagate-version.sh --check
+
+version-propagate: ## Propagate the version from the VERSION file to all Cargo.toml files
+	@bash scripts/propagate-version.sh
 
 install-doc-tools: ## Install pinned versions of doc generation tools (run once)
 	cargo install cargo-sync-readme --version 1.1.0
