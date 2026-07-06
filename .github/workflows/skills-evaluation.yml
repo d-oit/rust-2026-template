@@ -19,7 +19,7 @@ jobs:
   evaluate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Run Structure Check
         run: |
@@ -31,7 +31,7 @@ jobs:
           python3 .agents/skills-evaluation/scripts/generate_report.py .agents/skills-evaluation/iterations/ci-run
 
       - name: Upload Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: skill-evaluation-report
           path: .agents/skills-evaluation/iterations/ci-run/report.md
