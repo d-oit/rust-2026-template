@@ -169,6 +169,17 @@ criterion = { version = "0.5", features = ["html_reports"] }
 [profile.dev]
 opt-level = 0
 
+[profile.dev.build-override]
+opt-level = 3
+
+[profile.fast-dev]
+inherits = "dev"
+debug = 0
+strip = "debuginfo"
+
+[profile.fast-dev.build-override]
+opt-level = 3
+
 # Optimised release: maximum runtime performance at the cost of build time.
 [profile.release]
 opt-level = 3
