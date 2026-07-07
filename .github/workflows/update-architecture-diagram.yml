@@ -27,8 +27,10 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
+          cache-dependency-path: .agents/skills/architecture-diagram/package-lock.json
 
       - name: Install Node dependencies
+        working-directory: .agents/skills/architecture-diagram
         run: npm ci
 
       - name: Regenerate overview diagram
