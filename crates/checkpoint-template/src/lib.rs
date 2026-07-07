@@ -40,7 +40,6 @@ pub use migration::MigrationError;
 use storage::{DEFAULT_MAX_CHECKPOINT_SIZE, FileStorage};
 
 /// Checkpoint header stored with each checkpoint file.
-/// Checkpoint header stored with each checkpoint file.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct CheckpointHeader {
@@ -492,13 +491,7 @@ mod tests {
         combined.extend_from_slice(&state_data);
         std::fs::write(&path, combined).unwrap();
 
-        let result = manager.load().await;
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("app_name too long")
-        );
+        let err = manager.load().await.unwrap_err().to_string();
+        assert!(err.contains("app_name too long"));
     }
 }
