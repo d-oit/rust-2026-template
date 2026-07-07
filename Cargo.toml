@@ -169,6 +169,11 @@ criterion = { version = "0.5", features = ["html_reports"] }
 [profile.dev]
 opt-level = 0
 
+# Fast development profile: prioritizes compilation speed over runtime performance.
+[profile.fast-dev]
+inherits = "dev"
+panic = "abort"
+
 # Optimised release: maximum runtime performance at the cost of build time.
 [profile.release]
 opt-level = 3

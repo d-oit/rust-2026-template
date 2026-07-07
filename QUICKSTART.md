@@ -169,6 +169,7 @@ The fuzzer is also configured to run weekly via GitHub Actions.
 
 - Read `AGENTS.md` to understand how AI coding assistants are configured
 - Read `CONTRIBUTING.md` before making changes
+- Read [Faster Builds](docs/src/faster-builds.md) to optimize your development workflow
 - Check `MIGRATION.md` if adopting this template in an existing project
 - See `agents-docs/conventions.md` for coding conventions enforced by agents
 
