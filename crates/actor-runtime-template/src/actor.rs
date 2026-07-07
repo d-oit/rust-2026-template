@@ -36,7 +36,10 @@ pub struct ActorHandle<S: ActorState> {
 
 impl<S: ActorState> ActorHandle<S> {
     /// Create a new actor handle.
-    #[allow(clippy::missing_const_for_fn)]
+    #[expect(
+        clippy::missing_const_for_fn,
+        reason = "const not possible across MSRV/generic bounds"
+    )]
     pub fn new(tx: mpsc::Sender<ActorMessage<S>>, state: S) -> Self {
         Self { tx, state }
     }
@@ -68,7 +71,10 @@ impl<S: ActorState> Actor<S> {
     }
 
     /// Set the restart strategy.
-    #[allow(clippy::missing_const_for_fn)]
+    #[expect(
+        clippy::missing_const_for_fn,
+        reason = "const not possible across MSRV/generic bounds"
+    )]
     pub fn with_strategy(mut self, strategy: super::RestartStrategy) -> Self {
         self.restart_strategy = strategy;
         self

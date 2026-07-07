@@ -28,7 +28,10 @@ pub struct Supervisor<S: ActorState> {
 
 impl<S: ActorState + 'static> Supervisor<S> {
     /// Create a new supervisor.
-    #[allow(clippy::missing_const_for_fn)]
+    #[expect(
+        clippy::missing_const_for_fn,
+        reason = "const not possible across MSRV/generic bounds"
+    )]
     pub fn new(strategy: RestartStrategy, state: S) -> Self {
         Self { strategy, state }
     }

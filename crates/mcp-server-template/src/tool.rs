@@ -55,7 +55,10 @@ impl ToolResponse {
     }
 
     /// Create a failed response.
-    #[allow(clippy::missing_const_for_fn)]
+    #[expect(
+        clippy::missing_const_for_fn,
+        reason = "const not possible across MSRV/generic bounds"
+    )]
     pub fn failure(error: String) -> Self {
         Self {
             result: serde_json::Value::String(error),
