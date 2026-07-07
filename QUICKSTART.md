@@ -62,6 +62,11 @@ cargo nextest run --workspace
 # Run the sample app
 cargo run -p sample-app
 cargo run -p sample-app -- --count 5 --verbose
+
+# Use fast-dev profile for faster local iterations
+# (Disables debug symbols and optimizes build scripts)
+cargo build --profile fast-dev
+cargo nextest run --profile fast-dev
 ```
 
 ## 5. Run All Quality Gates
