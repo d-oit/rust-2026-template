@@ -176,6 +176,7 @@ opt-level = 3
 inherits = "dev"
 debug = 0
 strip = "debuginfo"
+panic = "abort"
 
 [profile.fast-dev.build-override]
 opt-level = 3
