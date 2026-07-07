@@ -110,7 +110,10 @@ impl RestartStrategy {
                 let max_ms = max.as_millis();
                 let backoff_ms = initial_ms.saturating_mul(u128::from(multiplier));
                 let capped = backoff_ms.min(max_ms);
-                #[allow(clippy::cast_possible_truncation)]
+                #[expect(
+                    clippy::cast_possible_truncation,
+                    reason = "backoff capped at max_ms fits in u64"
+                )]
                 Some(Duration::from_millis(capped as u64))
             }
             RestartStrategy::Always | RestartStrategy::OnError { .. } | RestartStrategy::Never => {
