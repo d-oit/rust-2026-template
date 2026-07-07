@@ -1,3 +1,4 @@
+---
 # monitoring/docker-compose.monitoring.yml
 # Stub — extend with your actual Prometheus/Grafana config
 version: '3.8'

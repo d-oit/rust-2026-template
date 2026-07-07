@@ -11,15 +11,18 @@ For quick validation of your code, use `cargo check` instead of `cargo build`. I
 The template includes a `fast-dev` profile optimized for compilation speed. It inherits from the standard `dev` profile but sets `panic = "abort"` to reduce the amount of work the compiler needs to do by removing the need for stack unwinding information.
 
 To use it:
+
 ```bash
 cargo build --profile fast-dev
 ```
 
 ### 3. Identify Bottlenecks with `--timings`
 If you're wondering why your build is slow, use the `--timings` flag:
+
 ```bash
 cargo build --timings
 ```
+
 This generates an HTML report in `target/cargo-timings/` showing which crates took the longest to compile and how much parallelism was achieved.
 
 ---
