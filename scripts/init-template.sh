@@ -223,6 +223,53 @@ replace_in_file "llms.txt" 'rust-2026-template' "$PROJECT_NAME"
 log "Updating scripts/roast-scorer.sh"
 replace_in_file "scripts/roast-scorer.sh" 'rust-2026-template' "$PROJECT_NAME"
 
+# --- rewrite HARNESS.md ---
+log "Updating HARNESS.md"
+replace_in_file "HARNESS.md" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite scripts/bootstrap.sh ---
+log "Updating scripts/bootstrap.sh"
+replace_in_file "scripts/bootstrap.sh" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite scripts/generate-llms-txt.sh ---
+log "Updating scripts/generate-llms-txt.sh"
+replace_in_file "scripts/generate-llms-txt.sh" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite .clippy.toml ---
+log "Updating .clippy.toml"
+replace_in_file ".clippy.toml" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite docs/architecture/context.yaml ---
+log "Updating docs/architecture/context.yaml"
+replace_in_file "docs/architecture/context.yaml" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite agents-docs/structure.md ---
+log "Updating agents-docs/structure.md"
+replace_in_file "agents-docs/structure.md" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite crates/sample-app/README.md ---
+log "Updating crates/sample-app/README.md"
+replace_in_file "crates/sample-app/README.md" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite fuzz/Cargo.toml ---
+log "Updating fuzz/Cargo.toml"
+replace_in_file "fuzz/Cargo.toml" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite benchmarks/Cargo.toml ---
+log "Updating benchmarks/Cargo.toml"
+replace_in_file "benchmarks/Cargo.toml" 'rust-2026-template' "$PROJECT_NAME"
+
+# --- rewrite CI workflows with repo-specific checks ---
+log "Updating CI workflow repo checks"
+replace_in_file ".github/workflows/dora-fdrt.yml" 'd-oit/rust-2026-template' "$REPO"
+replace_in_file ".github/workflows/dora-report.yml" 'd-oit/rust-2026-template' "$REPO"
+replace_in_file ".github/workflows/sync-labels.yml" 'd-oit/rust-2026-template' "$REPO"
+
+# --- rewrite label scripts ---
+log "Updating label management scripts"
+replace_in_file "scripts/learn-labels.sh" 'd-oit/rust-2026-template' "$REPO"
+replace_in_file "scripts/setup-github-labels.sh" 'd-oit/rust-2026-template' "$REPO"
+
 # --- rewrite example crate README ---
 EXAMPLE_README="crates/$PROJECT_NAME/README.md"
 if [[ -f "$EXAMPLE_README" ]]; then

@@ -83,6 +83,7 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 - **Validation:** Sanitize strings (`is_control()`) and enforce bounds on numeric fields.
 - **Dependencies:** Pin core crates (`=1.0.x`). Audit with `cargo tree` and `deny.toml`.
 - **Secrets:** Never hardcode; use environment variables or `.env`.
+- **Template Portability:** Never hardcode project name, repo URL, or author across source files. All project-specific values must derive from `Cargo.toml` at runtime or be rewriteable via `scripts/init-template.sh`. Avoid magic number thresholds — define named constants.
 
 ### Quality & Workflow
 - **File Size:** Max 500 LOC per source file.
