@@ -44,6 +44,14 @@ repos:
         pass_filenames: false
         stages: [pre-push]
 
+      - id: secretlint
+        name: secretlint
+        language: system
+        entry: ./.agents/skills/secret-lint/node_modules/.bin/secretlint
+        args: ["**/*"]
+        pass_filenames: false
+        stages: [pre-commit]
+
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.21.0
     hooks:

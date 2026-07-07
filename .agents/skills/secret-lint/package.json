@@ -1,0 +1,12 @@
+{
+  "name": "skill-secret-lint",
+  "private": true,
+  "devDependencies": {
+    "@secretlint/secretlint-rule-preset-recommend": "^8.0.0",
+    "secretlint": "^8.0.0"
+  },
+  "scripts": {
+    "secretlint": "secretlint \"**/*\"",
+    "secretlint:ci": "secretlint --format junit \"**/*\""
+  }
+}
