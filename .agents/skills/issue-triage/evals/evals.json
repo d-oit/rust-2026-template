@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Read all open issues from d-oit/rust-2026-template",
+      "prompt": "Read all open issues from the current repository",
       "expected_output": "Detects platform, calls gh issue list, returns structured list",
       "assertions": [
         "Detects platform from git remote",

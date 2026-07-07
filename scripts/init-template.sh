@@ -270,6 +270,14 @@ log "Updating label management scripts"
 replace_in_file "scripts/learn-labels.sh" 'd-oit/rust-2026-template' "$REPO"
 replace_in_file "scripts/setup-github-labels.sh" 'd-oit/rust-2026-template' "$REPO"
 
+# --- rewrite skill author metadata ---
+log "Updating skill author metadata"
+for skill_md in .agents/skills/*/SKILL.md; do
+  if grep -q 'author: d-oit' "$skill_md" 2>/dev/null; then
+    replace_in_file "$skill_md" 'author: d-oit' "author: $AUTHOR"
+  fi
+done
+
 # --- rewrite example crate README ---
 EXAMPLE_README="crates/$PROJECT_NAME/README.md"
 if [[ -f "$EXAMPLE_README" ]]; then
