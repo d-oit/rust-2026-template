@@ -6,39 +6,37 @@
 
 ### Code Quality
 
-- `is_linted`: true (CI — clippy passes with zero warnings, `-D warnings`)
-- `is_formatted`: true (CI — `cargo fmt --all -- --check` passes)
-- `has_zero_warnings`: true (CI — clippy all targets, all features)
-- `is_semver_compliant`: false (not checked yet — run `cargo semver-checks`)
+- `is_linted`: true
+- `is_formatted`: true
+- `has_zero_warnings`: true
+- `all_files_under_500_loc`: true
+- `is_semver_compliant`: false (not checked yet)
 
 ### Testing
 
-- `has_unit_tests`: true (`example-crate` and `sample-app` both have `#[cfg(test)]` modules)
+- `has_unit_tests`: true
 - `has_integration_tests`: false
-- `tests_passing`: true (CI — `cargo nextest run --workspace --profile ci` passes)
-- `has_doc_tests`: true (`example-crate::greet` has a doc test)
+- `tests_passing`: true
+- `has_doc_tests`: true
 - `coverage_meets_target`: false (target: 80%, not measured)
 
-### Crates
+### CI
 
-- `example_crate`: library placeholder — `greet(name) -> String`
-- `sample_app`: binary — tokio, clap, serde, tracing, thiserror; `--count`, `--verbose`, `--config` flags
-
-### Documentation
-
-- `has_context_yaml`: true (`docs/architecture/context.yaml`)
-- `has_agents_md`: true
-- `is_architecture_documented`: true (ADR 0001)
-- `readme_current`: true (updated to reflect two crates and all scripts)
+- `ci_incremental_disabled`: true (PR #243, CARGO_INCREMENTAL=0)
+- `crossbeam_epoch_updated`: true (0.9.18→0.9.20, RUSTSEC-2026-0204)
+- `cargo_machete_clean`: true (false-positive ignores added)
+- `fast_dev_profile_combined`: true (debug=0 + strip + panic=abort)
+- `faster_builds_docs_merged`: true (PR #242)
 
 ### Git
 
 - `is_dirty`: false
 - `on_main`: true
+- `prs_closed`: PR #242, PR #243 merged
 
 ## Current Phase
 
-`Phase 0: Initialization` — CI pipeline verified and working, documentation updated
+`Phase: PR Merge & CI Fixup — Complete`
 
 ## Active Blockers
 
@@ -46,9 +44,8 @@
 
 ## Recent Changes
 
-- Added `sample-app` binary crate (tokio, clap, serde, tracing, thiserror)
-- Added `scripts/release-manager.sh`
-- Fixed CI: installed mold linker for clippy, test, and MSRV jobs
-- Fixed CI: disabled sccache for cargo-deny job (runs in Docker)
-- Updated toolchain from 1.85 to 1.87
-- Updated all documentation to reflect current codebase
+- Merged PR #243: Disable incremental compilation in CI
+- Merged PR #242: Faster Builds guide + fast-dev profile reconciliation
+- Fixed pre-existing: crossbeam-epoch vulnerability (RUSTSEC-2026-0204)
+- Fixed pre-existing: checkpoint-template LOC (504→497, under 500 limit)
+- Fixed pre-existing: cargo-machete false positives (optional/feature-gated deps)

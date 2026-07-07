@@ -230,7 +230,7 @@ check_architecture() {
   local reasons=()
 
   # Fitness check (5 pts)
-  if ! cargo test --test arch_fitness > /dev/null 2>&1; then
+  if ! cargo test --test arch_fitness --package rust-2026-template > /dev/null 2>&1; then
     score=$((score - 5))
     reasons+=("fitness tests failed")
   fi

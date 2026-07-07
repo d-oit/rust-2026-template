@@ -33,6 +33,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.4] - 2026-07-07
+
+### Added
+
+- `CARGO_INCREMENTAL=0` in CI to reduce I/O overhead (PR #243).
+- `docs/src/faster-builds.md` — comprehensive platform-specific build optimization guide (PR #242).
+
+### Changed
+
+- `[profile.fast-dev]` now combines `debug=0`, `strip="debuginfo"`, and `panic="abort"` for maximum local iteration speed.
+- `README.md` version reference updated to point to `v0.3.4`.
+
+### Fixed
+
+- `crossbeam-epoch` updated from 0.9.18 to 0.9.20 (RUSTSEC-2026-0204).
+- `checkpoint-template/src/lib.rs` reduced from 504 to 497 LOC (under 500 limit).
+- `cargo-machete` false positives suppressed for optional/feature-gated dependencies (`rusqlite` in `example-storage-pattern`, `rust-2026-template` in `fuzz`).
+
+---
+
 ## [0.3.3] - 2026-07-01
 
 ### Added
@@ -315,7 +335,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.4...HEAD
+[0.3.4]: https://github.com/d-oit/rust-2026-template/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/d-oit/rust-2026-template/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/d-oit/rust-2026-template/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/d-oit/rust-2026-template/compare/v0.3.0...v0.3.1
