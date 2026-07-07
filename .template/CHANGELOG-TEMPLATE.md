@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- for new features.
-
 ### Changed
 
-- for changes in existing functionality.
+- `scripts/roast-scorer.sh`: package name now derived dynamically from `Cargo.toml` instead of hardcoded; `init-template.sh` rewrites it on init.
+
+### Fixed
+
+- `scripts/roast-scorer.sh`: `check_architecture` now passes the correct `--package` flag using the dynamic package name, fixing the false 5/10 architecture score.
 
 ### Deprecated
 

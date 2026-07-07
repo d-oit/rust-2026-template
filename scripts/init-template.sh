@@ -219,6 +219,10 @@ replace_in_file "CHANGELOG.md" 'your-org/your-repo' "$REPO"
 log "Updating llms.txt"
 replace_in_file "llms.txt" 'rust-2026-template' "$PROJECT_NAME"
 
+# --- rewrite roast-scorer.sh ---
+log "Updating scripts/roast-scorer.sh"
+replace_in_file "scripts/roast-scorer.sh" 'rust-2026-template' "$PROJECT_NAME"
+
 # --- rewrite example crate README ---
 EXAMPLE_README="crates/$PROJECT_NAME/README.md"
 if [[ -f "$EXAMPLE_README" ]]; then

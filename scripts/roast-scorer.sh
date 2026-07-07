@@ -9,6 +9,9 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 
+# Derive package name from Cargo.toml (dynamic, not hardcoded)
+PACKAGE_NAME=$(grep -m1 '^name = ' Cargo.toml | sed 's/name = "\(.*\)"/\1/')
+
 # --- Colors ---
 if [[ -t 1 ]] && [[ "${FORCE_COLOR:-}" != "0" ]]; then
   RED='\033[0;31m'
@@ -230,7 +233,7 @@ check_architecture() {
   local reasons=()
 
   # Fitness check (5 pts)
-  if ! cargo test --test arch_fitness --package rust-2026-template > /dev/null 2>&1; then
+  if ! cargo test --test arch_fitness --package "$PACKAGE_NAME" > /dev/null 2>&1; then
     score=$((score - 5))
     reasons+=("fitness tests failed")
   fi
@@ -363,7 +366,7 @@ check_release_readiness() {
 # Main Execution
 # ============================================================
 
-printf "=== Roast Scorer (rust-2026-template) ===\n\n"
+printf "=== Roast Scorer (%s) ===\n\n" "$PACKAGE_NAME"
 
 check_code_quality
 check_test_coverage
