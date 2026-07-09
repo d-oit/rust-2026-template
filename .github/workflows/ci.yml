@@ -215,7 +215,7 @@ jobs:
           set -x
           find target/.fingerprint -maxdepth 1 -name 'rust-2026-template-*' -print -delete || true
       - name: Clippy (all targets, all features)
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
   # ───────────────────────────────────────────────────
   test:

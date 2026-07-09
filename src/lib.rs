@@ -40,6 +40,7 @@ pub const fn add(left: u64, right: u64) -> u64 {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
     use super::*;
 
     #[test]

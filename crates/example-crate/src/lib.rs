@@ -29,6 +29,7 @@ pub fn greet(name: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
     use super::*;
 
     #[test]
@@ -44,6 +45,7 @@ mod tests {
 
 #[cfg(test)]
 mod prop_tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
     use super::*;
     use proptest::prelude::*;
 

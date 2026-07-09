@@ -21,4 +21,5 @@ pub use config::{
 pub use process::{Args, process_items};
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 mod tests;

@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 //! Hello World example demonstrating the example-crate.
 
 use anyhow::Result;
