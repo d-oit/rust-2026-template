@@ -90,7 +90,8 @@ tracing-opentelemetry = []
 ignored = ["tokio"]
 
 [workspace.lints.rust]
-unsafe_code = "allow"  # Enable if SIMD/FFI is needed
+missing_docs = "warn"
+unsafe_code = "forbid"
 
 [workspace.lints.clippy]
 # Enable all clippy lints at warning level
@@ -100,15 +101,25 @@ all = { level = "warn", priority = -1 }
 pedantic = { level = "allow", priority = -1 }
 nursery = { level = "allow", priority = -1 }
 
+# ── Agent-safety: prevent silencing lints instead of fixing code ──────────────
+# allow_attributes = "deny" blocks any #[allow(clippy::...)] annotation from
+# being introduced by AI agents or contributors. Fixes must be real, not silenced.
+allow_attributes = "deny"
+
 # Correctness: warn on panic-inducing patterns in library code
-unwrap_used = "warn"
-expect_used = "warn"
+# Library targets must use proper error handling (deny), tests/examples may allow.
+unwrap_used = "deny"
+expect_used = "deny"
 panic = "warn"
 
 # Promoted pedantic lints for correctness
+float_cmp = "warn"
+significant_drop_tightening = "warn"
 cast_precision_loss = "warn"
 cast_possible_truncation = "warn"
+redundant_clone = "warn"
 map_unwrap_or = "warn"
+unnecessary_map_or = "warn"
 missing_const_for_fn = "warn"
 
 # Common justified allows
