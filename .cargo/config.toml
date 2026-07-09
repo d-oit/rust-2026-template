@@ -41,7 +41,7 @@
 # Reduces target/ from ~5GB to ~2GB in large workspaces.
 # Maintains fast compilation with essential debug info.
 [profile.dev]
-debug = true                   # Full debug info for your own crates
+debug = "line-tables-only"    # ~60% smaller debug artifacts vs. full debug
 split-debuginfo = "unpacked"   # Split debug info for faster linking on Linux
 
 [profile.dev.package."*"]
