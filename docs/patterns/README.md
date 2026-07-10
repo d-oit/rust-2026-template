@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED — edit src/lib.rs in the crate, not this file -->
+
 # Template patterns — which crate to copy
 
 This template ships **optional** pattern crates. For most new projects, keep one
@@ -12,7 +14,7 @@ application crate and delete the rest (`./scripts/init-template.sh --minimal`).
 | Checkpoints / migrations | `checkpoint-template` | Serializable state + version migrations |
 | MCP tool registry | `mcp-server-template` | Tool trait + registry dispatch |
 
-### Storage specifically
+## Storage specifically
 
 1. **Default choice:** copy `example-storage-pattern` (trait + mock).
 2. **In-memory multi-backend demo:** use `hybrid-storage-template` with `MemoryBackend`.
