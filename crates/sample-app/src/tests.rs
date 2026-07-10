@@ -1,7 +1,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
 
-use crate::{Args, Config, LogLevel, is_safe_char, load_config, process_items};
+use crate::{Args, Config, LogLevel, is_safe_char, load_config, process_items, sanitize_str};
 use clap::Parser;
+use std::borrow::Cow;
 
 #[test]
 fn test_config_default() {
@@ -179,4 +180,63 @@ fn test_process_items_too_many() {
 fn test_args_parsing() {
     let args = Args::parse_from(["sample-app", "--count", "5"]);
     assert_eq!(args.count, 5);
+}
+
+#[test]
+fn test_sanitize_str_clean_ascii() {
+    let input = "hello world 123";
+    let result = sanitize_str(input);
+    assert!(matches!(result, Cow::Borrowed(_)));
+    assert_eq!(&*result, "hello world 123");
+}
+
+#[test]
+fn test_sanitize_str_unsafe_chars() {
+    let input = "hello\nworld\t!";
+    let result = sanitize_str(input);
+    assert!(matches!(result, Cow::Owned(_)));
+    assert_eq!(&*result, "hello?world?!");
+}
+
+#[test]
+fn test_sanitize_str_bidi_override() {
+    let input = "safe\u{202e}injected";
+    let result = sanitize_str(input);
+    assert_eq!(&*result, "safe?injected");
+}
+
+#[test]
+fn test_sanitize_str_multibyte_unicode() {
+    let input = "hello \u{1F980} world";
+    let result = sanitize_str(input);
+    assert_eq!(&*result, "hello \u{1F980} world");
+}
+
+#[test]
+fn test_sanitize_str_empty() {
+    let input = "";
+    let result = sanitize_str(input);
+    assert!(matches!(result, Cow::Borrowed(_)));
+    assert_eq!(&*result, "");
+}
+
+#[test]
+fn test_sanitize_str_starts_unsafe() {
+    let input = "\nhello";
+    let result = sanitize_str(input);
+    assert_eq!(&*result, "?hello");
+}
+
+#[test]
+fn test_sanitize_str_all_unsafe() {
+    let input = "\n\t\r";
+    let result = sanitize_str(input);
+    assert_eq!(&*result, "???");
+}
+
+#[test]
+fn test_sanitize_str_format_chars() {
+    let input = "a\u{200b}b\u{2060}c";
+    let result = sanitize_str(input);
+    assert_eq!(&*result, "a?b?c");
 }
