@@ -158,6 +158,24 @@ echo "Building version $VERSION"
 
 The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to main.
 
+## Cargo.lock Policy
+
+This template does **not** commit `Cargo.lock` because it is designed to be
+adopted as a library or workspace template. Downstream users resolve their own
+dependency trees via `cargo update`.
+
+**If you are building a binary application** (not a library), you should commit
+`Cargo.lock` for reproducible builds. To opt in, remove the `Cargo.lock` line
+from `.gitignore`:
+
+```bash
+sed -i '/^Cargo.lock$/d' .gitignore
+git add Cargo.lock .gitignore
+git commit -m "chore: track Cargo.lock for binary application"
+```
+
+See the [Cargo docs on Cargo.lock](https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html) for full rationale.
+
 ## Customization Guidance
 
 To adapt this template to your needs:

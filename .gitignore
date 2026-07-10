@@ -1,8 +1,10 @@
 # Rust build artifacts
 /target/
 
-# Cargo lock files (keep for binaries, omit for libraries)
-# Cargo.lock  # Uncomment for library crates
+# Cargo.lock is intentionally excluded for this library/template repo.
+# If you adopt this template for a *binary* application, remove this line
+# and commit your Cargo.lock. See README.md#cargo-lock-policy for details.
+Cargo.lock
 
 # Generated documentation
 /doc/
