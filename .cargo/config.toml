@@ -42,9 +42,10 @@
 # Maintains fast compilation with essential debug info.
 [profile.dev]
 debug = "line-tables-only"    # ~60% smaller debug artifacts vs. full debug
+split-debuginfo = "unpacked"   # Split debug info for faster linking on Linux
 
 [profile.dev.package."*"]
-debug = false                  # No debug info for dependencies (huge savings)
+debug = 0                      # No debug info for dependencies (huge savings)
 
 [profile.dev.build-override]
 opt-level = 3                  # Fast proc-macro execution

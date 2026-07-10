@@ -46,6 +46,13 @@ This repository uses a layered documentation strategy to serve both human develo
 | **Reusable Procedures** | `.agents/skills/` | AI Agents | Step-by-step executable task knowledge |
 | **Tool Adapters** | `CLAUDE.md`, `.cursorrules`, etc. | Specific Tools | Tool-specific deltas and harness quirks |
 
+## Build Performance
+
+- `target/` is excluded from git. If it exceeds 5GB, run `cargo clean`.
+- `.cargo/config.toml` disables debug info for dependencies (60% smaller builds).
+- Use `cargo clippy -p <crate-name>` for fast feedback on a single crate.
+- Use `scripts/build-maintenance.sh` to check build health.
+
 ## Included Tooling
 
 - **Testing:** `cargo-nextest` for faster test execution and `proptest` for property-based testing.
