@@ -58,7 +58,7 @@ N/A
 - [ ] I have added tests that prove my fix/feature works
 - [ ] All existing tests pass
 - [ ] I have checked for `unsafe` blocks and added `// SAFETY:` comments where needed
-- [ ] Dependency changes are reflected in `Cargo.toml` and `Cargo.lock`
+- [ ] Dependency changes are reflected in `Cargo.toml` (and `Cargo.lock` if tracked)
 
 ## Screenshots / Logs
 
