@@ -83,7 +83,7 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 - **Hardening:** Enforce `#[serde(deny_unknown_fields)]` on config structs.
 - **Safe Loading:** Use `file.take(limit)` and `is_file()` check before reading.
 - **Validation:** Sanitize strings (`is_control()`) and enforce bounds on numeric fields.
-- **Dependencies:** Declare versions in `[workspace.dependencies]` with caret ranges (e.g. `"1"` ≡ `^1`). Commit `Cargo.lock` for reproducible builds. Audit with `cargo tree` and `deny.toml`. Prefer lockfile pins over exact `=` requirements in manifests. https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
+- **Dependencies:** Declare versions in `[workspace.dependencies]` with caret ranges (e.g. `"1"` ≡ `^1`). Library/template crates should ignore `Cargo.lock` (rely on `Cargo.toml` constraints); binary applications should commit it for reproducible builds. Audit with `cargo tree` and `deny.toml`. Prefer lockfile pins over exact `=` requirements in manifests. https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
 - **Secrets:** Never hardcode; use environment variables or `.env`.
 - **Template Portability:** Never hardcode project name, repo URL, or author across source files. All project-specific values must derive from `Cargo.toml` at runtime or be rewriteable via `scripts/init-template.sh`. Avoid magic number thresholds — define named constants.
 
