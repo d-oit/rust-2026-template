@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
 
-use crate::{Args, Config, LogLevel, is_safe_char, load_config, process_items};
+use crate::{Args, Config, LogLevel, is_safe_char, load_config, process_items, sanitize_str};
 use clap::Parser;
 
 #[test]
@@ -82,6 +82,37 @@ fn test_config_app_name_sanitization() {
     let name = String::from("test\napp\u{202e}r");
     let sanitized: String = name.chars().filter(|c| is_safe_char(*c)).collect();
     assert_eq!(sanitized, "testappr");
+}
+
+#[test]
+fn test_sanitize_str_fast_path() {
+    let clean = "clean-ascii-123";
+    let result = sanitize_str(clean);
+    assert!(matches!(result, std::borrow::Cow::Borrowed(_)));
+    assert_eq!(result, clean);
+}
+
+#[test]
+fn test_sanitize_str_slow_path_ascii() {
+    let dirty = "test\napp\r";
+    let result = sanitize_str(dirty);
+    assert!(matches!(result, std::borrow::Cow::Owned(_)));
+    assert_eq!(result, "test?app?");
+}
+
+#[test]
+fn test_sanitize_str_slow_path_unicode() {
+    let unicode = "safe-🦀-app\u{202e}";
+    let result = sanitize_str(unicode);
+    assert!(matches!(result, std::borrow::Cow::Owned(_)));
+    assert_eq!(result, "safe-🦀-app?");
+}
+
+#[test]
+fn test_sanitize_str_mixed() {
+    let mixed = "abc\ndef\u{202e}ghi";
+    let result = sanitize_str(mixed);
+    assert_eq!(result, "abc?def?ghi");
 }
 
 #[test]

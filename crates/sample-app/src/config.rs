@@ -131,18 +131,23 @@ pub fn sanitize_str(s: &str) -> Cow<'_, str> {
         return Cow::Borrowed(s);
     }
 
-    // Slow path: character-by-character processing for Unicode or unsafe characters.
+    // Slow path: batch processing for Unicode or unsafe characters.
     let mut result = String::with_capacity(s.len());
     result.push_str(&s[..i]);
 
-    // Bolt: Use .chars() instead of .char_indices() to avoid unused index overhead
-    for c in s[i..].chars() {
-        if is_safe_char(c) {
-            result.push(c);
-        } else {
+    let remainder = &s[i..];
+    let mut last_idx = 0;
+    for (idx, c) in remainder.char_indices() {
+        if !is_safe_char(c) {
+            // Batch push clean segment before the unsafe character
+            result.push_str(&remainder[last_idx..idx]);
             result.push('?');
+            last_idx = idx + c.len_utf8();
         }
     }
+    // Push remaining clean segment
+    result.push_str(&remainder[last_idx..]);
+
     Cow::Owned(result)
 }
 
