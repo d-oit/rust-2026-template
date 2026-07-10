@@ -14,7 +14,7 @@ This repository follows a **3-layer canonical documentation model** to ensure AI
 - **Contents**: Step-by-step runbooks for specific tasks (e.g., `release-rust`, `lint-rust`).
 - **Usage**: Referenced by name in `AGENTS.md` and tool adapters.
 
-## 3. Tool Adapters (`CLAUDE.md`, `.cursorrules`, etc.)
+## 3. Tool Adapters (`CLAUDE.md`, `GEMINI.md`, etc.)
 
 - **Role**: Platform-specific deltas.
 - **Contents**: Hardware/harness differences, unique tool integrations, and context-loading quirks.
