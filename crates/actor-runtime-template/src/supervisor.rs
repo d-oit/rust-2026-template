@@ -22,7 +22,7 @@ pub enum SupervisorError {
 
 /// Supervises child actors with restart policies.
 pub struct Supervisor<S: ActorState> {
-    strategy: RestartStrategy,
+    _strategy: RestartStrategy,
     state: S,
 }
 
@@ -33,7 +33,10 @@ impl<S: ActorState + 'static> Supervisor<S> {
         reason = "const not possible across MSRV/generic bounds"
     )]
     pub fn new(strategy: RestartStrategy, state: S) -> Self {
-        Self { strategy, state }
+        Self {
+            _strategy: strategy,
+            state,
+        }
     }
 
     /// Spawn and supervise an actor, returning a handle to communicate with it.
@@ -61,6 +64,7 @@ pub enum SupervisorCommand {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
     use super::*;
     use serde::{Deserialize, Serialize};
 

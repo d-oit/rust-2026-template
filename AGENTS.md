@@ -91,6 +91,7 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 - **TDD:** Add or update tests before implementing logic.
 - **Search:** Always use `--exclude-dir=target` (and `.git`) in search commands.
 - **Context:** Run `bash scripts/generate-llms-txt.sh` after significant arch changes.
+- **Commits:** Strictly use lowercase for the subject line (e.g., `fix(scope): add ...` not `fix(scope): Add ...`). Sentence-case or start-case will fail CI.
 
 ## Change Workflow
 

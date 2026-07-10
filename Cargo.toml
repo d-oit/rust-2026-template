@@ -92,10 +92,12 @@ ignored = ["tokio"]
 [workspace.lints.rust]
 missing_docs = "warn"
 unsafe_code = "forbid"
-dead_code = "allow"
 
 [workspace.lints.clippy]
+# Enable all clippy lints at warning level
 all = { level = "warn", priority = -1 }
+
+# Pedantic/nursery too strict for most projects
 pedantic = { level = "allow", priority = -1 }
 nursery = { level = "allow", priority = -1 }
 
@@ -104,7 +106,13 @@ nursery = { level = "allow", priority = -1 }
 # being introduced by AI agents or contributors. Fixes must be real, not silenced.
 allow_attributes = "deny"
 
-# Promoted from pedantic — correctness signals (Phase A)
+# Correctness: warn on panic-inducing patterns in library code
+# Library targets must use proper error handling (deny), tests/examples may allow.
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "warn"
+
+# Promoted pedantic lints for correctness
 float_cmp = "warn"
 significant_drop_tightening = "warn"
 cast_precision_loss = "warn"
@@ -112,27 +120,11 @@ cast_possible_truncation = "warn"
 redundant_clone = "warn"
 map_unwrap_or = "warn"
 unnecessary_map_or = "warn"
-
-# Promoted from nursery — free compile-time wins (Phase A)
 missing_const_for_fn = "warn"
 
-# Library DX lints — Phase C (flip to warn after docs stabilise)
-missing_errors_doc = "allow"
-must_use_candidate = "allow"
-
-# Justified allows for template hot-path patterns
+# Common justified allows
 too_many_arguments = "allow"
-# `unwrap_used` / `expect_used` upgraded to deny (was: warn).
-# Production code must use proper error handling. Tests may use
-# #![allow(clippy::unwrap_used)] at module level (not attribute-level).
-# NOTE: allow_attributes = "deny" above prevents per-call-site suppression;
-# only module-level #![allow(...)] in test modules is permitted.
 type_complexity = "allow"
-unwrap_used = "deny"
-expect_used = "deny"
-panic = "allow"
-print_stdout = "allow"
-print_stderr = "allow"
 cognitive_complexity = "allow"
 
 # ─── Workspace crate layering ────────────────────────────────────────────────

@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 publish = false
 
+[lints]
+workspace = true
+
 # xtask is a development-only binary — not part of the public API.
 # Run with: cargo run -p xtask <subcommand>
 [[bin]]
