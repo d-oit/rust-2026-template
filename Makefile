@@ -60,3 +60,11 @@ insta-review:  ## Review and approve insta snapshot changes
 ## monitoring-help: Show available monitoring targets
 monitoring-help:
 	@grep -E '^## ' Makefile.monitoring | sed 's/## /  /'
+
+## Cut a patch release (bumps all workspace members)
+release-patch:
+	cargo release --workspace patch
+
+## Cut a minor release
+release-minor:
+	cargo release --workspace minor

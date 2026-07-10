@@ -132,6 +132,18 @@ insta = { version = "1", features = ["yaml"] }
 colored = "3"
 criterion = { version = "0.5", features = ["html_reports"] }
 
+# ─── cargo-release configuration ─────────────────────────────────────────────────────
+# Instruct `cargo release` to version all workspace members together.
+# Run: cargo release --workspace patch   (or minor / major)
+# Docs: https://github.com/crate-ci/cargo-release/blob/master/docs/reference.md
+[workspace.metadata.release]
+shared-version = true
+consolidate-commits = true
+pre-release-commit-message = "chore: release v{{version}}"
+tag-message = "Release v{{version}}"
+tag-name = "v{{version}}"
+release = true
+
 # ─── Build profiles ───────────────────────────────────────────────────────────
 [profile.dev]
 opt-level = 0

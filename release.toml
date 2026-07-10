@@ -1,6 +1,8 @@
-# Configuration for cargo-release
+# release.toml — project-level overrides only.
+# Workspace-level defaults live in Cargo.toml [workspace.metadata.release].
 [workspace]
-consolidate-commits = true
+push = true
+publish = false   # set to true if publishing to crates.io
 consolidate-pushes = true
 pre-release-hook = ["./scripts/pre-release-hook.sh"]
 # Update changelog using git-cliff
@@ -16,7 +18,3 @@ pre-release-replacements = [
 # actually, better to handle it in pre-release-hook.sh
 # or use the [changelog] section if available in the version being used.
 # Let's add it to the pre-release-hook.sh for maximum flexibility.
-
-[[package]]
-name = "rust-2026-template"
-tag-name = "v{{version}}"

@@ -128,6 +128,19 @@ git push origin main
 
 CI runs: format check, clippy, nextest, doc tests, security audit, cargo-deny, MSRV check.
 
+## Cutting a Release
+
+1. Ensure your working tree is clean.
+2. Run: `cargo release --workspace patch` (or `minor` / `major`)
+   - This bumps all workspace member versions together.
+   - Tags the commit as `v<version>`.
+   - Pushes the tag, triggering the release CI workflow.
+3. The GitHub Actions release workflow will:
+   - Run `git-cliff` to update `CHANGELOG.md`
+   - Create a GitHub Release with the generated notes
+
+For a dry-run (no changes): `cargo release --workspace patch --dry-run`
+
 ---
 
 ## What You Get
