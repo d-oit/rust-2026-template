@@ -65,12 +65,6 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - Edition: Rust 2024
 - MSRV: 1.88 (see `rust-toolchain.toml`)
 
-### Build Performance
-
-- The project uses split debug info and disables debug info for dependencies in `.cargo/config.toml` to reduce `target/` size and speed up builds.
-- If your `target/` directory becomes too large, run `cargo clean` or use `scripts/build-maintenance.sh --fix`.
-- For faster feedback during development, run Clippy on a single crate: `cargo clippy -p <crate-name>`.
-
 ### Tests
 
 - Use `cargo nextest run` for all tests

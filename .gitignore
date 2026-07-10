@@ -35,7 +35,6 @@ dist/
 
 # Generated reports (keep DORA-REPORT.md tracked)
 # /reports/
-reports/roast-report.json
 
 # Stale CI status files (use .agents/ci/ instead)
 /ci-status.json
