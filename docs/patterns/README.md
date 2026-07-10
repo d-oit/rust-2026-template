@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED — edit src/lib.rs in the crate, not this file -->
+
 # Template patterns — which crate to copy
 
 This template ships **optional** pattern crates. For most new projects, keep one
