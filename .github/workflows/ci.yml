@@ -109,7 +109,7 @@ jobs:
       - name: YAML Lint
         run: yamllint .
       - name: Markdown Lint
-        uses: davidanson/markdownlint-cli2-action@05f32210e84442804257b2a6f20b273450ec8265  # v19
+        uses: davidanson/markdownlint-cli2-action@8de2aa07cae85fd17c0b35642db70cf5495f1d25  # v24
         with:
           globs: "**/*.md"
       - name: Validate agent metrics schema
