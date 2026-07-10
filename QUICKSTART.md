@@ -19,9 +19,26 @@ git clone https://github.com/YOUR_USER/YOUR_REPO.git
 cd YOUR_REPO
 ```
 
-## 2. Rename the Example Crate
+### Recommended: minimal init (most apps)
 
-**Before anything else**, rename `example-crate` to your crate name:
+```bash
+./scripts/init-template.sh --minimal \
+  --name your-crate-name \
+  --description "Your description" \
+  --author "Your Name" \
+  --repo YOUR_USER/YOUR_REPO
+```
+
+`--minimal` keeps `sample-app` + your renamed lib crate + `xtask`, and removes
+optional pattern crates (MCP, actor, storage demos, …) plus optional workflows
+(DORA, mutants, eval, …). Core CI/security workflows stay.
+
+**Versions:** leave `VERSION` / workspace version at `0.0.0` until you ship.
+Template release notes (`v0.3.x`) are only in `.template/CHANGELOG-TEMPLATE.md`.
+
+## 2. Rename the Example Crate (manual alternative)
+
+If you skip `init-template.sh`, rename `example-crate` yourself:
 
 ```bash
 # Check the name is available on crates.io first
@@ -37,6 +54,7 @@ mv crates/example-crate crates/your-crate-name
 See `.agents/skills/crates-io-name-check/SKILL.md` for the full name-check workflow.
 
 The `sample-app` binary crate can be kept as a reference or renamed/removed as needed.
+Pattern crates: see [docs/patterns/README.md](docs/patterns/README.md).
 
 ## 3. Install Required Tools
 

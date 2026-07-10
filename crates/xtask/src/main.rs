@@ -1,12 +1,13 @@
-//! xtask — Quality gate orchestration for rust-2026-template.
+//! xtask — thin wrappers around template quality tooling.
 //!
-//! Run quality checks with:
+//! **Canonical full gate:** `./scripts/quality-gates.sh`
+//!
 //! ```bash
-//! cargo run -p xtask quality-gates   # Run all quality gates
+//! cargo run -p xtask quality-gates   # delegates to scripts/quality-gates.sh
 //! cargo run -p xtask fmt             # Format check only
 //! cargo run -p xtask clippy          # Clippy with -D warnings
 //! cargo run -p xtask deny            # cargo deny check
-//! cargo run -p xtask test            # Run tests
+//! cargo run -p xtask test            # Run tests (nextest if available)
 //! ```
 #![forbid(unsafe_code)]
 #![allow(clippy::print_stdout, clippy::print_stderr)]
@@ -16,7 +17,7 @@ use std::process::Command;
 
 #[derive(Parser)]
 #[command(name = "xtask")]
-#[command(about = "Quality gate orchestration for rust-2026-template")]
+#[command(about = "Quality helpers; full gate is scripts/quality-gates.sh")]
 struct Cli {
     #[command(subcommand)]
     cmd: Cmd,
@@ -24,7 +25,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Cmd {
-    /// Run all quality gates (fmt, clippy, deny, test)
+    /// Run the full quality gate script (SSOT for pre-push checks)
     QualityGates,
     /// Format check only
     Fmt,
@@ -32,7 +33,7 @@ enum Cmd {
     Clippy,
     /// cargo deny check
     Deny,
-    /// Run tests
+    /// Run tests (cargo-nextest if installed, else cargo test)
     Test,
 }
 
@@ -50,23 +51,9 @@ fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     match cli.cmd {
         Cmd::QualityGates => {
-            println!("==> Running all quality gates");
-            run("cargo", &["fmt", "--all", "--", "--check"])?;
-            run(
-                "cargo",
-                &[
-                    "clippy",
-                    "--workspace",
-                    "--all-targets",
-                    "--all-features",
-                    "--",
-                    "-D",
-                    "warnings",
-                ],
-            )?;
-            run("cargo", &["deny", "check"])?;
-            run("cargo", &["nextest", "run", "--workspace"])?;
-            println!("✅ All quality gates passed");
+            println!("==> Delegating to scripts/quality-gates.sh (canonical gate)");
+            // bash is required for portable script execution across Linux/macOS codespaces.
+            run("bash", &["scripts/quality-gates.sh"])?;
         }
         Cmd::Fmt => run("cargo", &["fmt", "--all", "--", "--check"])?,
         Cmd::Clippy => run(
@@ -82,7 +69,31 @@ fn main() -> anyhow::Result<()> {
             ],
         )?,
         Cmd::Deny => run("cargo", &["deny", "check"])?,
-        Cmd::Test => run("cargo", &["nextest", "run", "--workspace"])?,
+        Cmd::Test => {
+            // Prefer nextest when present; try installing it, then fall back to cargo test.
+            let nextest = Command::new("cargo")
+                .args(["nextest", "--version"])
+                .output()
+                .map(|o| o.status.success())
+                .unwrap_or(false);
+            if nextest {
+                run("cargo", &["nextest", "run", "--workspace"])?;
+            } else {
+                println!("  → cargo-nextest not found — attempting install...");
+                let installed = Command::new("cargo")
+                    .args(["install", "cargo-nextest"])
+                    .status()
+                    .map(|s| s.success())
+                    .unwrap_or(false);
+                if installed {
+                    println!("  ✓ cargo-nextest installed");
+                    run("cargo", &["nextest", "run", "--workspace"])?;
+                } else {
+                    println!("  ⚠ cargo-nextest install failed — falling back to cargo test");
+                    run("cargo", &["test", "--workspace"])?;
+                }
+            }
+        }
     }
     Ok(())
 }

@@ -53,41 +53,13 @@ workspace = true
 
 [dependencies]
 # Root crate has no runtime dependencies — src/lib.rs only provides an
-# example `add()` function.  Heavy optional deps (libsql, rayon, wasm-bindgen,
-# tracing-opentelemetry, etc.) live directly in the crates that consume them.
-tokio = { workspace = true, features = ["rt-multi-thread", "macros"], optional = true }
+# example `add()` function. Optional backends and CLI stacks live in the
+# workspace member crates that actually use them (e.g. hybrid-storage-template,
+# sample-app). Do not declare empty root features; they mislead adopters.
 
 [dev-dependencies]
 insta = { workspace = true }
 serde_json = { workspace = true }
-
-[features]
-default = []
-# These features are provided as a demonstration of workspace-level feature
-# flags.  Enable them to pull in optional workspace dependencies through
-# the root crate, or enable them directly in the crate that needs them.
-#
-# cli             - CLI binary support (clap, anyhow, colored)
-# persistence     - SQL persistence backend (libsql)
-# parallel        - CPU parallelism via rayon
-# wasm            - WASM build target support
-# tracing-json    - JSON tracing output
-# tracing-opentelemetry - OpenTelemetry tracing backend
-cli = ["dep:tokio"]
-persistence = []
-parallel = []
-wasm = []
-tracing-json = []
-tracing-opentelemetry = []
-
-# `tokio` is intentionally included here as a demonstration of how an optional
-# workspace dependency pulled in via a feature flag should be declared.  The
-# root crate's `src/lib.rs` is a minimal example and does not currently use
-# tokio itself; downstream binaries that enable `--features cli` are
-# expected to consume it.  Silence cargo-machete so the demonstration isn't
-# flagged as actually-unused.
-[package.metadata.cargo-machete]
-ignored = ["tokio"]
 
 [workspace.lints.rust]
 missing_docs = "warn"
@@ -150,7 +122,10 @@ serde_json = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 clap = { version = "4", features = ["derive", "env"] }
-async-trait = "0.1" # Required for dyn Trait + async fn (not yet native in Rust 2024)
+# Note: native `async fn` in traits (1.75+) is still not dyn-compatible.
+# Prefer manual `Pin<Box<dyn Future + Send + '_>>` (see storage/MCP templates)
+# or add `async-trait` only when a crate actually uses `#[async_trait]`.
+# https://docs.rs/async-trait/latest/async_trait/
 tokio-test = "0.4"
 proptest = "1"
 insta = { version = "1", features = ["yaml"] }

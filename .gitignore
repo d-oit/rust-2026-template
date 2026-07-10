@@ -72,8 +72,10 @@ default.profraw
 # proptest regression files (auto-saved failing cases)
 .proptest-regressions/
 
-# cargo-audit advisory DB cache
+# cargo-audit advisory DB cache and local registry/git caches
 .cargo/advisory-db/
+.cargo/registry/
+.cargo/git/
 .blackboxcli/
 
 

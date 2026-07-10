@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-07-10T13:32:24Z",
-  "total_score": 96,
+  "timestamp": "2026-07-10T16:39:58Z",
+  "total_score": 100,
   "pass_threshold": 80,
   "pass": true,
   "dimensions": {
     "code_quality": { "name": "Code Quality", "score": 10, "reason": "Zero clippy warnings, no files > 500 LOC" },
-    "test_coverage": { "name": "Test Coverage", "score": 6, "reason": "Summary: missing doc tests,cargo-llvm-cov not installed" },
+    "test_coverage": { "name": "Test Coverage", "score": 10, "reason": "Summary: 86.02% line coverage" },
     "security": { "name": "Security", "score": 10, "reason": "Zero audit findings, no secrets" },
     "dependency_health": { "name": "Dependency Health", "score": 10, "reason": "Zero outdated deps, MSRV compliant" },
     "documentation": { "name": "Documentation", "score": 10, "reason": "README, AGENTS.md, ADRs present; public items documented" },

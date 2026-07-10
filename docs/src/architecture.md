@@ -20,12 +20,12 @@ A human-friendly overview of the project — what it is, how to get started, and
 | Core Libraries | `benchmarks` | Performance measurement and Criterion benchmarks |
 | Templates | `actor-runtime-template` | Actor runtime with supervision and restart strategies |
 | | `checkpoint-template` | Serializable state with versioning and file storage |
-| | `hybrid-storage-template` | Backend abstraction with feature-gated implementations |
+| | `hybrid-storage-template` | Backend abstraction; use `MemoryBackend` (SQLite is a fail-closed stub) |
 | | `mcp-server-template` | MCP server with tool trait and registry dispatch |
 | | `rust-2026-template` | Main workspace template with modern tooling and CI/CD |
 | Examples | `example-crate` | Basic example crate |
 | | `example-registry-pattern` | Registry dispatch pattern example |
-| | `example-storage-pattern` | Storage abstraction pattern example |
+| | `example-storage-pattern` | **Preferred** trait-only storage pattern for new apps |
 | | `hello_world` | Simple hello world example |
 
 ## Dependency Flow

@@ -64,7 +64,7 @@
 
 ### Build Times
 
-- **Mold linker**: ~30% faster linking on Linux (configured in `.cargo/config.toml`)
+- **Mold linker**: optional on Linux; entries in `.cargo/config.toml` are commented out by default for portability (codespaces without mold). Uncomment after installing mold. On Rust ≥1.90, `rust-lld` is the default linker on `x86_64-unknown-linux-gnu` without extra config. https://blog.rust-lang.org/2025/09/01/rust-lld-on-1.90.0-stable/
 - **sccache**: Caches compilation across builds (enabled in CI via `RUSTC_WRAPPER`)
 - **Workspace incremental**: Cargo's workspace-level incremental compilation
 

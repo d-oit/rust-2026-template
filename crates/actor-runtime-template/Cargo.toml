@@ -6,7 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Actor runtime template using ractor for message-passing concurrency"
+description = "Hand-rolled actor runtime template: mailbox, state, and supervision patterns"
 readme = "README.md"
 
 [lints]

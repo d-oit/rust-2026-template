@@ -42,6 +42,57 @@ fail() { echo -e "${RED}[FAIL]${NC} $1"; FAILED=1; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 
+# Ensure a tool is available, installing it if missing.
+# Usage: ensure_tool <command> <install_method>
+#   install_method: "cargo:<crate>" | "apt:<pkg>" | "brew:<pkg>" | "npm:<pkg>"
+# Returns 0 if tool is available, 1 if not.
+ensure_tool() {
+  local cmd="$1"
+  local install_method="${2:-}"
+
+  if command -v "$cmd" &>/dev/null; then
+    return 0
+  fi
+
+  warn "$cmd not found — attempting install..."
+  case "$install_method" in
+    cargo:*)
+      local crate="${install_method#cargo:}"
+      if cargo install "$crate" 2>&1 | tail -1; then
+        info "$cmd installed via cargo install $crate"
+        return 0
+      fi
+      ;;
+    apt:*)
+      local pkg="${install_method#apt:}"
+      if sudo apt-get update -qq && sudo apt-get install -y -qq "$pkg" 2>&1 | tail -1; then
+        info "$cmd installed via apt install $pkg"
+        return 0
+      fi
+      ;;
+    brew:*)
+      local pkg="${install_method#brew:}"
+      if brew install "$pkg" 2>&1 | tail -1; then
+        info "$cmd installed via brew install $pkg"
+        return 0
+      fi
+      ;;
+    npm:*)
+      local pkg="${install_method#npm:}"
+      if npm install -g "$pkg" 2>&1 | tail -1; then
+        info "$cmd installed via npm install -g $pkg"
+        return 0
+      fi
+      ;;
+    none)
+      return 1
+      ;;
+  esac
+
+  warn "$cmd install failed — skipping"
+  return 1
+}
+
 FAILED=0
 DETECTED_LANGUAGES=()
 
@@ -180,7 +231,7 @@ if [[ " ${DETECTED_LANGUAGES[*]} " =~ " rust " ]]; then
   fi
 
   # Tests
-  if command -v cargo-nextest &>/dev/null; then
+  if ensure_tool cargo-nextest "cargo:cargo-nextest"; then
     if ! OUTPUT=$(cargo nextest run --all-features --workspace 2>&1); then
       fail "Tests: failed"
       printf "%s\n" "$OUTPUT" >&2
@@ -205,7 +256,7 @@ if [[ " ${DETECTED_LANGUAGES[*]} " =~ " rust " ]]; then
   fi
 
   # Security audit
-  if command -v cargo-audit &>/dev/null; then
+  if ensure_tool cargo-audit "cargo:cargo-audit"; then
     AUDIT_OUTPUT=$(cargo audit 2>&1) && AUDIT_EXIT=$? || AUDIT_EXIT=$?
     if [ $AUDIT_EXIT -ne 0 ]; then
       if echo "$AUDIT_OUTPUT" | grep -q "unsupported CVSS version"; then
@@ -217,11 +268,11 @@ if [[ " ${DETECTED_LANGUAGES[*]} " =~ " rust " ]]; then
       pass "Audit: OK"
     fi
   else
-    warn "cargo-audit not installed, skipping"
+    warn "cargo-audit: unavailable, skipping"
   fi
 
   # Supply chain
-  if command -v cargo-deny &>/dev/null; then
+  if ensure_tool cargo-deny "cargo:cargo-deny"; then
     if ! OUTPUT=$(cargo deny check 2>&1); then
       fail "cargo-deny: violations found"
       printf "%s\n" "$OUTPUT" >&2
@@ -229,11 +280,11 @@ if [[ " ${DETECTED_LANGUAGES[*]} " =~ " rust " ]]; then
       pass "Deny: OK"
     fi
   else
-    warn "cargo-deny not installed, skipping"
+    warn "cargo-deny: unavailable, skipping"
   fi
 
   # Unused dependencies
-  if command -v cargo-machete &>/dev/null; then
+  if ensure_tool cargo-machete "cargo:cargo-machete"; then
     if ! OUTPUT=$(cargo machete 2>&1); then
       fail "Unused deps found"
       printf "%s\n" "$OUTPUT" >&2
@@ -241,7 +292,7 @@ if [[ " ${DETECTED_LANGUAGES[*]} " =~ " rust " ]]; then
       pass "Machete: OK"
     fi
   else
-    warn "cargo-machete not installed, skipping"
+    warn "cargo-machete: unavailable, skipping"
   fi
 
   # MSRV audit
@@ -261,7 +312,7 @@ fi
 # ============================================================
 if [[ " ${DETECTED_LANGUAGES[*]} " =~ " shell " ]]; then
   info "Running Shell script checks..."
-  if command -v shellcheck &>/dev/null; then
+  if ensure_tool shellcheck "apt:shellcheck"; then
     TMP_SH_LIST=$(mktemp)
     find . -name "*.sh" -not -path "$GIT_EXCLUDE" -not -path "./target/*" -print0 2>/dev/null > "$TMP_SH_LIST" || true
     if [[ -s "$TMP_SH_LIST" ]]; then
@@ -273,7 +324,7 @@ if [[ " ${DETECTED_LANGUAGES[*]} " =~ " shell " ]]; then
     fi
     rm -f -- "$TMP_SH_LIST"
   else
-    warn "shellcheck not installed, skipping"
+    warn "shellcheck: unavailable, skipping"
   fi
   printf "\n"
 fi
@@ -283,14 +334,14 @@ fi
 # ============================================================
 if [[ " ${DETECTED_LANGUAGES[*]} " =~ " markdown " ]]; then
   info "Running Markdown checks..."
-  if command -v markdownlint-cli2 &>/dev/null; then
+  if ensure_tool markdownlint-cli2 "npm:markdownlint-cli2"; then
     if ! markdownlint-cli2 "**/*.md" >/dev/null 2>&1; then
       warn "markdownlint-cli2: issues found (run 'markdownlint-cli2 \"**/*.md\"' locally)"
     else
       pass "markdownlint: OK"
     fi
   else
-    warn "markdownlint-cli2 not installed, skipping"
+    warn "markdownlint-cli2: unavailable, skipping"
   fi
   printf "\n"
 fi
@@ -300,11 +351,25 @@ fi
 # ============================================================
 info "Checking for email addresses (privacy-first)..."
 EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target|\.opencode|\.mimocode'
+# Ignore local tool caches and third-party download trees (not project source).
+EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|target|\.opencode|\.mimocode|\.cargo/'
+PRIVACY_GREP_EXCLUDES=(
+  --exclude-dir=.git
+  --exclude-dir=target
+  --exclude-dir=.cargo
+  --exclude-dir=.opencode
+  --exclude-dir=.mimocode
+  --exclude-dir=node_modules
+)
 
-if grep -rE "$EMAIL_PATTERN" \
-  --exclude-dir=.git --exclude-dir=target --exclude-dir=.opencode --exclude-dir=.mimocode --exclude-dir=node_modules \
-  . 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
+# Prefer git-tracked files so local caches never fail the template quality gate.
+if git rev-parse --git-dir >/dev/null 2>&1; then
+  if git ls-files -z | xargs -0 grep -nE "$EMAIL_PATTERN" 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
+    fail "Email address detected in codebase"
+  else
+    pass "Privacy: OK"
+  fi
+elif grep -rE "$EMAIL_PATTERN" "${PRIVACY_GREP_EXCLUDES[@]}" . 2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
   fail "Email address detected in codebase"
 else
   pass "Privacy: OK"
@@ -316,10 +381,23 @@ printf "\n"
 # ============================================================
 info "Scanning for potential secrets..."
 SECRET_PATTERN="(api_key|token|secret|password|auth|key)[[:space:]]*[:=][[:space:]]*['\"][a-zA-Z0-9_\-]{16,}['\"]"
-EXCLUDE_DIR='--exclude-dir=.git --exclude-dir=target --exclude-dir=.agents --exclude-dir=.opencode --exclude-dir=node_modules'
 EXCLUDE_SECRET='example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree'
+SECRET_GREP_EXCLUDES=(
+  --exclude-dir=.git
+  --exclude-dir=target
+  --exclude-dir=.cargo
+  --exclude-dir=.agents
+  --exclude-dir=.opencode
+  --exclude-dir=node_modules
+)
 
-if grep -rE "$SECRET_PATTERN" $EXCLUDE_DIR . 2>/dev/null | grep -vE "$EXCLUDE_SECRET"; then
+if git rev-parse --git-dir >/dev/null 2>&1; then
+  if git ls-files -z | xargs -0 grep -nE "$SECRET_PATTERN" 2>/dev/null | grep -vE "$EXCLUDE_SECRET"; then
+    fail "Potential secret detected in codebase"
+  else
+    pass "Secret Scan: OK"
+  fi
+elif grep -rE "$SECRET_PATTERN" "${SECRET_GREP_EXCLUDES[@]}" . 2>/dev/null | grep -vE "$EXCLUDE_SECRET"; then
   fail "Potential secret detected in codebase"
 else
   pass "Secret Scan: OK"

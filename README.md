@@ -103,16 +103,18 @@ The project enforces high standards through a multi-layered verification process
 
 ## Feature Flags
 
-The template demonstrates composable feature flags for pluggable backends:
+The root package has no optional features (it only exports a tiny example API).
+Real feature flags live on member crates that implement them, for example:
 
-| Feature | Description | Enabled by default |
-|---------|-------------|-------------------|
-| `cli`   | CLI binary support (clap, anyhow, colored) | No |
-| `persistence` | Persistence backend (libsql) | No |
-| `parallel` | CPU parallelism (rayon) | No |
-| `wasm` | WASM build target support | No |
-| `tracing-json` | JSON tracing output | No |
-| `tracing-opentelemetry` | OpenTelemetry tracing backend | No |
+| Crate | Feature | Description |
+|-------|---------|-------------|
+| `example-storage-pattern` | `sqlite` / `mock` | **Preferred** trait-only storage pattern |
+| `hybrid-storage-template` | (none / `MemoryBackend`) | Working in-memory hybrid wrapper |
+| `hybrid-storage-template` | `sqlite` | Fail-closed SQLite **stub** (not production) |
+| `hybrid-storage-template` | `kv` | redb key-value backend |
+
+Pattern selection: [docs/patterns/README.md](docs/patterns/README.md). For a slim
+app workspace, run `./scripts/init-template.sh --minimal …`.
 
 ## Benchmarks
 

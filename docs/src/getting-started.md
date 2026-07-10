@@ -73,21 +73,24 @@ cargo nextest run --workspace
 
 ## Feature Flags
 
-Enable optional features in `Cargo.toml`:
+The root package has no optional features. Enable features on the crates that
+define them:
 
 ```toml
 [dependencies]
-rust-2026-template = { path = "..", features = ["cli", "persistence"] }
+# Prefer the trait-only pattern for most apps:
+# example-storage-pattern = { path = "crates/example-storage-pattern" }
+hybrid-storage-template = { path = "crates/hybrid-storage-template" }
 ```
 
-| Feature | Description |
-|---------|-------------|
-| `cli` | CLI binary support (clap, anyhow) |
-| `persistence` | SQL persistence backend (libsql) |
-| `parallel` | CPU parallelism (rayon) |
-| `wasm` | WASM build target support |
-| `tracing-json` | JSON tracing output |
-| `tracing-opentelemetry` | OpenTelemetry backend |
+| Crate | Feature | Description |
+|-------|---------|-------------|
+| `example-storage-pattern` | `sqlite` / `mock` | **Preferred** trait-only storage |
+| `hybrid-storage-template` | (default empty) | `MemoryBackend` always available |
+| `hybrid-storage-template` | `sqlite` | Fail-closed stub only |
+| `hybrid-storage-template` | `kv` | redb backend |
+
+See [docs/patterns/README.md](../patterns/README.md). Slim init: `./scripts/init-template.sh --minimal`.
 
 ## IDE Setup
 

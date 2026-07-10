@@ -20,6 +20,7 @@ warn()  { printf "${YELLOW}  ! %s${NC}\n" "$*"; }
 fail()  { printf "${RED}  ✗ %s${NC}\n" "$*" >&2; exit 1; }
 
 DRY_RUN=0
+MINIMAL=0
 
 usage() {
   cat <<EOF
@@ -29,6 +30,9 @@ Initialize a new project from the rust-2026-template.
 
 Options:
   --dry-run             Preview changes without applying them
+  --minimal             Slim workspace for typical apps: keep sample-app + your
+                        renamed lib crate + xtask; remove optional pattern crates
+                        and optional workflows (DORA, mutants, eval, docs deploy…)
   --name NAME           Project/crate name (e.g., "my-app")
   --description DESC    Project description
   --author AUTHOR       Author name (e.g., "Jane Doe")
@@ -36,6 +40,9 @@ Options:
   -h, --help            Show this help message
 
 If options are not provided, the script will prompt interactively.
+
+Recommended for most new codebases:
+  $(basename "$0") --minimal --name my-app --description "..." --author "..." --repo org/my-app
 EOF
   exit 0
 }
@@ -43,6 +50,7 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)   DRY_RUN=1; shift ;;
+    --minimal)   MINIMAL=1; shift ;;
     --name)      PROJECT_NAME="$2"; shift 2 ;;
     --description) PROJECT_DESC="$2"; shift 2 ;;
     --author)    AUTHOR="$2"; shift 2 ;;
@@ -83,22 +91,12 @@ log "Initializing project: $PROJECT_NAME"
 log "  Description: $PROJECT_DESC"
 log "  Author: $AUTHOR"
 log "  Repo: $REPO_URL"
-echo ""
-
-# --- rename example-crate ---
-CrateName=$(echo "$PROJECT_NAME" | tr '-' '_')
-log "Renaming crates/example-crate -> crates/$PROJECT_NAME"
-
-if [[ $DRY_RUN -eq 1 ]]; then
-  ok "(dry run) Would rename crates/example-crate -> crates/$PROJECT_NAME"
+if [[ $MINIMAL -eq 1 ]]; then
+  log "  Profile: minimal (typical app workspace)"
 else
-  if [[ -d "crates/$PROJECT_NAME" ]]; then
-    warn "crates/$PROJECT_NAME already exists, skipping rename"
-  else
-    mv "crates/example-crate" "crates/$PROJECT_NAME"
-    ok "Renamed crates/example-crate -> crates/$PROJECT_NAME"
-  fi
+  log "  Profile: full (keeps pattern crates and optional workflows)"
 fi
+echo ""
 
 # --- sed helper (GNU/BSD compatible) ---
 sedi() {
@@ -122,6 +120,83 @@ replace_in_file() {
   fi
 }
 
+# --- remove path (dry-run aware) ---
+remove_path() {
+  local path="$1"
+  if [[ $DRY_RUN -eq 1 ]]; then
+    ok "(dry run) Would remove $path"
+  elif [[ -e "$path" ]]; then
+    rm -rf "$path"
+    ok "Removed $path"
+  fi
+}
+
+# --- minimal profile: drop optional pattern crates + optional workflows ---
+# Keeps: crates/sample-app, crates/example-crate (renamed), crates/xtask,
+# core CI (ci, commitlint, release*, security/secretlint, hotfix, dependabot).
+if [[ $MINIMAL -eq 1 ]]; then
+  log "Applying --minimal profile"
+
+  for crate in \
+    actor-runtime-template \
+    checkpoint-template \
+    hybrid-storage-template \
+    mcp-server-template \
+    example-registry-pattern \
+    example-storage-pattern
+  do
+    remove_path "crates/$crate"
+  done
+
+  for wf in \
+    dora-fdrt.yml \
+    dora-report.yml \
+    eval.yml \
+    mutants.yml \
+    skills-evaluation.yml \
+    update-architecture-diagram.yml \
+    cleanup-ci-status.yml \
+    sync-labels.yml \
+    labeler.yml \
+    patch-release-on-label.yml \
+    deploy-docs.yml \
+    fuzz.yml
+  do
+    remove_path ".github/workflows/$wf"
+  done
+
+  # Optional meta-template surface (safe for adopters to drop)
+  remove_path "fuzz"
+  remove_path "benchmarks"
+  remove_path "docs/patterns"
+  remove_path ".template"
+
+  # Workspace members use crates/* examples/* benchmarks — drop benchmarks member if dir gone
+  # Cargo.toml members = ["crates/*", "examples/*", "benchmarks"] — fix when benchmarks removed
+  if [[ $DRY_RUN -eq 0 ]] && [[ ! -d benchmarks ]]; then
+    if grep -q '"benchmarks"' Cargo.toml 2>/dev/null; then
+      sedi 's/, "benchmarks"//' Cargo.toml
+      sedi 's/"benchmarks", //' Cargo.toml
+      ok "Removed benchmarks from workspace members"
+    fi
+  fi
+fi
+
+# --- rename example-crate ---
+CrateName=$(echo "$PROJECT_NAME" | tr '-' '_')
+log "Renaming crates/example-crate -> crates/$PROJECT_NAME"
+
+if [[ $DRY_RUN -eq 1 ]]; then
+  ok "(dry run) Would rename crates/example-crate -> crates/$PROJECT_NAME"
+else
+  if [[ -d "crates/$PROJECT_NAME" ]]; then
+    warn "crates/$PROJECT_NAME already exists, skipping rename"
+  else
+    mv "crates/example-crate" "crates/$PROJECT_NAME"
+    ok "Renamed crates/example-crate -> crates/$PROJECT_NAME"
+  fi
+fi
+
 # --- rewrite Cargo.toml (workspace) ---
 log "Updating Cargo.toml"
 replace_in_file "Cargo.toml" 'name = "rust-2026-template"' "name = \"$PROJECT_NAME\""
@@ -141,12 +216,12 @@ replace_in_file "$CRATE_TOML" 'description = "Example crate in the rust-2026-tem
 log "Updating crates/sample-app/Cargo.toml"
 replace_in_file "crates/sample-app/Cargo.toml" 'description = "Sample application demonstrating the rust-2026-template"' "description = \"Sample application for $PROJECT_NAME\""
 
-# --- rewrite template crate Cargo.toml files ---
+# --- rewrite template crate Cargo.toml files (skipped if --minimal removed them) ---
 for crate in actor-runtime-template checkpoint-template hybrid-storage-template mcp-server-template; do
   TOML="crates/$crate/Cargo.toml"
   if [[ -f "$TOML" ]]; then
     log "Updating $TOML"
-    replace_in_file "$TOML" "Actor runtime template using ractor for message-passing concurrency" "$PROJECT_DESC"
+    replace_in_file "$TOML" "Hand-rolled actor runtime template: mailbox, state, and supervision patterns" "$PROJECT_DESC"
     replace_in_file "$TOML" "Checkpoint template for serializable application state with migration support" "$PROJECT_DESC"
     replace_in_file "$TOML" "Hybrid storage template with SQL + KV backends and caching" "$PROJECT_DESC"
     replace_in_file "$TOML" "MCP server template crate with tool registration and dispatch" "$PROJECT_DESC"
@@ -251,15 +326,19 @@ replace_in_file "agents-docs/structure.md" 'rust-2026-template' "$PROJECT_NAME"
 log "Updating crates/sample-app/README.md"
 replace_in_file "crates/sample-app/README.md" 'rust-2026-template' "$PROJECT_NAME"
 
-# --- rewrite fuzz/Cargo.toml ---
-log "Updating fuzz/Cargo.toml"
-replace_in_file "fuzz/Cargo.toml" 'rust-2026-template' "$PROJECT_NAME"
+# --- rewrite fuzz/Cargo.toml (may be removed under --minimal) ---
+if [[ -f "fuzz/Cargo.toml" ]]; then
+  log "Updating fuzz/Cargo.toml"
+  replace_in_file "fuzz/Cargo.toml" 'rust-2026-template' "$PROJECT_NAME"
+fi
 
-# --- rewrite benchmarks/Cargo.toml ---
-log "Updating benchmarks/Cargo.toml"
-replace_in_file "benchmarks/Cargo.toml" 'rust-2026-template' "$PROJECT_NAME"
+# --- rewrite benchmarks/Cargo.toml (may be removed under --minimal) ---
+if [[ -f "benchmarks/Cargo.toml" ]]; then
+  log "Updating benchmarks/Cargo.toml"
+  replace_in_file "benchmarks/Cargo.toml" 'rust-2026-template' "$PROJECT_NAME"
+fi
 
-# --- rewrite CI workflows with repo-specific checks ---
+# --- rewrite CI workflows with repo-specific checks (files may be gone under --minimal) ---
 log "Updating CI workflow repo checks"
 replace_in_file ".github/workflows/dora-fdrt.yml" 'd-oit/rust-2026-template' "$REPO"
 replace_in_file ".github/workflows/dora-report.yml" 'd-oit/rust-2026-template' "$REPO"

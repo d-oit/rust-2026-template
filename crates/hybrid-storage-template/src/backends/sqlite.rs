@@ -1,34 +1,41 @@
-//! SQLite backend implementation using libSQL.
+//! SQLite backend scaffold using libSQL.
 //!
-//! This is a **stub implementation** for template purposes.
-//! A real implementation would use libsql to connect to a SQLite database.
+//! **Template stub — not a working storage backend.**
+//! Construction and all operations fail closed so adopters cannot mistake
+//! this for a production implementation. Replace the body with real libSQL
+//! calls before enabling the `sqlite` feature in application code.
 //! See: https://docs.rs/libsql
 
 use crate::StorageError;
 use std::future::Future;
 use std::pin::Pin;
 
-/// SQLite backend using libSQL/Turso.
+const STUB_MSG: &str = "SqliteBackend is a template stub (not implemented). Use MemoryBackend for tests, \
+     or implement libSQL wiring before production use. See crates/hybrid-storage-template/README.md \
+     and docs/patterns/trait-only-storage.md.";
+
+/// SQLite backend scaffold (libSQL/Turso).
 ///
-/// This is a placeholder implementation. For a real backend, you would:
-/// 1. Store a `libsql::Database` connection
-/// 2. Implement proper CRUD operations using SQL queries
-/// 3. Handle connection pooling and error recovery
+/// Intentionally incomplete: every method returns [`StorageError::Backend`]
+/// so silent success is impossible.
 pub struct SqliteBackend {
     _inner: Option<libsql::Database>,
 }
 
 impl SqliteBackend {
-    /// Create a new SQLite backend.
+    /// Attempt to create a SQLite backend.
     ///
-    /// The `url` parameter should be a libSQL connection URL, e.g.:
+    /// Always returns [`Err`] until a real libSQL connection is implemented.
+    ///
+    /// The `url` parameter would be a libSQL connection URL, e.g.:
     /// - `"file::memory:?cache=shared"` for in-memory
     /// - `"libsql://your-db.turso.io"` for remote
     pub async fn new(_url: &str) -> Result<Self, StorageError> {
-        // TODO: Implement actual libSQL connection
-        // let db = libsql::Database::new(url).await?;
-        // Ok(Self { inner: Some(db) })
-        Ok(Self { _inner: None })
+        Err(StorageError::Backend(STUB_MSG.into()))
+    }
+
+    fn not_implemented() -> StorageError {
+        StorageError::Backend(STUB_MSG.into())
     }
 }
 
@@ -37,7 +44,7 @@ impl crate::Backend for SqliteBackend {
         &self,
         _key: &str,
     ) -> Pin<Box<dyn Future<Output = Result<Option<String>, StorageError>> + Send + '_>> {
-        Box::pin(async { Ok(None) })
+        Box::pin(async { Err(Self::not_implemented()) })
     }
 
     fn set(
@@ -45,21 +52,21 @@ impl crate::Backend for SqliteBackend {
         _key: &str,
         _value: &str,
     ) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + '_>> {
-        Box::pin(async { Ok(()) })
+        Box::pin(async { Err(Self::not_implemented()) })
     }
 
     fn delete(
         &self,
         _key: &str,
     ) -> Pin<Box<dyn Future<Output = Result<bool, StorageError>> + Send + '_>> {
-        Box::pin(async { Ok(false) })
+        Box::pin(async { Err(Self::not_implemented()) })
     }
 
     fn list_keys(
         &self,
         _prefix: &str,
     ) -> Pin<Box<dyn Future<Output = Result<Vec<String>, StorageError>> + Send + '_>> {
-        Box::pin(async { Ok(Vec::new()) })
+        Box::pin(async { Err(Self::not_implemented()) })
     }
 }
 
@@ -68,16 +75,15 @@ mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
 
     use super::*;
-    use crate::Backend;
 
     #[tokio::test]
-    async fn test_sqlite_backend_placeholder() {
-        let backend = SqliteBackend::new("file::memory:?cache=shared")
-            .await
-            .unwrap();
-        assert!(backend.get("test").await.unwrap().is_none());
-        assert!(backend.set("test", "value").await.is_ok());
-        assert!(!backend.delete("test").await.unwrap());
-        assert!(backend.list_keys("").await.unwrap().is_empty());
+    async fn sqlite_backend_new_fails_closed() {
+        let result = SqliteBackend::new("file::memory:?cache=shared").await;
+        assert!(result.is_err(), "stub must not construct successfully");
+        let msg = result.err().map(|e| e.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("template stub") || msg.contains("not implemented"),
+            "unexpected error: {msg}"
+        );
     }
 }

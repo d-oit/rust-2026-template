@@ -25,7 +25,9 @@ libsql = { version = "0.9", default-features = false, optional = true }
 redb = { version = "1", optional = true }
 
 [features]
-default = ["sqlite"]
+# Default is empty: MemoryBackend needs no features. `sqlite` is a fail-closed
+# scaffold (not a working DB). Enable only when implementing real libSQL wiring.
+default = []
 sqlite = ["dep:libsql"]
 kv = ["dep:redb"]
 

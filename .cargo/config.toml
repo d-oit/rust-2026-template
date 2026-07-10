@@ -1,12 +1,19 @@
 # .cargo/config.toml — Cross-platform linker configuration
 # Works on: Linux, macOS, WSL2, and Windows (MSVC + GNU)
 
-# ─── Linux: mold linker via clang ───────────────────────────────────────────
+# ─── Linux: mold linker via clang (OPTIONAL — off by default for portability) ─
 # mold is the fastest available linker on Linux, ~7x faster than default ld.
 # Requires: apt install mold clang  (Ubuntu/Debian)  or  brew install mold (Linuxbrew)
-# If mold is not installed, Rust 1.90+ falls back to rust-lld automatically.
+# Left commented so codespaces without mold still build. Uncomment after install.
+# On Rust ≥1.90, rustc uses rust-lld by default on x86_64-unknown-linux-gnu
+# (no mold required): https://blog.rust-lang.org/2025/09/01/rust-lld-on-1.90.0-stable/
+# MSRV for this template is 1.88, so do not assume rust-lld is default everywhere.
 # [target.x86_64-unknown-linux-gnu]
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 # [target.aarch64-unknown-linux-gnu]
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 # ─── macOS: default linker ──────────────────────────────────────────────────
 # macOS's default ld64 is already fast, especially on Apple Silicon.

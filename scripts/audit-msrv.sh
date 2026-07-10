@@ -35,13 +35,15 @@ if [[ -f "rust-toolchain.toml" ]]; then
   # Extract just the version number
   MSRV=$(echo "$TOOLCHAIN" | grep -oE '[0-9]+\.[0-9]+' | head -1)
 else
-  # Fallback: read from Cargo.toml
+  # Fallback: read from Cargo.toml (POSIX awk — no gawk 3-arg match)
   MSRV=$(awk '
     /^\[workspace\.package\]/ { in_section=1; next }
     /^\[/                     { in_section=0 }
     in_section && /^rust-version/ {
-      match($0, /"([^"]+)"/, arr)
-      if (arr[1] != "") { print arr[1]; exit }
+      if (match($0, /"[^"]+"/)) {
+        print substr($0, RSTART + 1, RLENGTH - 2)
+        exit
+      }
     }
   ' Cargo.toml)
 fi
@@ -56,12 +58,15 @@ echo ""
 
 # --- Check root Cargo.toml rust-version ---
 info "Checking root Cargo.toml rust-version field..."
+# Portable POSIX awk (works with mawk/nawk; avoid gawk-only match 3-arg form)
 ROOT_RUST_VERSION=$(awk '
   /^\[workspace\.package\]/ { in_section=1; next }
   /^\[/                     { in_section=0 }
   in_section && /^rust-version/ {
-    match($0, /"([^"]+)"/, arr)
-    if (arr[1] != "") { print arr[1]; exit }
+    if (match($0, /"[^"]+"/)) {
+      print substr($0, RSTART + 1, RLENGTH - 2)
+      exit
+    }
   }
 ' Cargo.toml)
 

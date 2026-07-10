@@ -104,11 +104,21 @@ check_test_coverage() {
   fi
 
   # Line coverage (4 pts)
+  # Thresholds: 80%+=4, 60-79%=3, 40-59%=2, 20-39%=1, <20%=0
+  # 80%+ is excellent for most Rust projects; 100% is unrealistic with binary entrypoints.
   if command -v cargo-llvm-cov &>/dev/null; then
     local cov
-    cov=$(cargo llvm-cov --workspace --all-features 2>/dev/null | grep "Total" | awk '{print $NF}' | tr -d '%')
-    if [[ -n "$cov" ]]; then
-      local cov_pts=$(( ${cov%.*} / 25 )) # 0-4 pts for 0-100%
+    # cargo-llvm-cov columns: Regions Missed Regions Cover% Functions Missed Functions Executed% Lines Missed Lines Cover% ...
+    # Line coverage is field 10 (the Cover% after Lines/Missed Lines)
+    cov=$(cargo llvm-cov --workspace --all-features 2>/dev/null | grep -i "total" | awk '{print $10}' | tr -d '%')
+    if [[ -n "$cov" && "$cov" != "-" ]]; then
+      local cov_val=${cov%.*}
+      local cov_pts=0
+      if   [[ $cov_val -ge 80 ]]; then cov_pts=4
+      elif [[ $cov_val -ge 60 ]]; then cov_pts=3
+      elif [[ $cov_val -ge 40 ]]; then cov_pts=2
+      elif [[ $cov_val -ge 20 ]]; then cov_pts=1
+      fi
       score=$((score + cov_pts))
       reasons+=("$cov% line coverage")
     fi

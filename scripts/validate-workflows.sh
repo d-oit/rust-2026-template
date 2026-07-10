@@ -38,25 +38,34 @@ fi
 info "Validating GitHub Actions workflows..."
 echo ""
 
-# 1. YAML syntax check
+# 1. YAML syntax check (optional — skip cleanly when PyYAML/yq missing)
 info "Checking YAML syntax..."
 YAML_OK=true
-for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
-  [[ -f "$f" ]] || continue
-  if command -v python3 &>/dev/null; then
+YAML_SKIPPED=false
+if command -v python3 &>/dev/null && python3 -c "import yaml" 2>/dev/null; then
+  for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
+    [[ -f "$f" ]] || continue
     if ! python3 -c "import yaml; yaml.safe_load(open('$f'))" 2>/dev/null; then
       fail "YAML syntax error: $f"
       YAML_OK=false
     fi
-  elif command -v yq &>/dev/null; then
+  done
+elif command -v yq &>/dev/null; then
+  for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
+    [[ -f "$f" ]] || continue
     if ! yq eval '.' "$f" >/dev/null 2>&1; then
       fail "YAML syntax error: $f"
       YAML_OK=false
     fi
-  fi
-done
-if $YAML_OK; then
+  done
+else
+  warn "PyYAML/yq not installed — skipping YAML syntax check (optional: pip install pyyaml)"
+  YAML_SKIPPED=true
+fi
+if $YAML_OK && ! $YAML_SKIPPED; then
   pass "YAML syntax: all valid"
+elif $YAML_OK && $YAML_SKIPPED; then
+  pass "YAML syntax: skipped (no parser)"
 fi
 echo ""
 

@@ -2,6 +2,14 @@
 
 > Feature-gated storage backends (SQL, KV, memory) with a unified trait abstraction.
 
+## Which storage crate should I copy?
+
+| Goal | Use |
+|------|-----|
+| Trait-only storage API + mock for tests | **`example-storage-pattern`** (start here for most apps) |
+| Multi-backend wrapper + in-memory primary | **`hybrid-storage-template`** + `MemoryBackend` |
+| Real SQLite/libSQL | Implement yourself — `SqliteBackend` is a **fail-closed stub** |
+
 ## When to use
 
 - Applications needing pluggable storage backends (SQLite, redb, in-memory)
@@ -34,21 +42,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 | Feature | Backend | Dependency | Default |
 |---------|---------|------------|---------|
-| `sqlite` | `SqliteBackend` | `libsql` | Yes |
-| `kv` | `KvBackend` | `redb` | No |
 | — | `MemoryBackend` | None (always available) | — |
+| `sqlite` | `SqliteBackend` (**stub**, fail-closed) | `libsql` | No |
+| `kv` | `KvBackend` | `redb` | No |
 
 ```toml
 [dependencies]
-hybrid-storage-template = { features = ["sqlite", "kv"] }
+# Prefer MemoryBackend (no features). Only enable sqlite after implementing real wiring.
+hybrid-storage-template = { path = "crates/hybrid-storage-template" }
 ```
 
 ## Architecture
 
 - **`Backend`** — Async trait: `get`, `set`, `delete`, `list_keys`
 - **`HybridStorage`** — Wraps a primary `Arc<dyn Backend>`
-- **`MemoryBackend`** — In-memory HashMap for testing
-- **`SqliteBackend`** — libSQL/Turso backend (requires `sqlite` feature)
+- **`MemoryBackend`** — In-memory HashMap for testing (working reference)
+- **`SqliteBackend`** — Scaffold only; construction and ops return errors
 - **`KvBackend`** — redb persistent key-value store (requires `kv` feature)
 
 ## Testing

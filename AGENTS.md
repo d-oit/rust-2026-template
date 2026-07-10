@@ -70,18 +70,20 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 ## Coding Conventions
 
 ### Rust & Concurrency
-- **Edition:** Rust 2024 (MSRV 1.88).
+- **Edition:** Rust 2024 (MSRV 1.88). Edition 2024 requires ≥1.85; 1.88 is intentional for broader codespace/toolchain compatibility. Do not bump MSRV unless required by a dependency. https://doc.rust-lang.org/edition-guide/rust-2024/index.html
+- **Versions:** `VERSION` / workspace `0.0.0` is the **adopter app** version (start here). Template meta-releases (e.g. v0.3.x) live only in `.template/CHANGELOG-TEMPLATE.md` — do not sync them into `VERSION`.
 - **Safety:** `#![forbid(unsafe_code)]` at workspace and crate roots.
 - **Errors:** `thiserror` for libraries, `anyhow` for binaries. No `unwrap()` in libs.
-- **Async:** Use `tokio`. CLI apps: prefer `#[tokio::main(flavor = "current_thread")]`.
+- **Async:** Use `tokio` when you need a runtime. CLI apps that use async: prefer `#[tokio::main(flavor = "current_thread")]`. Sync `main` is fine when no async is required (`sample-app`).
 - **Async Safety:** Avoid blocking calls; use `spawn_blocking` when necessary.
 - **Tracing:** Minimize CLI tracing metadata (thread IDs/names) unless high-concurrency.
+- **Quality SSOT:** Prefer `./scripts/quality-gates.sh` before push. `cargo run -p xtask quality-gates` delegates to that script.
 
 ### Security & Configuration
 - **Hardening:** Enforce `#[serde(deny_unknown_fields)]` on config structs.
 - **Safe Loading:** Use `file.take(limit)` and `is_file()` check before reading.
 - **Validation:** Sanitize strings (`is_control()`) and enforce bounds on numeric fields.
-- **Dependencies:** Pin core crates (`=1.0.x`). Audit with `cargo tree` and `deny.toml`.
+- **Dependencies:** Declare versions in `[workspace.dependencies]` with caret ranges (e.g. `"1"` ≡ `^1`). Commit `Cargo.lock` for reproducible builds. Audit with `cargo tree` and `deny.toml`. Prefer lockfile pins over exact `=` requirements in manifests. https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
 - **Secrets:** Never hardcode; use environment variables or `.env`.
 - **Template Portability:** Never hardcode project name, repo URL, or author across source files. All project-specific values must derive from `Cargo.toml` at runtime or be rewriteable via `scripts/init-template.sh`. Avoid magic number thresholds — define named constants.
 

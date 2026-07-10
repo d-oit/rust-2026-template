@@ -69,8 +69,10 @@ if [[ "$ROOT_VERSION" == "PARSE_ERROR" ]]; then
     /^\[workspace\.package\]/ { in_section=1; next }
     /^\[/                     { in_section=0 }
     in_section && /^version[[:space:]]*=/ {
-      match($0, /"([^"]+)"/, arr)
-      if (arr[1] != "") { print arr[1]; exit }
+      if (match($0, /"[^"]+"/)) {
+        print substr($0, RSTART + 1, RLENGTH - 2)
+        exit
+      }
     }
   ' Cargo.toml)
 fi
