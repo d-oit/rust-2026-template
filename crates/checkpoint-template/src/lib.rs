@@ -156,13 +156,25 @@ impl<T: Storable> CheckpointManager<T> {
         }
     }
 
+    /// Set the application name with security validation.
+    pub fn set_app_name(&mut self, app_name: impl Into<String>) -> Result<(), CheckpointError> {
+        let app_name = app_name.into();
+        Self::validate_app_name(&app_name, &self.config)?;
+        self.header.app_name = app_name;
+        Ok(())
+    }
+
     /// Save state atomically.
     pub async fn save(&mut self, state: &T) -> Result<(), CheckpointError> {
+        // Security: Validate header before saving.
+        Self::validate_app_name(&self.header.app_name, &self.config)?;
+
         self.header.version = T::version();
         self.header.created_at = SystemTime::now();
 
         use bincode::Options;
-        let options = bincode::options();
+        // Security: Use bincode with a size limit to prevent resource exhaustion during serialization.
+        let options = bincode::options().with_limit(self.config.max_checkpoint_size);
 
         let data = options
             .serialize(state)
@@ -170,6 +182,45 @@ impl<T: Storable> CheckpointManager<T> {
 
         self.storage.save(&self.header, &data).await?;
         info!("Checkpoint saved (version {})", self.header.version);
+        Ok(())
+    }
+
+    /// Validate application name for security constraints.
+    fn validate_app_name(name: &str, config: &CheckpointConfig) -> Result<(), CheckpointError> {
+        // Security (2026): Sanitize app_name to prevent log injection and resource exhaustion.
+        if name.len() > config.max_app_name_len {
+            return Err(CheckpointError::Serialization(format!(
+                "app_name too long: {} bytes (max {})",
+                name.len(),
+                config.max_app_name_len
+            )));
+        }
+
+        // Security: Robust hierarchical validation.
+        // Fast path: Check if the string is entirely printable ASCII (0x20-0x7E).
+        if name.as_bytes().iter().all(|&b| (0x20..=0x7E).contains(&b)) {
+            return Ok(());
+        }
+
+        // Slow path: Full Unicode validation for control and Bidi characters.
+        for c in name.chars() {
+            if c.is_control()
+                || matches!(
+                    c,
+                    '\u{200b}'..='\u{200f}' // Zero-width space and Bidi controls
+                        | '\u{2028}' // Line separator
+                        | '\u{2029}' // Paragraph separator
+                        | '\u{202a}'..='\u{202e}' // Bidi embedding/override
+                        | '\u{2060}'..='\u{2064}' // Word joiner and invisible formatters
+                        | '\u{2066}'..='\u{2069}' // Bidi isolate controls
+                )
+            {
+                return Err(CheckpointError::Serialization(
+                    "app_name contains control or Bidi characters".to_string(),
+                ));
+            }
+        }
+
         Ok(())
     }
 
@@ -185,47 +236,7 @@ impl<T: Storable> CheckpointManager<T> {
             Err(e) => return Err(CheckpointError::Storage(e)),
         };
 
-        // Security (2026): Sanitize app_name to prevent log injection and resource exhaustion.
-        if header.app_name.len() > self.config.max_app_name_len {
-            return Err(CheckpointError::Serialization(format!(
-                "app_name too long: {} bytes (max {})",
-                header.app_name.len(),
-                self.config.max_app_name_len
-            )));
-        }
-
-        // Bolt: ASCII printable fast path to bypass UTF-8 decoding for clean strings.
-        let is_invalid = {
-            let bytes = header.app_name.as_bytes();
-            let mut i = 0;
-            while i < bytes.len() {
-                let b = bytes[i];
-                if !(0x20..=0x7E).contains(&b) {
-                    break;
-                }
-                i += 1;
-            }
-
-            if i == bytes.len() {
-                false
-            } else {
-                header.app_name[i..].chars().any(|c| {
-                    c.is_control()
-                        || matches!(
-                            c,
-                            '\u{200b}'..='\u{200f}'
-                                | '\u{202a}'..='\u{202e}'
-                                | '\u{2066}'..='\u{2069}'
-                        )
-                })
-            }
-        };
-
-        if is_invalid {
-            return Err(CheckpointError::Serialization(
-                "app_name contains control or Bidi characters".to_string(),
-            ));
-        }
+        Self::validate_app_name(&header.app_name, &self.config)?;
 
         // Handle version mismatch
         if header.version != T::version() {
@@ -493,5 +504,73 @@ mod tests {
 
         let err = manager.load().await.unwrap_err().to_string();
         assert!(err.contains("app_name too long"));
+    }
+
+    #[tokio::test]
+    async fn test_save_too_large() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("save_too_large.ckpt");
+
+        #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+        struct LargeState {
+            data: Vec<u8>,
+        }
+        impl Storable for LargeState {
+            fn version() -> u32 {
+                1
+            }
+        }
+
+        let config = CheckpointConfig {
+            max_checkpoint_size: 10,
+            max_app_name_len: 256,
+        };
+
+        let mut manager = CheckpointManager::<LargeState>::with_config(&path, config);
+        let state = LargeState {
+            data: vec![0u8; 100],
+        };
+
+        let result = manager.save(&state).await;
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("the size limit has been reached"));
+    }
+
+    #[tokio::test]
+    async fn test_set_app_name_invalid() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("set_app_name.ckpt");
+
+        let mut manager = CheckpointManager::<TestState>::new(&path);
+
+        // Test length
+        let result = manager.set_app_name("a".repeat(257));
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("too long"));
+
+        // Test control chars
+        let result = manager.set_app_name("test\napp");
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("control or Bidi characters")
+        );
+
+        // Test Bidi chars
+        let result = manager.set_app_name("test\u{202a}app");
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("control or Bidi characters")
+        );
+
+        // Test valid
+        let result = manager.set_app_name("valid-app");
+        assert!(result.is_ok());
     }
 }
