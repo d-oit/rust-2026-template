@@ -1,0 +1,22 @@
+# .cargo/audit.toml — cargo-audit configuration
+#
+# cargo-audit reads this file when running `cargo audit`. The CI workflow
+# runs `cargo audit` (no flags) so it consults this config. cargo-deny has its
+# own `[advisories]` table in `deny.toml`; keep both in sync.
+#
+## Why we ignore these advisories:
+# `rustls-webpki 0.102.8` is pulled transitively by:
+#   rustls 0.22.4 ← hyper-rustls 0.25.0 ← libsql 0.9.30 ← hybrid-storage-template
+# The 0.103.x webpki upgrade is blocked because rustls 0.22 caps at ^0.102
+# (rustls 0.23 is the first release supporting webpki 0.103.x and our upstream
+# `libsql` 0.9 does not depend on it). We ignore these advisory IDs and track
+# the unblock separately via bumping libsql once they release a build against
+# rustls 0.23+. Remove each ID here after bumping.
+
+[advisories]
+ignore = [
+    "RUSTSEC-2026-0049",
+    "RUSTSEC-2026-0099",
+    "RUSTSEC-2026-0104",
+    "RUSTSEC-2026-0098",
+]

@@ -7,7 +7,7 @@ set -euo pipefail
 # Root-level adapters
 AGENT_FILES=("CLAUDE.md" "GEMINI.md" "QWEN.md")
 # Subdirectory adapters
-SUB_ADAPTERS=(".claude/rules.md" ".cursor/rules.md" ".gemini/rules.md" ".qwen/rules.md" ".windsurf/rules.md" ".opencode/rules/rust-rules.md")
+SUB_ADAPTERS=(".claude/rules.md" ".gemini/rules.md" ".qwen/rules.md" ".windsurf/rules.md" ".opencode/rules/rust-rules.md")
 
 EXPECTED_REF="@AGENTS.md"
 EXIT_CODE=0
