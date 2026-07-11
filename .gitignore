@@ -16,6 +16,8 @@ Cargo.lock
 *.swo
 .DS_Store
 Thumbs.db
+.cursor/
+.cursorrules
 
 # Coverage reports
 lcov.info
