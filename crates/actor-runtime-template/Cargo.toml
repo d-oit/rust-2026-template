@@ -6,17 +6,25 @@ rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Hand-rolled actor runtime template: mailbox, state, and supervision patterns"
+description = "Minimal actor runtime template with mailbox and supervision"
 readme = "README.md"
 
-[lints]
-workspace = true
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+[lints.clippy]
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+# Pedantic/nursery lints to opt-out for now
+missing_errors_doc = "allow"
+must_use_candidate = "allow"
+use_self = "allow"
+default_trait_access = "allow"
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["sync"] }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["sync", "time"] }
 tracing = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "time"] }

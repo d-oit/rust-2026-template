@@ -32,6 +32,10 @@ static DIGITS_TABLE: [&str; 100] = [
     "96", "97", "98", "99",
 ];
 
+///
+/// # Errors
+///
+/// Returns `AppError::Config` if `count` exceeds `limit`.
 /// Process items and return a result
 pub fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
     info!("Processing {} items (limit: {})", count, limit);

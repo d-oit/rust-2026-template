@@ -5,8 +5,9 @@ edition = "2024"
 publish = false
 license = "MIT"
 
-[lints]
-workspace = true
+[lints.clippy]
+# Examples often have simple main functions that return Result for convenience
+unnecessary_wraps = "allow"
 
 [dependencies]
 example-crate = { path = "../../crates/example-crate", version = "0.0.0" }

@@ -69,9 +69,9 @@ unsafe_code = "forbid"
 # Enable all clippy lints at warning level
 all = { level = "warn", priority = -1 }
 
-# Pedantic/nursery too strict for most projects
-pedantic = { level = "allow", priority = -1 }
-nursery = { level = "allow", priority = -1 }
+# Pedantic/nursery set to warn by default
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
 
 # ── Agent-safety: prevent silencing lints instead of fixing code ──────────────
 # allow_attributes = "deny" blocks any #[allow(clippy::...)] annotation from
@@ -93,6 +93,10 @@ redundant_clone = "warn"
 map_unwrap_or = "warn"
 unnecessary_map_or = "warn"
 missing_const_for_fn = "warn"
+
+# Promotion of high-value pedantic lints requested by maintainer
+missing_errors_doc = "warn"
+must_use_candidate = "warn"
 
 # Common justified allows
 too_many_arguments = "allow"

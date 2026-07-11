@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED — edit src/lib.rs in the crate, not this file -->
 
-# example-registry-pattern ![License](https://img.shields.io/crates/l/example-registry-pattern) [![example-registry-pattern on crates.io](https://img.shields.io/crates/v/example-registry-pattern)](https://crates.io/crates/example-registry-pattern) [![example-registry-pattern on docs.rs](https://docs.rs/example-registry-pattern/badge.svg)](https://docs.rs/example-registry-pattern)
+# example-registry-pattern ![License: MIT](https://img.shields.io/badge/license-MIT-blue) [![example-registry-pattern on crates.io](https://img.shields.io/crates/v/example-registry-pattern)](https://crates.io/crates/example-registry-pattern) [![example-registry-pattern on docs.rs](https://docs.rs/example-registry-pattern/badge.svg)](https://docs.rs/example-registry-pattern) [![Source Code Repository](https://img.shields.io/badge/Code-On%20GitHub-blue?logo=GitHub)](https://github.com/your-org/your-repo) ![Rust Version: 1.88.0](https://img.shields.io/badge/rustc-1.88.0-orange.svg)
 
 ## Registry / Plugin Dispatch Pattern
 

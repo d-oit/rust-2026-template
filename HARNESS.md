@@ -89,4 +89,11 @@ The `scripts/harness-check.sh` wrapper runs each sensor and emits structured err
 bash scripts/harness-check.sh <fmt|clippy|deny|test|arch|all>
 ```
 
+## Lint Policy
+
+Workspace-level lints (`Cargo.toml`) set the **default** for all crates.
+Individual crates may relax specific lints in their own `[lints.clippy]`
+section when there is a documented reason. Never use `#[allow(...)]`
+attributes in source code — this is enforced by `allow_attributes = "deny"`.
+
 See `scripts/harness-check.sh` for the full sensor → hint mapping.

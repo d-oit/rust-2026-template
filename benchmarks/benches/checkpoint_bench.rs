@@ -47,19 +47,19 @@ fn bench_checkpoint_validation(c: &mut Criterion) {
     let mut group = c.benchmark_group("checkpoint_validation");
 
     group.bench_function("current_clean_ascii", |b| {
-        b.iter(|| is_invalid_app_name_current(black_box(clean_ascii)))
+        b.iter(|| is_invalid_app_name_current(black_box(clean_ascii)));
     });
 
     group.bench_function("new_clean_ascii", |b| {
-        b.iter(|| is_invalid_app_name_new(black_box(clean_ascii)))
+        b.iter(|| is_invalid_app_name_new(black_box(clean_ascii)));
     });
 
     group.bench_function("current_dirty_unicode", |b| {
-        b.iter(|| is_invalid_app_name_current(black_box(dirty_unicode)))
+        b.iter(|| is_invalid_app_name_current(black_box(dirty_unicode)));
     });
 
     group.bench_function("new_dirty_unicode", |b| {
-        b.iter(|| is_invalid_app_name_new(black_box(dirty_unicode)))
+        b.iter(|| is_invalid_app_name_new(black_box(dirty_unicode)));
     });
 
     group.finish();

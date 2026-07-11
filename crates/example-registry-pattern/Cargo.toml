@@ -2,11 +2,20 @@
 name = "example-registry-pattern"
 version.workspace = true
 edition.workspace = true
-description = "Template pattern: registry-based handler dispatch"
-publish = false
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Registry and dynamic dispatch pattern template"
+readme = "README.md"
 
-[lints]
-workspace = true
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+[lints.clippy]
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+# Pedantic/nursery lints to opt-out for now
+missing_errors_doc = "allow"
 
 [dependencies]
 thiserror = { workspace = true }

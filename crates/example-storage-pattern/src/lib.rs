@@ -50,7 +50,7 @@ pub trait Backend: Send + Sync {
 /// In-memory mock backend for use in tests. Never use in production.
 #[cfg(any(test, feature = "mock"))]
 pub mod mock {
-    use super::*;
+    use super::{Backend, Future, Pin};
     use std::collections::HashMap;
     use std::sync::Mutex;
 

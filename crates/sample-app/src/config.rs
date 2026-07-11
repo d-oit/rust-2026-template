@@ -151,6 +151,11 @@ pub fn sanitize_str(s: &str) -> Cow<'_, str> {
     Cow::Owned(result)
 }
 
+///
+/// # Errors
+///
+/// Returns `AppError::Io` if the file cannot be read or metadata cannot be retrieved.
+/// Returns `AppError::Config` if the file is too large or contains invalid YAML.
 /// Load configuration from file or use defaults
 pub fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
     // Security: Check file size before reading to prevent DoS (memory exhaustion)

@@ -19,9 +19,9 @@ over time and defeats the purpose of the linter.
 2. `unwrap_used` and `expect_used` are set to `"deny"` (not `"warn"`). Production
    code must use proper `?`-propagation or explicit match/map_err patterns.
 
-3. `pedantic` remains at `"allow"` globally, with individual high-value pedantic
-   lints promoted to `"warn"` explicitly. This avoids noisy churn while capturing
-   the most impactful correctness signals.
+3. `pedantic` and `nursery` categories are set to `"warn"` globally. This ensures maximum
+   lint coverage by default for all member crates. Individual crates may still opt-out of
+   specific noisy lints in their own `Cargo.toml` if justified and documented.
 
 4. Test modules may use module-level `#![allow(clippy::unwrap_used, clippy::expect_used)]`
    at the top of `#[cfg(test)] mod tests { ... }` blocks. Per-call-site

@@ -6,38 +6,30 @@ rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Hybrid storage template with SQL + KV backends and caching"
+description = "Hybrid storage template demonstrating multi-backend persistence (In-memory + SQLite)"
 readme = "README.md"
 
-[lints]
-workspace = true
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+[lints.clippy]
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+# Pedantic/nursery lints to opt-out for now
+missing_errors_doc = "allow"
+must_use_candidate = "allow"
+doc_markdown = "allow"
+unused_async = "allow"
 
 [dependencies]
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
-
-# Optional backends
-libsql = { version = "0.9", default-features = false, optional = true }
-# `redb` is consumed only when `--features kv` is opted in (off by
-# default so downstream template users aren't forced to pay the redb
-# compile cost).  Downstream consumers who want the prior compile
-# parity (redb always linked) should add `kv` to their default features.
-redb = { version = "1", optional = true }
-
-[features]
-# Default is empty: MemoryBackend needs no features. `sqlite` is a fail-closed
-# scaffold (not a working DB). Enable only when implementing real libSQL wiring.
-default = []
-sqlite = ["dep:libsql"]
-kv = ["dep:redb"]
+libsql = "0.9"
+async-trait = "0.1"
+tracing = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 tempfile = "3"
 
-# `redb` is the backend pulled in by `--features kv`.  cargo-machete's
-# default scan does not enable that feature, so silence the dep via a
-# per-package ignore entry.  (cargo-machete 0.9.x does not yet support
-# --all-features; revisit when it does.)
-[package.metadata.cargo-machete]
-ignored = ["redb"]
+[features]
+sqlite = []

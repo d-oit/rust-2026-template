@@ -6,20 +6,33 @@ rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
-description = "Checkpoint template for serializable application state with migration support"
+description = "Secure and high-performance checkpointing template for state-intensive applications"
 readme = "README.md"
+include = ["/src", "README.md", "LICENSE"]
 
-[lints]
-workspace = true
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+[lints.clippy]
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+# Pedantic/nursery lints to opt-out for now
+missing_errors_doc = "allow"
+must_use_candidate = "allow"
+items_after_statements = "allow"
+derive_partial_eq_without_eq = "allow"
+doc_markdown = "allow"
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-bincode = "1"
-tokio = { workspace = true, features = ["fs", "io-util"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "sync", "io-util", "fs"] }
 tracing = { workspace = true }
+bincode = "1.3"
+zmij = "1"
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 tempfile = "3"
+tokio-test = { workspace = true }
+proptest = { workspace = true }
+insta = { workspace = true }

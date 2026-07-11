@@ -16,19 +16,19 @@ fn bench_sanitization(c: &mut Criterion) {
     let mut group = c.benchmark_group("sanitization");
 
     group.bench_function("old_clean_ascii", |b| {
-        b.iter(|| old_sanitize_str(black_box(clean_ascii)))
+        b.iter(|| old_sanitize_str(black_box(clean_ascii)));
     });
 
     group.bench_function("new_clean_ascii", |b| {
-        b.iter(|| sanitize_str(black_box(clean_ascii)))
+        b.iter(|| sanitize_str(black_box(clean_ascii)));
     });
 
     group.bench_function("old_dirty_unicode", |b| {
-        b.iter(|| old_sanitize_str(black_box(dirty_unicode)))
+        b.iter(|| old_sanitize_str(black_box(dirty_unicode)));
     });
 
     group.bench_function("new_dirty_unicode", |b| {
-        b.iter(|| sanitize_str(black_box(dirty_unicode)))
+        b.iter(|| sanitize_str(black_box(dirty_unicode)));
     });
 
     group.finish();

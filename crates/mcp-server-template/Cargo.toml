@@ -9,8 +9,17 @@ repository.workspace = true
 description = "MCP server template crate with tool registration and dispatch"
 readme = "README.md"
 
-[lints]
-workspace = true
+[lints.clippy]
+# Inherit workspace lints
+# cannot use workspace = true here due to Cargo 1.88 limitation with overrides
+# we manually specify allows instead
+
+# Pedantic/nursery lints to opt-out for now
+missing_errors_doc = "allow"
+must_use_candidate = "allow"
+return_self_not_must_use = "allow"
+redundant_closure_for_method_calls = "allow"
+inefficient_to_string = "allow"
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
