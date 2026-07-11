@@ -55,7 +55,6 @@ This repository uses a layered documentation strategy to serve both human develo
 | Qwen | `.qwen/` | ✅ |
 | OpenCode | `.opencode/` | ✅ |
 | Windsurf | `.windsurf/` | ✅ |
-| Cursor | `.cursor/` | ❌ (generate locally) |
 
 ## Included Tooling
 
