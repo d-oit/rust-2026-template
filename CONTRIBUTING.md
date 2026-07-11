@@ -94,6 +94,13 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - [ ] `CHANGELOG.md` updated
 - [ ] `shellcheck` passes for all shell scripts
 
+## Lint Policy
+
+Workspace-level lints (`Cargo.toml`) set the **default** for all crates.
+Individual crates may relax specific lints in their own `[lints.clippy]`
+section when there is a documented reason. Never use `#[allow(...)]`
+attributes in source code — this is enforced by `allow_attributes = "deny"`.
+
 ## Release Process
 
 We use `cargo-release` for version management and `cargo-dist` for artifact generation.

@@ -93,7 +93,7 @@ cargo nextest run --profile fast-dev
 bash scripts/quality-gates.sh
 ```
 
-Runs 9 checks: format, clippy, build, tests, doc tests, security audit, cargo-deny, unused deps, privacy scan, secret scan.
+Runs 9 checks (including pedantic and nursery clippy lints by default): format, clippy, build, tests, doc tests, security audit, cargo-deny, unused deps, privacy scan, secret scan.
 
 Pass `--fix` to auto-correct formatting and clippy issues:
 
@@ -154,7 +154,7 @@ For a dry-run (no changes): `cargo release --workspace patch --dry-run`
 | Code quality script | `scripts/code-quality.sh` | fmt \| clippy \| audit \| check \| fix |
 | Release manager | `scripts/release-manager.sh` | validate \| prepare \| publish |
 | ADR template | `plans/adr/` | Architecture decision records |
-| Clippy config | `.clippy.toml` | Pedantic lint rules |
+| Clippy config | `.clippy.toml` | Pedantic and nursery lint rules |
 | Deny config | `deny.toml` | License and vulnerability policy |
 | Nextest config | `.config/nextest.toml` | Test profiles (default + ci) |
 | Codecov config | `.codecov.yml` | Coverage gate enforcement targets |

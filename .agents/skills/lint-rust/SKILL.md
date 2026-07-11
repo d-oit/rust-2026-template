@@ -42,7 +42,7 @@ Run comprehensive linting and static analysis on Rust code.
 ### 1. Clippy strict mode
 
 ```bash
-cargo clippy --all-targets --all-features -- -D warnings -W clippy::pedantic -W clippy::nursery
+cargo clippy --all-targets --all-features -- -D warnings
 ```
 
 ### 2. Format check

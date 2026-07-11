@@ -16,6 +16,8 @@ feature-depth = 1
 [advisories]
 version = 2
 # Deny crates with security vulnerabilities
+# rustls-webpki 0.102.8 transitive advisories (RUSTSEC-2026-0049/0099/0104/0098)
+# are tracked in .cargo/audit.toml; cargo-deny's advisory db does not flag them.
 ignore = []
 
 # ============================================================

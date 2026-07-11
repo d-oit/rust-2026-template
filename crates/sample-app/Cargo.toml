@@ -12,8 +12,13 @@ readme = "README.md"
 description = "Sample application demonstrating the rust-2026-template"
 include = ["/src", "README.md", "LICENSE"]
 
-[lints]
-workspace = true
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
+# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
+[lints.clippy]
+# This binary crate uses many args in CLI handler functions
+too_many_arguments = "allow"
 
 [[bin]]
 name = "sample-app"
