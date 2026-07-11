@@ -120,6 +120,21 @@ replace_in_file() {
   fi
 }
 
+# --- replace literal string in file (escapes [ ] for sed) ---
+replace_literal() {
+  local file="$1"
+  local literal="$2"
+  local replacement="$3"
+  if [[ $DRY_RUN -eq 1 ]]; then
+    ok "(dry run) Would update $file"
+  elif [[ -f "$file" ]]; then
+    local escaped
+    escaped=$(printf '%s' "$literal" | sed 's/[][]/\\&/g')
+    sedi "s|$escaped|$replacement|g" "$file"
+    ok "Updated $file"
+  fi
+}
+
 # --- remove path (dry-run aware) ---
 remove_path() {
   local path="$1"
@@ -199,7 +214,11 @@ fi
 
 # --- rewrite Cargo.toml (workspace) ---
 log "Updating Cargo.toml"
-replace_in_file "Cargo.toml" 'name = "rust-2026-template"' "name = \"$PROJECT_NAME\""
+# Strip root [package], [dependencies], [dev-dependencies], [lints] —
+# the workspace root must be a virtual manifest (no own crate).
+for section in package dependencies dev-dependencies lints; do
+  sedi "/^\[$section\]/,/^\[/{ /^\[$section\]/d; /^\[/!d; }" Cargo.toml
+done
 replace_in_file "Cargo.toml" 'description = "A production-ready Rust workspace template.*"' "description = \"$PROJECT_DESC\""
 replace_in_file "Cargo.toml" 'authors = \["Your Name"\]' "authors = [\"$AUTHOR\"]"
 replace_in_file "Cargo.toml" 'repository = "https://github.com/your-org/your-repo"' "repository = \"$REPO_URL\""
@@ -330,12 +349,19 @@ replace_in_file "crates/sample-app/README.md" 'rust-2026-template' "$PROJECT_NAM
 if [[ -f "fuzz/Cargo.toml" ]]; then
   log "Updating fuzz/Cargo.toml"
   replace_in_file "fuzz/Cargo.toml" 'rust-2026-template' "$PROJECT_NAME"
+  replace_literal "fuzz/Cargo.toml" \
+    'example-crate = { path = "../crates/example-crate"' \
+    "$PROJECT_NAME = { path = \"../crates/$PROJECT_NAME\""
+  replace_literal "fuzz/Cargo.toml" 'ignored = ["example-crate"]' "ignored = [\"$PROJECT_NAME\"]"
 fi
 
 # --- rewrite benchmarks/Cargo.toml (may be removed under --minimal) ---
 if [[ -f "benchmarks/Cargo.toml" ]]; then
   log "Updating benchmarks/Cargo.toml"
-  replace_in_file "benchmarks/Cargo.toml" 'rust-2026-template' "$PROJECT_NAME"
+  sedi '/rust-2026-template = { path = "\.\." }/d' benchmarks/Cargo.toml
+  replace_literal "benchmarks/Cargo.toml" \
+    'example-crate = { path = "../crates/example-crate"' \
+    "$PROJECT_NAME = { path = \"../crates/$PROJECT_NAME\""
 fi
 
 # --- rewrite CI workflows with repo-specific checks (files may be gone under --minimal) ---
@@ -379,6 +405,15 @@ EXAMPLES_DIR="examples/hello_world"
 if [[ -f "$EXAMPLES_DIR/src/main.rs" ]]; then
   log "Updating examples/hello_world/src/main.rs"
   replace_in_file "$EXAMPLES_DIR/src/main.rs" 'example_crate' "$CrateName"
+  replace_in_file "$EXAMPLES_DIR/src/main.rs" 'example-crate' "$PROJECT_NAME"
+fi
+
+EXAMPLES_TOML="examples/hello_world/Cargo.toml"
+if [[ -f "$EXAMPLES_TOML" ]]; then
+  log "Updating $EXAMPLES_TOML"
+  replace_literal "$EXAMPLES_TOML" \
+    'example-crate = { path = "../../crates/example-crate"' \
+    "$PROJECT_NAME = { path = \"../../crates/$PROJECT_NAME\""
 fi
 
 # --- validate ---

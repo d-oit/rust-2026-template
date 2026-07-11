@@ -168,7 +168,9 @@ Key additions: `/target`, `*.swp`, `.direnv/`, `.envrc`.
 
 ## Crate Naming (Template Rename)
 
-When using this template, always rename `example-crate` before first publish:
+When using this template, always rename `example-crate` before first publish. If you used `init-template.sh`, the rename and all dependency path updates are handled automatically.
+
+For manual renames:
 
 1. Rename the directory: `mv crates/example-crate crates/your-crate-name`
 2. Update `crates/your-crate-name/Cargo.toml`: `name = "your-crate-name"`
