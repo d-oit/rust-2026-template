@@ -552,18 +552,22 @@ mod tests {
         // Test control chars
         let result = manager.set_app_name("test\napp");
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("control or Bidi characters"));
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("control or Bidi characters")
+        );
 
         // Test Bidi chars
         let result = manager.set_app_name("test\u{202a}app");
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("control or Bidi characters"));
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("control or Bidi characters")
+        );
 
         // Test valid
         let result = manager.set_app_name("valid-app");
