@@ -208,7 +208,7 @@ def generate(root: Path) -> dict:
         try:
             first_para = [
                 ln.strip() for ln in readme.read_text(encoding="utf-8").splitlines()
-                if ln.strip() and not ln.startswith("#") and not ln.startswith("<!")
+                if ln.strip() and not ln.startswith("#") and not ln.startswith("<!") and not ln.startswith("[") and not ln.startswith("**")
             ]
             if first_para:
                 tagline_str = first_para[0][:100]
