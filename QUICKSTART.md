@@ -154,8 +154,8 @@ For a dry-run (no changes): `cargo release --workspace patch --dry-run`
 |---|---|---|
 | CI pipeline | `.github/workflows/ci.yml` | Format, lint, test, audit on every push |
 | Release workflow | `.github/workflows/release.yml` | Tag-triggered release with cargo-dist |
-| Agent skills | `.agents/skills/` | 9 AI coding assistant skill runbooks |
-| Quality gate script | `scripts/quality-gates.sh` | 9-step local pre-push checks |
+| Agent skills | `.agents/skills/` | AI coding assistant skill runbooks |
+| Quality gate script | `scripts/quality-gates.sh` | 10-step local pre-push checks |
 | Code quality script | `scripts/code-quality.sh` | fmt \| clippy \| audit \| check \| fix |
 | Release manager | `scripts/release-manager.sh` | validate \| prepare \| publish |
 | ADR template | `plans/adr/` | Architecture decision records |

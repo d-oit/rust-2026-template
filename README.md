@@ -81,9 +81,10 @@ This repository uses a layered documentation strategy to serve both human develo
 ├── .codacy/             # Codacy static analysis and agent review configs
 ├── .github/             # GitHub Actions workflows and issue templates
 ├── agents-docs/         # Detailed documentation for AI agents
+├── benchmarks/          # Criterion benchmark suites
 ├── config/              # Profile-based runtime configuration
 │   └── profiles/        # Environment-specific JSON configs (default.json, etc.)
-├── crates/              # Workspace members (libraries and applications)
+├── crates/              # Workspace member crates
 │   ├── actor-runtime-template/
 │   ├── checkpoint-template/
 │   ├── example-crate/   # Placeholder library crate
@@ -91,9 +92,13 @@ This repository uses a layered documentation strategy to serve both human develo
 │   ├── example-storage-pattern/
 │   ├── hybrid-storage-template/
 │   ├── mcp-server-template/
-│   └── sample-app/      # Reference application implementing best practices
+│   ├── sample-app/      # Reference application implementing best practices
+│   └── xtask/           # Cargo task runner
+├── docs/                # mdbook documentation and architecture guides
 ├── examples/            # Example usage of workspace crates
-│   └── hello_world/ # Simple hello world example
+│   └── hello_world/     # Simple hello world example
+├── fuzz/                # cargo-fuzz testing scaffold
+├── hooks/               # Git hooks (session-start.sh, etc.)
 ├── reports/             # Generated HTML review and analysis output (ignored)
 ├── schema/              # JSON Schema definitions for config/API contracts
 ├── scripts/             # Automation scripts for quality gates and releases
