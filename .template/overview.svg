@@ -105,7 +105,7 @@
 <path d="M28.79 233.38 C123.89 232.14,216.67 230.21,301.27 233.29 M29.33 231.57 C122.93 233.01,215.54 232.19,299.34 232.54 M298.04 233.98 C299.93 258.55,299.91 283.05,300.97 298.59 M299.46 231.15 C300.44 249.13,300.94 265.09,299.06 297.12 M300.24 296.53 C233.37 298.53,167.57 297.86,29.89 296.72 M300.44 296.34 C208.99 296.47,119.54 295.84,29.84 296.44 M31.96 295.56 C31.50 282.29,30.50 265.55,30.53 231.87 M29.63 296.65 C29.88 279.52,30.08 262.64,30.10 231.77" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="167.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#4263eb" text-anchor="middle"><tspan x="167.10" dy="0">12</tspan></text>
+<text x="167.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#4263eb" text-anchor="middle"><tspan x="167.10" dy="0">11</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <text x="166.80" y="282.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="middle"><tspan x="166.80" dy="0">Crates</tspan></text>
@@ -154,7 +154,7 @@
 <text x="60.00" y="343.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#4263eb" text-anchor="start"><tspan x="60.00" dy="0">crates/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="60.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="60.00" dy="0">12 workspace members</tspan></text>
+<text x="60.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="60.00" dy="0">11 workspace members</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M328.29 321.90 L589.17 322.84 L588.65 379.08 L330.89 377.50" stroke="none" fill="#f8f9fa"/>
