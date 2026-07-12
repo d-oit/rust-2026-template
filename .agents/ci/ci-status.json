@@ -1,21 +1,21 @@
 {
-  "timestamp": "2026-07-12T15:58:45Z",
-  "commit": "4b801de6428e4dc49902acd8541429baec3aaa98",
+  "timestamp": "2026-07-12T17:01:07Z",
+  "commit": "a948fd9eb04571c0bbff184fac87a4a52a0cd999",
   "branch": "main",
   "jobs": {
     "validate-agents": "success",
-    "lint": "success",
+    "lint": "failure",
     "shellcheck": "success",
     "gitleaks": "success",
     "fmt": "success",
     "clippy": "failure",
     "test": "failure",
     "security": "success",
-    "deny": "success",
+    "deny": "failure",
     "bench": "success",
     "version-check": "success",
-  "msrv": "failure",
-  "roast": "failure"
+  "msrv": "success",
+  "roast": "success"
   },
   "overall": "success"
 }
