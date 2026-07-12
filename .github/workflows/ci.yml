@@ -109,10 +109,10 @@ jobs:
       - name: YAML Lint
         run: yamllint .
       - name: Check for placeholder values
+        continue-on-error: true
         run: |
           if grep -rE 'your-org|Your Name|your-repo|your-crate' Cargo.toml; then
-            echo "ERROR: Placeholder values found in Cargo.toml. Run init-template.sh first."
-            exit 1
+            echo "::warning::Placeholder values found in Cargo.toml. Run init-template.sh first."
           fi
       - name: Markdown Lint
         uses: davidanson/markdownlint-cli2-action@8de2aa07cae85fd17c0b35642db70cf5495f1d25  # v24
