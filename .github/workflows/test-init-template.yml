@@ -34,7 +34,11 @@ jobs:
       - name: Run init-template.sh
         shell: bash
         run: |
-          cp -r . /tmp/init-test
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cp -rL . /tmp/init-test
+          else
+            cp -r . /tmp/init-test
+          fi
           cd /tmp/init-test
           bash scripts/init-template.sh \
             --name test-project \
