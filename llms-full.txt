@@ -141,7 +141,6 @@ This repository uses a layered documentation strategy to serve both human develo
 | Qwen | `.qwen/` | ✅ |
 | OpenCode | `.opencode/` | ✅ |
 | Windsurf | `.windsurf/` | ✅ |
-| Cursor | `.cursor/` | ❌ (generate locally) |
 
 ## Included Tooling
 
@@ -168,9 +167,10 @@ This repository uses a layered documentation strategy to serve both human develo
 ├── .codacy/             # Codacy static analysis and agent review configs
 ├── .github/             # GitHub Actions workflows and issue templates
 ├── agents-docs/         # Detailed documentation for AI agents
+├── benchmarks/          # Criterion benchmark suites
 ├── config/              # Profile-based runtime configuration
 │   └── profiles/        # Environment-specific JSON configs (default.json, etc.)
-├── crates/              # Workspace members (libraries and applications)
+├── crates/              # Workspace member crates
 │   ├── actor-runtime-template/
 │   ├── checkpoint-template/
 │   ├── example-crate/   # Placeholder library crate
@@ -178,9 +178,13 @@ This repository uses a layered documentation strategy to serve both human develo
 │   ├── example-storage-pattern/
 │   ├── hybrid-storage-template/
 │   ├── mcp-server-template/
-│   └── sample-app/      # Reference application implementing best practices
+│   ├── sample-app/      # Reference application implementing best practices
+│   └── xtask/           # Cargo task runner
+├── docs/                # mdbook documentation and architecture guides
 ├── examples/            # Example usage of workspace crates
-│   └── hello_world/ # Simple hello world example
+│   └── hello_world/     # Simple hello world example
+├── fuzz/                # cargo-fuzz testing scaffold
+├── hooks/               # Git hooks (session-start.sh, etc.)
 ├── reports/             # Generated HTML review and analysis output (ignored)
 ├── schema/              # JSON Schema definitions for config/API contracts
 ├── scripts/             # Automation scripts for quality gates and releases
@@ -456,7 +460,7 @@ Always run before pushing:
 bash scripts/quality-gates.sh
 ```
 
-This runs: `cargo fmt --check`, `cargo clippy`, `cargo nextest run`, `cargo audit`, `cargo deny check`.
+This runs: `cargo fmt --check`, `cargo clippy`, `cargo build`, `cargo nextest run`, `cargo test --doc`, `cargo audit`, `cargo deny check`, unused deps (cargo-machete), MSRV audit, shellcheck, markdownlint, privacy scan.
 
 ## Making Changes
 
@@ -516,6 +520,13 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - [ ] Documentation updated if API changed
 - [ ] `CHANGELOG.md` updated
 - [ ] `shellcheck` passes for all shell scripts
+
+## Lint Policy
+
+Workspace-level lints (`Cargo.toml`) set the **default** for all crates.
+Individual crates may relax specific lints in their own `[lints.clippy]`
+section when there is a documented reason. Never use `#[allow(...)]`
+attributes in source code — this is enforced by `allow_attributes = "deny"`.
 
 ## Release Process
 
@@ -587,6 +598,11 @@ For security vulnerabilities, see [SECURITY.md](SECURITY.md).
 # Quick Start — rust-2026-template
 
 Get a new Rust project running in under 5 minutes.
+
+> **⚠️ First-Time Setup Required**
+> Before building or publishing, run `init-template.sh` to replace placeholder values
+> (`Your Name`, `your-org/your-repo`, `your-crate`) with your project metadata.
+> CI will show a warning if placeholders are still present (template repo intentionally has them).
 
 ## Prerequisites
 
@@ -679,7 +695,7 @@ cargo nextest run --profile fast-dev
 bash scripts/quality-gates.sh
 ```
 
-Runs 9 checks: format, clippy, build, tests, doc tests, security audit, cargo-deny, unused deps, privacy scan, secret scan.
+Runs checks including pedantic and nursery clippy lints by default: format, clippy, build, tests, doc tests, security audit, cargo-deny, unused deps, privacy scan, secret scan.
 
 Pass `--fix` to auto-correct formatting and clippy issues:
 
@@ -714,6 +730,19 @@ git push origin main
 
 CI runs: format check, clippy, nextest, doc tests, security audit, cargo-deny, MSRV check.
 
+## Cutting a Release
+
+1. Ensure your working tree is clean.
+2. Run: `cargo release --workspace patch` (or `minor` / `major`)
+   - This bumps all workspace member versions together.
+   - Tags the commit as `v<version>`.
+   - Pushes the tag, triggering the release CI workflow.
+3. The GitHub Actions release workflow will:
+   - Run `git-cliff` to update `CHANGELOG.md`
+   - Create a GitHub Release with the generated notes
+
+For a dry-run (no changes): `cargo release --workspace patch --dry-run`
+
 ---
 
 ## What You Get
@@ -722,12 +751,12 @@ CI runs: format check, clippy, nextest, doc tests, security audit, cargo-deny, M
 |---|---|---|
 | CI pipeline | `.github/workflows/ci.yml` | Format, lint, test, audit on every push |
 | Release workflow | `.github/workflows/release.yml` | Tag-triggered release with cargo-dist |
-| Agent skills | `.agents/skills/` | 9 AI coding assistant skill runbooks |
-| Quality gate script | `scripts/quality-gates.sh` | 9-step local pre-push checks |
+| Agent skills | `.agents/skills/` | AI coding assistant skill runbooks |
+| Quality gate script | `scripts/quality-gates.sh` | Local pre-push checks |
 | Code quality script | `scripts/code-quality.sh` | fmt \| clippy \| audit \| check \| fix |
 | Release manager | `scripts/release-manager.sh` | validate \| prepare \| publish |
 | ADR template | `plans/adr/` | Architecture decision records |
-| Clippy config | `.clippy.toml` | Pedantic lint rules |
+| Clippy config | `.clippy.toml` | Pedantic and nursery lint rules |
 | Deny config | `deny.toml` | License and vulnerability policy |
 | Nextest config | `.config/nextest.toml` | Test profiles (default + ci) |
 | Codecov config | `.codecov.yml` | Coverage gate enforcement targets |

@@ -33,7 +33,7 @@ Always run before pushing:
 bash scripts/quality-gates.sh
 ```
 
-This runs: `cargo fmt --check`, `cargo clippy`, `cargo nextest run`, `cargo audit`, `cargo deny check`.
+This runs: `cargo fmt --check`, `cargo clippy`, `cargo build`, `cargo nextest run`, `cargo test --doc`, `cargo audit`, `cargo deny check`, unused deps (cargo-machete), MSRV audit, shellcheck, markdownlint, privacy scan.
 
 ## Making Changes
 

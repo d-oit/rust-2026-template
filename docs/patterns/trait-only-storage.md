@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED — edit src/lib.rs in the crate, not this file -->
 
-# example-storage-pattern ![License](https://img.shields.io/crates/l/example-storage-pattern) [![example-storage-pattern on crates.io](https://img.shields.io/crates/v/example-storage-pattern)](https://crates.io/crates/example-storage-pattern) [![example-storage-pattern on docs.rs](https://docs.rs/example-storage-pattern/badge.svg)](https://docs.rs/example-storage-pattern)
+# example-storage-pattern ![License: MIT](https://img.shields.io/badge/license-MIT-blue) [![example-storage-pattern on crates.io](https://img.shields.io/crates/v/example-storage-pattern)](https://crates.io/crates/example-storage-pattern) [![example-storage-pattern on docs.rs](https://docs.rs/example-storage-pattern/badge.svg)](https://docs.rs/example-storage-pattern)
 
 ## Trait-Only Storage Pattern
 

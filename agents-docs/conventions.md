@@ -5,7 +5,7 @@
 - **Max 500 LOC per source file** - split into submodules when exceeded
 - **Zero clippy warnings** - fix, never suppress with `#[allow(...)]` without comment
 - **Single responsibility** per module
-- **Async everywhere** - Tokio runtime, no blocking in async paths
+- **Async** - Use `tokio` when you need a runtime. CLI apps: prefer `#[tokio::main(flavor = "current_thread")]`. Sync `main` is fine when no async is required (see `sample-app`)
 - **Error handling** - `thiserror` for library errors, `anyhow` for binaries
 - **No `unwrap()`** in library code - propagate errors
 - **Doc comments** on all public items (`///`)
@@ -13,10 +13,9 @@
 
 ## Core Invariants
 
-- **Async**: Tokio runtime everywhere. No blocking in async paths (use `spawn_blocking`)
+- **Async**: Use tokio when needed. No blocking in async paths (use `spawn_blocking`). Sync main is acceptable for simple binaries
 - **Clippy**: Zero warnings enforced (`-D warnings`). Fix, don't suppress
 - **Files**: ≤500 LOC per source file
-- **Tests**: ≥80% coverage target. `#[tokio::test]` for async
 - **Secrets**: Never hardcode. Use environment variables or `.env` files
 
 ## Crate Naming (MANDATORY before `cargo publish`)

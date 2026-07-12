@@ -34,7 +34,7 @@ install-doc-tools: ## Install pinned versions of doc generation tools (run once)
 
 docs: ## Auto-generate docs/patterns/ from rustdoc comments (run install-doc-tools first)
 	mkdir -p docs/patterns
-	cargo sync-readme
+	@if [ -f src/lib.rs ]; then cargo sync-readme; fi
 	cargo doc2readme -p example-storage-pattern --out docs/patterns/trait-only-storage.md
 	cargo doc2readme -p example-registry-pattern --out docs/patterns/registry-dispatch.md
 	@# Add AUTO-GENERATED header if not already present
@@ -45,7 +45,7 @@ docs: ## Auto-generate docs/patterns/ from rustdoc comments (run install-doc-too
 	done
 
 docs-check: docs ## Fail if generated docs differ from committed versions
-	cargo sync-readme --check
+	@if [ -f src/lib.rs ]; then cargo sync-readme --check; fi
 	git diff --exit-code docs/patterns/
 
 harness:  ## Run all harness sensors with agent-optimised output
