@@ -221,7 +221,7 @@ jobs:
           set -x
           find target/.fingerprint -maxdepth 1 -name 'rust-2026-template-*' -print -delete || true
       - name: Clippy (all targets, all features)
-        run: cargo clippy --workspace --all-targets --all-features --exclude hybrid-storage-template -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   # ───────────────────────────────────────────────────
   test:
@@ -247,9 +247,9 @@ jobs:
         with:
           tool: cargo-nextest,cargo-llvm-cov
       - name: Build workspace
-        run: cargo build --workspace --all-features --profile ci --exclude hybrid-storage-template
+        run: cargo build --workspace --all-features --profile ci
       - name: Generate coverage report
-        run: cargo llvm-cov nextest --workspace --all-features --profile ci --lcov --output-path lcov.info --exclude hybrid-storage-template
+        run: cargo llvm-cov nextest --workspace --all-features --profile ci --lcov --output-path lcov.info
       - name: Run doc tests
         run: cargo test --workspace --doc
       - name: Upload coverage to Codecov
