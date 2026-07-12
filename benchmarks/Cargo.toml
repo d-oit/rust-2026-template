@@ -8,7 +8,6 @@ edition = "2024"
 workspace = true
 
 [dependencies]
-rust-2026-template = { path = ".." }
 sample-app = { path = "../crates/sample-app" }
 example-crate = { path = "../crates/example-crate" }
 

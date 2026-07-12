@@ -2,12 +2,6 @@
 
 use criterion::{Criterion, criterion_group, criterion_main};
 
-fn bench_add(c: &mut Criterion) {
-    c.bench_function("add_basic", |b| {
-        b.iter(|| std::hint::black_box(rust_2026_template::add(2, 3)));
-    });
-}
-
 fn bench_process_items(c: &mut Criterion) {
     let mut group = c.benchmark_group("process_items");
     for count in [10, 100, 1000] {
@@ -18,5 +12,5 @@ fn bench_process_items(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_add, bench_process_items);
+criterion_group!(benches, bench_process_items);
 criterion_main!(benches);

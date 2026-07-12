@@ -2,6 +2,11 @@
 
 Get a new Rust project running in under 5 minutes.
 
+> **⚠️ First-Time Setup Required**
+> Before building or publishing, run `init-template.sh` to replace placeholder values
+> (`Your Name`, `your-org/your-repo`, `your-crate`) with your project metadata.
+> CI will fail if placeholders are still present.
+
 ## Prerequisites
 
 - Rust stable via [rustup](https://rustup.rs/) — toolchain pinned to 1.88 in `rust-toolchain.toml`

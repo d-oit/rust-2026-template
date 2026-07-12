@@ -16,7 +16,6 @@ homepage = "https://github.com/your-org/your-repo"
 documentation = "https://docs.rs/your-crate"
 readme = "README.md"
 include = [
-    "/src",
     "/examples",
     "/tests",
     "/benchmarks",
@@ -27,39 +26,9 @@ include = [
     "VERSION",
 ]
 
-[package]
-name = "rust-2026-template"
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-license.workspace = true
-repository.workspace = true
-homepage.workspace = true
-readme = "README.md"
-description = "A production-ready Rust workspace template with modern tooling, CI/CD, and AI agent integration"
-include = [
-    "/src",
-    "/examples",
-    "/tests",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md",
-    "NOTICE",
-    "VERSION",
-]
-
-[lints]
-workspace = true
-
-[dependencies]
-# Root crate has no runtime dependencies — src/lib.rs only provides an
-# example `add()` function. Optional backends and CLI stacks live in the
-# workspace member crates that actually use them (e.g. hybrid-storage-template,
-# sample-app). Do not declare empty root features; they mislead adopters.
-
-[dev-dependencies]
-insta = { workspace = true }
-serde_json = { workspace = true }
+# Virtual workspace — no root [package].
+# All real code lives in crates/ member crates.
+# See crates/README.md for the layering model.
 
 [workspace.lints.rust]
 missing_docs = "warn"
