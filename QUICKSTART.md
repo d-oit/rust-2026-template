@@ -98,7 +98,7 @@ cargo nextest run --profile fast-dev
 bash scripts/quality-gates.sh
 ```
 
-Runs 9 checks (including pedantic and nursery clippy lints by default): format, clippy, build, tests, doc tests, security audit, cargo-deny, unused deps, privacy scan, secret scan.
+Runs checks including pedantic and nursery clippy lints by default: format, clippy, build, tests, doc tests, security audit, cargo-deny, unused deps, privacy scan, secret scan.
 
 Pass `--fix` to auto-correct formatting and clippy issues:
 
@@ -155,7 +155,7 @@ For a dry-run (no changes): `cargo release --workspace patch --dry-run`
 | CI pipeline | `.github/workflows/ci.yml` | Format, lint, test, audit on every push |
 | Release workflow | `.github/workflows/release.yml` | Tag-triggered release with cargo-dist |
 | Agent skills | `.agents/skills/` | AI coding assistant skill runbooks |
-| Quality gate script | `scripts/quality-gates.sh` | 10-step local pre-push checks |
+| Quality gate script | `scripts/quality-gates.sh` | Local pre-push checks |
 | Code quality script | `scripts/code-quality.sh` | fmt \| clippy \| audit \| check \| fix |
 | Release manager | `scripts/release-manager.sh` | validate \| prepare \| publish |
 | ADR template | `plans/adr/` | Architecture decision records |

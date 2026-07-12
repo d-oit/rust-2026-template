@@ -36,6 +36,7 @@ jobs:
         with:
           tool: cargo-sync-readme,cargo-doc2readme@0.4.0
       - name: Check README sync
+        if: hashFiles('src/lib.rs') != ''
         run: cargo sync-readme --check
       - name: Regenerate pattern docs
         run: make docs
