@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-07-12T17:51:35Z",
-  "commit": "010268ad97b1dbbfe0a35c12149ecd340591b6a4",
+  "timestamp": "2026-07-12T18:11:16Z",
+  "commit": "b8ca552039622effbf0072393a833cab756cb326",
   "branch": "main",
   "jobs": {
     "validate-agents": "success",
@@ -11,7 +11,7 @@
     "clippy": "success",
     "test": "success",
     "security": "success",
-    "deny": "failure",
+    "deny": "success",
     "bench": "success",
     "version-check": "success",
   "msrv": "success",
