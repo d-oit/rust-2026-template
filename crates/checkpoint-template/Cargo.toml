@@ -28,7 +28,7 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "sync", "io-util", "fs"] }
 tracing = { workspace = true }
-bincode = "3.0"
+bincode_reloaded = { version = "3", features = ["serde"] }
 zmij = "1"
 
 [dev-dependencies]

@@ -51,12 +51,10 @@ impl FileStorage {
         let temp_path = self.path.with_extension("tmp");
         let final_path = self.path.with_extension("ckpt");
 
-        use bincode::Options;
-        let options = bincode::options();
+        let config = bincode_reloaded::config::standard();
 
         // Security (2026): Write header and data sequentially to avoid large intermediate Vec
-        let header_bytes = options
-            .serialize(header)
+        let header_bytes = bincode_reloaded::serde::encode_to_vec(header, config)
             .map_err(|_| StorageError::Serialization)?;
 
         let mut file = fs::File::create(&temp_path)
@@ -117,20 +115,17 @@ impl FileStorage {
             .await
             .map_err(StorageError::Io)?;
 
-        let mut cursor = std::io::Cursor::new(&data);
-        // Security: Use bincode with a size limit to prevent resource exhaustion.
-        use bincode::Options;
-        let options = bincode::options()
-            .with_limit(max_size)
-            .allow_trailing_bytes();
+        // Security: Check size then deserialize.
+        if data.len() > max_size as usize {
+            return Err(StorageError::Serialization);
+        }
+        let config = bincode_reloaded::config::standard();
 
-        let header: CheckpointHeader = options
-            .deserialize_from(&mut cursor)
-            .map_err(|_| StorageError::Serialization)?;
+        let (header, bytes_read): (CheckpointHeader, _) =
+            bincode_reloaded::serde::decode_from_slice(&data, config)
+                .map_err(|_| StorageError::Serialization)?;
 
-        let payload_start =
-            usize::try_from(cursor.position()).map_err(|_| StorageError::Serialization)?;
-        data.drain(..payload_start);
+        data.drain(..bytes_read);
         Ok((header, data))
     }
 

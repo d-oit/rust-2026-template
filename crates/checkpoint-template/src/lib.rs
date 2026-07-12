@@ -172,13 +172,17 @@ impl<T: Storable> CheckpointManager<T> {
         self.header.version = T::version();
         self.header.created_at = SystemTime::now();
 
-        use bincode::Options;
-        // Security: Use bincode with a size limit to prevent resource exhaustion during serialization.
-        let options = bincode::options().with_limit(self.config.max_checkpoint_size);
-
-        let data = options
-            .serialize(state)
+        // Security: Serialize then check size to prevent resource exhaustion.
+        let config = bincode_reloaded::config::standard();
+        let data = bincode_reloaded::serde::encode_to_vec(state, config)
             .map_err(|e| CheckpointError::Serialization(e.to_string()))?;
+        if data.len() > self.config.max_checkpoint_size as usize {
+            return Err(CheckpointError::Serialization(format!(
+                "checkpoint too large: {} bytes (max {})",
+                data.len(),
+                self.config.max_checkpoint_size
+            )));
+        }
 
         self.storage.save(&self.header, &data).await?;
         info!("Checkpoint saved (version {})", self.header.version);
@@ -246,12 +250,16 @@ impl<T: Storable> CheckpointManager<T> {
             });
         }
 
-        // Security: Use bincode with a size limit to prevent resource exhaustion.
-        use bincode::Options;
-        let options = bincode::options().with_limit(self.config.max_checkpoint_size);
-
-        let state = options
-            .deserialize(&payload)
+        // Security: Check payload size then deserialize.
+        if payload.len() > self.config.max_checkpoint_size as usize {
+            return Err(CheckpointError::Serialization(format!(
+                "payload too large: {} bytes (max {})",
+                payload.len(),
+                self.config.max_checkpoint_size
+            )));
+        }
+        let config = bincode_reloaded::config::standard();
+        let (state, _) = bincode_reloaded::serde::decode_from_slice(&payload, config)
             .map_err(|e| CheckpointError::Serialization(e.to_string()))?;
 
         Ok(Some(state))
@@ -288,10 +296,9 @@ mod tests {
         };
         let state = TestState { value: 42 };
 
-        use bincode::Options;
-        let options = bincode::options();
-        let state_data = options.serialize(&state).unwrap();
-        let mut combined = options.serialize(&header).unwrap();
+        let config = bincode_reloaded::config::standard();
+        let state_data = bincode_reloaded::serde::encode_to_vec(&state, config).unwrap();
+        let mut combined = bincode_reloaded::serde::encode_to_vec(&header, config).unwrap();
         combined.extend_from_slice(&state_data);
         std::fs::write(&path, combined).unwrap();
 
@@ -375,11 +382,10 @@ mod tests {
         };
         let state = TestState { value: 42 };
 
-        use bincode::Options;
-        let options = bincode::options();
-        let state_data = options.serialize(&state).unwrap();
+        let config = bincode_reloaded::config::standard();
+        let state_data = bincode_reloaded::serde::encode_to_vec(&state, config).unwrap();
 
-        let mut combined = options.serialize(&header).unwrap();
+        let mut combined = bincode_reloaded::serde::encode_to_vec(&header, config).unwrap();
         combined.extend_from_slice(&state_data);
 
         std::fs::write(&path, combined).unwrap();
@@ -404,11 +410,10 @@ mod tests {
         };
         let state = TestState { value: 42 };
 
-        use bincode::Options;
-        let options = bincode::options();
-        let state_data = options.serialize(&state).unwrap();
+        let config = bincode_reloaded::config::standard();
+        let state_data = bincode_reloaded::serde::encode_to_vec(&state, config).unwrap();
 
-        let mut combined = options.serialize(&header).unwrap();
+        let mut combined = bincode_reloaded::serde::encode_to_vec(&header, config).unwrap();
         combined.extend_from_slice(&state_data);
 
         std::fs::write(&path, combined).unwrap();
@@ -434,11 +439,10 @@ mod tests {
         };
         let state = TestState { value: 42 };
 
-        use bincode::Options;
-        let options = bincode::options();
-        let state_data = options.serialize(&state).unwrap();
+        let config = bincode_reloaded::config::standard();
+        let state_data = bincode_reloaded::serde::encode_to_vec(&state, config).unwrap();
 
-        let mut combined = options.serialize(&header).unwrap();
+        let mut combined = bincode_reloaded::serde::encode_to_vec(&header, config).unwrap();
         combined.extend_from_slice(&state_data);
 
         std::fs::write(&path, combined).unwrap();
@@ -463,10 +467,9 @@ mod tests {
         };
         let state = TestState { value: 42 };
 
-        use bincode::Options;
-        let options = bincode::options();
-        let state_data = options.serialize(&state).unwrap();
-        let mut combined = options.serialize(&header).unwrap();
+        let config = bincode_reloaded::config::standard();
+        let state_data = bincode_reloaded::serde::encode_to_vec(&state, config).unwrap();
+        let mut combined = bincode_reloaded::serde::encode_to_vec(&header, config).unwrap();
         combined.extend_from_slice(&state_data);
         std::fs::write(&path, combined).unwrap();
 
@@ -495,10 +498,9 @@ mod tests {
         };
         let state = TestState { value: 42 };
 
-        use bincode::Options;
-        let options = bincode::options();
-        let state_data = options.serialize(&state).unwrap();
-        let mut combined = options.serialize(&header).unwrap();
+        let config = bincode_reloaded::config::standard();
+        let state_data = bincode_reloaded::serde::encode_to_vec(&state, config).unwrap();
+        let mut combined = bincode_reloaded::serde::encode_to_vec(&header, config).unwrap();
         combined.extend_from_slice(&state_data);
         std::fs::write(&path, combined).unwrap();
 
@@ -534,7 +536,7 @@ mod tests {
         let result = manager.save(&state).await;
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
-        assert!(err.contains("the size limit has been reached"));
+        assert!(err.contains("checkpoint too large"));
     }
 
     #[tokio::test]
