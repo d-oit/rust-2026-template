@@ -14,7 +14,7 @@ sqlite = ["dep:rusqlite"]
 mock = []
 
 [dependencies]
-rusqlite = { version = "0.32", optional = true }
+rusqlite = { version = "0.40", optional = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
