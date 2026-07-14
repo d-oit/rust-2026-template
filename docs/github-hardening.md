@@ -285,7 +285,6 @@ GitHub provides several security features that repositories created from this te
 
 **Third-Party Tools:**
 - Codacy, SonarQube, and other tools can integrate via GitHub Apps
-- See `.codacy/` configuration in this template for examples
 
 ### Security Advisories
 
