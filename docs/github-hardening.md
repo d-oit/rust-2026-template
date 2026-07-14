@@ -1,4 +1,4 @@
-# GitHub Hardening Proposal
+# GitHub Hardening
 
 This document provides guidance for securing repositories created from this template. It covers optional protections for harness files, hooks, workflow definitions, and related governance files.
 
@@ -159,7 +159,7 @@ The template's CI pipeline (`.github/workflows/ci.yml`) runs multiple checks. Co
 
 **Optional checks:**
 - `unused-deps` — Unused dependency detection
-- `privacy-scan` — Personal data detection
+- `privacy-scan` — Personal data detection (powered by the `privacy-first` skill)
 - `secret-scan` — Secret detection (`gitleaks`)
 
 ### Branch Protection Configuration
@@ -177,10 +177,10 @@ Configure branch protection via:
 # Protect main branch with required reviews and status checks
 gh api repos/{owner}/{repo}/branches/main/protection \
   --method PUT \
-  --field required_status_checks='{"strict":true,"contexts":["fmt","clippy","build","test"]}' \
+  --raw-field required_status_checks='{"strict":true,"contexts":["fmt","clippy","build","test"]}' \
   --field enforce_admins=true \
-  --field required_pull_request_reviews='{"required_approving_review_count":1,"dismiss_stale_reviews":true,"require_code_owner_reviews":true}' \
-  --field restrictions=null
+  --raw-field required_pull_request_reviews='{"required_approving_review_count":1,"dismiss_stale_reviews":true,"require_code_owner_reviews":true}' \
+  --raw-field restrictions=null
 ```
 
 ### Example: Terraform Configuration
@@ -430,6 +430,12 @@ Use this checklist when creating a repository from this template:
 
 ## Further Reading
 
+**In-repo governance:**
+- [AGENTS.md](../AGENTS.md) — Canonical instructions for AI coding agents
+- [HARNESS.md](../HARNESS.md) — Harness engineering guide and sensor/feedforward map
+- [SECURITY.md](../SECURITY.md) — Security policy and vulnerability reporting
+
+**GitHub documentation:**
 - [GitHub Repository Security](https://docs.github.com/en/code-security/getting-started/quickstart-for-securing-your-repository)
 - [About Code Owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
 - [Managing Protected Branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule)

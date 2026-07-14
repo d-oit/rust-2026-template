@@ -103,9 +103,9 @@ The project enforces high standards through a multi-layered verification process
 
 ## GitHub Hardening
 
-This template includes a proposal for securing harness files, hooks, workflow definitions, and related governance files on GitHub. The guidance covers optional protections for sensitive paths, CODEOWNERS patterns, branch configuration, and security features.
+This template includes guidance for securing harness files, hooks, workflow definitions, and related governance files on GitHub. The guidance covers optional protections for sensitive paths, CODEOWNERS patterns, branch configuration, and security features.
 
-See [docs/github-hardening.md](docs/github-hardening.md) for the full proposal.
+See [docs/github-hardening.md](docs/github-hardening.md) for the full guide.
 
 ## Feature Flags
 
