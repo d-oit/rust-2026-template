@@ -23,7 +23,7 @@ The following files and directories typically deserve stronger review and govern
 | Path | Purpose | Risk |
 |------|---------|------|
 | `.githooks/**` | Local git hook scripts | Runs on developer machines, affects commit quality |
-| `hooks/**` | Additional hook scripts | May execute during CI or local workflows |
+| `hooks/**` | Agent session hooks (e.g., `session-start.sh`) | Executes during agent sessions, provides project context |
 | `scripts/**` | Automation scripts | Quality gates, releases, and development workflows |
 
 ### CI/CD and Workflows
@@ -159,7 +159,7 @@ The template's CI pipeline (`.github/workflows/ci.yml`) runs multiple checks. Co
 
 **Optional checks:**
 - `unused-deps` — Unused dependency detection
-- `privacy-scan` — Personal data detection (powered by the `privacy-first` skill)
+- `privacy-scan` — Personal data detection (powered by the [`privacy-first`](../.agents/skills/privacy-first/SKILL.md) skill)
 - `secret-scan` — Secret detection (`gitleaks`)
 
 ### Branch Protection Configuration
@@ -171,10 +171,16 @@ Configure branch protection via:
 3. **Terraform**: `github_branch_protection` resource
 4. **Organization-level**: Organization Settings → Repository → Branch protection policies
 
+### GitHub Rulesets (Alternative)
+
+GitHub Rulesets (GA since 2024) are an alternative to classic branch protection rules, especially useful for organization-wide enforcement. Rulesets provide more flexibility with conditions, bypass lists, and enforcement levels. If your organization uses Rulesets, consider configuring them instead of or alongside classic branch protection rules.
+
 ### Example: GitHub CLI Configuration
 
 ```bash
 # Protect main branch with required reviews and status checks
+# Note: --raw-field sends the value as-is (no JSON encoding).
+# If you hit errors, pipe via --input - with a heredoc instead.
 gh api repos/{owner}/{repo}/branches/main/protection \
   --method PUT \
   --raw-field required_status_checks='{"strict":true,"contexts":["fmt","clippy","build","test"]}' \
@@ -186,6 +192,7 @@ gh api repos/{owner}/{repo}/branches/main/protection \
 ### Example: Terraform Configuration
 
 ```hcl
+# Implicitly depends on github_repository.repo via repository_id
 resource "github_branch_protection" "main" {
   repository_id = github_repository.repo.node_id
   pattern       = "main"
