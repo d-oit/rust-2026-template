@@ -116,6 +116,12 @@ The project enforces high standards through a multi-layered verification process
 - **Local Gates:** Run `./scripts/quality-gates.sh` before committing to mirror the CI checks locally.
 - **Mutation Testing:** Periodic runs of `cargo-mutants` verify that your tests actually catch bugs.
 
+## GitHub Hardening
+
+This template includes guidance for securing harness files, hooks, workflow definitions, and related governance files on GitHub. The guidance covers optional protections for sensitive paths, CODEOWNERS patterns, branch configuration, and security features.
+
+See [docs/github-hardening.md](docs/github-hardening.md) for the full guide.
+
 ## Feature Flags
 
 The root package has no optional features (it only exports a tiny example API).
