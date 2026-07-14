@@ -177,10 +177,34 @@ GitHub Rulesets (GA since 2024) are an alternative to classic branch protection 
 
 ### Example: GitHub CLI Configuration
 
+**Primary method (recommended):**
+
 ```bash
 # Protect main branch with required reviews and status checks
-# Note: --raw-field sends the value as-is (no JSON encoding).
-# If you hit errors, pipe via --input - with a heredoc instead.
+# Using --input - with a heredoc for reliable JSON handling.
+gh api repos/{owner}/{repo}/branches/main/protection \
+  --method PUT \
+  --input - <<'EOF'
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["fmt", "clippy", "build", "test"]
+  },
+  "enforce_admins": true,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 1,
+    "dismiss_stale_reviews": true,
+    "require_code_owner_reviews": true
+  },
+  "restrictions": null
+}
+EOF
+```
+
+**Alternative (inline):**
+
+```bash
+# Using --raw-field for inline JSON values (may have edge cases across gh versions).
 gh api repos/{owner}/{repo}/branches/main/protection \
   --method PUT \
   --raw-field required_status_checks='{"strict":true,"contexts":["fmt","clippy","build","test"]}' \
@@ -271,17 +295,17 @@ GitHub provides several security features that repositories created from this te
 
 ### Security Recommendations by Plan
 
-| Feature | Free | Team | Enterprise |
-|---------|------|------|------------|
-| Dependency graph | ✅ | ✅ | ✅ |
-| Dependabot alerts | ✅ | ✅ | ✅ |
-| Dependabot security updates | ✅ | ✅ | ✅ |
-| Secret scanning | ✅ | ✅ | ✅ |
-| Push protection | ✅ | ✅ | ✅ |
-| Code scanning (CodeQL) | ✅ | ✅ | ✅ |
-| Security advisories | ✅ | ✅ | ✅ |
-| Organization-level policies | ❌ | ✅ | ✅ |
-| Advanced security features | ❌ | ❌ | ✅ |
+| Feature | Free | Team | Enterprise | Notes |
+|---------|------|------|------------|-------|
+| Dependency graph | ✅ | ✅ | ✅ | |
+| Dependabot alerts | ✅ | ✅ | ✅ | |
+| Dependabot security updates | ✅ | ✅ | ✅ | |
+| Secret scanning | ✅ | ✅ | ✅ | |
+| Push protection | ✅ | ✅ | ✅ | |
+| Code scanning (CodeQL) | ✅ | ✅ | ✅ | Free only for public repos; private repos require GHAS |
+| Security advisories | ✅ | ✅ | ✅ | |
+| Organization-level policies | ❌ | ✅ | ✅ | |
+| Advanced security features | ❌ | ❌ | ✅ | Includes GHAS for private repos |
 
 ## Hooks and Harness Philosophy
 
@@ -393,15 +417,9 @@ Governance files (HARNESS.md, AGENTS.md, .agents/**, .github/workflows/**) deser
 
 ### Self-Correction Protocol
 
-When a sensor fires (CI or local hook), the harness includes fix hints to guide correction:
+When a sensor fires (CI or local hook), the harness includes fix hints to guide correction. This protocol works across all three layers: local hooks provide immediate feedback, CI provides authoritative verification, and feedforward guides provide context for fixing issues.
 
-1. Read the full error message
-2. Identify the category (fmt / lint / test / arch / security)
-3. Apply the minimal fix
-4. Re-run the specific sensor
-5. Only commit when the sensor is green
-
-This protocol works across all three layers: local hooks provide immediate feedback, CI provides authoritative verification, and feedforward guides provide context for fixing issues.
+See [HARNESS.md](../HARNESS.md#self-correction-protocol-for-agents) for the detailed agent self-correction protocol.
 
 ## Implementation Checklist
 
