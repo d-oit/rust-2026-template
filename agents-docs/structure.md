@@ -38,7 +38,6 @@ rust-2026-template/
 │       └── verify-actions/
 ├── .cargo/
 │   └── config.toml                # Linker (mold), dev profile, cargo aliases
-├── .codacy/                       # Codacy static analysis and agent review configs
 ├── .claude/                       # Claude Code integration
 ├── .config/
 │   └── nextest.toml               # nextest profiles: default, ci
