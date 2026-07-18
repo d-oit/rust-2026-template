@@ -305,3 +305,37 @@ async fn test_set_app_name_invalid() {
     let result = manager.set_app_name("valid-app");
     assert!(result.is_ok());
 }
+
+#[tokio::test]
+async fn test_set_app_name_byte_boundaries() {
+    let dir = TempDir::new().unwrap();
+    let path = dir.path().join("set_app_name_boundaries.ckpt");
+    let mut manager = CheckpointManager::<TestState>::new(&path);
+
+    // Empty app name is valid
+    assert!(manager.set_app_name("").is_ok());
+
+    // Entirely ASCII app name is valid
+    assert!(manager.set_app_name("ascii-only-123").is_ok());
+
+    // Non-ASCII character at the very beginning, but safe
+    assert!(manager.set_app_name("🦀-safe").is_ok());
+
+    // Non-ASCII character in the middle, but safe
+    assert!(manager.set_app_name("safe-🦀-app").is_ok());
+
+    // Non-ASCII character at the end, but safe
+    assert!(manager.set_app_name("safe-🦀").is_ok());
+
+    // Unsafe non-ASCII character at the very beginning (Bidi override)
+    assert!(manager.set_app_name("\u{202a}bad").is_err());
+
+    // Unsafe non-ASCII character in the middle (Bidi override)
+    assert!(manager.set_app_name("bad\u{202a}mid").is_err());
+
+    // Unsafe non-ASCII character at the end (Bidi override)
+    assert!(manager.set_app_name("bad\u{202a}").is_err());
+
+    // Multiple non-ASCII characters, mixed safe and unsafe
+    assert!(manager.set_app_name("🦀-bad\u{202a}-mid-🦀").is_err());
+}
