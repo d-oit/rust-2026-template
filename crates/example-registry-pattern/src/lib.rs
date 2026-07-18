@@ -52,6 +52,18 @@ impl Registry {
 
     /// Dispatch a command to its registered handler.
     pub fn dispatch(&self, command: &str, input: &str) -> Result<String, DispatchError> {
+        // Security: Validate command identifier to prevent log injection and resource exhaustion.
+        const MAX_COMMAND_LEN: usize = 64;
+        if command.len() > MAX_COMMAND_LEN {
+            return Err(DispatchError::Unknown("Command name too long".to_owned()));
+        }
+
+        if command.chars().any(|c| c.is_control()) {
+            return Err(DispatchError::Unknown(
+                "Command name contains control characters".to_owned(),
+            ));
+        }
+
         self.handlers
             .get(command)
             .ok_or_else(|| DispatchError::Unknown(command.to_owned()))?
@@ -106,5 +118,23 @@ mod tests {
             build_registry().dispatch("nope", ""),
             Err(DispatchError::Unknown(_))
         ));
+    }
+
+    #[test]
+    fn test_command_too_long() {
+        let name = "a".repeat(65);
+        let res = build_registry().dispatch(&name, "");
+        assert!(res.is_err());
+        let err = res.unwrap_err().to_string();
+        assert!(err.contains("Command name too long"));
+    }
+
+    #[test]
+    fn test_command_control_chars() {
+        let name = "cmd\nname";
+        let res = build_registry().dispatch(name, "");
+        assert!(res.is_err());
+        let err = res.unwrap_err().to_string();
+        assert!(err.contains("contains control characters"));
     }
 }
