@@ -51,6 +51,7 @@ if command -v python3 &>/dev/null && python3 -c "import yaml" 2>/dev/null; then
     fi
   done
 elif command -v yq &>/dev/null; then
+  # yq v4+ and kislyuk/yq (Python) use '.' directly as the filter; 'eval' subcommand is not supported/needed.
   for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
     [[ -f "$f" ]] || continue
     if ! yq '.' "$f" >/dev/null 2>&1; then

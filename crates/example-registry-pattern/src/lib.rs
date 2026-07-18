@@ -27,6 +27,9 @@ pub enum DispatchError {
     /// The command was not found in the registry.
     #[error("unknown command: {0}")]
     Unknown(String),
+    /// Invalid command input or identifier.
+    #[error("invalid input: {0}")]
+    InvalidInput(String),
     /// The handler returned an error.
     #[error("handler error: {0}")]
     Handler(String),
@@ -55,13 +58,27 @@ impl Registry {
         // Security: Validate command identifier to prevent log injection and resource exhaustion.
         const MAX_COMMAND_LEN: usize = 64;
         if command.len() > MAX_COMMAND_LEN {
-            return Err(DispatchError::Unknown("Command name too long".to_owned()));
+            return Err(DispatchError::InvalidInput(
+                "Command name too long".to_owned(),
+            ));
         }
 
-        if command.chars().any(|c| c.is_control()) {
-            return Err(DispatchError::Unknown(
-                "Command name contains control characters".to_owned(),
-            ));
+        for c in command.chars() {
+            if c.is_control()
+                || matches!(
+                    c,
+                    '\u{200b}'..='\u{200f}' // Zero-width space and Bidi controls
+                        | '\u{2028}' // Line separator
+                        | '\u{2029}' // Paragraph separator
+                        | '\u{202a}'..='\u{202e}' // Bidi embedding/override
+                        | '\u{2060}'..='\u{2064}' // Word joiner and invisible formatters
+                        | '\u{2066}'..='\u{2069}' // Bidi isolate controls
+                )
+            {
+                return Err(DispatchError::InvalidInput(
+                    "Command name contains control or Bidi characters".to_owned(),
+                ));
+            }
         }
 
         self.handlers
@@ -124,7 +141,7 @@ mod tests {
     fn test_command_too_long() {
         let name = "a".repeat(65);
         let res = build_registry().dispatch(&name, "");
-        assert!(res.is_err());
+        assert!(matches!(res, Err(DispatchError::InvalidInput(_))));
         let err = res.unwrap_err().to_string();
         assert!(err.contains("Command name too long"));
     }
@@ -133,8 +150,17 @@ mod tests {
     fn test_command_control_chars() {
         let name = "cmd\nname";
         let res = build_registry().dispatch(name, "");
-        assert!(res.is_err());
+        assert!(matches!(res, Err(DispatchError::InvalidInput(_))));
         let err = res.unwrap_err().to_string();
-        assert!(err.contains("contains control characters"));
+        assert!(err.contains("contains control or Bidi characters"));
+    }
+
+    #[test]
+    fn test_command_bidi_chars() {
+        let name = "cmd\u{202a}name";
+        let res = build_registry().dispatch(name, "");
+        assert!(matches!(res, Err(DispatchError::InvalidInput(_))));
+        let err = res.unwrap_err().to_string();
+        assert!(err.contains("contains control or Bidi characters"));
     }
 }
