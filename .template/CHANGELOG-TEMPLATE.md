@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- for new features.
+
 ### Changed
 
-- `scripts/roast-scorer.sh`: package name now derived dynamically from `Cargo.toml` instead of hardcoded; `init-template.sh` rewrites it on init.
-
-### Fixed
-
-- `scripts/roast-scorer.sh`: `check_architecture` now passes the correct `--package` flag using the dynamic package name, fixing the false 5/10 architecture score.
+- for changes in existing functionality.
 
 ### Deprecated
 
@@ -30,6 +30,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - in case of vulnerabilities.
+
+---
+
+## [0.3.5] - 2026-07-20
+
+### Changed
+
+- `scripts/roast-scorer.sh`: package name now derived dynamically from `Cargo.toml` instead of hardcoded; `init-template.sh` rewrites it on init.
+- `README.md` version reference updated to point to `v0.3.5`.
+
+### Fixed
+
+- `scripts/roast-scorer.sh`: `check_architecture` now passes the correct `--package` flag using the dynamic package name, fixing the false 5/10 architecture score.
+- GitHub Actions dependencies updated in CI workflows: `davidanson/markdownlint-cli2-action` to `24.1.0`, `taiki-e/install-action` to `2.83.4`, `EmbarkStudios/cargo-deny-action` to `2.1.1`, `cargo-bins/cargo-binstall` to `1.21.0`, and `softprops/action-gh-release` to `3.0.2` (PR #271).
 
 ---
 
@@ -335,7 +349,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.4...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.5...HEAD
+[0.3.5]: https://github.com/d-oit/rust-2026-template/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/d-oit/rust-2026-template/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/d-oit/rust-2026-template/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/d-oit/rust-2026-template/compare/v0.3.1...v0.3.2

@@ -4,8 +4,9 @@
 [![codecov](https://codecov.io/gh/d-oit/rust-2026-template/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88-blue.svg)](https://www.rust-lang.org)
+[![Template Version](https://img.shields.io/badge/version-0.3.5-blue)](.template/CHANGELOG-TEMPLATE.md#0.3.5)
 
-**Latest release: v0.3.4** — see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) for the full changelog.
+**Latest release: v0.3.5** — see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) for the full changelog.
 
 <!-- cargo-sync-readme start -->
 
