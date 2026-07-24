@@ -1,6 +1,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
 
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use std::hint::black_box;
+use criterion::{Criterion, criterion_group, criterion_main};
 use sample_app::{is_safe_char, sanitize_str};
 
 fn old_sanitize_str(s: &str) -> String {
