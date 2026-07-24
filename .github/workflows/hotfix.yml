@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read   # required for gh run list / gh run watch
     steps:
       - name: Record Hotfix Event
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
@@ -53,6 +54,30 @@ jobs:
 
             const fs = require('fs');
             fs.writeFileSync('dora-metrics.jsonl', JSON.stringify(event) + '\n');
+
+      - name: Wait for CI on hotfix branch
+        # Only applicable when triggered by a push to a hotfix branch
+        # (not when triggered by a PR merge, where CI already ran)
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the most recent CI run for this branch and wait for it
+          RUN_ID=$(gh run list \
+            --branch "${{ github.ref_name }}" \
+            --workflow "ci.yml" \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            echo "No CI run found for branch ${{ github.ref_name }} — skipping watch"
+            exit 0
+          fi
+
+          echo "Watching CI run $RUN_ID for branch ${{ github.ref_name }}..."
+          gh run watch "$RUN_ID" --exit-status
+          echo "CI passed ✔ Hotfix branch is green."
 
       - name: Upload DORA Metrics
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
