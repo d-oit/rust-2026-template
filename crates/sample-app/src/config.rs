@@ -122,8 +122,8 @@ pub fn sanitize_str(s: &str) -> Cow<'_, str> {
     let mut chunk_offset = 0;
     for chunk_bytes in chunks {
         let chunk = u64::from_ne_bytes(chunk_bytes.try_into().unwrap());
-        let low_check = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
-        let high_check = (chunk | chunk.wrapping_add(0x0101010101010101)) & 0x8080808080808080;
+        let low_check = (chunk.wrapping_sub(0x2020_2020_2020_2020) & !chunk) & 0x8080_8080_8080_8080;
+        let high_check = (chunk | chunk.wrapping_add(0x0101_0101_0101_0101)) & 0x8080_8080_8080_8080;
         if (low_check | high_check) != 0 {
             break;
         }
