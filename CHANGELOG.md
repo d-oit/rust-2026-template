@@ -13,6 +13,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- for changes in existing functionality.
+
+### Deprecated
+
+- for soon-to-be removed features.
+
+### Removed
+
+- for now removed features.
+
+### Fixed
+
+- for any bug fixes.
+
+### Security
+
+- in case of vulnerabilities.
+
+---## [0.0.1] - 2026-07-24
+
+### Added
+
+- for new features.
+
+### Changed
+
 - Promoted `pedantic` and `nursery` clippy lint groups from `allow` to `warn` at workspace level. Individual crates use local `[lints.clippy]` overrides where needed (Cargo 1.88 limitation).
 - Expanded `tokio` features in `checkpoint-template` to include `rt-multi-thread`, `macros`, and `sync` (needed for `#[tokio::test]`).
 
@@ -33,4 +59,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (none)
 
-[Unreleased]: https://github.com/your-org/your-repo/compare/v0.0.0...HEAD
+[Unreleased]: https://github.com/your-org/your-repo/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/your-org/your-repo/compare/v0.0.0...v0.0.1
