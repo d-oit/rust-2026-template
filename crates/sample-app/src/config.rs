@@ -115,10 +115,22 @@ pub const fn is_safe_char(c: char) -> bool {
 /// Returns a `Cow::Borrowed` if no changes were needed, avoiding unnecessary allocations.
 #[must_use]
 pub fn sanitize_str(s: &str) -> Cow<'_, str> {
-    // Bolt: Fast path byte-scan for ASCII printable strings.
-    // Skips UTF-8 decoding for the common case where the string is already clean.
+    // SWAR (SIMD Within A Register) fast-path byte-scan for ASCII printable strings (0x20..=0x7E).
+    // Processes 8 bytes at once using bitwise operations to check if any byte is < 0x20 or > 0x7E.
     let bytes = s.as_bytes();
-    let mut i = 0;
+    let chunks = bytes.chunks_exact(8);
+    let mut chunk_offset = 0;
+    for chunk_bytes in chunks {
+        let chunk = u64::from_ne_bytes(chunk_bytes.try_into().unwrap());
+        let low_check = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
+        let high_check = (chunk | chunk.wrapping_add(0x0101010101010101)) & 0x8080808080808080;
+        if (low_check | high_check) != 0 {
+            break;
+        }
+        chunk_offset += 8;
+    }
+
+    let mut i = chunk_offset;
     while i < bytes.len() {
         let b = bytes[i];
         if !(0x20..=0x7E).contains(&b) {
