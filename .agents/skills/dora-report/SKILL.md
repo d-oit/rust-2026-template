@@ -96,3 +96,18 @@ echo '{"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","agent":"claude","skill":"
 - [ ] Running DORA report less than monthly (trends need data points)
 - [ ] Ignoring Lead Time for Changes (the hardest metric to improve)
 - [ ] Not tracking human_interventions in metrics (hides true agent performance)
+
+## GH CLI Usage
+
+Use `gh run watch` to gate DORA recovery recording on CI passing:
+
+```bash
+# Find latest CI run for a branch
+RUN_ID=$(gh run list --branch hotfix/my-fix --workflow ci.yml \
+  --limit 1 --json databaseId --jq '.[0].databaseId')
+
+# Block until CI completes; exits non-zero if CI fails
+gh run watch "$RUN_ID" --exit-status
+```
+
+This ensures FDRT recovery is only counted after a verified green build.
