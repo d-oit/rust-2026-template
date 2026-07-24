@@ -1,8 +1,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
 
-use std::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
 use sample_app::{is_safe_char, sanitize_str};
+use std::hint::black_box;
 
 fn old_sanitize_str(s: &str) -> String {
     s.chars()
