@@ -15,6 +15,8 @@ PACKAGE_NAME=$(grep -m1 '^name = ' Cargo.toml 2>/dev/null | sed 's/name = "\(.*\
 if [[ -z "$PACKAGE_NAME" ]]; then
   if [[ -f "crates/workspace-tests/Cargo.toml" ]]; then
     PACKAGE_NAME="workspace-tests"
+  elif [[ -f "crates/sample-app/Cargo.toml" ]]; then
+    PACKAGE_NAME="sample-app"
   else
     # Fallback to finding any name = in the workspace
     PACKAGE_NAME=$(find crates -name "Cargo.toml" -exec grep -m1 '^name = ' {} \; | head -n1 | sed 's/name = "\(.*\)"/\1/')
@@ -94,7 +96,7 @@ check_test_coverage() {
   local reasons=()
 
   # Check for different test types (6 pts)
-  if find tests crates -name "*.rs" -path "*/tests/*" 2>/dev/null | grep -q .; then
+  if find tests crates -maxdepth 4 -path "*/tests/*.rs" 2>/dev/null | grep -q .; then
     score=$((score + 2))
   else
     reasons+=("missing integration tests")
