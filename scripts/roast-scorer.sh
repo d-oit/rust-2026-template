@@ -10,7 +10,16 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 
 # Derive package name from Cargo.toml (dynamic, not hardcoded)
-PACKAGE_NAME=$(grep -m1 '^name = ' Cargo.toml | sed 's/name = "\(.*\)"/\1/')
+# If the root is a virtual workspace, use the workspace-tests crate or fallback
+PACKAGE_NAME=$(grep -m1 '^name = ' Cargo.toml 2>/dev/null | sed 's/name = "\(.*\)"/\1/' || echo "")
+if [[ -z "$PACKAGE_NAME" ]]; then
+  if [[ -f "crates/workspace-tests/Cargo.toml" ]]; then
+    PACKAGE_NAME="workspace-tests"
+  else
+    # Fallback to finding any name = in the workspace
+    PACKAGE_NAME=$(find crates -name "Cargo.toml" -exec grep -m1 '^name = ' {} \; | head -n1 | sed 's/name = "\(.*\)"/\1/')
+  fi
+fi
 
 # --- Colors ---
 if [[ -t 1 ]] && [[ "${FORCE_COLOR:-}" != "0" ]]; then
@@ -85,19 +94,19 @@ check_test_coverage() {
   local reasons=()
 
   # Check for different test types (6 pts)
-  if find tests -name "*_test.rs" -o -name "integration_test.rs" | grep -q .; then
+  if find tests crates -name "*.rs" -path "*/tests/*" 2>/dev/null | grep -q .; then
     score=$((score + 2))
   else
     reasons+=("missing integration tests")
   fi
 
-  if grep -r "\[test\]" src crates | grep -q .; then
+  if grep -r "\[test\]" crates 2>/dev/null | grep -q .; then
     score=$((score + 2))
   else
     reasons+=("missing unit tests")
   fi
 
-  if grep -r '/// ```rust' src crates | grep -q .; then
+  if grep -r '/// ```' crates 2>/dev/null | grep -q .; then
     score=$((score + 2))
   else
     reasons+=("missing doc tests")
@@ -220,9 +229,9 @@ check_documentation() {
 
   # Doc comments (6 pts)
   local total_public
-  total_public=$(grep -r "pub " src crates --exclude-dir=target | wc -l)
+  total_public=$(grep -r "pub " crates --exclude-dir=target 2>/dev/null | wc -l)
   local doc_comments
-  doc_comments=$(grep -r "///" src crates --exclude-dir=target | wc -l)
+  doc_comments=$(grep -r "///" crates --exclude-dir=target 2>/dev/null | wc -l)
 
   if [[ $total_public -gt 0 ]]; then
     if [[ $doc_comments -lt $total_public ]]; then

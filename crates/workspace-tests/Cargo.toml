@@ -1,0 +1,16 @@
+[package]
+name = "workspace-tests"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+description = "Dedicated crate for workspace-level integration and architecture fitness tests"
+publish = false
+
+[dependencies]
+
+[dev-dependencies]
+serde_json = { workspace = true }

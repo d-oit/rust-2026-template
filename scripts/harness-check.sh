@@ -46,8 +46,8 @@ case "$SENSOR" in
     ;;
   arch)
     run_with_hint "arch fitness" \
-        "cargo test --test arch_fitness" \
-        "LAYERING VIOLATION: Move code to the correct crate layer. See tests/arch_fitness.rs error for the specific fix."
+        "cargo test --test arch_fitness --package workspace-tests" \
+        "LAYERING VIOLATION: Move code to the correct crate layer. See crates/workspace-tests/tests/arch_fitness.rs error for the specific fix."
     ;;
   all)
     run_with_hint "cargo fmt" "cargo fmt --all -- --check" "Run: cargo fmt --all"
