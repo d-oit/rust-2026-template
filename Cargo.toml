@@ -1,6 +1,6 @@
 [workspace]
 members = ["crates/*", "examples/*", "benchmarks"]
-default-members = ["crates/sample-app"]
+default-members = ["crates/sample-app", "crates/workspace-tests"]
 resolver = "3"
 exclude = ["fuzz"]
 
