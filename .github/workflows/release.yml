@@ -30,7 +30,7 @@ jobs:
     needs: [ci]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
         with:
           fetch-depth: 0
 
@@ -50,7 +50,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32  # v2
       - name: Install cargo-dist
-        uses: cargo-bins/cargo-binstall@ead08b90bd7b2e6d81963fb9cf0b7239f66d5db4  # main
+        uses: cargo-bins/cargo-binstall@e00d2c94cc0067b77737821097a62d91c0301baa  # main
       - run: cargo binstall cargo-dist --no-confirm
       - name: Run cargo-dist
         run: cargo dist build --tag ${{ github.ref_name }}
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: crates-io
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32  # v2
       - name: Publish crate
@@ -108,7 +108,7 @@ jobs:
     needs: [publish]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
         with:
           ref: ${{ github.ref }}
 
