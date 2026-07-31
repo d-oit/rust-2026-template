@@ -200,10 +200,30 @@ impl<T: Storable> CheckpointManager<T> {
             )));
         }
 
-        // Security: Robust hierarchical validation with manual byte-scan fast-path.
+        // Security: Robust hierarchical validation with SWAR fast-path scanning 8 bytes at a time.
         // Skips UTF-8 decoding for the common case where the string is entirely printable ASCII (0x20-0x7E).
         let bytes = name.as_bytes();
+        let chunks = bytes.chunks_exact(8);
         let mut i = 0;
+        for chunk_bytes in chunks {
+            let mut arr = [0u8; 8];
+            arr.copy_from_slice(chunk_bytes);
+            let chunk = u64::from_le_bytes(arr);
+
+            // Check for bytes < 0x20
+            let low_check = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
+            // Check for bytes >= 0x80
+            let high_bit_check = chunk & 0x8080808080808080;
+            // Check for bytes == 0x7F
+            let v = chunk ^ 0x7F7F7F7F7F7F7F7F;
+            let zero_check = (v.wrapping_sub(0x0101010101010101) & !v) & 0x8080808080808080;
+
+            if (low_check | high_bit_check | zero_check) != 0 {
+                break;
+            }
+            i += 8;
+        }
+
         while i < bytes.len() {
             let b = bytes[i];
             if !(0x20..=0x7E).contains(&b) {
