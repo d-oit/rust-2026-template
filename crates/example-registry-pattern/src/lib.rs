@@ -126,9 +126,7 @@ mod tests {
     fn test_command_too_long() {
         let name = "a".repeat(65);
         let result = build_registry().dispatch(&name, "");
-        assert!(
-            matches!(result, Err(DispatchError::Unknown(msg)) if msg.contains("too long"))
-        );
+        assert!(matches!(result, Err(DispatchError::Unknown(msg)) if msg.contains("too long")));
     }
 
     #[test]
