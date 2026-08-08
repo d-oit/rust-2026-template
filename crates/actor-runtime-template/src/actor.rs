@@ -90,7 +90,18 @@ impl<S: ActorState> Actor<S> {
                 Ok(Lifecycle::Started)
             }
             ActorMessage::Process(work) => {
-                debug!("Processing: {}", work);
+                // Security: Prevent log injection and log-filling DoS by escaping control/Bidi characters
+                // and limiting the logged string length at the logging boundary.
+                const MAX_LOGGED_LEN: usize = 256;
+                let escaped = work.escape_debug().to_string();
+                if escaped.chars().count() > MAX_LOGGED_LEN {
+                    let mut truncated: String = escaped.chars().take(MAX_LOGGED_LEN).collect();
+                    truncated.push_str("... [truncated]");
+                    debug!("Processing: {}", truncated);
+                } else {
+                    debug!("Processing: {}", escaped);
+                }
+
                 Ok(Lifecycle::Started)
             }
             ActorMessage::GetState { respond_to } => {
@@ -177,6 +188,50 @@ mod tests {
         let msg = ActorMessage::Process("test work".to_string());
         let result = actor.receive(msg).await.unwrap();
         assert_eq!(result, Lifecycle::Started);
+    }
+
+    #[tokio::test]
+    async fn test_actor_process_too_long() {
+        let state = TestState { count: 0 };
+        let mut actor = Actor::new(state);
+        let work = "a".repeat(1025);
+        let msg = ActorMessage::Process(work);
+        let result = actor.receive(msg).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Lifecycle::Started);
+    }
+
+    #[tokio::test]
+    async fn test_actor_process_multibyte_truncation() {
+        let state = TestState { count: 0 };
+        let mut actor = Actor::new(state);
+        // "🦀" is a 4-byte UTF-8 character. 300 repetitions makes it 1200 bytes, which exceeds 256 chars.
+        // Truncation should handle this safely without panicking on a non-character boundary.
+        let work = "🦀".repeat(300);
+        let msg = ActorMessage::Process(work);
+        let result = actor.receive(msg).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Lifecycle::Started);
+    }
+
+    #[tokio::test]
+    async fn test_actor_process_control_char() {
+        let state = TestState { count: 0 };
+        let mut actor = Actor::new(state);
+        let msg = ActorMessage::Process("test\nwork".to_string());
+        let result = actor.receive(msg).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Lifecycle::Started);
+    }
+
+    #[tokio::test]
+    async fn test_actor_process_bidi_char() {
+        let state = TestState { count: 0 };
+        let mut actor = Actor::new(state);
+        let msg = ActorMessage::Process("test\u{202a}work".to_string());
+        let result = actor.receive(msg).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Lifecycle::Started);
     }
 
     #[tokio::test]
