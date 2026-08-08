@@ -135,11 +135,10 @@ impl XtaskConfig {
                 message: format!("Failed to read config file: {e}"),
             })?;
 
-        let config: Self = serde_json::from_str(&content).map_err(|e| {
-            XtaskError::InvalidConfig {
+        let config: Self =
+            serde_json::from_str(&content).map_err(|e| XtaskError::InvalidConfig {
                 message: format!("Failed to parse config JSON: {e}"),
-            }
-        })?;
+            })?;
         Ok(config)
     }
 }

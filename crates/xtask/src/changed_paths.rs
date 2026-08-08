@@ -41,12 +41,18 @@ impl ChangedPaths {
             }
 
             // Detect Markdown
-            if std::path::Path::new(path).extension().is_some_and(|ext| ext.eq_ignore_ascii_case("md")) {
+            if std::path::Path::new(path)
+                .extension()
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("md"))
+            {
                 has_markdown_changes = true;
             }
 
             // Detect Shell
-            if std::path::Path::new(path).extension().is_some_and(|ext| ext.eq_ignore_ascii_case("sh")) {
+            if std::path::Path::new(path)
+                .extension()
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("sh"))
+            {
                 has_shell_changes = true;
             }
 
@@ -81,7 +87,9 @@ impl ChangedPaths {
                 || path == "rust-toolchain.toml"
             {
                 has_heavy_changes = true;
-                if std::path::Path::new(path).extension().is_some_and(|ext| ext.eq_ignore_ascii_case("rs"))
+                if std::path::Path::new(path)
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"))
                     || path == "Cargo.toml"
                     || path == "Cargo.lock"
                     || path == "rust-toolchain.toml"

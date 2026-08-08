@@ -182,7 +182,9 @@ fn check_linker() {
                 println!("  ✓ mold + clang detected — maximum link speed");
             } else {
                 println!("  ! mold or clang missing — compile times might be slower");
-                println!("    Guidance: Install mold + clang (e.g., 'sudo apt install mold clang')");
+                println!(
+                    "    Guidance: Install mold + clang (e.g., 'sudo apt install mold clang')"
+                );
             }
         }
         "macos" => {
@@ -214,7 +216,11 @@ fn check_git_state() {
     match branch_output {
         Ok(out) if out.status.success() => {
             let branch = String::from_utf8_lossy(&out.stdout).trim().to_string();
-            let branch_name = if branch.is_empty() { "detached HEAD".to_string() } else { branch };
+            let branch_name = if branch.is_empty() {
+                "detached HEAD".to_string()
+            } else {
+                branch
+            };
             println!("  ✓ Current branch: {branch_name}");
         }
         _ => {
@@ -222,9 +228,7 @@ fn check_git_state() {
         }
     }
 
-    let status_output = Command::new("git")
-        .args(["diff", "--quiet"])
-        .status();
+    let status_output = Command::new("git").args(["diff", "--quiet"]).status();
     let status_cached_output = Command::new("git")
         .args(["diff", "--cached", "--quiet"])
         .status();
@@ -282,13 +286,21 @@ fn check_git_hooks() {
             }
         }
         _ => {
-            println!("  ! core.hooksPath not set to .githooks (run: git config core.hooksPath .githooks)");
+            println!(
+                "  ! core.hooksPath not set to .githooks (run: git config core.hooksPath .githooks)"
+            );
         }
     }
 }
 
 fn check_core_files() {
-    let core_files = &["AGENTS.md", "CHANGELOG.md", "Cargo.toml", "rust-toolchain.toml", "deny.toml"];
+    let core_files = &[
+        "AGENTS.md",
+        "CHANGELOG.md",
+        "Cargo.toml",
+        "rust-toolchain.toml",
+        "deny.toml",
+    ];
     for file in core_files {
         if Path::new(file).exists() {
             println!("  ✓ {file}");

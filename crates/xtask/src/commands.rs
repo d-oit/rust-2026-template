@@ -21,13 +21,14 @@ pub fn resolve_program(program: &str) -> String {
 pub fn execute(program: &str, args: &[&str]) -> Result<(), XtaskError> {
     let resolved = resolve_program(program);
     println!("  → {resolved} {}", args.join(" "));
-    let status = Command::new(&resolved)
-        .args(args)
-        .status()
-        .map_err(|_e| XtaskError::CommandFailure {
-            command: format!("{resolved} {}", args.join(" ")),
-            exit_code: None,
-        })?;
+    let status =
+        Command::new(&resolved)
+            .args(args)
+            .status()
+            .map_err(|_e| XtaskError::CommandFailure {
+                command: format!("{resolved} {}", args.join(" ")),
+                exit_code: None,
+            })?;
 
     if status.success() {
         Ok(())
@@ -45,13 +46,14 @@ pub fn execute(program: &str, args: &[&str]) -> Result<(), XtaskError> {
 /// Returns `XtaskError::CommandFailure` if the command fails to spawn or returns non-zero.
 pub fn execute_captured(program: &str, args: &[&str]) -> Result<String, XtaskError> {
     let resolved = resolve_program(program);
-    let output = Command::new(&resolved)
-        .args(args)
-        .output()
-        .map_err(|_e| XtaskError::CommandFailure {
-            command: format!("{resolved} {}", args.join(" ")),
-            exit_code: None,
-        })?;
+    let output =
+        Command::new(&resolved)
+            .args(args)
+            .output()
+            .map_err(|_e| XtaskError::CommandFailure {
+                command: format!("{resolved} {}", args.join(" ")),
+                exit_code: None,
+            })?;
 
     if output.status.success() {
         Ok(String::from_utf8_lossy(&output.stdout).into_owned())

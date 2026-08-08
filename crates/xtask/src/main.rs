@@ -3,6 +3,7 @@ pub mod changed_paths;
 pub mod commands;
 pub mod config;
 pub mod quality;
+pub mod quality_helpers;
 pub mod reporting;
 pub mod template_init;
 pub mod toolchain;
@@ -89,8 +90,10 @@ enum ReportSub {
 }
 
 fn get_rfc3339_timestamp() -> String {
-    crate::commands::execute_captured("date", &["-u", "+%Y-%m-%dT%H:%M:%SZ"])
-        .map_or_else(|_| "2026-01-01T00:00:00Z".to_string(), |out| out.trim().to_string())
+    crate::commands::execute_captured("date", &["-u", "+%Y-%m-%dT%H:%M:%SZ"]).map_or_else(
+        |_| "2026-01-01T00:00:00Z".to_string(),
+        |out| out.trim().to_string(),
+    )
 }
 
 fn handle_quality_run(
@@ -131,28 +134,30 @@ fn handle_quality_run(
         }
     }
 
-    let commit_sha = std::env::var("GITHUB_SHA")
-        .unwrap_or_else(|_| {
-            commands::execute_captured("git", &["rev-parse", "HEAD"])
-                .unwrap_or_else(|_| "unknown_sha".to_string())
-                .trim()
-                .to_string()
-        });
+    let commit_sha = std::env::var("GITHUB_SHA").unwrap_or_else(|_| {
+        commands::execute_captured("git", &["rev-parse", "HEAD"])
+            .unwrap_or_else(|_| "unknown_sha".to_string())
+            .trim()
+            .to_string()
+    });
 
-    let branch_name = std::env::var("GITHUB_REF_NAME")
-        .unwrap_or_else(|_| {
-            commands::execute_captured("git", &["branch", "--show-current"])
-                .unwrap_or_else(|_| "unknown_branch".to_string())
-                .trim()
-                .to_string()
-        });
+    let branch_name = std::env::var("GITHUB_REF_NAME").unwrap_or_else(|_| {
+        commands::execute_captured("git", &["branch", "--show-current"])
+            .unwrap_or_else(|_| "unknown_branch".to_string())
+            .trim()
+            .to_string()
+    });
 
     let report = QualityReport {
         timestamp: get_rfc3339_timestamp(),
         commit: commit_sha,
         branch: branch_name,
         checks: results,
-        overall: if overall_success { "success".to_string() } else { "failure".to_string() },
+        overall: if overall_success {
+            "success".to_string()
+        } else {
+            "failure".to_string()
+        },
     };
 
     report.print_console();
@@ -173,10 +178,14 @@ fn handle_github_summary() -> Result<(), XtaskError> {
     // Read reports/quality-report.json or .agents/ci/ci-status.json
     let report_path = Path::new(".agents/ci/ci-status.json");
     if report_path.exists() {
-        let file_content = std::fs::read_to_string(report_path)
-            .map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
-        let report: QualityReport = serde_json::from_str(&file_content)
-            .map_err(|e| XtaskError::InvalidConfig { message: e.to_string() })?;
+        let file_content =
+            std::fs::read_to_string(report_path).map_err(|e| XtaskError::CacheIssue {
+                message: e.to_string(),
+            })?;
+        let report: QualityReport =
+            serde_json::from_str(&file_content).map_err(|e| XtaskError::InvalidConfig {
+                message: e.to_string(),
+            })?;
         report.write_github_summary()?;
         println!("  ✓ GitHub Actions summary generated from ci-status.json");
     } else {
@@ -195,8 +204,17 @@ fn main() {
     let result = match cli.cmd {
         Cmd::Doctor => toolchain::run_doctor(),
         Cmd::Quality { sub } => match sub {
-            QualitySub::Plan { tier, only, changed_from } => {
-                match quality::plan_checks(&config, tier.as_deref(), only.as_deref(), changed_from.as_deref()) {
+            QualitySub::Plan {
+                tier,
+                only,
+                changed_from,
+            } => {
+                match quality::plan_checks(
+                    &config,
+                    tier.as_deref(),
+                    only.as_deref(),
+                    changed_from.as_deref(),
+                ) {
                     Ok(checks) => {
                         println!("Planned Checks:");
                         for check in checks {
@@ -207,14 +225,33 @@ fn main() {
                     Err(e) => Err(e),
                 }
             }
-            QualitySub::Run { tier, only, changed_from } => {
-                handle_quality_run(&config, tier.as_deref(), only.as_deref(), changed_from.as_deref())
-            }
+            QualitySub::Run {
+                tier,
+                only,
+                changed_from,
+            } => handle_quality_run(
+                &config,
+                tier.as_deref(),
+                only.as_deref(),
+                changed_from.as_deref(),
+            ),
         },
         Cmd::Template { sub } => match sub {
-            TemplateSub::Init { profile, name, description, author, repo, dry_run } => {
-                template_init::run_init(&profile, name.as_deref(), description.as_deref(), author.as_deref(), repo.as_deref(), dry_run)
-            }
+            TemplateSub::Init {
+                profile,
+                name,
+                description,
+                author,
+                repo,
+                dry_run,
+            } => template_init::run_init(
+                &profile,
+                name.as_deref(),
+                description.as_deref(),
+                author.as_deref(),
+                repo.as_deref(),
+                dry_run,
+            ),
         },
         Cmd::Report { sub } => match sub {
             ReportSub::GithubSummary => handle_github_summary(),

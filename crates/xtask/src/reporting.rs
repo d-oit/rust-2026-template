@@ -2,7 +2,7 @@
 
 use crate::config::XtaskError;
 use serde::{Deserialize, Serialize};
-use std::fs::{create_dir_all, File};
+use std::fs::{File, create_dir_all};
 use std::io::Write as _;
 use std::path::Path;
 
@@ -92,8 +92,12 @@ impl QualityReport {
                     .append(true)
                     .create(true)
                     .open(&summary_path)
-                    .map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
-                writeln!(file, "\n{markdown}").map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
+                    .map_err(|e| XtaskError::CacheIssue {
+                        message: e.to_string(),
+                    })?;
+                writeln!(file, "\n{markdown}").map_err(|e| XtaskError::CacheIssue {
+                    message: e.to_string(),
+                })?;
                 println!("  ✓ Appended summary to $GITHUB_STEP_SUMMARY");
             }
         }
@@ -104,8 +108,13 @@ impl QualityReport {
             println!("  ! Warning: could not create .agents/ci directory: {e}");
         } else {
             let summary_file = summary_dir.join("ci-summary.md");
-            let mut file = File::create(&summary_file).map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
-            file.write_all(markdown.as_bytes()).map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
+            let mut file = File::create(&summary_file).map_err(|e| XtaskError::CacheIssue {
+                message: e.to_string(),
+            })?;
+            file.write_all(markdown.as_bytes())
+                .map_err(|e| XtaskError::CacheIssue {
+                    message: e.to_string(),
+                })?;
             println!("  ✓ Wrote summary markdown to {}", summary_file.display());
         }
 
@@ -117,17 +126,23 @@ impl QualityReport {
     /// # Errors
     /// Returns `XtaskError` if writing files fails.
     pub fn write_json_report(&self) -> Result<(), XtaskError> {
-        let json_str = serde_json::to_string_pretty(self).map_err(|e| XtaskError::InvalidConfig {
-            message: e.to_string(),
-        })?;
+        let json_str =
+            serde_json::to_string_pretty(self).map_err(|e| XtaskError::InvalidConfig {
+                message: e.to_string(),
+            })?;
 
         let report_dir = Path::new(".agents/ci");
         if let Err(e) = create_dir_all(report_dir) {
             println!("  ! Warning: could not create .agents/ci directory: {e}");
         } else {
             let report_file = report_dir.join("ci-status.json");
-            let mut file = File::create(&report_file).map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
-            file.write_all(json_str.as_bytes()).map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
+            let mut file = File::create(&report_file).map_err(|e| XtaskError::CacheIssue {
+                message: e.to_string(),
+            })?;
+            file.write_all(json_str.as_bytes())
+                .map_err(|e| XtaskError::CacheIssue {
+                    message: e.to_string(),
+                })?;
             println!("  ✓ Wrote JSON report to {}", report_file.display());
         }
 
@@ -136,8 +151,13 @@ impl QualityReport {
             println!("  ! Warning: could not create reports directory: {e}");
         } else {
             let report_file = general_report_dir.join("quality-report.json");
-            let mut file = File::create(&report_file).map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
-            file.write_all(json_str.as_bytes()).map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
+            let mut file = File::create(&report_file).map_err(|e| XtaskError::CacheIssue {
+                message: e.to_string(),
+            })?;
+            file.write_all(json_str.as_bytes())
+                .map_err(|e| XtaskError::CacheIssue {
+                    message: e.to_string(),
+                })?;
             println!("  ✓ Wrote JSON report to {}", report_file.display());
         }
 
