@@ -1,4 +1,5 @@
 //! Changed paths detection and classification since a reference commit.
+#![allow(clippy::struct_excessive_bools)]
 
 use crate::config::XtaskError;
 use serde::{Deserialize, Serialize};
@@ -26,8 +27,12 @@ pub struct ChangedPaths {
 impl ChangedPaths {
     /// Classifies a list of file paths.
     pub fn classify<S: AsRef<str>>(files: &[S]) -> Self {
-        let mut result = Self::default();
-        result.changed_files = files.iter().map(|s| s.as_ref().to_string()).collect();
+        let mut has_code_changes = false;
+        let mut has_heavy_changes = false;
+        let mut has_agent_changes = false;
+        let mut has_workflow_changes = false;
+        let mut has_shell_changes = false;
+        let mut has_markdown_changes = false;
 
         for file in files {
             let path = file.as_ref();
@@ -36,18 +41,18 @@ impl ChangedPaths {
             }
 
             // Detect Markdown
-            if path.ends_with(".md") {
-                result.has_markdown_changes = true;
+            if std::path::Path::new(path).extension().is_some_and(|ext| ext.eq_ignore_ascii_case("md")) {
+                has_markdown_changes = true;
             }
 
             // Detect Shell
-            if path.ends_with(".sh") {
-                result.has_shell_changes = true;
+            if std::path::Path::new(path).extension().is_some_and(|ext| ext.eq_ignore_ascii_case("sh")) {
+                has_shell_changes = true;
             }
 
             // Workflows
             if path.starts_with(".github/workflows/") {
-                result.has_workflow_changes = true;
+                has_workflow_changes = true;
             }
 
             // Agents
@@ -61,10 +66,10 @@ impl ChangedPaths {
                 || path == "scripts/validate-agent-entrypoints.sh"
                 || path == "scripts/generate-skills-md.sh"
             {
-                result.has_agent_changes = true;
+                has_agent_changes = true;
             }
 
-            // Code
+            // Code and Heavy
             if path.starts_with("crates/")
                 || path.starts_with("src/")
                 || path.starts_with("examples/")
@@ -75,33 +80,32 @@ impl ChangedPaths {
                 || path == "Cargo.lock"
                 || path == "rust-toolchain.toml"
             {
-                if path.ends_with(".rs")
+                has_heavy_changes = true;
+                if std::path::Path::new(path).extension().is_some_and(|ext| ext.eq_ignore_ascii_case("rs"))
                     || path == "Cargo.toml"
                     || path == "Cargo.lock"
                     || path == "rust-toolchain.toml"
                 {
-                    result.has_code_changes = true;
+                    has_code_changes = true;
                 }
-            }
-
-            // Heavy
-            if path.starts_with("crates/")
-                || path.starts_with("src/")
-                || path.starts_with("examples/")
-                || path.starts_with("benchmarks/")
-                || path.starts_with("fuzz/")
-                || path == "Cargo.toml"
-                || path == "Cargo.lock"
-                || path == "rust-toolchain.toml"
-            {
-                result.has_heavy_changes = true;
             }
         }
 
-        result
+        Self {
+            has_code_changes,
+            has_heavy_changes,
+            has_agent_changes,
+            has_workflow_changes,
+            has_shell_changes,
+            has_markdown_changes,
+            changed_files: files.iter().map(|s| s.as_ref().to_string()).collect(),
+        }
     }
 
     /// Queries git to retrieve changed files since the given base SHA, then classifies them.
+    ///
+    /// # Errors
+    /// Returns `XtaskError::CommandFailure` if the git command fails to run or execute.
     pub fn from_git(base_sha: &str) -> Result<Self, XtaskError> {
         let output = Command::new("git")
             .args(["diff", "--name-only", base_sha])
@@ -113,7 +117,7 @@ impl ChangedPaths {
 
         if !output.status.success() {
             return Err(XtaskError::CommandFailure {
-                command: format!("git diff --name-only {base_sha}").to_string(),
+                command: format!("git diff --name-only {base_sha}"),
                 exit_code: output.status.code(),
             });
         }
@@ -121,7 +125,7 @@ impl ChangedPaths {
         let stdout = String::from_utf8_lossy(&output.stdout);
         let files: Vec<&str> = stdout
             .lines()
-            .map(|line| line.trim())
+            .map(str::trim)
             .filter(|line| !line.is_empty())
             .collect();
 
@@ -131,6 +135,7 @@ impl ChangedPaths {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used)]
     use super::*;
 
     #[test]

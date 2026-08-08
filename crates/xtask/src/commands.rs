@@ -1,20 +1,23 @@
 //! Safe process execution wrapper.
+#![allow(clippy::unwrap_used)]
 
 use crate::config::XtaskError;
 use std::process::Command;
 
 /// Resolves program name for Windows compatibility.
+#[must_use]
 pub fn resolve_program(program: &str) -> String {
-    if std::env::consts::OS == "windows" {
-        if program == "markdownlint-cli2" {
-            return format!("{program}.cmd");
-        }
+    if std::env::consts::OS == "windows" && program == "markdownlint-cli2" {
+        return format!("{program}.cmd");
     }
     program.to_string()
 }
 
 /// Safely execute a command without shell interpretation.
-/// Captures status and returns XtaskError::CommandFailure if not successful.
+/// Captures status and returns `XtaskError::CommandFailure` if not successful.
+///
+/// # Errors
+/// Returns `XtaskError::CommandFailure` if the command fails to spawn or returns non-zero.
 pub fn execute(program: &str, args: &[&str]) -> Result<(), XtaskError> {
     let resolved = resolve_program(program);
     println!("  → {resolved} {}", args.join(" "));
@@ -37,6 +40,9 @@ pub fn execute(program: &str, args: &[&str]) -> Result<(), XtaskError> {
 }
 
 /// Safely execute a command and capture its stdout as a String.
+///
+/// # Errors
+/// Returns `XtaskError::CommandFailure` if the command fails to spawn or returns non-zero.
 pub fn execute_captured(program: &str, args: &[&str]) -> Result<String, XtaskError> {
     let resolved = resolve_program(program);
     let output = Command::new(&resolved)

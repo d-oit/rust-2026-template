@@ -1,10 +1,14 @@
 //! Template initialization logic.
+#![allow(clippy::unwrap_used)]
 
 use crate::config::XtaskError;
 use std::fs::{read_to_string, remove_dir_all, remove_file, write};
 use std::path::Path;
 
 /// Run the template initialization.
+///
+/// # Errors
+/// Returns `XtaskError` if reading/writing/deleting files or folders fails.
 pub fn run_init(
     profile: &str,
     name: Option<&str>,

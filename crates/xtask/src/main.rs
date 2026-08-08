@@ -89,11 +89,8 @@ enum ReportSub {
 }
 
 fn get_rfc3339_timestamp() -> String {
-    if let Ok(out) = crate::commands::execute_captured("date", &["-u", "+%Y-%m-%dT%H:%M:%SZ"]) {
-        out.trim().to_string()
-    } else {
-        "2026-01-01T00:00:00Z".to_string()
-    }
+    crate::commands::execute_captured("date", &["-u", "+%Y-%m-%dT%H:%M:%SZ"])
+        .map_or_else(|_| "2026-01-01T00:00:00Z".to_string(), |out| out.trim().to_string())
 }
 
 fn handle_quality_run(

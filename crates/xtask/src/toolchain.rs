@@ -78,6 +78,9 @@ const TOOLS: &[Tool] = &[
 ];
 
 /// Run all doctor/environment checks and print diagnostic results.
+///
+/// # Errors
+/// Returns `XtaskError::MissingTool` if any required tool is missing.
 pub fn run_doctor() -> Result<(), XtaskError> {
     println!("=== Environment Diagnostics ===");
     println!();
@@ -98,21 +101,19 @@ pub fn run_doctor() -> Result<(), XtaskError> {
 
         if available {
             println!("  ✓ {}: installed", tool.name);
+        } else if tool.required {
+            println!("  ✗ {} (REQUIRED): NOT FOUND", tool.name);
+            missing_required.push(tool);
         } else {
-            if tool.required {
-                println!("  ✗ {} (REQUIRED): NOT FOUND", tool.name);
-                missing_required.push(tool);
-            } else {
-                println!("  ! {} (OPTIONAL): NOT FOUND", tool.name);
-                missing_optional.push(tool);
-            }
+            println!("  ! {} (OPTIONAL): NOT FOUND", tool.name);
+            missing_optional.push(tool);
         }
     }
     println!();
 
     // Linker configuration check
     println!("Linker Configuration:");
-    check_linker()?;
+    check_linker();
     println!();
 
     // Git state check
@@ -160,7 +161,7 @@ pub fn run_doctor() -> Result<(), XtaskError> {
     Ok(())
 }
 
-fn check_linker() -> Result<(), XtaskError> {
+fn check_linker() {
     let os = std::env::consts::OS;
     match os {
         "linux" => {
@@ -204,7 +205,6 @@ fn check_linker() -> Result<(), XtaskError> {
             println!("  ! Unknown platform linker check for OS: {other}");
         }
     }
-    Ok(())
 }
 
 fn check_git_state() {
@@ -245,12 +245,10 @@ fn check_symlinks() {
         if path.exists() {
             let mut count = 0;
             if let Ok(entries) = std::fs::read_dir(path) {
-                for entry in entries {
-                    if let Ok(entry) = entry {
-                        if let Ok(meta) = entry.file_type() {
-                            if meta.is_symlink() {
-                                count += 1;
-                            }
+                for entry in entries.flatten() {
+                    if let Ok(meta) = entry.file_type() {
+                        if meta.is_symlink() {
+                            count += 1;
                         }
                     }
                 }
@@ -306,12 +304,10 @@ fn check_skills_count() {
         let mut skill_count = 0;
         // Search skills directory for SKILL.md
         if let Ok(entries) = std::fs::read_dir(path) {
-            for entry in entries {
-                if let Ok(entry) = entry {
-                    let skill_path = entry.path().join("SKILL.md");
-                    if skill_path.exists() {
-                        skill_count += 1;
-                    }
+            for entry in entries.flatten() {
+                let skill_path = entry.path().join("SKILL.md");
+                if skill_path.exists() {
+                    skill_count += 1;
                 }
             }
         }
@@ -327,8 +323,7 @@ mod tests {
 
     #[test]
     fn test_check_linker() {
-        let res = check_linker();
-        assert!(res.is_ok());
+        check_linker();
     }
 
     #[test]

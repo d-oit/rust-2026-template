@@ -3,7 +3,7 @@
 use crate::config::XtaskError;
 use serde::{Deserialize, Serialize};
 use std::fs::{create_dir_all, File};
-use std::io::Write;
+use std::io::Write as _;
 use std::path::Path;
 
 /// Individual check result.
@@ -44,7 +44,11 @@ impl QualityReport {
                 "failed" => "✗",
                 _ => "!",
             };
-            println!("  {} {:<40} : {}", symbol, check.name, check.status.to_uppercase());
+            println!(
+                "  {symbol} {:<40} : {}",
+                check.name,
+                check.status.to_uppercase()
+            );
         }
         println!("=================================================================");
         if self.overall == "success" {
@@ -55,29 +59,31 @@ impl QualityReport {
         println!("=================================================================");
     }
 
-    /// Writes the report to GITHUB_STEP_SUMMARY or a specified file as markdown.
+    /// Writes the report to `GITHUB_STEP_SUMMARY` or a specified file as markdown.
+    ///
+    /// # Errors
+    /// Returns `XtaskError::CacheIssue` if the file cannot be written.
     pub fn write_github_summary(&self) -> Result<(), XtaskError> {
+        use std::fmt::Write as _;
+
         let mut markdown = String::new();
-        markdown.push_str("# Quality Gate Run Summary\n\n");
-        markdown.push_str(&format!("**Timestamp:** {}\n", self.timestamp));
-        markdown.push_str(&format!("**Commit:** {}\n", self.commit));
-        markdown.push_str(&format!("**Branch:** {}\n\n", self.branch));
-        markdown.push_str("| Check | Status | Details |\n");
-        markdown.push_str("|---|---|---|\n");
+        let _ = writeln!(markdown, "# Quality Gate Run Summary\n");
+        let _ = writeln!(markdown, "**Timestamp:** {}", self.timestamp);
+        let _ = writeln!(markdown, "**Commit:** {}", self.commit);
+        let _ = writeln!(markdown, "**Branch:** {}\n", self.branch);
+        let _ = writeln!(markdown, "| Check | Status | Details |");
+        let _ = writeln!(markdown, "|---|---|---|");
         for check in &self.checks {
             let emoji = match check.status.as_str() {
                 "success" => "✅ success",
                 "failed" => "❌ failed",
                 _ => "⚠️ skipped",
             };
-            markdown.push_str(&format!(
-                "| {} | {} | {} |\n",
-                check.name,
-                emoji,
-                check.message.as_deref().unwrap_or("")
-            ));
+            let details = check.message.as_deref().unwrap_or("");
+            let _ = writeln!(markdown, "| {} | {emoji} | {details} |", check.name);
         }
-        markdown.push_str(&format!("\n### Overall: **{}**\n", self.overall.to_uppercase()));
+        let overall_upper = self.overall.to_uppercase();
+        let _ = writeln!(markdown, "\n### Overall: **{overall_upper}**");
 
         // Write to $GITHUB_STEP_SUMMARY if exists
         if let Ok(summary_path) = std::env::var("GITHUB_STEP_SUMMARY") {
@@ -87,7 +93,7 @@ impl QualityReport {
                     .create(true)
                     .open(&summary_path)
                     .map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
-                writeln!(file, "\n{}", markdown).map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
+                writeln!(file, "\n{markdown}").map_err(|e| XtaskError::CacheIssue { message: e.to_string() })?;
                 println!("  ✓ Appended summary to $GITHUB_STEP_SUMMARY");
             }
         }
@@ -107,6 +113,9 @@ impl QualityReport {
     }
 
     /// Writes the structured JSON report to `.agents/ci/ci-status.json` and `reports/quality-report.json`.
+    ///
+    /// # Errors
+    /// Returns `XtaskError` if writing files fails.
     pub fn write_json_report(&self) -> Result<(), XtaskError> {
         let json_str = serde_json::to_string_pretty(self).map_err(|e| XtaskError::InvalidConfig {
             message: e.to_string(),
@@ -138,6 +147,7 @@ impl QualityReport {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used)]
     use super::*;
 
     #[test]

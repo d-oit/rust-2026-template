@@ -1,4 +1,5 @@
 //! Quality gate planning and execution.
+#![allow(clippy::too_many_lines, clippy::unwrap_used)]
 
 use crate::changed_paths::ChangedPaths;
 use crate::commands;
@@ -58,7 +59,8 @@ pub enum QualityCheck {
 
 impl QualityCheck {
     /// Human-readable name of the quality check.
-    pub fn name(self) -> &'static str {
+    #[must_use]
+    pub const fn name(self) -> &'static str {
         match self {
             Self::LocLimits => "LOC Limits",
             Self::SkillValidation => "Skill Validation",
@@ -122,7 +124,7 @@ fn find_files_all(dir: &Path, files: &mut Vec<PathBuf>) {
 /// Helper to count the number of lines in a file.
 fn count_lines(path: &Path) -> Result<usize, XtaskError> {
     let file = File::open(path).map_err(|e| XtaskError::InvalidConfig {
-        message: format!("Failed to open file for line counting: {}", e),
+        message: format!("Failed to open file for line counting: {e}"),
     })?;
     let reader = BufReader::new(file);
     let mut count = 0;
@@ -133,6 +135,9 @@ fn count_lines(path: &Path) -> Result<usize, XtaskError> {
 }
 
 /// Determine which check variants to run based on tier, `--only`, and `--changed-from`.
+///
+/// # Errors
+/// Returns `XtaskError` if git diff command fails or if an invalid tier is specified.
 pub fn plan_checks(
     config: &XtaskConfig,
     tier: Option<&str>,
@@ -182,7 +187,7 @@ pub fn plan_checks(
     };
 
     if let Some(only_str) = only {
-        let only_checks: Vec<&str> = only_str.split(',').map(|s| s.trim()).collect();
+        let only_checks: Vec<&str> = only_str.split(',').map(str::trim).collect();
         checks.retain(|check| {
             let ch_name = check.name().to_lowercase();
             only_checks.iter().any(|&o| {
@@ -275,7 +280,7 @@ fn run_privacy_check() -> Result<(), XtaskError> {
 
     if violations > 0 {
         return Err(XtaskError::InvalidConfig {
-            message: format!("Privacy: {} email address(es) detected in codebase", violations),
+            message: format!("Privacy: {violations} email address(es) detected in codebase"),
         });
     }
     println!("  ✓ Privacy Check OK (No non-test emails found)");
@@ -329,7 +334,7 @@ fn run_secret_scan() -> Result<(), XtaskError> {
 
     if violations > 0 {
         return Err(XtaskError::InvalidConfig {
-            message: format!("Secret Scan: {} potential secret(s) detected in codebase", violations),
+            message: format!("Secret Scan: {violations} potential secret(s) detected in codebase"),
         });
     }
     println!("  ✓ Secret Scan OK (No potential secrets found)");
@@ -337,6 +342,9 @@ fn run_secret_scan() -> Result<(), XtaskError> {
 }
 
 /// Executes a single quality check.
+///
+/// # Errors
+/// Returns `XtaskError` if the check execution reports a failure or error.
 pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskError> {
     println!("--- Running Check: {} ---", check.name());
     match check {
@@ -348,7 +356,7 @@ pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskE
             for file in rs_files {
                 let lines = count_lines(&file)?;
                 if lines > max_lines {
-                    println!("  ! {}: {} lines (max {})", file.display(), lines, max_lines);
+                    println!("  ! {}: {lines} lines (max {max_lines})", file.display());
                     violations += 1;
                 }
             }
@@ -433,15 +441,15 @@ pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskE
             if has_shellcheck {
                 let mut sh_files = Vec::new();
                 find_files(Path::new("."), "sh", &mut sh_files);
-                if !sh_files.is_empty() {
+                if sh_files.is_empty() {
+                    println!("  ✓ No shell scripts detected");
+                } else {
                     let mut args = vec!["--severity=error"];
                     let sh_strs: Vec<String> = sh_files.iter().map(|p| p.to_string_lossy().into_owned()).collect();
                     for s in &sh_strs {
                         args.push(s);
                     }
                     commands::execute("shellcheck", &args)?;
-                } else {
-                    println!("  ✓ No shell scripts detected");
                 }
             } else {
                 println!("  ! shellcheck not found, skipping");

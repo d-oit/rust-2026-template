@@ -69,7 +69,7 @@ pub struct XtaskConfig {
     pub parallelism: usize,
     /// Maximum command retries.
     pub retries: usize,
-    /// Name of env variable to override config or tiers (e.g. "XTASK_TIER").
+    /// Name of env variable to override config or tiers (e.g. "`XTASK_TIER`").
     pub env_var_name: String,
     /// Default quality tier to run if none is specified (e.g. "fast-pr").
     pub default_tier: String,
@@ -124,7 +124,7 @@ impl XtaskConfig {
             });
         }
         let file = File::open(path).map_err(|e| XtaskError::InvalidConfig {
-            message: format!("Failed to open config file: {}", e),
+            message: format!("Failed to open config file: {e}"),
         })?;
         // Enforce input size limit (take max 1MB for safety)
         let mut handle = file.take(1_048_576);
@@ -132,12 +132,12 @@ impl XtaskConfig {
         handle
             .read_to_string(&mut content)
             .map_err(|e| XtaskError::InvalidConfig {
-                message: format!("Failed to read config file: {}", e),
+                message: format!("Failed to read config file: {e}"),
             })?;
 
         let config: Self = serde_json::from_str(&content).map_err(|e| {
             XtaskError::InvalidConfig {
-                message: format!("Failed to parse config JSON: {}", e),
+                message: format!("Failed to parse config JSON: {e}"),
             }
         })?;
         Ok(config)
