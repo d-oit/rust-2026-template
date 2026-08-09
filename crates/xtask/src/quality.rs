@@ -99,46 +99,18 @@ pub fn plan_checks(
     // Tier precedence: explicit `--tier` > `$XTASK_TIER` env override > config default.
     let env_tier = std::env::var(&config.env_var_name).ok();
     let selected_tier = tier.or(env_tier.as_deref()).unwrap_or(&config.default_tier);
-    let mut checks = match selected_tier {
-        "fast-pr" => vec![
-            QualityCheck::LocLimits,
-            QualityCheck::Fmt,
-            QualityCheck::Clippy,
-            QualityCheck::Build,
-            QualityCheck::Test,
-            QualityCheck::DocTest,
-            QualityCheck::PrivacyCheck,
-            QualityCheck::SecretScan,
-        ],
-        "full-gate" | "all" => vec![
-            QualityCheck::LocLimits,
-            QualityCheck::SkillValidation,
-            QualityCheck::AdrCompliance,
-            QualityCheck::Fmt,
-            QualityCheck::Clippy,
-            QualityCheck::Build,
-            QualityCheck::Test,
-            QualityCheck::DocTest,
-            QualityCheck::Audit,
-            QualityCheck::Deny,
-            QualityCheck::Machete,
-            QualityCheck::Msrv,
-            QualityCheck::ShellCheck,
-            QualityCheck::MarkdownLint,
-            QualityCheck::PrivacyCheck,
-            QualityCheck::SecretScan,
-            QualityCheck::WorkflowValidation,
-            QualityCheck::SkillEvals,
-            QualityCheck::LlmContext,
-            QualityCheck::CiStatusArtifact,
-            QualityCheck::RoastScorer,
-        ],
-        _ => {
-            return Err(XtaskError::InvalidConfig {
-                message: format!("Unsupported quality tier: {selected_tier}"),
-            });
-        }
+    // Canonical tier names; keep the legacy names as aliases for backwards compatibility.
+    let canonical_tier = match selected_tier {
+        "fast-pr" => "pull-request",
+        "full-gate" | "all" => "protected-branch",
+        other => other,
     };
+    let Some(def) = config.tiers.get(canonical_tier) else {
+        return Err(XtaskError::InvalidConfig {
+            message: format!("Unsupported or unconfigured quality tier: {selected_tier}"),
+        });
+    };
+    let mut checks = def.checks.clone();
 
     if let Some(only_str) = only {
         let only_checks: Vec<&str> = only_str.split(',').map(str::trim).collect();
@@ -449,5 +421,57 @@ mod tests {
         assert_eq!(checks.len(), 2);
         assert!(checks.contains(&QualityCheck::Fmt));
         assert!(checks.contains(&QualityCheck::Clippy));
+    }
+
+    #[test]
+    fn test_plan_checks_canonical_tiers() {
+        let config = XtaskConfig::default();
+        // pull-request is the fast correctness tier.
+        let pr = plan_checks(&config, Some("pull-request"), None, None).unwrap();
+        assert!(pr.contains(&QualityCheck::Test));
+        assert!(!pr.contains(&QualityCheck::Deny));
+        // protected-branch is the deep merge gate.
+        let merge = plan_checks(&config, Some("protected-branch"), None, None).unwrap();
+        assert!(merge.contains(&QualityCheck::Deny));
+        assert!(merge.contains(&QualityCheck::Audit));
+        // scheduled carries the expensive eval/roast checks, not the PR-tier trivia.
+        let scheduled = plan_checks(&config, Some("scheduled"), None, None).unwrap();
+        assert!(scheduled.contains(&QualityCheck::RoastScorer));
+        // release is the pre-release security + build gate.
+        let release = plan_checks(&config, Some("release"), None, None).unwrap();
+        assert!(release.contains(&QualityCheck::Audit));
+    }
+
+    #[test]
+    fn test_plan_checks_legacy_aliases() {
+        let config = XtaskConfig::default();
+        let fast = plan_checks(&config, Some("fast-pr"), None, None).unwrap();
+        let pr = plan_checks(&config, Some("pull-request"), None, None).unwrap();
+        assert_eq!(fast, pr);
+        let full = plan_checks(&config, Some("full-gate"), None, None).unwrap();
+        let all = plan_checks(&config, Some("all"), None, None).unwrap();
+        let merge = plan_checks(&config, Some("protected-branch"), None, None).unwrap();
+        assert_eq!(full, merge);
+        assert_eq!(all, merge);
+    }
+
+    #[test]
+    fn test_plan_checks_unknown_tier_is_error() {
+        let config = XtaskConfig::default();
+        let err = plan_checks(&config, Some("no-such-tier"), None, None).unwrap_err();
+        assert!(err.to_string().contains("no-such-tier"));
+    }
+
+    #[test]
+    fn test_plan_checks_custom_tier_from_config() {
+        let mut config = XtaskConfig::default();
+        config.tiers.insert(
+            "ci-smoke".to_string(),
+            crate::config::TierDef {
+                checks: vec![QualityCheck::Fmt, QualityCheck::Clippy],
+            },
+        );
+        let checks = plan_checks(&config, Some("ci-smoke"), None, None).unwrap();
+        assert_eq!(checks, vec![QualityCheck::Fmt, QualityCheck::Clippy]);
     }
 }

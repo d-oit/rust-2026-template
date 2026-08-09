@@ -1,0 +1,72 @@
+{
+  "env_var_name": "XTASK_TIER",
+  "default_tier": "protected-branch",
+  "tiers": {
+    "pull-request": {
+      "checks": [
+        "LocLimits",
+        "Fmt",
+        "Clippy",
+        "Build",
+        "Test",
+        "DocTest",
+        "PrivacyCheck",
+        "SecretScan"
+      ]
+    },
+    "protected-branch": {
+      "checks": [
+        "LocLimits",
+        "Fmt",
+        "Clippy",
+        "Build",
+        "Test",
+        "DocTest",
+        "Audit",
+        "Deny",
+        "Machete",
+        "Msrv",
+        "ShellCheck",
+        "MarkdownLint",
+        "PrivacyCheck",
+        "SecretScan",
+        "WorkflowValidation",
+        "CiStatusArtifact"
+      ]
+    },
+    "scheduled": {
+      "checks": [
+        "SkillValidation",
+        "AdrCompliance",
+        "SkillEvals",
+        "RoastScorer",
+        "LlmContext",
+        "Clippy",
+        "Test",
+        "Audit",
+        "Deny",
+        "Machete",
+        "Msrv"
+      ]
+    },
+    "release": {
+      "checks": [
+        "Clippy",
+        "Build",
+        "Test",
+        "DocTest",
+        "Audit",
+        "Deny",
+        "Machete",
+        "Msrv",
+        "WorkflowValidation",
+        "PrivacyCheck",
+        "SecretScan"
+      ]
+    }
+  },
+  "lint_thresholds": {
+    "max_lines_per_file": 500,
+    "clippy_warnings_as_errors": true
+  }
+}

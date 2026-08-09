@@ -78,6 +78,7 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 - **Async Safety:** Avoid blocking calls; use `spawn_blocking` when necessary.
 - **Tracing:** Minimize CLI tracing metadata (thread IDs/names) unless high-concurrency.
 - **Quality SSOT:** Prefer `./scripts/quality-gates.sh` before push. `cargo run -p xtask quality-gates` delegates to that script.
+- **Verification tiers:** Which checks run for each lifecycle trigger (pull request / protected branch / scheduled / release) is configured in `config/xtask.json` (`tiers` map: `pull-request`, `protected-branch`, `scheduled`, `release`) — not in workflow YAML. Override per run via `xtask quality run --tier <name>` or `$XTASK_TIER`. Legacy names `fast-pr` and `full-gate`/`all` are aliases for `pull-request` and `protected-branch`.
 
 ### Security & Configuration
 - **Hardening:** Enforce `#[serde(deny_unknown_fields)]` on config structs.
