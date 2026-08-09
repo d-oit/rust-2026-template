@@ -63,18 +63,10 @@ pub struct LintThresholds {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct XtaskConfig {
-    /// Default execution timeout in seconds.
-    pub timeout_seconds: u64,
-    /// Level of execution parallelism (number of concurrent tasks).
-    pub parallelism: usize,
-    /// Maximum command retries.
-    pub retries: usize,
-    /// Name of env variable to override config or tiers (e.g. "`XTASK_TIER`").
+    /// Name of env variable that can override the default quality tier (e.g. "`XTASK_TIER`").
     pub env_var_name: String,
-    /// Default quality tier to run if none is specified (e.g. "fast-pr").
+    /// Default quality tier to run if neither `--tier` nor the env override is set (e.g. "full-gate").
     pub default_tier: String,
-    /// Crate/package names in this workspace.
-    pub package_names: Vec<String>,
     /// Configurable thresholds.
     pub lint_thresholds: LintThresholds,
 }
@@ -82,23 +74,8 @@ pub struct XtaskConfig {
 impl Default for XtaskConfig {
     fn default() -> Self {
         Self {
-            timeout_seconds: 600,
-            parallelism: 1,
-            retries: 0,
             env_var_name: "XTASK_TIER".to_string(),
-            default_tier: "fast-pr".to_string(),
-            package_names: vec![
-                "actor-runtime-template".to_string(),
-                "checkpoint-template".to_string(),
-                "example-crate".to_string(),
-                "example-registry-pattern".to_string(),
-                "example-storage-pattern".to_string(),
-                "hybrid-storage-template".to_string(),
-                "mcp-server-template".to_string(),
-                "sample-app".to_string(),
-                "workspace-tests".to_string(),
-                "xtask".to_string(),
-            ],
+            default_tier: "full-gate".to_string(),
             lint_thresholds: LintThresholds {
                 max_lines_per_file: 500,
                 clippy_warnings_as_errors: true,
@@ -152,29 +129,28 @@ mod tests {
     #[test]
     fn test_default_config() {
         let config = XtaskConfig::default();
-        assert_eq!(config.timeout_seconds, 600);
+        assert_eq!(config.default_tier, "full-gate");
+        assert_eq!(config.env_var_name, "XTASK_TIER");
         assert_eq!(config.lint_thresholds.max_lines_per_file, 500);
     }
 
     #[test]
     fn test_load_non_existent_file() {
         let result = XtaskConfig::load_from_file("non-existent-file.json").unwrap();
-        assert_eq!(result.timeout_seconds, 600);
+        assert_eq!(result.default_tier, "full-gate");
     }
 
     #[test]
     fn test_load_valid_file() {
-        let dir = std::env::temp_dir();
-        let path = dir.join("valid-xtask-config.json");
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("valid-xtask-config.json");
         let mut file = File::create(&path).unwrap();
-        file.write_all(b"{\"timeout_seconds\":120,\"parallelism\":2,\"retries\":1,\"env_var_name\":\"TEST_TIER\",\"default_tier\":\"full-gate\",\"package_names\":[],\"lint_thresholds\":{\"max_lines_per_file\":300,\"clippy_warnings_as_errors\":false}}").unwrap();
+        file.write_all(b"{\"env_var_name\":\"TEST_TIER\",\"default_tier\":\"fast-pr\",\"lint_thresholds\":{\"max_lines_per_file\":300,\"clippy_warnings_as_errors\":false}}").unwrap();
 
         let result = XtaskConfig::load_from_file(&path).unwrap();
-        assert_eq!(result.timeout_seconds, 120);
-        assert_eq!(result.parallelism, 2);
+        assert_eq!(result.default_tier, "fast-pr");
+        assert_eq!(result.env_var_name, "TEST_TIER");
         assert_eq!(result.lint_thresholds.max_lines_per_file, 300);
         assert!(!result.lint_thresholds.clippy_warnings_as_errors);
-
-        let _ = std::fs::remove_file(path);
     }
 }
