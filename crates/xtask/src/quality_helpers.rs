@@ -207,3 +207,36 @@ pub fn run_secret_scan() -> Result<(), XtaskError> {
     println!("  ✓ Secret Scan OK (No potential secrets found)");
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write as _;
+
+    #[test]
+    fn test_find_files_discovers_rs_source() {
+        let temp = tempfile::tempdir().unwrap();
+        let nested = temp.path().join("sub");
+        std::fs::create_dir_all(&nested).unwrap();
+        let source = temp.path().join("a.rs");
+        std::fs::write(&source, "fn main() {}").unwrap();
+        let other = nested.join("b.txt");
+        std::fs::write(&other, "not rust").unwrap();
+
+        let mut files = Vec::new();
+        find_files(temp.path(), "rs", &mut files);
+        assert_eq!(files, vec![source]);
+    }
+
+    #[test]
+    fn test_count_lines_counts_all_lines() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("lines.rs");
+        let mut file = File::create(&path).unwrap();
+        writeln!(file, "line 1").unwrap();
+        writeln!(file, "line 2").unwrap();
+        writeln!(file, "line 3").unwrap();
+
+        assert_eq!(count_lines(&path).unwrap(), 3);
+    }
+}
