@@ -38,7 +38,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: ./.github/actions/setup-rust
       - name: Install cargo-audit
-        uses: taiki-e/install-action@3d7d7cd5ac7f994c1892ae0c06165095b9139094  # v2
+        uses: taiki-e/install-action@91ddec75689c4c78665b598d188dc821c5a43e5c  # v2
         with:
           tool: cargo-audit
       - name: Generate lockfile
