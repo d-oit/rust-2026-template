@@ -87,13 +87,20 @@ impl ChangedPaths {
                 || path == "rust-toolchain.toml"
             {
                 has_heavy_changes = true;
-                if std::path::Path::new(path)
+                let file_name = std::path::Path::new(path)
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("");
+                let is_rust_source = std::path::Path::new(path)
                     .extension()
-                    .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"))
-                    || path == "Cargo.toml"
-                    || path == "Cargo.lock"
-                    || path == "rust-toolchain.toml"
-                {
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"));
+                // Any manifest (root or subcrate) can change the dependency graph and
+                // therefore the compiled artifact set — count it as a code change so
+                // `--changed-from` keeps the compile/test chain for manifest-only PRs.
+                let is_manifest = file_name == "Cargo.toml"
+                    || file_name == "Cargo.lock"
+                    || path == "rust-toolchain.toml";
+                if is_rust_source || is_manifest {
                     has_code_changes = true;
                 }
             }
@@ -156,6 +163,16 @@ mod tests {
         assert!(!cp.has_workflow_changes);
         assert!(!cp.has_shell_changes);
         assert!(!cp.has_markdown_changes);
+    }
+
+    #[test]
+    fn test_classify_subcrate_manifest() {
+        // A dependency manifest change (not just .rs) must count as a code change,
+        // otherwise `--changed-from` would drop the compile/test chain for it.
+        let files = vec!["crates/sample-app/Cargo.toml"];
+        let cp = ChangedPaths::classify(&files);
+        assert!(cp.has_code_changes);
+        assert!(cp.has_heavy_changes);
     }
 
     #[test]

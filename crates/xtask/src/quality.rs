@@ -96,7 +96,9 @@ pub fn plan_checks(
     only: Option<&str>,
     changed_from: Option<&str>,
 ) -> Result<Vec<QualityCheck>, XtaskError> {
-    let selected_tier = tier.unwrap_or(&config.default_tier);
+    // Tier precedence: explicit `--tier` > `$XTASK_TIER` env override > config default.
+    let env_tier = std::env::var(&config.env_var_name).ok();
+    let selected_tier = tier.or(env_tier.as_deref()).unwrap_or(&config.default_tier);
     let mut checks = match selected_tier {
         "fast-pr" => vec![
             QualityCheck::LocLimits,
