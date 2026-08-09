@@ -32,7 +32,7 @@ jobs:
           toolchain: stable
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32  # v2
       - name: Install doc tools
-        uses: taiki-e/install-action@6a1bd70eaac3c8bdf093356838d7ee09fda951cf  # v2
+        uses: taiki-e/install-action@91ddec75689c4c78665b598d188dc821c5a43e5c  # v2
         with:
           tool: cargo-sync-readme,cargo-doc2readme@0.4.0
       - name: Check README sync
