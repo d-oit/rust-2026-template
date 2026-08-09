@@ -164,8 +164,8 @@ mod tests {
 
     #[test]
     fn test_load_valid_file() {
-        let dir = std::env::temp_dir();
-        let path = dir.join("valid-xtask-config.json");
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("valid-xtask-config.json");
         let mut file = File::create(&path).unwrap();
         file.write_all(b"{\"timeout_seconds\":120,\"parallelism\":2,\"retries\":1,\"env_var_name\":\"TEST_TIER\",\"default_tier\":\"full-gate\",\"package_names\":[],\"lint_thresholds\":{\"max_lines_per_file\":300,\"clippy_warnings_as_errors\":false}}").unwrap();
 
@@ -174,7 +174,5 @@ mod tests {
         assert_eq!(result.parallelism, 2);
         assert_eq!(result.lint_thresholds.max_lines_per_file, 300);
         assert!(!result.lint_thresholds.clippy_warnings_as_errors);
-
-        let _ = std::fs::remove_file(path);
     }
 }
