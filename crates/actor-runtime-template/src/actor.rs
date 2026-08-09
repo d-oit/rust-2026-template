@@ -61,6 +61,31 @@ pub struct Actor<S: ActorState> {
     restart_strategy: super::RestartStrategy,
 }
 
+/// Upper bound (in escaped characters) for a work payload rendered into a log line.
+const MAX_LOGGED_LEN: usize = 256;
+
+/// Escape control/Bidi/format characters and bound the length of a payload for logging.
+///
+/// Runs as a single bounded pass: a source character is emitted only when its whole escape
+/// sequence fits within [`MAX_LOGGED_LEN`], so the payload is never materialised in full and a
+/// truncation suffix can never split an escape sequence mid-way.
+///
+/// Returns the escaped string, or the escaped prefix followed by `... [truncated]`.
+fn sanitize_log_payload(work: &str) -> String {
+    let mut out = String::new();
+    let mut used = 0usize;
+    for ch in work.chars() {
+        let esc_count = ch.escape_debug().count();
+        if used + esc_count > MAX_LOGGED_LEN {
+            out.push_str("... [truncated]");
+            return out;
+        }
+        out.extend(ch.escape_debug());
+        used += esc_count;
+    }
+    out
+}
+
 impl<S: ActorState> Actor<S> {
     /// Create a new actor with initial state.
     pub fn new(state: S) -> Self {
@@ -90,17 +115,10 @@ impl<S: ActorState> Actor<S> {
                 Ok(Lifecycle::Started)
             }
             ActorMessage::Process(work) => {
-                // Security: Prevent log injection and log-filling DoS by escaping control/Bidi characters
-                // and limiting the logged string length at the logging boundary.
-                const MAX_LOGGED_LEN: usize = 256;
-                let escaped = work.escape_debug().to_string();
-                if escaped.chars().count() > MAX_LOGGED_LEN {
-                    let mut truncated: String = escaped.chars().take(MAX_LOGGED_LEN).collect();
-                    truncated.push_str("... [truncated]");
-                    debug!("Processing: {}", truncated);
-                } else {
-                    debug!("Processing: {}", escaped);
-                }
+                // Security: Escape control/Bidi characters and bound the logged length so a
+                // payload can neither forge a log record nor fill the log (see
+                // `sanitize_log_payload`).
+                debug!("Processing: {}", sanitize_log_payload(&work));
 
                 Ok(Lifecycle::Started)
             }
@@ -232,6 +250,56 @@ mod tests {
         let result = actor.receive(msg).await;
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), Lifecycle::Started);
+    }
+
+    #[test]
+    fn test_sanitize_payload_passthrough() {
+        assert_eq!(sanitize_log_payload("hello world"), "hello world");
+    }
+
+    #[test]
+    fn test_sanitize_payload_escapes_control() {
+        // \n is rendered as the two characters `\n`, so a payload cannot forge a log line.
+        assert_eq!(sanitize_log_payload("a\nb"), "a\\nb");
+    }
+
+    #[test]
+    fn test_sanitize_payload_escapes_bidi() {
+        assert_eq!(sanitize_log_payload("a\u{202a}b"), "a\\u{202a}b");
+    }
+
+    #[test]
+    fn test_sanitize_payload_truncates_long_input() {
+        let out = sanitize_log_payload(&"a".repeat(1000));
+        assert!(out.ends_with("... [truncated]"));
+        // Payload chars are capped at MAX_LOGGED_LEN before the suffix.
+        assert!(out[..out.len() - "... [truncated]".len()].len() <= MAX_LOGGED_LEN);
+    }
+
+    #[test]
+    fn test_sanitize_payload_at_boundary_is_not_truncated() {
+        let out = sanitize_log_payload(&"a".repeat(MAX_LOGGED_LEN));
+        assert_eq!(out.chars().count(), MAX_LOGGED_LEN);
+        assert!(!out.contains("truncated"));
+    }
+
+    #[test]
+    fn test_sanitize_payload_never_splits_an_escape() {
+        // 255 printable chars + a \n (2 escaped chars) would exceed the budget; the whole
+        // `\n` escape must be dropped instead of being emitted half-way.
+        let out = sanitize_log_payload(&format!("{}a\n", "a".repeat(254)));
+        assert!(out.ends_with("... [truncated]"));
+        assert!(
+            !out.contains('\\'),
+            "partial escape must never be emitted: {out}"
+        );
+    }
+
+    #[test]
+    fn test_sanitize_payload_multibyte_safe() {
+        let out = sanitize_log_payload(&"🦀".repeat(300));
+        assert!(out.ends_with("... [truncated]"));
+        assert!(out.chars().count() <= MAX_LOGGED_LEN + "... [truncated]".len());
     }
 
     #[tokio::test]
