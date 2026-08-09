@@ -27,6 +27,9 @@ pub enum DispatchError {
     /// The command was not found in the registry.
     #[error("unknown command: {0}")]
     Unknown(String),
+    /// The command identifier is malformed (too long or contains forbidden characters).
+    #[error("invalid command: {0}")]
+    Invalid(String),
     /// The handler returned an error.
     #[error("handler error: {0}")]
     Handler(String),
@@ -52,6 +55,26 @@ impl Registry {
 
     /// Dispatch a command to its registered handler.
     pub fn dispatch(&self, command: &str, input: &str) -> Result<String, DispatchError> {
+        // Security: Validate the command identifier before it can reach a log/error path.
+        // The length cap is a *byte* budget (`str::len`), which bounds memory/resource use
+        // even for multi-byte UTF-8 identifiers, and forbids control characters plus the
+        // Unicode line/paragraph separators that `char::is_control` does not cover.
+        const MAX_COMMAND_LEN: usize = 64;
+        if command.len() > MAX_COMMAND_LEN {
+            return Err(DispatchError::Invalid(format!(
+                "command identifier exceeds {MAX_COMMAND_LEN} bytes"
+            )));
+        }
+
+        if command
+            .chars()
+            .any(|c| c.is_control() || matches!(c, '\u{2028}' | '\u{2029}'))
+        {
+            return Err(DispatchError::Invalid(
+                "command identifier contains control or line-separator characters".to_string(),
+            ));
+        }
+
         self.handlers
             .get(command)
             .ok_or_else(|| DispatchError::Unknown(command.to_owned()))?
@@ -106,5 +129,50 @@ mod tests {
             build_registry().dispatch("nope", ""),
             Err(DispatchError::Unknown(_))
         ));
+    }
+
+    #[test]
+    fn test_command_too_long() {
+        let name = "a".repeat(65);
+        let result = build_registry().dispatch(&name, "");
+        assert!(
+            matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("exceeds 64 bytes"))
+        );
+    }
+
+    #[test]
+    fn test_command_at_max_length_passes_validation() {
+        // The byte budget is inclusive: exactly 64 bytes must pass validation and
+        // reach the registry lookup (Unknown) rather than being rejected (Invalid).
+        let name = "a".repeat(64);
+        assert_eq!(name.len(), 64);
+        assert!(matches!(
+            build_registry().dispatch(&name, ""),
+            Err(DispatchError::Unknown(_))
+        ));
+    }
+
+    #[test]
+    fn test_command_multibyte_byte_budget() {
+        // 40 multi-byte chars exceed the 64-*byte* budget even though they are < 64 chars.
+        let name = "🦀".repeat(40);
+        assert!(name.chars().count() < 64);
+        let result = build_registry().dispatch(&name, "");
+        assert!(matches!(result, Err(DispatchError::Invalid(_))));
+    }
+
+    #[test]
+    fn test_command_contains_control_chars() {
+        for bad in ["command\nname", "command\rname", "command\tname"] {
+            let result = build_registry().dispatch(bad, "");
+            assert!(matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("control")));
+        }
+    }
+
+    #[test]
+    fn test_command_unicode_line_separator_rejected() {
+        // U+2028 LINE SEPARATOR is not a control char; log-injection hardening must catch it.
+        let result = build_registry().dispatch("command\u{2028}name", "");
+        assert!(matches!(result, Err(DispatchError::Invalid(_))));
     }
 }
