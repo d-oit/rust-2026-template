@@ -116,6 +116,34 @@ fn test_sanitize_str_mixed() {
 }
 
 #[test]
+fn test_sanitize_str_clean_at_chunk_alignments() {
+    // The 8-byte SWAR fast path must leave clean strings untouched at every alignment.
+    for n in [0usize, 1, 7, 8, 9, 15, 16, 17, 23, 24, 31, 32, 63, 64] {
+        let clean = "a".repeat(n);
+        assert!(
+            matches!(sanitize_str(&clean), std::borrow::Cow::Borrowed(_)),
+            "clean len {n} must take the borrowed fast path"
+        );
+        assert_eq!(sanitize_str(&clean).as_ref(), clean.as_str());
+    }
+}
+
+#[test]
+fn test_sanitize_str_bad_byte_at_chunk_boundaries() {
+    // A DEL (0x7F) byte in each SWAR lane must be found and replaced with '?'.
+    for offset in [0usize, 7, 8, 15, 16, 23] {
+        let mut s = "a".repeat(31);
+        s.replace_range(offset..offset + 1, "\u{7f}");
+        let expected = format!("{}?{}", "a".repeat(offset), "a".repeat(31 - offset - 1));
+        assert_eq!(
+            sanitize_str(&s).as_ref(),
+            expected.as_str(),
+            "DEL at offset {offset}"
+        );
+    }
+}
+
+#[test]
 fn test_load_config_from_directory() {
     let result = load_config(Some(std::path::PathBuf::from(".")));
     assert!(result.is_err());

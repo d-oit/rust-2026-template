@@ -122,7 +122,9 @@ pub fn sanitize_str(s: &str) -> Cow<'_, str> {
 
     // SWAR (SIMD Within A Register) fast-path: check 8-byte chunks simultaneously for printable ASCII values (0x20-0x7E)
     while i + 8 <= bytes.len() {
-        let chunk = u64::from_ne_bytes(bytes[i..i + 8].try_into().unwrap_or([0; 8]));
+        let mut arr = [0u8; 8];
+        arr.copy_from_slice(&bytes[i..i + 8]);
+        let chunk = u64::from_ne_bytes(arr);
         let has_low = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
         let has_high = chunk & 0x8080808080808080;
         let y = chunk ^ 0x7F7F7F7F7F7F7F7F;

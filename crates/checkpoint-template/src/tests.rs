@@ -339,3 +339,30 @@ async fn test_set_app_name_byte_boundaries() {
     // Multiple non-ASCII characters, mixed safe and unsafe
     assert!(manager.set_app_name("🦀-bad\u{202a}-mid-🦀").is_err());
 }
+
+#[test]
+fn test_validate_app_name_bad_byte_at_swar_chunk_boundaries() {
+    // A DEL (0x7F) byte must be rejected no matter which 8-byte SWAR lane it lands in.
+    for offset in [0usize, 7, 8, 15, 16, 23] {
+        let mut name = "a".repeat(31);
+        name.replace_range(offset..offset + 1, "\u{7f}");
+        assert!(
+            CheckpointManager::<TestState>::validate_app_name(&name, &CheckpointConfig::default())
+                .is_err(),
+            "DEL 0x7f at offset {offset} must be rejected"
+        );
+    }
+}
+
+#[test]
+fn test_validate_app_name_clean_at_swar_chunk_alignments() {
+    // Clean printable names must pass the fast path untouched at every chunk alignment.
+    for n in [0usize, 1, 7, 8, 9, 15, 16, 17, 23, 24, 31, 32, 63, 64] {
+        let name = "a".repeat(n);
+        assert!(
+            CheckpointManager::<TestState>::validate_app_name(&name, &CheckpointConfig::default())
+                .is_ok(),
+            "clean name of length {n} must validate"
+        );
+    }
+}
