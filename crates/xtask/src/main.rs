@@ -30,12 +30,6 @@ enum Cmd {
         #[command(subcommand)]
         sub: QualitySub,
     },
-    /// Run the full quality gate (equivalent to `scripts/quality-gates.sh`).
-    QualityGates {
-        /// Autofix what can be fixed before running the gate.
-        #[arg(long)]
-        fix: bool,
-    },
     /// Template initialization.
     Template {
         #[command(subcommand)]
@@ -67,9 +61,6 @@ enum QualitySub {
         only: Option<String>,
         #[arg(long)]
         changed_from: Option<String>,
-        /// Autofix what can be fixed before running the checks.
-        #[arg(long)]
-        fix: bool,
     },
 }
 
@@ -110,24 +101,7 @@ fn handle_quality_run(
     tier: Option<&str>,
     only: Option<&str>,
     changed_from: Option<&str>,
-    fix: bool,
 ) -> Result<(), XtaskError> {
-    if fix {
-        println!("Autofix mode: applying cargo fmt and clippy --fix first...");
-        commands::execute("cargo", &["fmt", "--all"])?;
-        commands::execute(
-            "cargo",
-            &[
-                "clippy",
-                "--fix",
-                "--allow-dirty",
-                "--allow-staged",
-                "--all-targets",
-                "--all-features",
-            ],
-        )?;
-    }
-
     let planned_checks = quality::plan_checks(config, tier, only, changed_from)?;
     println!("Planned checks to execute:");
     for check in &planned_checks {
@@ -255,16 +229,13 @@ fn main() {
                 tier,
                 only,
                 changed_from,
-                fix,
             } => handle_quality_run(
                 &config,
                 tier.as_deref(),
                 only.as_deref(),
                 changed_from.as_deref(),
-                fix,
             ),
         },
-        Cmd::QualityGates { fix } => handle_quality_run(&config, None, None, None, fix),
         Cmd::Template { sub } => match sub {
             TemplateSub::Init {
                 profile,

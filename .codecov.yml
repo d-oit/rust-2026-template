@@ -20,4 +20,4 @@ ignore:
   - "benches/**"
   - "tests/**"
   - "**/main.rs"           # Binary entry points
-  - "crates/xtask/**"      # Dev automation task runner (validated by running the gate, not unit coverage)
+  - "crates/xtask/**"      # Dev automation task runner

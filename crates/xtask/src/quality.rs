@@ -96,9 +96,7 @@ pub fn plan_checks(
     only: Option<&str>,
     changed_from: Option<&str>,
 ) -> Result<Vec<QualityCheck>, XtaskError> {
-    // Tier precedence: explicit `--tier` > `$XTASK_TIER` env override > config default.
-    let env_tier = std::env::var(&config.env_var_name).ok();
-    let selected_tier = tier.or(env_tier.as_deref()).unwrap_or(&config.default_tier);
+    let selected_tier = tier.unwrap_or(&config.default_tier);
     let mut checks = match selected_tier {
         "fast-pr" => vec![
             QualityCheck::LocLimits,
@@ -277,10 +275,7 @@ fn run_build_check() -> Result<(), XtaskError> {
 fn run_test_check() -> Result<(), XtaskError> {
     let has_nextest = commands::execute_captured("cargo", &["nextest", "--version"]).is_ok();
     if has_nextest {
-        commands::execute(
-            "cargo",
-            &["nextest", "run", "--all-features", "--workspace"],
-        )
+        commands::execute("cargo", &["nextest", "run", "--all-features", "--workspace"])
     } else {
         commands::execute("cargo", &["test", "--all-features", "--workspace"])
     }
@@ -338,10 +333,7 @@ fn run_shellcheck_check() -> Result<(), XtaskError> {
             println!("  ✓ No shell scripts detected");
         } else {
             let mut args = vec!["--severity=error"];
-            let sh_strs: Vec<String> = sh_files
-                .iter()
-                .map(|p| p.to_string_lossy().into_owned())
-                .collect();
+            let sh_strs: Vec<String> = sh_files.iter().map(|p| p.to_string_lossy().into_owned()).collect();
             for s in &sh_strs {
                 args.push(s);
             }
@@ -386,9 +378,7 @@ fn run_llm_context_check() -> Result<(), XtaskError> {
     for f in files {
         if !Path::new(f).exists() {
             return Err(XtaskError::InvalidConfig {
-                message: format!(
-                    "LLM context file '{f}' missing. Run scripts/generate-llms-txt.sh"
-                ),
+                message: format!("LLM context file '{f}' missing. Run scripts/generate-llms-txt.sh"),
             });
         }
     }
@@ -399,18 +389,14 @@ fn run_llm_context_check() -> Result<(), XtaskError> {
 fn run_ci_status_check() -> Result<(), XtaskError> {
     let path = Path::new(".agents/ci/ci-status.json");
     if path.exists() {
-        let mut file = File::open(path).map_err(|e| XtaskError::InvalidConfig {
-            message: e.to_string(),
-        })?;
+        let mut file = File::open(path).map_err(|e| XtaskError::InvalidConfig { message: e.to_string() })?;
         let mut content = String::new();
-        file.read_to_string(&mut content)
-            .map_err(|e| XtaskError::InvalidConfig {
-                message: e.to_string(),
-            })?;
-        let _v: serde_json::Value =
-            serde_json::from_str(&content).map_err(|e| XtaskError::InvalidConfig {
+        file.read_to_string(&mut content).map_err(|e| XtaskError::InvalidConfig { message: e.to_string() })?;
+        let _v: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+            XtaskError::InvalidConfig {
                 message: format!("CI status artifact is invalid JSON: {e}"),
-            })?;
+            }
+        })?;
         println!("  ✓ CI status artifact exists and is valid JSON");
     } else {
         println!("  ! CI status artifact .agents/ci/ci-status.json not found, skipping check");

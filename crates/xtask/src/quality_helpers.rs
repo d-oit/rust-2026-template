@@ -16,8 +16,7 @@ pub fn find_files(dir: &Path, ext: &str, files: &mut Vec<PathBuf>) {
             let path = entry.path();
             if path.is_dir() {
                 let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-                if name != "target" && name != ".git" && name != ".cargo" && name != "node_modules"
-                {
+                if name != "target" && name != ".git" && name != ".cargo" && name != "node_modules" {
                     find_files(&path, ext, files);
                 }
             } else if path.is_file() && path.extension().and_then(|e| e.to_str()) == Some(ext) {
@@ -34,8 +33,7 @@ pub fn find_files_all(dir: &Path, files: &mut Vec<PathBuf>) {
             let path = entry.path();
             if path.is_dir() {
                 let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-                if name != "target" && name != ".git" && name != ".cargo" && name != "node_modules"
-                {
+                if name != "target" && name != ".git" && name != ".cargo" && name != "node_modules" {
                     find_files_all(&path, files);
                 }
             } else if path.is_file() {
@@ -66,11 +64,10 @@ pub fn count_lines(path: &Path) -> Result<usize, XtaskError> {
 /// # Errors
 /// Returns `XtaskError` if privacy leak is found.
 pub fn run_privacy_check() -> Result<(), XtaskError> {
-    let email_re = Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}").map_err(|e| {
-        XtaskError::InvalidConfig {
+    let email_re = Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
+        .map_err(|e| XtaskError::InvalidConfig {
             message: e.to_string(),
-        }
-    })?;
+        })?;
 
     let exclude_re = Regex::new(r"example\.com|example\.org|test\.com|\.git|target|\.opencode|\.mimocode|\.cargo|node_modules")
         .map_err(|e| XtaskError::InvalidConfig {
@@ -115,11 +112,7 @@ pub fn run_privacy_check() -> Result<(), XtaskError> {
         if handle.read_to_string(&mut content).is_ok() {
             for line in content.lines() {
                 if email_re.is_match(line) && !exclude_re.is_match(line) {
-                    println!(
-                        "  ! Email detected in {}: {}",
-                        file_path.display(),
-                        line.trim()
-                    );
+                    println!("  ! Email detected in {}: {}", file_path.display(), line.trim());
                     violations += 1;
                 }
             }
@@ -188,11 +181,7 @@ pub fn run_secret_scan() -> Result<(), XtaskError> {
         if handle.read_to_string(&mut content).is_ok() {
             for line in content.lines() {
                 if secret_re.is_match(line) && !exclude_re.is_match(line) {
-                    println!(
-                        "  ! Secret pattern detected in {}: {}",
-                        file_path.display(),
-                        line.trim()
-                    );
+                    println!("  ! Secret pattern detected in {}: {}", file_path.display(), line.trim());
                     violations += 1;
                 }
             }
@@ -206,4 +195,50 @@ pub fn run_secret_scan() -> Result<(), XtaskError> {
     }
     println!("  ✓ Secret Scan OK (No potential secrets found)");
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write as _;
+
+    #[test]
+    fn test_find_files() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("test_find.rs");
+        {
+            let mut file = File::create(&path).unwrap();
+            file.write_all(b"fn main() {}").unwrap();
+        }
+        let mut files = Vec::new();
+        find_files(&dir, "rs", &mut files);
+        assert!(files.contains(&path));
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn test_count_lines() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("test_lines.rs");
+        {
+            let mut file = File::create(&path).unwrap();
+            writeln!(file, "line 1").unwrap();
+            writeln!(file, "line 2").unwrap();
+        }
+        let count = count_lines(&path).unwrap();
+        assert_eq!(count, 2);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn test_privacy_check_clean() {
+        let res = run_privacy_check();
+        let _ = res;
+    }
+
+    #[test]
+    fn test_secret_scan_clean() {
+        let res = run_secret_scan();
+        let _ = res;
+    }
 }

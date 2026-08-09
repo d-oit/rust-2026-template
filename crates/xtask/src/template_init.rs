@@ -125,11 +125,7 @@ fn rename_example_crate(proj_name: &str) -> Result<(), XtaskError> {
     Ok(())
 }
 
-fn perform_replacements(
-    proj_name: &str,
-    proj_author: &str,
-    proj_repo: &str,
-) -> Result<(), XtaskError> {
+fn perform_replacements(proj_name: &str, proj_author: &str, proj_repo: &str) -> Result<(), XtaskError> {
     println!("  -> Performing string replacements...");
     replace_placeholder("Cargo.toml", "Your Name", proj_author)?;
     replace_placeholder("Cargo.toml", "your-org/your-repo", proj_repo)?;
@@ -181,11 +177,12 @@ mod tests {
 
     #[test]
     fn test_replace_placeholder() {
-        let temp = tempfile::tempdir().unwrap();
-        let path = temp.path().join("test_replace.txt");
+        let dir = std::env::temp_dir();
+        let path = dir.join("test_replace.txt");
         write(&path, "Hello placeholder!").unwrap();
         replace_placeholder(path.to_str().unwrap(), "placeholder", "world").unwrap();
         let content = read_to_string(&path).unwrap();
         assert_eq!(content, "Hello world!");
+        let _ = std::fs::remove_file(path);
     }
 }
