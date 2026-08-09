@@ -401,6 +401,61 @@ jobs:
           path: reports/roast-report.json
 
   # ───────────────────────────────────────────────────
+  # Config-driven verification (issue #285): which checks run per trigger is decided by
+  # config/xtask.json — not by magic values in this YAML. PRs run the fast `pull-request`
+  # tier; pushes to protected branches run the deep `protected-branch` tier. The GHA job
+  # summary also prints the resolved plan for every configured tier.
+  quality-gate:
+    name: Quality Gate (${{ github.event_name == 'pull_request' && 'pull-request' || 'protected-branch' }})
+    needs: [changes]
+    if: >
+      github.event_name != 'pull_request' ||
+      needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
+      - uses: ./.github/actions/setup-rust
+      - name: Install verification tooling
+        uses: taiki-e/install-action@91ddec75689c4c78665b598d188dc821c5a43e5c  # v2
+        with:
+          tool: cargo-nextest,cargo-audit,cargo-deny,cargo-machete
+      - name: Install shellcheck and markdownlint
+        run: |
+          sudo apt-get install -y shellcheck
+          npm install -g markdownlint-cli2
+      - name: Publish configured verification tiers
+        run: |
+          echo "### Verification tiers (config/xtask.json)" >> "$GITHUB_STEP_SUMMARY"
+          for tier in pull-request protected-branch scheduled release; do
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "#### Tier \`$tier\`" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cargo run --quiet -p xtask --bin xtask -- quality plan --tier "$tier" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          done
+      - name: Run trigger tier
+        run: |
+          TIER=pull-request
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            TIER=protected-branch
+          fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          echo "Running config-driven quality tier: $TIER"
+          if [ -n "$BASE" ]; then
+            cargo run --quiet -p xtask --bin xtask -- quality run --tier "$TIER" --changed-from "$BASE"
+          else
+            cargo run --quiet -p xtask --bin xtask -- quality run --tier "$TIER"
+          fi
+
+  # ───────────────────────────────────────────────────
   ci-success:
     name: CI Success
     needs:
@@ -417,6 +472,7 @@ jobs:
       - version-check
       - msrv
       - roast
+      - quality-gate
     runs-on: ubuntu-latest
     if: always()
     permissions:
@@ -543,6 +599,7 @@ jobs:
             "${{ needs.version-check.result }}"
             "${{ needs.msrv.result }}"
             "${{ needs.roast.result }}"
+            "${{ needs.quality-gate.result }}"
           )
           for res in "${results[@]}"; do
             if [[ "$res" == "failure" || "$res" == "cancelled" ]]; then
