@@ -434,7 +434,7 @@ jobs:
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "#### Tier \`$tier\`" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
-            cargo run --quiet --bin xtask -- quality plan --tier "$tier" >> "$GITHUB_STEP_SUMMARY"
+            cargo run --quiet -p xtask --bin xtask -- quality plan --tier "$tier" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
           done
       - name: Run trigger tier
@@ -450,9 +450,9 @@ jobs:
           fi
           echo "Running config-driven quality tier: $TIER"
           if [ -n "$BASE" ]; then
-            cargo run --quiet --bin xtask -- quality run --tier "$TIER" --changed-from "$BASE"
+            cargo run --quiet -p xtask --bin xtask -- quality run --tier "$TIER" --changed-from "$BASE"
           else
-            cargo run --quiet --bin xtask -- quality run --tier "$TIER"
+            cargo run --quiet -p xtask --bin xtask -- quality run --tier "$TIER"
           fi
 
   # ───────────────────────────────────────────────────
