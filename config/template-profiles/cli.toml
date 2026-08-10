@@ -1,0 +1,45 @@
+# CLI profile — binary-first workspace with an app crate and a supporting library.
+[metadata]
+id = "cli"
+display_name = "Rust CLI"
+description = "Binary-first workspace: app crate plus a supporting library and tests."
+
+[workspace]
+include_crates = [
+  "crates/example-crate",
+  "crates/sample-app",
+  "crates/xtask",
+  "crates/workspace-tests",
+]
+exclude_paths = [
+  "benchmarks",
+  "fuzz",
+  ".template",
+  "docs/patterns",
+]
+exclude_workflows = [
+  "cleanup-ci-status.yml",
+  "deploy-docs.yml",
+  "dora-fdrt.yml",
+  "dora-report.yml",
+  "eval.yml",
+  "fuzz.yml",
+  "labeler.yml",
+  "mutants.yml",
+  "patch-release-on-label.yml",
+  "skills-evaluation.yml",
+  "sync-labels.yml",
+  "update-architecture-diagram.yml",
+]
+
+[ci]
+default_tier = "protected-branch"
+
+[post_init]
+checklist = [
+  "set-package-metadata",
+  "choose-cargo-lock-policy",
+  "configure-license-policy",
+  "configure-branch-protection",
+  "generate-cli-manpage",
+]

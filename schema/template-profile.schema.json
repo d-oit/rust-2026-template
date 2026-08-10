@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/d-oit/rust-2026-template/schema/template-profile.schema.json",
+  "title": "Template Profile (config/template-profiles/*.toml)",
+  "description": "Validated blueprint for `cargo xtask template init --profile <name>`. TOML files map to this object shape; structural validation is enforced by crates/xtask/src/template_profile.rs.",
+  "type": "object",
+  "required": ["metadata", "workspace", "ci", "post_init"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["id", "display_name", "description"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "display_name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" }
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "required": ["include_crates"],
+      "properties": {
+        "include_crates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^crates/[a-z0-9-]+$" }
+        },
+        "exclude_paths": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "exclude_workflows": {
+          "type": "array",
+          "items": { "type": "string", "pattern": ".yml$" }
+        }
+      }
+    },
+    "ci": {
+      "type": "object",
+      "required": ["default_tier"],
+      "properties": {
+        "default_tier": { "type": "string", "minLength": 1 }
+      }
+    },
+    "post_init": {
+      "type": "object",
+      "required": ["checklist"],
+      "properties": {
+        "checklist": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

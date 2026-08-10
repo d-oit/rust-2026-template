@@ -134,8 +134,32 @@ Real feature flags live on member crates that implement them, for example:
 | `hybrid-storage-template` | `sqlite` | Fail-closed SQLite **stub** (not production) |
 | `hybrid-storage-template` | `kv` | redb key-value backend |
 
-Pattern selection: [docs/patterns/README.md](docs/patterns/README.md). For a slim
-app workspace, run `./scripts/init-template.sh --minimal …`.
+Pattern selection: [docs/patterns/README.md](docs/patterns/README.md).
+
+## Project Profiles
+
+Choose a validated blueprint from `config/template-profiles/` that shapes the generated
+workspace: which crates stay, which workflows run, and the default CI tier.
+
+| Profile | Best for | Keeps |
+|---|---|---|
+| `minimal` | Small app | `sample-app` + renamed lib crate + `xtask`; drops pattern crates, benchmarks, fuzz, heavy workflows |
+| `library` | Reusable library | renamed lib crate + `xtask` + workspace tests |
+| `cli` | Binary tool | `sample-app` + renamed lib crate + `xtask` + tests |
+| `service` | Long-running service | actor/storage/registry patterns + `xtask` |
+| `workspace` | Full reference | every crate, benchmark, and workflow |
+| `ai-agent` | Agent-centric dev | `sample-app` + lib crate + `xtask` + agent tooling |
+
+```bash
+./scripts/init-template.sh --profile library --name my-lib
+# equivalent xtask commands
+cargo run -p xtask --bin xtask -- template init --profile minimal --name my-app
+cargo run -p xtask --bin xtask -- template validate-profile --profile config/template-profiles/library.toml
+cargo run -p xtask --bin xtask -- template inspect --profile service
+```
+
+`--minimal` remains a shorthand for `--profile minimal`. Full detail:
+[docs/template-profiles.md](docs/template-profiles.md).
 
 ## Benchmarks
 

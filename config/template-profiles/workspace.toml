@@ -1,0 +1,32 @@
+# Workspace profile — keep every reference crate, benchmark, and workflow.
+[metadata]
+id = "workspace"
+display_name = "Multi-Crate Workspace"
+description = "Full reference workspace: every pattern crate, benchmark suite, and workflow."
+
+[workspace]
+include_crates = [
+  "crates/actor-runtime-template",
+  "crates/checkpoint-template",
+  "crates/example-crate",
+  "crates/example-registry-pattern",
+  "crates/example-storage-pattern",
+  "crates/hybrid-storage-template",
+  "crates/mcp-server-template",
+  "crates/sample-app",
+  "crates/workspace-tests",
+  "crates/xtask",
+]
+exclude_paths = []
+exclude_workflows = []
+
+[ci]
+default_tier = "protected-branch"
+
+[post_init]
+checklist = [
+  "set-package-metadata",
+  "choose-cargo-lock-policy",
+  "configure-license-policy",
+  "configure-branch-protection",
+]

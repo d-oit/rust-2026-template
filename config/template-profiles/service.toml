@@ -1,0 +1,45 @@
+# Service profile — long-running service with actor and storage patterns.
+[metadata]
+id = "service"
+display_name = "Rust Service"
+description = "Long-running service keeping the actor-runtime and storage/registry patterns."
+
+[workspace]
+include_crates = [
+  "crates/actor-runtime-template",
+  "crates/example-crate",
+  "crates/example-storage-pattern",
+  "crates/hybrid-storage-template",
+  "crates/xtask",
+  "crates/workspace-tests",
+]
+exclude_paths = [
+  "benchmarks",
+  "fuzz",
+  ".template",
+  "docs/patterns",
+]
+exclude_workflows = [
+  "cleanup-ci-status.yml",
+  "deploy-docs.yml",
+  "eval.yml",
+  "fuzz.yml",
+  "labeler.yml",
+  "mutants.yml",
+  "patch-release-on-label.yml",
+  "skills-evaluation.yml",
+  "sync-labels.yml",
+  "update-architecture-diagram.yml",
+]
+
+[ci]
+default_tier = "protected-branch"
+
+[post_init]
+checklist = [
+  "set-package-metadata",
+  "choose-cargo-lock-policy",
+  "configure-license-policy",
+  "configure-branch-protection",
+  "configure-health-check-endpoint",
+]

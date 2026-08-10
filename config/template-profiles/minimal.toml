@@ -1,0 +1,46 @@
+# Minimal profile — the smallest buildable workspace.
+# Keeps: one app crate (sample-app) + the renamed example lib (example-crate) + xtask + tests.
+# Removes: optional pattern crates, benchmarks, fuzz, and heavy CI workflows.
+[metadata]
+id = "minimal"
+display_name = "Minimal Rust App"
+description = "Smallest buildable workspace: one app plus one library, no pattern crates."
+
+[workspace]
+include_crates = [
+  "crates/example-crate",
+  "crates/sample-app",
+  "crates/xtask",
+  "crates/workspace-tests",
+]
+exclude_paths = [
+  "benchmarks",
+  "fuzz",
+  ".template",
+  "docs/patterns",
+]
+exclude_workflows = [
+  "cleanup-ci-status.yml",
+  "deploy-docs.yml",
+  "dora-fdrt.yml",
+  "dora-report.yml",
+  "eval.yml",
+  "fuzz.yml",
+  "labeler.yml",
+  "mutants.yml",
+  "patch-release-on-label.yml",
+  "skills-evaluation.yml",
+  "sync-labels.yml",
+  "update-architecture-diagram.yml",
+]
+
+[ci]
+default_tier = "pull-request"
+
+[post_init]
+checklist = [
+  "set-package-metadata",
+  "choose-cargo-lock-policy",
+  "configure-license-policy",
+  "configure-branch-protection",
+]

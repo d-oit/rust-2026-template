@@ -1,0 +1,14 @@
+# CI telemetry configuration (issue #289).
+# Budgets and behaviour live here — not in application logic — so adopters can
+# tune, disable, or walk back telemetry without touching xtask source.
+# Schema: schema/ci-telemetry.schema.json  (artifact schema_version = 1)
+
+enabled = true
+detail = "full"                 # "minimal" or "full" (minimal omits per-stage detail in summary)
+retention_days = 7              # how long CI should retain the telemetry artifact
+summary_path = ".agents/ci/quality-summary.md"
+artifact_path = ".agents/ci/quality-run.json"
+
+[budgets]
+# Surface a warning in the summary when a single stage exceeds this budget.
+max_stage_duration_ms = 600000
