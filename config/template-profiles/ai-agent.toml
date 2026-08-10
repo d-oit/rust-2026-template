@@ -1,0 +1,43 @@
+# AI-agent profile — lean workspace tuned for agent-centric development.
+# Keeps the app crate + lib + xtask and the agent/skills tooling workflows.
+[metadata]
+id = "ai-agent"
+display_name = "AI-Agent Project"
+description = "Lean workspace for agent-centric development: app, library, and agent tooling."
+
+[workspace]
+include_crates = [
+  "crates/example-crate",
+  "crates/sample-app",
+  "crates/xtask",
+  "crates/workspace-tests",
+]
+exclude_paths = [
+  "benchmarks",
+  "fuzz",
+  ".template",
+  "docs/patterns",
+]
+exclude_workflows = [
+  "cleanup-ci-status.yml",
+  "deploy-docs.yml",
+  "dora-fdrt.yml",
+  "fuzz.yml",
+  "labeler.yml",
+  "mutants.yml",
+  "patch-release-on-label.yml",
+  "sync-labels.yml",
+  "update-architecture-diagram.yml",
+]
+
+[ci]
+default_tier = "pull-request"
+
+[post_init]
+checklist = [
+  "set-package-metadata",
+  "choose-cargo-lock-policy",
+  "configure-license-policy",
+  "configure-branch-protection",
+  "configure-agent-skill-index",
+]

@@ -24,19 +24,22 @@ git clone https://github.com/YOUR_USER/YOUR_REPO.git
 cd YOUR_REPO
 ```
 
-### Recommended: minimal init (most apps)
+### Recommended: use a project profile (most apps)
 
 ```bash
-./scripts/init-template.sh --minimal \
+./scripts/init-template.sh --profile minimal \
   --name your-crate-name \
   --description "Your description" \
   --author "Your Name" \
   --repo YOUR_USER/YOUR_REPO
 ```
 
-`--minimal` keeps `sample-app` + your renamed lib crate + `xtask`, and removes
-optional pattern crates (MCP, actor, storage demos, …) plus optional workflows
-(DORA, mutants, eval, …). Core CI/security workflows stay.
+Profiles are validated blueprints in `config/template-profiles/` (issue #286):
+`minimal`, `library`, `cli`, `service`, `workspace`, `ai-agent` choose which crates,
+workflows, and CI-tier default the generated project keeps. `--minimal` is shorthand
+for `--profile minimal` (keeps `sample-app` + your renamed lib crate + `xtask`; drops
+optional pattern crates and heavy workflows). See
+[docs/template-profiles.md](docs/template-profiles.md) for the selection table.
 
 **Versions:** leave `VERSION` / workspace version at `0.0.0` until you ship.
 Template release notes (`v0.3.x`) are only in `.template/CHANGELOG-TEMPLATE.md`.

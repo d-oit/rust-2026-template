@@ -5,13 +5,16 @@ pub mod config;
 pub mod quality;
 pub mod quality_helpers;
 pub mod reporting;
+pub mod telemetry;
 pub mod template_init;
+pub mod template_profile;
 pub mod toolchain;
 
 use clap::{Parser, Subcommand};
 use config::{XtaskConfig, XtaskError};
 use reporting::{CheckResult, QualityReport};
 use std::path::Path;
+use telemetry::{CiTelemetry, TelemetryConfig, TelemetryScope, TelemetryStage, ToolchainInfo};
 
 #[derive(Parser)]
 #[command(name = "xtask")]
@@ -75,10 +78,10 @@ enum QualitySub {
 
 #[derive(Subcommand)]
 enum TemplateSub {
-    /// Initialize template from profile.
+    /// Initialize template from a profile blueprint (see config/template-profiles/).
     Init {
         #[arg(long)]
-        profile: String, // "minimal" or "full"
+        profile: String, // e.g. "minimal", "library", "cli", "service", "workspace", "ai-agent"
         #[arg(long)]
         name: Option<String>,
         #[arg(long)]
@@ -89,6 +92,18 @@ enum TemplateSub {
         repo: Option<String>,
         #[arg(long)]
         dry_run: bool,
+    },
+    /// Validate a profile blueprint by id or path.
+    ValidateProfile {
+        /// Profile id or path to a .toml blueprint.
+        #[arg(long)]
+        profile: String,
+    },
+    /// Print an inspection summary of a shipped profile.
+    Inspect {
+        /// Shipped profile id, e.g. "minimal".
+        #[arg(long)]
+        profile: String,
     },
 }
 
@@ -105,6 +120,14 @@ fn get_rfc3339_timestamp() -> String {
     )
 }
 
+/// Runs the configured quality gate and emits structured telemetry (issue #289).
+///
+/// Long by design: it orchestrates planning, execution, reporting, and telemetry in one
+/// linear sequence so CI can treat the whole gate as a single stage.
+#[expect(
+    clippy::too_many_lines,
+    reason = "orchestration spans plan/run/report/telemetry; splitting obscures the linear flow"
+)]
 fn handle_quality_run(
     config: &XtaskConfig,
     tier: Option<&str>,
@@ -128,37 +151,97 @@ fn handle_quality_run(
         )?;
     }
 
+    // Full tier plan (for skip-reporting) vs the scoped plan actually run.
+    let full_checks = quality::plan_checks(config, tier, None, None)?;
     let planned_checks = quality::plan_checks(config, tier, only, changed_from)?;
-    println!("Planned checks to execute:");
+    println!(
+        "Planned checks to execute ({} of {}):",
+        planned_checks.len(),
+        full_checks.len()
+    );
     for check in &planned_checks {
         println!("  - {}", check.name());
     }
     println!();
 
     let mut results = Vec::new();
+    let mut stages: Vec<TelemetryStage> = Vec::new();
     let mut overall_success = true;
 
-    for check in planned_checks {
+    for check in &full_checks {
         let name = check.name().to_string();
+        if !planned_checks.contains(check) {
+            let reason = if changed_from.is_some() {
+                "not affected by changed paths"
+            } else {
+                "excluded by --only filter"
+            };
+            stages.push(TelemetryStage {
+                id: telemetry::stage_id(&name),
+                status: "skipped".to_string(),
+                duration_ms: 0,
+                cache: "not-applicable".to_string(),
+                skipped_reason: Some(reason.to_string()),
+            });
+            continue;
+        }
         let start = std::time::Instant::now();
-        match quality::run_check(check, config) {
-            Ok(()) => {
-                results.push(CheckResult {
-                    name,
-                    status: "success".to_string(),
-                    message: Some(format!("Passed in {:?}", start.elapsed())),
-                });
-            }
+        let outcome = match quality::run_check(*check, config) {
+            Ok(()) => "success",
             Err(e) => {
                 overall_success = false;
                 results.push(CheckResult {
-                    name,
+                    name: name.clone(),
                     status: "failed".to_string(),
                     message: Some(e.to_string()),
                 });
+                "failed"
             }
+        };
+        if outcome == "success" {
+            results.push(CheckResult {
+                name: name.clone(),
+                status: "success".to_string(),
+                message: Some(format!("Passed in {:?}", start.elapsed())),
+            });
         }
+        stages.push(TelemetryStage {
+            id: telemetry::stage_id(&name),
+            status: if outcome == "failed" {
+                "failed"
+            } else {
+                "passed"
+            }
+            .to_string(),
+            duration_ms: u64::try_from(start.elapsed().as_millis()).unwrap_or(u64::MAX),
+            cache: "not-applicable".to_string(),
+            skipped_reason: None,
+        });
     }
+
+    // Telemetry scope: affected packages when a base was supplied, else the whole workspace.
+    let (scope_mode, scope_packages, scope_fallback) = changed_from.map_or_else(
+        || ("all", Vec::new(), false),
+        |base| {
+            let affected = crate::changed_paths::ChangedPaths::from_git(base).map_or_else(
+                |_| {
+                    println!("  ! Unable to resolve changed paths; falling back to full scope");
+                    Vec::new()
+                },
+                |cp| crate::changed_paths::affected_crates(&cp.changed_files),
+            );
+            let is_affected = !affected.is_empty();
+            (
+                if is_affected {
+                    "affected-packages"
+                } else {
+                    "all"
+                },
+                affected,
+                !is_affected,
+            )
+        },
+    );
 
     let commit_sha = std::env::var("GITHUB_SHA").unwrap_or_else(|_| {
         commands::execute_captured("git", &["rev-parse", "HEAD"])
@@ -190,6 +273,40 @@ fn handle_quality_run(
     report.write_json_report()?;
     report.write_github_summary()?;
 
+    // Telemetry (issue #289): structured artifact + Markdown summary, always emitted.
+    let telemetry_config = TelemetryConfig::load_or_default();
+    let telemetry = CiTelemetry {
+        schema_version: telemetry::SCHEMA_VERSION,
+        timestamp: get_rfc3339_timestamp(),
+        tier: report_tier(config, tier),
+        plan_source: "config/xtask.json".to_string(),
+        scope: TelemetryScope {
+            mode: scope_mode.to_string(),
+            packages: scope_packages,
+            fallback_used: scope_fallback,
+        },
+        stages,
+        toolchain: ToolchainInfo::capture(),
+    };
+    telemetry.emit(&telemetry_config)?;
+    // Surface the telemetry summary in the GHA step summary too, when present.
+    if let Ok(summary_path) = std::env::var("GITHUB_STEP_SUMMARY") {
+        if !summary_path.is_empty() {
+            use std::io::Write as _;
+            let mut file = std::fs::OpenOptions::new()
+                .append(true)
+                .open(&summary_path)
+                .map_err(|e| XtaskError::CacheIssue {
+                    message: e.to_string(),
+                })?;
+            writeln!(file, "\n{}", telemetry.summary_markdown(&telemetry_config)).map_err(|e| {
+                XtaskError::CacheIssue {
+                    message: e.to_string(),
+                }
+            })?;
+        }
+    }
+
     if overall_success {
         Ok(())
     } else {
@@ -197,6 +314,16 @@ fn handle_quality_run(
             command: "quality run".to_string(),
             exit_code: Some(1),
         })
+    }
+}
+
+fn report_tier(config: &XtaskConfig, tier: Option<&str>) -> String {
+    let env = std::env::var(&config.env_var_name).ok();
+    let sel = tier.or(env.as_deref()).unwrap_or(&config.default_tier);
+    match sel {
+        "fast-pr" => "pull-request".to_string(),
+        "full-gate" | "all" => "protected-branch".to_string(),
+        other => other.to_string(),
     }
 }
 
@@ -281,6 +408,16 @@ fn main() {
                 repo.as_deref(),
                 dry_run,
             ),
+            TemplateSub::ValidateProfile { profile } => {
+                template_profile::TemplateProfile::load_from_path(&profile)
+                    .or_else(|_| template_profile::TemplateProfile::load(&profile))
+                    .map(|loaded| {
+                        println!("  ✓ Profile '{}' is valid", loaded.metadata.id);
+                    })
+            }
+            TemplateSub::Inspect { profile } => {
+                template_profile::TemplateProfile::load(&profile).map(|loaded| loaded.inspect())
+            }
         },
         Cmd::Report { sub } => match sub {
             ReportSub::GithubSummary => handle_github_summary(),

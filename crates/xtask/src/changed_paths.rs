@@ -24,6 +24,23 @@ pub struct ChangedPaths {
     pub changed_files: Vec<String>,
 }
 
+/// Extracts the unique top-level crate names (`crates/<name>/…`) that contain changed files,
+/// in first-seen order. Used by CI telemetry to report the affected-package scope.
+#[must_use]
+pub fn affected_crates(changed_files: &[String]) -> Vec<String> {
+    let mut seen = Vec::new();
+    for file in changed_files {
+        if let Some(rest) = file.strip_prefix("crates/") {
+            if let Some(crate_name) = rest.split('/').next() {
+                if !crate_name.is_empty() && !seen.iter().any(|s| s == crate_name) {
+                    seen.push(crate_name.to_string());
+                }
+            }
+        }
+    }
+    seen
+}
+
 impl ChangedPaths {
     /// Classifies a list of file paths.
     pub fn classify<S: AsRef<str>>(files: &[S]) -> Self {
@@ -163,6 +180,17 @@ mod tests {
         assert!(!cp.has_workflow_changes);
         assert!(!cp.has_shell_changes);
         assert!(!cp.has_markdown_changes);
+    }
+
+    #[test]
+    fn test_affected_crates_top_level() {
+        let files = vec![
+            "crates/xtask/src/main.rs".to_string(),
+            "crates/xtask/Cargo.toml".to_string(),
+            "crates/sample-app/src/lib.rs".to_string(),
+            "Cargo.toml".to_string(),
+        ];
+        assert_eq!(affected_crates(&files), vec!["xtask", "sample-app"]);
     }
 
     #[test]

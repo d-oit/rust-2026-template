@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/d-oit/rust-2026-template/schema/ci-telemetry.schema.json",
+  "title": "CI Telemetry Artifact (quality-run.json)",
+  "description": "Structured telemetry emitted by `xtask quality run` after each CI run. schema_version must match crates/xtask/src/telemetry.rs::SCHEMA_VERSION.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "timestamp",
+    "tier",
+    "plan_source",
+    "scope",
+    "stages",
+    "toolchain"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "tier": { "type": "string", "minLength": 1 },
+    "plan_source": { "type": "string", "minLength": 1 },
+    "scope": {
+      "type": "object",
+      "required": ["mode", "packages", "fallback_used"],
+      "properties": {
+        "mode": { "enum": ["all", "affected-packages"] },
+        "packages": { "type": "array", "items": { "type": "string" } },
+        "fallback_used": { "type": "boolean" }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "duration_ms", "cache"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "enum": ["passed", "failed", "skipped"] },
+          "duration_ms": { "type": "integer", "minimum": 0 },
+          "cache": { "enum": ["restored", "saved", "miss", "not-applicable"] },
+          "skipped_reason": { "type": "string" }
+        }
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "required": ["rustc", "cargo", "nextest"],
+      "properties": {
+        "rustc": { "type": "string" },
+        "cargo": { "type": "string" },
+        "nextest": { "type": "string" }
+      }
+    }
+  }
+}

@@ -44,6 +44,10 @@ dist/
 /ci-status.json
 /ci-summary.md
 
+# Volatile CI telemetry artifacts (uploaded as GH Actions artifacts, not committed)
+.agents/ci/quality-run.json
+.agents/ci/quality-summary.md
+
 # cargo-fuzz artifacts
 fuzz/corpus/
 fuzz/artifacts/
