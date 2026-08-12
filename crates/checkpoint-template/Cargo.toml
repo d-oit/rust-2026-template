@@ -29,7 +29,6 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "sync", "io-util", "fs"] }
 tracing = { workspace = true }
 bincode_reloaded = { version = "3", features = ["serde"] }
-zmij = "1"
 
 [dev-dependencies]
 tempfile = "3"

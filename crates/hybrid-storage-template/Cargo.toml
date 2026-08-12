@@ -24,8 +24,6 @@ unused_async = "allow"
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 libsql = "0.9"
-async-trait = "0.1"
-tracing = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

@@ -89,7 +89,6 @@ cognitive_complexity = "allow"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs"] }
 tokio-util = { version = "0.7" }
 thiserror = "2"
-anyhow = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
