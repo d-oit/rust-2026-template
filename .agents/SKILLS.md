@@ -26,6 +26,7 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `self-fix-loop` | [skills/self-fix-loop/SKILL.md](skills/self-fix-loop/SKILL.md) | Self-learning fix loop - commit, push, monitor CI, auto-fix failures using |
 | `skill-creator` | [skills/skill-creator/SKILL.md](skills/skill-creator/SKILL.md) | Create new skills, modify and improve existing skills, and measure skill performance. Use when users |
 | `skill-evaluator` | [skills/skill-evaluator/SKILL.md](skills/skill-evaluator/SKILL.md) | Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usa |
+| `stacked-prs` | [skills/stacked-prs/SKILL.md](skills/stacked-prs/SKILL.md) | Optional workflow for large features using stacked PRs via gh-stack. |
 | `task-decomposition` | [skills/task-decomposition/SKILL.md](skills/task-decomposition/SKILL.md) | Break down complex tasks into atomic, actionable goals with clear dependencies |
 | `test-rust` | [skills/test-rust/SKILL.md](skills/test-rust/SKILL.md) | Run the complete test suite for a Rust project including unit tests, |
 | `triz-analysis` | [skills/triz-analysis/SKILL.md](skills/triz-analysis/SKILL.md) | Run a systematic TRIZ contradiction audit against a Rust codebase, architecture, or workflow to iden |

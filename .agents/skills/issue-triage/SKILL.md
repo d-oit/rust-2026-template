@@ -29,6 +29,8 @@ Workflow that orchestrates issue discovery → categorization → implementation
 
 **Single PR/MR policy**: All issues implemented in one PR/MR unless user specifies otherwise.
 
+**Exception**: When issues have clear dependency layers (e.g., models → API → frontend), stacked PRs via `gh stack` may be used instead. See `stacked-prs` skill. Only when explicitly requested and repository is on GitHub.
+
 ## Platform Detection
 
 Auto-detect from git remote:

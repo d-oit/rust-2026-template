@@ -105,6 +105,12 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 5. **Quality Check:** Run `./scripts/quality-gates.sh`.
 6. **Commit:** Use conventional commit format.
 
+### Stacked PRs (Optional)
+
+For large features with 3+ distinct concerns, stacked PRs are available via `gh stack`.
+This is OPTIONAL — default to single-PR atomic commits. See `.agents/skills/stacked-prs/SKILL.md`.
+Requires GitHub. Install: `gh extension install github/gh-stack`
+
 ## Agentic Metrics Reporting
 
 After completing any task, write a JSON event file to `.agents/events/YYYY/MM/DD/`.
