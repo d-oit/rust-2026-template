@@ -115,7 +115,7 @@
 <path d="M312.32 232.23 C372.24 232.77,433.33 233.57,583.11 233.45 M311.36 231.65 C405.96 230.47,501.30 230.62,581.92 231.39 M581.72 232.45 C583.56 254.12,582.44 276.79,582.51 297.70 M581.81 231.77 C582.12 257.60,581.73 281.08,581.17 296.26 M583.20 295.97 C500.02 295.60,417.83 295.05,311.75 296.59 M582.39 296.73 C494.18 295.55,406.89 294.63,312.21 297.06 M311.91 296.35 C313.56 279.87,312.52 263.10,313.53 230.41 M311.38 296.66 C312.65 274.67,313.42 254.11,311.41 231.05" stroke="#0c8599" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="449.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#0c8599" text-anchor="middle"><tspan x="449.10" dy="0">23</tspan></text>
+<text x="449.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#0c8599" text-anchor="middle"><tspan x="449.10" dy="0">24</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <text x="449.70" y="282.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="middle"><tspan x="449.70" dy="0">AI Skills</tspan></text>
@@ -164,7 +164,7 @@
 <text x="340.00" y="343.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#0c8599" text-anchor="start"><tspan x="340.00" dy="0">.agents/skills/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="340.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="340.00" dy="0">23 reusable skills</tspan></text>
+<text x="340.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="340.00" dy="0">24 reusable skills</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M611.15 321.18 L871.51 321.15 L868.39 376.92 L608.28 377.31" stroke="none" fill="#f8f9fa"/>
