@@ -42,6 +42,20 @@ for cmd in cargo-nextest cargo-audit cargo-deny cargo-machete shellcheck markdow
 done
 echo ""
 
+# --- Optional workflow tools ---
+echo "Optional workflow tools:"
+if command -v gh &>/dev/null; then
+  pass "gh CLI: $(command -v gh)"
+  if gh extension list 2>/dev/null | grep -qw gh-stack; then
+    pass "gh-stack: installed"
+  else
+    warn "gh-stack: not installed (optional, for stacked PRs: gh extension install github/gh-stack)"
+  fi
+else
+  warn "gh CLI: not installed (optional, needed for PR workflows and stacked PRs)"
+fi
+echo ""
+
 # --- Linker check ---
 echo "Linker configuration:"
 bash "$(dirname "${BASH_SOURCE[0]}")/check-linker.sh" 2>/dev/null || warn "check-linker.sh not found or failed"

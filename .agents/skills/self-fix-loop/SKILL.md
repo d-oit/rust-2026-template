@@ -113,6 +113,17 @@ Phase 6: RETRY LOOP
 | `cargo machete` | Remove unused dependencies |
 | Linker errors | Check `build-essential`, `pkg-config` |
 
+## Stacked PR Interaction
+
+If the current branch is part of a `gh stack` (check: `gh stack view --json 2>/dev/null` succeeds):
+
+1. Commit fixes as NEW commits — never amend stacked commits
+2. Run `gh stack rebase --upstack` to propagate changes to dependent branches
+3. Run `gh stack push` to update all dependent PRs
+
+Do NOT use `git push --force` on stacked branches — use `gh stack push` instead.
+Do NOT use `git commit --amend` — it breaks upstack branch ancestry.
+
 ## Rationalizations
 
 | Rationalization | Reality |
@@ -126,3 +137,4 @@ Phase 6: RETRY LOOP
 - [ ] Exceeding max retries without diagnosing root cause
 - [ ] Disabling strict validation to bypass failing checks
 - [ ] Force merging when the self-fix loop reports failure
+- [ ] Using `git commit --amend` or `git push --force` on stacked branches (use `gh stack push` instead)

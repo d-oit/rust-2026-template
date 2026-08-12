@@ -21,6 +21,8 @@ metadata:
 
 Atomic workflow: validate → commit → push → PR/MR → verify. All changes committed as single unit with **zero warnings** policy.
 
+**For large features (3+ distinct concerns)**, consider the `stacked-prs` skill instead.
+
 ## Overview
 
 Orchestrates complete code submission as state machine with 7 phases:

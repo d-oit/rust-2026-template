@@ -1,0 +1,60 @@
+{
+  "skill_name": "stacked-prs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Split this billing feature into stacked PRs",
+      "expected_output": "Uses gh stack to create layered branches for models, API, and UI",
+      "files": [],
+      "assertions": [
+        "Checks that repository is on GitHub",
+        "Uses non-interactive commands (--auto, --json, init <branches>)",
+        "Runs quality gates per layer before submit"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I need to stack these changes across multiple concerns",
+      "expected_output": "Creates a stack with topic-prefixed branches and submits draft PRs",
+      "files": [],
+      "assertions": [
+        "Uses branch naming convention (<topic>/<concern>)",
+        "Defaults to draft PRs via --auto",
+        "References atomic-commit as the default alternative"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a gh stack for the auth feature with schema, API, and tests layers",
+      "expected_output": "Initializes a 3-layer stack with named branches",
+      "files": [],
+      "assertions": [
+        "Uses gh stack init with explicit branch names",
+        "Implements bottom-up (schema first, then API, then tests)",
+        "Uses conventional commits per layer"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "This is a small bug fix in one file",
+      "expected_output": "Does NOT use stacked PRs — uses atomic-commit instead",
+      "files": [],
+      "assertions": [
+        "Recognizes single-concern work does not need stacking",
+        "Falls back to atomic-commit workflow",
+        "Does not invoke gh stack commands"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Fix CI on a stacked branch",
+      "expected_output": "Uses self-fix-loop with stacked-PR safety: new commits only, gh stack rebase --upstack, gh stack push",
+      "files": [],
+      "assertions": [
+        "Does not amend commits on stacked branches",
+        "Uses gh stack push instead of git push --force",
+        "Propagates fixes upstack after push"
+      ]
+    }
+  ]
+}

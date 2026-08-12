@@ -77,6 +77,14 @@ ok "git present and inside a repository"
 command -v cargo >/dev/null 2>&1 || fail "cargo not found - install Rust via rustup (https://rustup.rs)"
 ok "cargo present"
 
+# --- optional: gh CLI ---
+if command -v gh &>/dev/null; then
+  ok "gh CLI present (PR workflows available)"
+  if ! gh extension list 2>/dev/null | grep -q gh-stack; then
+    warn "gh-stack not installed (optional, for stacked PRs): gh extension install github/gh-stack"
+  fi
+fi
+
 # --- linker hints ---
 case "$PLATFORM" in
   linux)

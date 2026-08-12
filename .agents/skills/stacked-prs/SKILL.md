@@ -32,28 +32,22 @@ Do NOT use for: bug fixes, hotfixes, small/medium changes, or issue-triage batch
 
 ```bash
 gh extension install github/gh-stack
-gh skill install github/gh-stack    # full agent skill with references
 git config rerere.enabled true      # remember conflict resolutions
 ```
 
-The full agent skill (SKILL.md + references/) is installed by `gh skill install`.
+See https://github.com/github/gh-stack for the full agent skill (SKILL.md + references/).
 This file provides template-specific integration guidance only.
 
 ## Decision Flow
 
-1. Is this a bug fix, hotfix, or small change? → Use `atomic-commit` (single PR)
-2. Is this on GitLab? → Use `atomic-commit` (gh-stack is GitHub-only)
-3. Does the feature have 3+ distinct layers? → Consider stacking
-4. Are different reviewers needed per layer? → Stack makes sense
-5. Otherwise → Default to single PR
+Use stacked PRs when: GitHub repo, 3+ distinct layers, different reviewers per layer.
+Otherwise: use `atomic-commit` (single PR).
 
 ## Template Integration
 
 - **Quality gates** run per-PR naturally — each layer gets its own CI via `./scripts/quality-gates.sh`
 - **Conventional commits** per layer: `feat(scope): description`
 - **Branch naming**: `<topic>/<concern>` (e.g., `billing/schema`, `billing/api`)
-  - Compatible with `feat/` prefix: `feat/billing/schema`
-  - Compatible with `fix/` prefix: `fix/auth/validation`
 - **Metrics**: Report one event per layer completion to `.agents/events/YYYY/MM/DD/`
 - **Hotfixes**: Never stack hotfixes — they must be atomic for DORA Change Failure Rate tracking
 
@@ -65,8 +59,9 @@ Always use flags to avoid TUI blocking:
 |---------|-----|----------------|
 | View | `gh stack view --json` | `gh stack view` (opens TUI) |
 | Submit | `gh stack submit --auto` | `gh stack submit` (prompts per PR) |
+| Submit (ready) | `gh stack submit --auto --open` | creates non-draft PRs |
 | Init | `gh stack init <branches...>` | `gh stack init` (prompts for names) |
-| Merge | `gh stack merge <target> --yes` | `gh stack merge` (interactive picker) |
+| Merge | `gh stack merge <pr-number> --yes` | `gh stack merge` (interactive picker) |
 | Add | `gh stack add <branch>` | `gh stack add` (prompts for name) |
 | Checkout | `gh stack checkout <target>` | `gh stack checkout` (opens menu) |
 | Modify | Not available non-interactively | `gh stack modify` (TUI-only) |
@@ -95,3 +90,31 @@ git add ... && git commit -m "fix(billing): address schema review"
 gh stack rebase --upstack
 gh stack push
 ```
+
+## Merge Strategy
+
+- Always merge bottom-up (closest to trunk first)
+- If a bottom PR is rejected, close upstack PRs and restack
+- Use `gh stack merge <pr-number> --yes` to merge that PR and every unmerged PR below it
+- After all layers merge, `gh stack sync --prune` cleans up local branches
+
+## Failure Recovery
+
+- **Partial submit**: If `gh stack submit` fails mid-way (e.g., network error after 2 of 3 PRs created), re-run `gh stack submit` — it skips branches that already have PRs
+- **Rebase conflict**: Run `gh stack rebase`, resolve conflicts, `git add`, `gh stack rebase --continue`. Use `--abort` to restore all branches
+- **Diverged stacks**: Run `gh stack sync` to fetch and reconcile with GitHub. If that fails, `gh stack unstack` then `gh stack submit --auto` to recreate.
+
+## Rationalizations
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "I'll put everything in one PR, it's simpler" | Large PRs get superficial reviews. Stacked PRs get focused, thorough reviews per layer. |
+| "Stacking is too much overhead for this feature" | If you're already splitting concerns across files, stacking formalizes what you're doing anyway. |
+| "I'll split the PR after I finish coding" | Splitting after the fact is expensive and error-prone. Plan layers before writing code. |
+
+## Red Flags
+
+- [ ] Stacking a bug fix or hotfix (use atomic-commit instead)
+- [ ] Using `git push --force` on stacked branches (use `gh stack push`)
+- [ ] Stacking on GitLab (gh-stack is GitHub-only)
+- [ ] Amending commits on a stacked branch (breaks upstack branches)

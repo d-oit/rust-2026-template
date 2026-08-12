@@ -14,7 +14,6 @@ These conventions apply to all repositories derived from `rust-2026-template`.
 - Fixes: `fix/issue-number-description`
 - Hotfixes: `hotfix/critical-description` (triggers Change Failure Rate tracking)
 - Stacked branches: `<topic>/<concern>` (e.g., `billing/schema`, `billing/api`, `billing/ui`)
-  Compatible with `feat/` prefix: `feat/billing/schema`
 
 ## PR Requirements
 

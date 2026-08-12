@@ -55,6 +55,24 @@ Call this skill as the LAST step of any task or sub-task.
 
 4. **Verify**: Ensure the JSON is valid and written to the correct location.
 
+## Stacked PR Metrics
+
+When using the `stacked-prs` skill, add these optional fields to the event JSON:
+
+```json
+{
+  "stack_id": "billing-feature",
+  "stack_position": 1,
+  "stack_total": 3
+}
+```
+
+- `stack_id`: Identifier for the stack (feature name)
+- `stack_position`: This layer's position in the stack (1-indexed)
+- `stack_total`: Total number of layers in the stack
+
+Do NOT include these fields for non-stacked work.
+
 ## Human Interventions
 
 Set `human_interventions > 0` if:

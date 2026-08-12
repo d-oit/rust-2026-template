@@ -9,11 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- for new features.
+- `stacked-prs` skill for optional stacked PR workflow via `gh-stack` GitHub CLI extension.
+- `gh-stack` optional workflow tool checks in `scripts/doctor.sh` and `scripts/bootstrap.sh`.
+- Optional `stack_id`, `stack_position`, and `stack_total` fields in `metrics-reporter` event schema for stacked PR tracking.
 
 ### Changed
 
-- for changes in existing functionality.
+- `AGENTS.md`: added "Stacked PRs (Optional)" section pointing to `stacked-prs` skill.
+- `atomic-commit` skill: added cross-reference to `stacked-prs` for large features with 3+ concerns.
+- `self-fix-loop` skill: added "Stacked PR Interaction" section documenting safe fix procedures on stacked branches (never amend, use `gh stack push`).
+- `scripts/doctor.sh`: added "Optional workflow tools" section checking for `gh` CLI and `gh-stack` extension.
+- `scripts/bootstrap.sh`: added informational check for `gh` CLI and `gh-stack` presence.
 
 ### Deprecated
 
