@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/d-oit/rust-2026-template/schema/agent-adapters.schema.json",
+  "title": "Agent Adapter Manifest (.agents/agent-adapters.toml)",
+  "description": "Validates the canonical adapter manifest for multi-tool AI agent setups. Enforces thin-adapter architecture where tool-specific files reference the canonical AGENTS.md contract.",
+  "type": "object",
+  "required": ["contract", "validation", "adapters"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "type": "object",
+      "required": ["canonical_instructions", "skills_directory", "context_files"],
+      "additionalProperties": false,
+      "properties": {
+        "canonical_instructions": {
+          "type": "string",
+          "description": "Path to the canonical agent contract file (e.g. AGENTS.md).",
+          "minLength": 1
+        },
+        "skills_directory": {
+          "type": "string",
+          "description": "Path to the shared skills directory.",
+          "minLength": 1
+        },
+        "context_files": {
+          "type": "array",
+          "description": "Context files shipped for token-efficient and deep agent context.",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["require_canonical_reference", "reject_policy_duplication", "verify_local_links", "enforce_adapter_scope"],
+      "additionalProperties": false,
+      "properties": {
+        "require_canonical_reference": {
+          "type": "boolean",
+          "description": "When true, each adapter must reference the canonical instructions file."
+        },
+        "reject_policy_duplication": {
+          "type": "boolean",
+          "description": "When true, adapters containing direct copies of canonical policy sections are rejected."
+        },
+        "verify_local_links": {
+          "type": "boolean",
+          "description": "When true, referenced skills, hooks, and context files must exist on disk."
+        },
+        "enforce_adapter_scope": {
+          "type": "boolean",
+          "description": "When true, adapters are limited to tool-specific guidance (command syntax, capability limitations)."
+        },
+        "max_agents_md_lines": {
+          "type": "integer",
+          "description": "Maximum allowed line count for the canonical AGENTS.md file.",
+          "minimum": 1,
+          "default": 200
+        }
+      }
+    },
+    "adapters": {
+      "type": "array",
+      "description": "Registered tool-specific adapters.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "root", "entrypoint", "role", "canonical_reference"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "description": "Machine identifier for this adapter."
+          },
+          "root": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Root directory for this adapter's files (e.g. .claude, .gemini)."
+          },
+          "entrypoint": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Entrypoint file relative to the repository root (e.g. CLAUDE.md)."
+          },
+          "role": {
+            "type": "string",
+            "enum": ["tool-delta"],
+            "description": "Adapter role. 'tool-delta' contains only tool-specific differences from the canonical contract."
+          },
+          "canonical_reference": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The canonical file this adapter must reference (e.g. AGENTS.md)."
+          }
+        }
+      }
+    }
+  }
+}

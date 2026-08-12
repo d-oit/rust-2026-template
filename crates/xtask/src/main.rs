@@ -1,4 +1,5 @@
 //! xtask — thin wrappers around template quality tooling.
+pub mod agent_adapters;
 pub mod changed_paths;
 pub mod commands;
 pub mod config;
@@ -48,6 +49,11 @@ enum Cmd {
     Report {
         #[command(subcommand)]
         sub: ReportSub,
+    },
+    /// Agent adapter validation and inventory.
+    Agents {
+        #[command(subcommand)]
+        sub: AgentsSub,
     },
 }
 
@@ -111,6 +117,20 @@ enum TemplateSub {
 enum ReportSub {
     /// Write GHA summary and status markdown files.
     GithubSummary,
+}
+
+#[derive(Subcommand)]
+enum AgentsSub {
+    /// Validate all registered adapters against the canonical contract.
+    Validate,
+    /// Print an inventory of all registered adapters.
+    Inventory {
+        /// Output format: "markdown" or "plain".
+        #[arg(long, default_value = "markdown")]
+        format: String,
+    },
+    /// Verify that context files (llms.txt, llms-full.txt) exist and are current.
+    CheckContext,
 }
 
 fn get_rfc3339_timestamp() -> String {
@@ -347,6 +367,87 @@ fn handle_github_summary() -> Result<(), XtaskError> {
     Ok(())
 }
 
+/// Resolves the repository root from the manifest path for CWD-independent validation.
+fn repo_root_from_manifest() -> Result<std::path::PathBuf, XtaskError> {
+    let manifest_path = std::path::Path::new(agent_adapters::MANIFEST_PATH);
+    // The manifest lives at .agents/agent-adapters.toml — its grandparent is the repo root.
+    Ok(if manifest_path.exists() {
+        manifest_path
+            .canonicalize()
+            .map_err(|e| XtaskError::InvalidConfig {
+                message: format!("Failed to resolve manifest path: {e}"),
+            })?
+            .parent()
+            .and_then(|p| p.parent())
+            .map_or_else(
+                || std::path::PathBuf::from("."),
+                std::path::Path::to_path_buf,
+            )
+    } else {
+        std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."))
+    })
+}
+
+fn handle_agents_validate() -> Result<(), XtaskError> {
+    let manifest = agent_adapters::AgentAdaptersManifest::load()?;
+    let repo_root = repo_root_from_manifest()?;
+    let result = manifest.validate(&repo_root)?;
+    result.print_report();
+    if result.is_ok() {
+        Ok(())
+    } else {
+        Err(XtaskError::CommandFailure {
+            command: "agents validate".to_string(),
+            exit_code: Some(1),
+        })
+    }
+}
+
+fn handle_agents_inventory(format: &str) -> Result<(), XtaskError> {
+    let manifest = agent_adapters::AgentAdaptersManifest::load()?;
+    match format {
+        "markdown" => {
+            println!("{}", manifest.inventory_markdown());
+        }
+        "plain" => {
+            println!("Adapters:");
+            for adapter in &manifest.adapters {
+                println!(
+                    "  {} → {} ({})",
+                    adapter.id, adapter.entrypoint, adapter.role
+                );
+            }
+        }
+        other => {
+            return Err(XtaskError::InvalidConfig {
+                message: format!("Unknown format '{other}'. Use 'markdown' or 'plain'."),
+            });
+        }
+    }
+    Ok(())
+}
+
+fn handle_agents_check_context() -> Result<(), XtaskError> {
+    let manifest = agent_adapters::AgentAdaptersManifest::load()?;
+    let mut ok = true;
+    for ctx_file in &manifest.contract.context_files {
+        if Path::new(ctx_file).exists() {
+            println!("  ✅ {ctx_file}");
+        } else {
+            println!("  ❌ {ctx_file} — missing");
+            ok = false;
+        }
+    }
+    if ok {
+        Ok(())
+    } else {
+        Err(XtaskError::CommandFailure {
+            command: "agents check-context".to_string(),
+            exit_code: Some(1),
+        })
+    }
+}
+
 fn main() {
     let cli = Cli::parse();
     let config = XtaskConfig::load_from_file("config/xtask.json").unwrap_or_else(|e| {
@@ -421,6 +522,11 @@ fn main() {
         },
         Cmd::Report { sub } => match sub {
             ReportSub::GithubSummary => handle_github_summary(),
+        },
+        Cmd::Agents { sub } => match sub {
+            AgentsSub::Validate => handle_agents_validate(),
+            AgentsSub::Inventory { format } => handle_agents_inventory(&format),
+            AgentsSub::CheckContext => handle_agents_check_context(),
         },
     };
 
