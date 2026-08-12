@@ -1,0 +1,11 @@
+{
+  "event_id": "1786302932-goap-pr-triage",
+  "task_id": "goap-pr-issue-triage",
+  "skill": "goap-agent",
+  "status": "success",
+  "started_at": "2026-08-09T19:15:32Z",
+  "finished_at": "2026-08-09T19:15:32Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "5b5388d"
+}

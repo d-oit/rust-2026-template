@@ -1,0 +1,11 @@
+{
+  "event_id": "1786307472-goap-285",
+  "task_id": "goap-issue-285-ci-tiers",
+  "skill": "goap-agent",
+  "status": "success",
+  "started_at": "2026-08-09T20:31:12Z",
+  "finished_at": "2026-08-09T20:31:12Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "6903491"
+}

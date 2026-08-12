@@ -1,0 +1,11 @@
+{
+  "event_id": "1786305974-goap-trio",
+  "task_id": "goap-pr-trio-cleanup-merge",
+  "skill": "goap-agent",
+  "status": "success",
+  "started_at": "2026-08-09T20:06:14Z",
+  "finished_at": "2026-08-09T20:06:14Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "5b5388d"
+}
