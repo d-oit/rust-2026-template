@@ -127,33 +127,16 @@ jobs:
 
       - name: Record FDRT start time on failure
         if: failure()
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
-        with:
-          script: |
-            const tagName = "${{ github.ref_name }}";
-            const issue = await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `🚨 Release ${tagName} failed post-release health check`,
-              body: [
-                '## Release Health Check Failed',
-                '',
-                `**Release:** ${tagName}`,
-                `**Failed at:** ${new Date().toISOString()}`,
-                `**Workflow run:** ${context.serverUrl}/${context.repo.owner}/` +
-                  `${context.repo.repo}/actions/runs/${context.runId}`,
-                '',
-                '## Required Actions',
-                '1. Identify the regression (check workflow logs above)',
-                '2. Create a `hotfix/*` branch and fix the issue',
-                '3. Record recovery time by closing this issue with a comment: `Recovered at: YYYY-MM-DDTHH:MM:SSZ`',
-                '',
-                '## DORA FDRT Tracking',
-                'Time to detect: automatically recorded above.',
-                'Time to recover: close this issue when the hotfix is deployed.',
-                '',
-                'Labels: `hotfix`, `release-failure`'
-              ].join('\n'),
-              labels: ['hotfix', 'release-failure'],
-            });
-            core.setFailed(`Post-release check failed. Issue created: ${issue.data.html_url}`);
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          FAILED_AT: ${{ github.event.head_commit.timestamp }}
+        run: |
+          envsubst < .github/ISSUE_TEMPLATE/release-failure.md > /tmp/issue-body.md
+          URL=$(gh issue create \
+            --title "🚨 Release ${RELEASE_TAG} failed post-release health check" \
+            --label "hotfix,release-failure" \
+            --body-file /tmp/issue-body.md)
+          echo "::error::Post-release check failed. Issue created: $URL"
+          exit 1

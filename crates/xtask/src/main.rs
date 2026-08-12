@@ -1,4 +1,5 @@
 //! xtask — thin wrappers around template quality tooling.
+pub mod agent_adapters;
 pub mod changed_paths;
 pub mod commands;
 pub mod config;
@@ -48,6 +49,11 @@ enum Cmd {
     Report {
         #[command(subcommand)]
         sub: ReportSub,
+    },
+    /// Agent adapter validation and inventory.
+    Agents {
+        #[command(subcommand)]
+        sub: AgentsSub,
     },
 }
 
@@ -111,6 +117,20 @@ enum TemplateSub {
 enum ReportSub {
     /// Write GHA summary and status markdown files.
     GithubSummary,
+}
+
+#[derive(Subcommand)]
+enum AgentsSub {
+    /// Validate all registered adapters against the canonical contract.
+    Validate,
+    /// Print an inventory of all registered adapters.
+    Inventory {
+        /// Output format: "markdown" or "plain".
+        #[arg(long, default_value = "markdown")]
+        format: String,
+    },
+    /// Verify that context files (llms.txt, llms-full.txt) exist and are current.
+    CheckContext,
 }
 
 fn get_rfc3339_timestamp() -> String {
@@ -347,6 +367,38 @@ fn handle_github_summary() -> Result<(), XtaskError> {
     Ok(())
 }
 
+fn handle_agents_validate() -> Result<(), XtaskError> {
+    let manifest = agent_adapters::AgentAdaptersManifest::load()?;
+    let result = manifest.validate_from_cwd()?;
+    result.print_report();
+    if result.is_ok() {
+        Ok(())
+    } else {
+        Err(XtaskError::CommandFailure {
+            command: "agents validate".to_string(),
+            exit_code: Some(1),
+        })
+    }
+}
+
+fn handle_agents_inventory(format: &str) -> Result<(), XtaskError> {
+    let manifest = agent_adapters::AgentAdaptersManifest::load()?;
+    match format {
+        "markdown" => println!("{}", manifest.inventory_markdown()),
+        "plain" => manifest.print_inventory_plain(),
+        other => {
+            return Err(XtaskError::InvalidConfig {
+                message: format!("Unknown format '{other}'. Use 'markdown' or 'plain'."),
+            });
+        }
+    }
+    Ok(())
+}
+
+fn handle_agents_check_context() -> Result<(), XtaskError> {
+    agent_adapters::AgentAdaptersManifest::load()?.check_context()
+}
+
 fn main() {
     let cli = Cli::parse();
     let config = XtaskConfig::load_from_file("config/xtask.json").unwrap_or_else(|e| {
@@ -421,6 +473,11 @@ fn main() {
         },
         Cmd::Report { sub } => match sub {
             ReportSub::GithubSummary => handle_github_summary(),
+        },
+        Cmd::Agents { sub } => match sub {
+            AgentsSub::Validate => handle_agents_validate(),
+            AgentsSub::Inventory { format } => handle_agents_inventory(&format),
+            AgentsSub::CheckContext => handle_agents_check_context(),
         },
     };
 

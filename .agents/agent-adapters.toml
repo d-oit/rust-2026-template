@@ -1,0 +1,54 @@
+# Agent Adapter Manifest
+# Canonical adapter contract validation for multi-tool AI agent setups.
+# Validated by: cargo xtask agents validate
+# Schema: schema/agent-adapters.schema.json
+
+[contract]
+canonical_instructions = "AGENTS.md"
+skills_directory = ".agents/skills"
+context_files = [
+  "llms.txt",
+  "llms-full.txt",
+]
+
+[validation]
+require_canonical_reference = true
+reject_policy_duplication = true
+verify_local_links = true
+enforce_adapter_scope = true
+max_agents_md_lines = 200
+
+[[adapters]]
+id = "claude"
+root = ".claude"
+entrypoint = "CLAUDE.md"
+role = "tool-delta"
+canonical_reference = "AGENTS.md"
+
+[[adapters]]
+id = "gemini"
+root = ".gemini"
+entrypoint = "GEMINI.md"
+role = "tool-delta"
+canonical_reference = "AGENTS.md"
+
+[[adapters]]
+id = "qwen"
+root = ".qwen"
+entrypoint = "QWEN.md"
+role = "tool-delta"
+canonical_reference = "AGENTS.md"
+
+[[adapters]]
+id = "opencode"
+root = ".opencode"
+entrypoint = "rules/rust-rules.md"
+role = "tool-delta"
+canonical_reference = "AGENTS.md"
+
+[[adapters]]
+id = "windsurf"
+root = ".windsurf"
+entrypoint = "rules.md"
+role = "tool-delta"
+canonical_reference = "AGENTS.md"

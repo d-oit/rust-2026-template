@@ -112,3 +112,17 @@ Pushing a tag triggers `.github/workflows/release.yml`:
 - [cargo-dist](https://opensource.axo.dev/cargo-dist/)
 - [Keep a Changelog](https://keepachangelog.com/)
 - [crates.io naming policy](https://crates.io/policies)
+
+## GH CLI Usage
+
+Post-release failure tracking uses `gh issue create` directly:
+
+```bash
+# Create a DORA FDRT tracking issue on release failure
+gh issue create \
+  --title "🚨 Release vX.Y.Z failed post-release health check" \
+  --label "hotfix,release-failure" \
+  --body-file .github/ISSUE_TEMPLATE/release-failure.md
+```
+
+This is preferred over `actions/github-script` for single-purpose issue creation.
