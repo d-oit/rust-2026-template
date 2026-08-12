@@ -1,9 +1,8 @@
 //! Agent adapter manifest validation (issue #287).
 //!
-//! Validates that tool-specific adapters (CLAUDE.md, GEMINI.md, etc.) remain thin
-//! wrappers around the canonical `AGENTS.md` contract. The manifest at
-//! `.agents/agent-adapters.toml` declares the expected adapter topology; this module
-//! enforces it programmatically.
+//! Validates that tool-specific adapters remain thin wrappers around the canonical
+//! `AGENTS.md` contract. The manifest at `.agents/agent-adapters.toml` declares the
+//! expected adapter topology; this module enforces it programmatically.
 
 use crate::config::XtaskError;
 use serde::Deserialize;
@@ -13,18 +12,14 @@ use std::path::Path;
 
 /// Path to the adapter manifest, relative to the repository root.
 pub const MANIFEST_PATH: &str = ".agents/agent-adapters.toml";
-
-/// Maximum bytes to read from any adapter entrypoint file (1 MiB).
 const MAX_ENTRYPOINT_BYTES: u64 = 1_048_576;
-
-/// Maximum non-reference content lines before flagging an adapter as oversized.
 const MAX_ADAPTER_BODY_LINES: usize = 40;
 
 /// Canonical contract declaration.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ContractConfig {
-    /// Path to the canonical instructions file (e.g. "AGENTS.md").
+    /// Path to the canonical instructions file.
     pub canonical_instructions: String,
     /// Path to the shared skills directory.
     pub skills_directory: String,
@@ -32,7 +27,7 @@ pub struct ContractConfig {
     pub context_files: Vec<String>,
 }
 
-/// Validation rules.
+/// Validation rules for adapter enforcement.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 #[expect(clippy::struct_excessive_bools)]
@@ -60,13 +55,13 @@ const fn default_max_lines() -> usize {
 pub struct AdapterConfig {
     /// Machine identifier (e.g. "claude").
     pub id: String,
-    /// Root directory for this adapter's files (e.g. ".claude").
+    /// Root directory for this adapter's files.
     pub root: String,
-    /// Entrypoint file relative to the repository root (e.g. "CLAUDE.md").
+    /// Entrypoint file relative to the repository root.
     pub entrypoint: String,
     /// Adapter role (currently only "tool-delta").
     pub role: String,
-    /// The canonical file this adapter must reference (e.g. "AGENTS.md").
+    /// The canonical file this adapter must reference.
     pub canonical_reference: String,
 }
 
@@ -129,7 +124,6 @@ impl ValidationResult {
     }
 }
 
-/// Reads a file with a byte limit to prevent resource exhaustion.
 fn read_bounded(path: &Path, max_bytes: u64) -> Result<String, XtaskError> {
     let file = fs::File::open(path).map_err(|e| XtaskError::InvalidConfig {
         message: format!("Failed to open '{}': {e}", path.display()),
@@ -174,235 +168,230 @@ impl AgentAdaptersManifest {
         })
     }
 
-    /// Runs the full validation pass against the repository.
-    ///
-    /// `repo_root` is the directory from which relative paths (entrypoints, skills, context
-    /// files) are resolved. Pass the manifest's parent directory for CWD-independent behaviour.
+    /// Validates using CWD-derived repo root.
     ///
     /// # Errors
-    /// Returns `XtaskError::InvalidConfig` when the manifest itself cannot be loaded.
+    /// Returns `XtaskError` when the manifest cannot be loaded or validated.
+    pub fn validate_from_cwd(&self) -> Result<ValidationResult, XtaskError> {
+        let repo_root = Self::repo_root()?;
+        self.validate(&repo_root)
+    }
+
+    /// Runs the full validation pass against the repository.
+    ///
+    /// # Errors
+    /// Returns `XtaskError` when validation infrastructure fails.
     pub fn validate(&self, repo_root: &Path) -> Result<ValidationResult, XtaskError> {
         let mut result = ValidationResult {
             errors: Vec::new(),
             warnings: Vec::new(),
         };
-
-        let canonical_content = self.validate_contract(repo_root, &mut result);
-        self.validate_adapters(repo_root, canonical_content.as_ref(), &mut result);
-
+        let canonical = self.validate_contract(repo_root, &mut result);
+        self.validate_adapters(repo_root, canonical.as_ref(), &mut result);
         Ok(result)
     }
 
-    /// Validates the contract section. Returns the canonical file content for reuse.
-    fn validate_contract(&self, repo_root: &Path, result: &mut ValidationResult) -> Option<String> {
-        let canonical_path = repo_root.join(&self.contract.canonical_instructions);
+    /// Prints a plain-text inventory of all registered adapters.
+    pub fn print_inventory_plain(&self) {
+        println!("Adapters:");
+        for a in &self.adapters {
+            println!("  {} -> {} ({})", a.id, a.entrypoint, a.role);
+        }
+    }
 
-        // Check canonical instructions file exists and read once.
-        let canonical_content = if let Ok(content) = fs::read_to_string(&canonical_path) {
-            Some(content)
+    /// Verifies that declared context files exist on disk.
+    ///
+    /// # Errors
+    /// Returns `XtaskError::CommandFailure` when any context file is missing.
+    pub fn check_context(&self) -> Result<(), XtaskError> {
+        let mut ok = true;
+        for f in &self.contract.context_files {
+            if Path::new(f).exists() {
+                println!("  ✅ {f}");
+            } else {
+                println!("  ❌ {f} — missing");
+                ok = false;
+            }
+        }
+        if ok {
+            Ok(())
         } else {
-            result.errors.push(ValidationFinding {
-                severity: "error".to_string(),
-                source: "contract".to_string(),
-                message: format!(
+            Err(XtaskError::CommandFailure {
+                command: "agents check-context".into(),
+                exit_code: Some(1),
+            })
+        }
+    }
+
+    fn repo_root() -> Result<std::path::PathBuf, XtaskError> {
+        let p = Path::new(MANIFEST_PATH);
+        Ok(if p.exists() {
+            p.canonicalize()
+                .map_err(|e| XtaskError::InvalidConfig {
+                    message: format!("Failed to resolve manifest path: {e}"),
+                })?
+                .parent()
+                .and_then(|pp| pp.parent())
+                .map_or_else(|| ".".into(), Path::to_path_buf)
+        } else {
+            std::env::current_dir().unwrap_or_else(|_| ".".into())
+        })
+    }
+
+    fn validate_contract(&self, repo_root: &Path, result: &mut ValidationResult) -> Option<String> {
+        let path = repo_root.join(&self.contract.canonical_instructions);
+        let content = if let Ok(c) = fs::read_to_string(&path) {
+            Some(c)
+        } else {
+            result.errors.push(err(
+                "contract",
+                &format!(
                     "Canonical instructions file '{}' not found",
                     self.contract.canonical_instructions
                 ),
-            });
+            ));
             None
         };
-
-        // Check AGENTS.md line count (reusing the content already read).
-        if let Some(content) = &canonical_content {
-            if self.validation.max_agents_md_lines > 0 {
-                let line_count = content.lines().count();
-                if line_count > self.validation.max_agents_md_lines {
-                    result.errors.push(ValidationFinding {
-                        severity: "error".to_string(),
-                        source: "contract".to_string(),
-                        message: format!(
-                            "{} has {line_count} lines (max {})",
-                            self.contract.canonical_instructions,
-                            self.validation.max_agents_md_lines
-                        ),
-                    });
-                }
+        if let Some(c) = &content {
+            let n = c.lines().count();
+            if self.validation.max_agents_md_lines > 0 && n > self.validation.max_agents_md_lines {
+                result.errors.push(err(
+                    "contract",
+                    &format!(
+                        "{} has {n} lines (max {})",
+                        self.contract.canonical_instructions, self.validation.max_agents_md_lines
+                    ),
+                ));
             }
         }
-
-        // Check skills directory exists.
-        let skills_path = repo_root.join(&self.contract.skills_directory);
-        if !skills_path.exists() {
-            result.errors.push(ValidationFinding {
-                severity: "error".to_string(),
-                source: "contract".to_string(),
-                message: format!(
+        if !repo_root.join(&self.contract.skills_directory).exists() {
+            result.errors.push(err(
+                "contract",
+                &format!(
                     "Skills directory '{}' not found",
                     self.contract.skills_directory
                 ),
-            });
+            ));
         }
-
-        // Check context files.
         if self.validation.verify_local_links {
-            for ctx_file in &self.contract.context_files {
-                let ctx_path = repo_root.join(ctx_file);
-                if !ctx_path.exists() {
-                    result.warnings.push(ValidationFinding {
-                        severity: "warning".to_string(),
-                        source: "contract".to_string(),
-                        message: format!("Context file '{ctx_file}' not found"),
-                    });
+            for f in &self.contract.context_files {
+                if !repo_root.join(f).exists() {
+                    result
+                        .warnings
+                        .push(warn("contract", &format!("Context file '{f}' not found")));
                 }
             }
         }
-
-        canonical_content
+        content
     }
 
     fn validate_adapters(
         &self,
         repo_root: &Path,
-        canonical_content: Option<&String>,
+        canonical: Option<&String>,
         result: &mut ValidationResult,
     ) {
         for adapter in &self.adapters {
-            self.validate_single_adapter(repo_root, adapter, canonical_content, result);
+            self.validate_single(repo_root, adapter, canonical, result);
         }
     }
 
-    fn validate_single_adapter(
+    fn validate_single(
         &self,
         repo_root: &Path,
-        adapter: &AdapterConfig,
-        canonical_content: Option<&String>,
+        a: &AdapterConfig,
+        canonical: Option<&String>,
         result: &mut ValidationResult,
     ) {
-        Self::validate_adapter_id(adapter, result);
-        self.validate_adapter_entrypoint(repo_root, adapter, canonical_content, result);
-    }
-
-    fn validate_adapter_id(adapter: &AdapterConfig, result: &mut ValidationResult) {
-        if adapter.id.is_empty()
-            || !adapter
+        // ID format.
+        if a.id.is_empty()
+            || !a
                 .id
                 .chars()
                 .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
         {
-            result.errors.push(ValidationFinding {
-                severity: "error".to_string(),
-                source: adapter.id.clone(),
-                message: "Adapter id must match `^[a-z][a-z0-9-]*$`".to_string(),
-            });
+            result
+                .errors
+                .push(err(&a.id, "Adapter id must match `^[a-z][a-z0-9-]*$`"));
         }
-    }
-
-    fn validate_adapter_entrypoint(
-        &self,
-        repo_root: &Path,
-        adapter: &AdapterConfig,
-        canonical_content: Option<&String>,
-        result: &mut ValidationResult,
-    ) {
-        // Resolve entrypoint path: try repo-relative first, then relative to adapter root.
-        let entrypoint_abs = repo_root.join(&adapter.entrypoint);
-        let root_relative_abs = repo_root.join(&adapter.root).join(&adapter.entrypoint);
-
-        let resolved_path = if entrypoint_abs.exists() {
-            entrypoint_abs
-        } else if root_relative_abs.exists() {
-            root_relative_abs
+        // Entrypoint resolution.
+        let ep = repo_root.join(&a.entrypoint);
+        let root_ep = repo_root.join(&a.root).join(&a.entrypoint);
+        let resolved = if ep.exists() {
+            ep
+        } else if root_ep.exists() {
+            root_ep
         } else {
-            result.errors.push(ValidationFinding {
-                severity: "error".to_string(),
-                source: adapter.id.clone(),
-                message: format!(
+            result.errors.push(err(
+                &a.id,
+                &format!(
                     "Entrypoint '{}' not found (checked '{}' and '{}/{}')",
-                    adapter.entrypoint, adapter.entrypoint, adapter.root, adapter.entrypoint
+                    a.entrypoint, a.entrypoint, a.root, a.entrypoint
                 ),
-            });
+            ));
             return;
         };
-
-        // Read entrypoint content with bounded I/O.
-        let content = match read_bounded(&resolved_path, MAX_ENTRYPOINT_BYTES) {
+        // Read with bounds.
+        let content = match read_bounded(&resolved, MAX_ENTRYPOINT_BYTES) {
             Ok(c) => c,
             Err(e) => {
-                result.errors.push(ValidationFinding {
-                    severity: "error".to_string(),
-                    source: adapter.id.clone(),
-                    message: format!(
-                        "Failed to read entrypoint '{}': {e}",
-                        resolved_path.display()
-                    ),
-                });
+                result.errors.push(err(
+                    &a.id,
+                    &format!("Failed to read entrypoint '{}': {e}", resolved.display()),
+                ));
                 return;
             }
         };
-
-        // Check canonical reference using the adapter's declared canonical_reference.
+        // Canonical reference check.
         if self.validation.require_canonical_reference {
-            let marker = format!("@{}", adapter.canonical_reference);
+            let marker = format!("@{}", a.canonical_reference);
             if !content.contains(&marker) {
-                result.errors.push(ValidationFinding {
-                    severity: "error".to_string(),
-                    source: adapter.id.clone(),
-                    message: format!(
-                        "Entrypoint '{}' does not contain '{marker}'",
-                        adapter.entrypoint
-                    ),
-                });
+                result.errors.push(err(
+                    &a.id,
+                    &format!("Entrypoint '{}' does not contain '{marker}'", a.entrypoint),
+                ));
             }
         }
-
-        // Policy duplication: flag adapters that contain section headers from the canonical file.
+        // Policy duplication.
         if self.validation.reject_policy_duplication {
-            if let Some(canonical) = canonical_content {
-                let canonical_headers: Vec<&str> =
-                    canonical.lines().filter(|l| l.starts_with("## ")).collect();
-                let adapter_body = strip_reference_header(&content);
-                let duplicated: Vec<&str> = canonical_headers
+            if let Some(c) = canonical {
+                let headers: Vec<&str> = c.lines().filter(|l| l.starts_with("## ")).collect();
+                let body = strip_ref_header(&content);
+                let dup: Vec<&str> = headers
                     .iter()
-                    .filter(|h| adapter_body.contains(*h))
+                    .filter(|h| body.contains(*h))
                     .copied()
                     .collect();
-                if !duplicated.is_empty() {
-                    result.warnings.push(ValidationFinding {
-                        severity: "warning".to_string(),
-                        source: adapter.id.clone(),
-                        message: format!(
+                if !dup.is_empty() {
+                    result.warnings.push(warn(
+                        &a.id,
+                        &format!(
                             "Adapter may duplicate canonical sections: {}",
-                            duplicated.join(", ")
+                            dup.join(", ")
                         ),
-                    });
+                    ));
                 }
             }
         }
-
-        // Adapter scope: warn if adapter body is suspiciously long for a "thin delta".
+        // Scope enforcement.
         if self.validation.enforce_adapter_scope {
-            let body = strip_reference_header(&content);
-            let body_lines = body.lines().count();
-            if body_lines > MAX_ADAPTER_BODY_LINES {
-                result.warnings.push(ValidationFinding {
-                    severity: "warning".to_string(),
-                    source: adapter.id.clone(),
-                    message: format!(
-                        "Adapter body has {body_lines} lines (max {MAX_ADAPTER_BODY_LINES}). \
-                         Thin adapters should contain only tool-specific differences."
+            let n = strip_ref_header(&content).lines().count();
+            if n > MAX_ADAPTER_BODY_LINES {
+                result.warnings.push(warn(
+                    &a.id,
+                    &format!(
+                        "Adapter body has {n} lines (max {MAX_ADAPTER_BODY_LINES}). \
+                     Thin adapters should contain only tool-specific differences."
                     ),
-                });
+                ));
             }
         }
-
-        // Check root directory exists.
-        let root_path = repo_root.join(&adapter.root);
-        if !adapter.root.is_empty() && !root_path.exists() {
-            result.warnings.push(ValidationFinding {
-                severity: "warning".to_string(),
-                source: adapter.id.clone(),
-                message: format!("Root directory '{}' not found", adapter.root),
-            });
+        // Root directory.
+        if !a.root.is_empty() && !repo_root.join(&a.root).exists() {
+            result.warnings.push(warn(
+                &a.id,
+                &format!("Root directory '{}' not found", a.root),
+            ));
         }
     }
 
@@ -411,8 +400,7 @@ impl AgentAdaptersManifest {
     pub fn inventory_markdown(&self) -> String {
         use std::fmt::Write as _;
         let mut md = String::new();
-        let _ = writeln!(md, "# Agent Adapter Inventory");
-        let _ = writeln!(md);
+        let _ = writeln!(md, "# Agent Adapter Inventory\n");
         let _ = writeln!(
             md,
             "**Canonical contract:** {}",
@@ -423,50 +411,49 @@ impl AgentAdaptersManifest {
             "**Skills directory:** {}",
             self.contract.skills_directory
         );
-        let _ = writeln!(md);
-        let _ = writeln!(md, "| ID | Root | Entrypoint | Role |");
-        let _ = writeln!(md, "|---|---|---|---|");
-        for adapter in &self.adapters {
+        let _ = writeln!(md, "\n| ID | Root | Entrypoint | Role |\n|---|---|---|---|");
+        for a in &self.adapters {
             let _ = writeln!(
                 md,
                 "| {} | {} | {} | {} |",
-                adapter.id, adapter.root, adapter.entrypoint, adapter.role
+                a.id, a.root, a.entrypoint, a.role
             );
         }
-        let _ = writeln!(md);
-        let _ = writeln!(md, "## Validation Rules");
+        let v = &self.validation;
+        let _ = writeln!(md, "\n## Validation Rules");
         let _ = writeln!(
             md,
             "- Require canonical reference: {}",
-            self.validation.require_canonical_reference
+            v.require_canonical_reference
         );
         let _ = writeln!(
             md,
             "- Reject policy duplication: {}",
-            self.validation.reject_policy_duplication
+            v.reject_policy_duplication
         );
-        let _ = writeln!(
-            md,
-            "- Verify local links: {}",
-            self.validation.verify_local_links
-        );
-        let _ = writeln!(
-            md,
-            "- Enforce adapter scope: {}",
-            self.validation.enforce_adapter_scope
-        );
-        let _ = writeln!(
-            md,
-            "- Max AGENTS.md lines: {}",
-            self.validation.max_agents_md_lines
-        );
+        let _ = writeln!(md, "- Verify local links: {}", v.verify_local_links);
+        let _ = writeln!(md, "- Enforce adapter scope: {}", v.enforce_adapter_scope);
+        let _ = writeln!(md, "- Max AGENTS.md lines: {}", v.max_agents_md_lines);
         md
     }
 }
 
-/// Strips the leading `@AGENTS.md` reference line and surrounding blank lines from adapter
-/// content, returning only the tool-specific body.
-fn strip_reference_header(content: &str) -> String {
+fn err(source: &str, message: &str) -> ValidationFinding {
+    ValidationFinding {
+        severity: "error".into(),
+        source: source.into(),
+        message: message.into(),
+    }
+}
+fn warn(source: &str, message: &str) -> ValidationFinding {
+    ValidationFinding {
+        severity: "warning".into(),
+        source: source.into(),
+        message: message.into(),
+    }
+}
+
+fn strip_ref_header(content: &str) -> String {
     content
         .lines()
         .skip_while(|l| l.trim().is_empty() || l.contains("@AGENTS.md") || l.starts_with('#'))
@@ -475,218 +462,5 @@ fn strip_reference_header(content: &str) -> String {
 }
 
 #[cfg(test)]
-mod tests {
-    #![allow(clippy::unwrap_used, clippy::panic)]
-    use super::*;
-
-    fn valid_manifest_toml() -> &'static str {
-        r#"
-[contract]
-canonical_instructions = "AGENTS.md"
-skills_directory = ".agents/skills"
-context_files = ["llms.txt"]
-
-[validation]
-require_canonical_reference = true
-reject_policy_duplication = true
-verify_local_links = true
-enforce_adapter_scope = true
-max_agents_md_lines = 200
-
-[[adapters]]
-id = "claude"
-root = ".claude"
-entrypoint = "CLAUDE.md"
-role = "tool-delta"
-canonical_reference = "AGENTS.md"
-"#
-    }
-
-    #[test]
-    fn test_parse_valid_manifest() {
-        let manifest = AgentAdaptersManifest::from_toml(valid_manifest_toml()).unwrap();
-        assert_eq!(manifest.contract.canonical_instructions, "AGENTS.md");
-        assert_eq!(manifest.adapters.len(), 1);
-        assert_eq!(manifest.adapters[0].id, "claude");
-        assert!(manifest.validation.require_canonical_reference);
-    }
-
-    #[test]
-    fn test_parse_rejects_unknown_fields() {
-        let toml = r#"
-[contract]
-canonical_instructions = "AGENTS.md"
-skills_directory = ".agents/skills"
-context_files = []
-stray_field = true
-
-[validation]
-require_canonical_reference = true
-reject_policy_duplication = true
-verify_local_links = true
-enforce_adapter_scope = true
-
-[[adapters]]
-id = "test"
-root = ".test"
-entrypoint = "TEST.md"
-role = "tool-delta"
-canonical_reference = "AGENTS.md"
-"#;
-        assert!(AgentAdaptersManifest::from_toml(toml).is_err());
-    }
-
-    #[test]
-    fn test_parse_requires_adapters() {
-        let toml = r#"
-[contract]
-canonical_instructions = "AGENTS.md"
-skills_directory = ".agents/skills"
-context_files = []
-
-[validation]
-require_canonical_reference = true
-reject_policy_duplication = true
-verify_local_links = true
-enforce_adapter_scope = true
-"#;
-        assert!(AgentAdaptersManifest::from_toml(toml).is_err());
-    }
-
-    #[test]
-    fn test_inventory_markdown() {
-        let manifest = AgentAdaptersManifest::from_toml(valid_manifest_toml()).unwrap();
-        let md = manifest.inventory_markdown();
-        assert!(md.contains("Agent Adapter Inventory"));
-        assert!(md.contains("claude"));
-        assert!(md.contains("tool-delta"));
-        assert!(md.contains("AGENTS.md"));
-    }
-
-    #[test]
-    fn test_validation_finds_missing_entrypoint() {
-        let toml = r#"
-[contract]
-canonical_instructions = "AGENTS.md"
-skills_directory = ".agents/skills"
-context_files = []
-
-[validation]
-require_canonical_reference = true
-reject_policy_duplication = true
-verify_local_links = false
-enforce_adapter_scope = true
-max_agents_md_lines = 200
-
-[[adapters]]
-id = "ghost"
-root = ".ghost"
-entrypoint = "GHOST_DOES_NOT_EXIST.md"
-role = "tool-delta"
-canonical_reference = "AGENTS.md"
-"#;
-        let manifest = AgentAdaptersManifest::from_toml(toml).unwrap();
-        let result = manifest.validate(Path::new(".")).unwrap();
-        assert!(!result.is_ok());
-        assert!(
-            result
-                .errors
-                .iter()
-                .any(|e| e.message.contains("GHOST_DOES_NOT_EXIST.md"))
-        );
-    }
-
-    #[test]
-    fn test_validation_finds_invalid_adapter_id() {
-        let toml = r#"
-[contract]
-canonical_instructions = "AGENTS.md"
-skills_directory = ".agents/skills"
-context_files = []
-
-[validation]
-require_canonical_reference = false
-reject_policy_duplication = true
-verify_local_links = false
-enforce_adapter_scope = true
-max_agents_md_lines = 200
-
-[[adapters]]
-id = "Bad_ID"
-root = ".bad"
-entrypoint = "BAD.md"
-role = "tool-delta"
-canonical_reference = "AGENTS.md"
-"#;
-        let manifest = AgentAdaptersManifest::from_toml(toml).unwrap();
-        let result = manifest.validate(Path::new(".")).unwrap();
-        assert!(!result.is_ok());
-        assert!(result.errors.iter().any(|e| e.source == "Bad_ID"));
-    }
-
-    #[test]
-    fn test_validation_result_print_report() {
-        let result = ValidationResult {
-            errors: vec![ValidationFinding {
-                severity: "error".to_string(),
-                source: "test".to_string(),
-                message: "test error".to_string(),
-            }],
-            warnings: vec![ValidationFinding {
-                severity: "warning".to_string(),
-                source: "test".to_string(),
-                message: "test warning".to_string(),
-            }],
-        };
-        assert!(!result.is_ok());
-        // Should not panic.
-        result.print_report();
-    }
-
-    #[test]
-    fn test_uses_canonical_reference_field() {
-        // Adapter declares canonical_reference = "FOO.md" — validator should check for @FOO.md
-        let dir = tempfile::tempdir().unwrap();
-        // Create a file that contains @AGENTS.md but not @FOO.md.
-        fs::write(dir.path().join("TEST.md"), "# Test\n@AGENTS.md\n").unwrap();
-
-        let toml = r#"
-[contract]
-canonical_instructions = "AGENTS.md"
-skills_directory = ".agents/skills"
-context_files = []
-
-[validation]
-require_canonical_reference = true
-reject_policy_duplication = false
-verify_local_links = false
-enforce_adapter_scope = false
-max_agents_md_lines = 200
-
-[[adapters]]
-id = "test"
-root = ""
-entrypoint = "TEST.md"
-role = "tool-delta"
-canonical_reference = "FOO.md"
-"#;
-        let manifest = AgentAdaptersManifest::from_toml(toml).unwrap();
-        let result = manifest.validate(dir.path()).unwrap();
-        // TEST.md contains @AGENTS.md but not @FOO.md — should error.
-        assert!(!result.is_ok());
-        assert!(result.errors.iter().any(|e| e.message.contains("@FOO.md")));
-    }
-
-    #[test]
-    fn test_read_bounded_rejects_large_files() {
-        let dir = tempfile::tempdir().unwrap();
-        let path = dir.path().join("huge.md");
-        // Write 2 MiB of content.
-        let content = "x".repeat(2_097_152);
-        fs::write(&path, &content).unwrap();
-        let result = read_bounded(&path, 1024);
-        // Should succeed but be truncated (read_to_string on a taken reader).
-        let text = result.unwrap();
-        assert!(text.len() <= 1024);
-    }
-}
+#[path = "agent_adapters_test.rs"]
+mod tests;

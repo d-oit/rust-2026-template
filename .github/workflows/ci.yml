@@ -95,6 +95,8 @@ jobs:
         run: ./scripts/validate-agent-entrypoints.sh
       - name: Validate adapter manifest
         run: cargo run --quiet -p xtask --bin xtask -- agents validate
+        env:
+          RUSTC_WRAPPER: ""
 
   # ───────────────────────────────────────────────────
   lint:

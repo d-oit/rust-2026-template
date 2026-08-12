@@ -367,31 +367,9 @@ fn handle_github_summary() -> Result<(), XtaskError> {
     Ok(())
 }
 
-/// Resolves the repository root from the manifest path for CWD-independent validation.
-fn repo_root_from_manifest() -> Result<std::path::PathBuf, XtaskError> {
-    let manifest_path = std::path::Path::new(agent_adapters::MANIFEST_PATH);
-    // The manifest lives at .agents/agent-adapters.toml — its grandparent is the repo root.
-    Ok(if manifest_path.exists() {
-        manifest_path
-            .canonicalize()
-            .map_err(|e| XtaskError::InvalidConfig {
-                message: format!("Failed to resolve manifest path: {e}"),
-            })?
-            .parent()
-            .and_then(|p| p.parent())
-            .map_or_else(
-                || std::path::PathBuf::from("."),
-                std::path::Path::to_path_buf,
-            )
-    } else {
-        std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."))
-    })
-}
-
 fn handle_agents_validate() -> Result<(), XtaskError> {
     let manifest = agent_adapters::AgentAdaptersManifest::load()?;
-    let repo_root = repo_root_from_manifest()?;
-    let result = manifest.validate(&repo_root)?;
+    let result = manifest.validate_from_cwd()?;
     result.print_report();
     if result.is_ok() {
         Ok(())
@@ -406,18 +384,8 @@ fn handle_agents_validate() -> Result<(), XtaskError> {
 fn handle_agents_inventory(format: &str) -> Result<(), XtaskError> {
     let manifest = agent_adapters::AgentAdaptersManifest::load()?;
     match format {
-        "markdown" => {
-            println!("{}", manifest.inventory_markdown());
-        }
-        "plain" => {
-            println!("Adapters:");
-            for adapter in &manifest.adapters {
-                println!(
-                    "  {} → {} ({})",
-                    adapter.id, adapter.entrypoint, adapter.role
-                );
-            }
-        }
+        "markdown" => println!("{}", manifest.inventory_markdown()),
+        "plain" => manifest.print_inventory_plain(),
         other => {
             return Err(XtaskError::InvalidConfig {
                 message: format!("Unknown format '{other}'. Use 'markdown' or 'plain'."),
@@ -428,24 +396,7 @@ fn handle_agents_inventory(format: &str) -> Result<(), XtaskError> {
 }
 
 fn handle_agents_check_context() -> Result<(), XtaskError> {
-    let manifest = agent_adapters::AgentAdaptersManifest::load()?;
-    let mut ok = true;
-    for ctx_file in &manifest.contract.context_files {
-        if Path::new(ctx_file).exists() {
-            println!("  ✅ {ctx_file}");
-        } else {
-            println!("  ❌ {ctx_file} — missing");
-            ok = false;
-        }
-    }
-    if ok {
-        Ok(())
-    } else {
-        Err(XtaskError::CommandFailure {
-            command: "agents check-context".to_string(),
-            exit_code: Some(1),
-        })
-    }
+    agent_adapters::AgentAdaptersManifest::load()?.check_context()
 }
 
 fn main() {
