@@ -346,6 +346,37 @@ mod tests {
         assert!(out.chars().count() <= MAX_LOGGED_LEN + "... [truncated]".len());
     }
 
+    #[test]
+    fn test_sanitize_payload_escaped_after_limit() {
+        // First character needing escaping is after MAX_LOGGED_LEN (256)
+        let input = format!("{}{}", "a".repeat(300), "\n");
+        let out = sanitize_log_payload(&input);
+        assert_eq!(
+            out,
+            format!("{}... [truncated]", "a".repeat(MAX_LOGGED_LEN))
+        );
+    }
+
+    #[test]
+    fn test_sanitize_payload_starts_with_escape() {
+        let out = sanitize_log_payload("\nhello");
+        assert_eq!(out, "\\nhello");
+    }
+
+    #[test]
+    fn test_sanitize_payload_empty() {
+        let out = sanitize_log_payload("");
+        assert_eq!(out, "");
+    }
+
+    #[test]
+    fn test_sanitize_payload_slow_path_truncation() {
+        let input = format!("{}\n{}", "a".repeat(250), "b".repeat(20));
+        let out = sanitize_log_payload(&input);
+        assert!(out.ends_with("... [truncated]"));
+        assert!(out.starts_with(&"a".repeat(250)));
+    }
+
     #[tokio::test]
     async fn test_actor_ping() {
         let state = TestState { count: 0 };
