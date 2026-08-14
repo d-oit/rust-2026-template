@@ -1,18 +1,21 @@
-# Quality Gate Run Summary
+# CI Status Summary
 
-**Timestamp:** 2026-08-14T10:07:34Z
-**Commit:** b747418e22a402bb5feea943c5e268fc99d4d6f2
-**Branch:** jules-16987354777987894851-72d7481a
+**Last updated:** 2026-08-12T18:35:08Z
+**Commit:** 7bec67294fc1c7a7c64b41b3f335f6df60238a4a
+**Branch:** main
 
-| Check | Status | Details |
-|---|---|---|
-| LOC Limits | ✅ success | Passed in 14.692858ms |
-| Rust Format | ✅ success | Passed in 386.092916ms |
-| Rust Clippy | ✅ success | Passed in 529.453725ms |
-| Rust Build | ✅ success | Passed in 412.075529ms |
-| Rust Tests | ✅ success | Passed in 1.716841257s |
-| Rust Doc Tests | ✅ success | Passed in 297.51146ms |
-| Privacy Check (No emails) | ✅ success | Passed in 43.471968ms |
-| Secret Scan | ✅ success | Passed in 76.5541ms |
+## Job Results
 
-### Overall: **SUCCESS**
+| Job | Status |
+|---|---|
+| lint | ✅ success |
+| test | ✅ success |
+| security | ✅ success |
+| bench | ✅ success |
+| roast | ✅ success |
+
+## Known Issues
+- None
+
+## Flaky Tests
+- None detected in last 10 runs
