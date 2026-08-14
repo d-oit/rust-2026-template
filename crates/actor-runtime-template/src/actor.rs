@@ -72,17 +72,61 @@ const MAX_LOGGED_LEN: usize = 256;
 ///
 /// Returns the escaped string, or the escaped prefix followed by `... [truncated]`.
 fn sanitize_log_payload(work: &str) -> String {
-    let mut out = String::new();
-    let mut used = 0usize;
-    for ch in work.chars() {
-        let esc_count = ch.escape_debug().count();
-        if used + esc_count > MAX_LOGGED_LEN {
+    let bytes = work.as_bytes();
+    let mut i = 0;
+
+    // Fast path: find the first byte that needs escaping or is non-ASCII
+    while i < bytes.len() {
+        let b = bytes[i];
+        if !(0x20..=0x7E).contains(&b) || b == b'\\' || b == b'"' || b == b'\'' {
+            break;
+        }
+        i += 1;
+    }
+
+    if i == bytes.len() {
+        if bytes.len() <= MAX_LOGGED_LEN {
+            return work.to_string();
+        } else {
+            let mut out = String::with_capacity(MAX_LOGGED_LEN + "... [truncated]".len());
+            out.push_str(&work[..MAX_LOGGED_LEN]);
             out.push_str("... [truncated]");
             return out;
         }
-        out.extend(ch.escape_debug());
-        used += esc_count;
     }
+
+    if i >= MAX_LOGGED_LEN {
+        let mut out = String::with_capacity(MAX_LOGGED_LEN + "... [truncated]".len());
+        out.push_str(&work[..MAX_LOGGED_LEN]);
+        out.push_str("... [truncated]");
+        return out;
+    }
+
+    // Slow path: some characters need escaping before MAX_LOGGED_LEN
+    let mut out = String::with_capacity(work.len().min(MAX_LOGGED_LEN) + 16);
+    out.push_str(&work[..i]);
+    let mut used = i;
+
+    for ch in work[i..].chars() {
+        let mut buf = [char::default(); 12];
+        let mut count = 0;
+        for esc_char in ch.escape_debug() {
+            if count < 12 {
+                buf[count] = esc_char;
+                count += 1;
+            }
+        }
+
+        if used + count > MAX_LOGGED_LEN {
+            out.push_str("... [truncated]");
+            return out;
+        }
+        for item in buf.iter().take(count) {
+            out.push(*item);
+        }
+        used += count;
+    }
+
     out
 }
 
