@@ -39,7 +39,7 @@ jobs:
         with:
           toolchain: nightly
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32  # v2
-      - uses: taiki-e/install-action@91ddec75689c4c78665b598d188dc821c5a43e5c  # v2
+      - uses: taiki-e/install-action@82cd3e7658a6f96c86c0234aeeda1748937cb0a1  # v2
         with:
           tool: cargo-fuzz
       - run: >
