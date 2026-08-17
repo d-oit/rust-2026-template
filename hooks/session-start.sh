@@ -58,7 +58,7 @@ print(f\"Timestamp: {data.get('timestamp', 'unknown')}\")
 print(f\"Commit: {data.get('commit', 'unknown')[:8]}\")
 print(f\"Branch: {data.get('branch', 'unknown')}\")
 print(f\"Overall: {data.get('overall', 'unknown')}\")
-# Support both legacy `jobs` map and current `checks` array formats
+# Support both legacy jobs map and current checks array formats
 failed = []
 if 'jobs' in data:
     failed = [k for k, v in data['jobs'].items() if v == 'failure']
