@@ -72,9 +72,42 @@ const MAX_LOGGED_LEN: usize = 256;
 ///
 /// Returns the escaped string, or the escaped prefix followed by `... [truncated]`.
 fn sanitize_log_payload(work: &str) -> String {
-    let mut out = String::new();
-    let mut used = 0usize;
-    for ch in work.chars() {
+    let bytes = work.as_bytes();
+    let mut i = 0;
+
+    // Fast path: find the first byte that needs escaping or is non-ASCII
+    while i < bytes.len() {
+        let b = bytes[i];
+        if !(0x20..=0x7E).contains(&b) || b == b'\\' || b == b'"' || b == b'\'' {
+            break;
+        }
+        i += 1;
+    }
+
+    if i == bytes.len() {
+        if bytes.len() <= MAX_LOGGED_LEN {
+            return work.to_string();
+        } else {
+            let mut out = String::with_capacity(MAX_LOGGED_LEN + "... [truncated]".len());
+            out.push_str(&work[..MAX_LOGGED_LEN]);
+            out.push_str("... [truncated]");
+            return out;
+        }
+    }
+
+    if i >= MAX_LOGGED_LEN {
+        let mut out = String::with_capacity(MAX_LOGGED_LEN + "... [truncated]".len());
+        out.push_str(&work[..MAX_LOGGED_LEN]);
+        out.push_str("... [truncated]");
+        return out;
+    }
+
+    // Slow path: some characters need escaping before MAX_LOGGED_LEN
+    let mut out = String::with_capacity(work.len().min(MAX_LOGGED_LEN) + 16);
+    out.push_str(&work[..i]);
+    let mut used = i;
+
+    for ch in work[i..].chars() {
         let esc_count = ch.escape_debug().count();
         if used + esc_count > MAX_LOGGED_LEN {
             out.push_str("... [truncated]");
@@ -83,6 +116,7 @@ fn sanitize_log_payload(work: &str) -> String {
         out.extend(ch.escape_debug());
         used += esc_count;
     }
+
     out
 }
 
@@ -300,6 +334,37 @@ mod tests {
         let out = sanitize_log_payload(&"🦀".repeat(300));
         assert!(out.ends_with("... [truncated]"));
         assert!(out.chars().count() <= MAX_LOGGED_LEN + "... [truncated]".len());
+    }
+
+    #[test]
+    fn test_sanitize_payload_escaped_after_limit() {
+        // First character needing escaping is after MAX_LOGGED_LEN (256)
+        let input = format!("{}{}", "a".repeat(300), "\n");
+        let out = sanitize_log_payload(&input);
+        assert_eq!(
+            out,
+            format!("{}... [truncated]", "a".repeat(MAX_LOGGED_LEN))
+        );
+    }
+
+    #[test]
+    fn test_sanitize_payload_starts_with_escape() {
+        let out = sanitize_log_payload("\nhello");
+        assert_eq!(out, "\\nhello");
+    }
+
+    #[test]
+    fn test_sanitize_payload_empty() {
+        let out = sanitize_log_payload("");
+        assert_eq!(out, "");
+    }
+
+    #[test]
+    fn test_sanitize_payload_slow_path_truncation() {
+        let input = format!("{}\n{}", "a".repeat(250), "b".repeat(20));
+        let out = sanitize_log_payload(&input);
+        assert!(out.ends_with("... [truncated]"));
+        assert!(out.starts_with(&"a".repeat(250)));
     }
 
     #[tokio::test]
