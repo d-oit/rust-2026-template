@@ -58,8 +58,12 @@ print(f\"Timestamp: {data.get('timestamp', 'unknown')}\")
 print(f\"Commit: {data.get('commit', 'unknown')[:8]}\")
 print(f\"Branch: {data.get('branch', 'unknown')}\")
 print(f\"Overall: {data.get('overall', 'unknown')}\")
-jobs = data.get('jobs', {})
-failed = [k for k, v in jobs.items() if v == 'failure']
+# Support both legacy `jobs` map and current `checks` array formats
+failed = []
+if 'jobs' in data:
+    failed = [k for k, v in data['jobs'].items() if v == 'failure']
+elif 'checks' in data:
+    failed = [c['name'] for c in data['checks'] if c.get('status') == 'failure']
 if failed:
     print(f'Failed: {\", \".join(failed)}')
 " 2>/dev/null || echo "  (Could not parse CI status)"
