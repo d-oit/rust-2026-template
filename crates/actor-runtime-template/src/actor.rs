@@ -108,23 +108,13 @@ fn sanitize_log_payload(work: &str) -> String {
     let mut used = i;
 
     for ch in work[i..].chars() {
-        let mut buf = [char::default(); 12];
-        let mut count = 0;
-        for esc_char in ch.escape_debug() {
-            if count < 12 {
-                buf[count] = esc_char;
-                count += 1;
-            }
-        }
-
-        if used + count > MAX_LOGGED_LEN {
+        let esc_count = ch.escape_debug().count();
+        if used + esc_count > MAX_LOGGED_LEN {
             out.push_str("... [truncated]");
             return out;
         }
-        for item in buf.iter().take(count) {
-            out.push(*item);
-        }
-        used += count;
+        out.extend(ch.escape_debug());
+        used += esc_count;
     }
 
     out
