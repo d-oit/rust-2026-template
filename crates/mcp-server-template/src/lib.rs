@@ -112,9 +112,20 @@ impl McpServer {
             )));
         }
 
-        if name.chars().any(|c| c.is_control()) {
+        if name.chars().any(|c| {
+            c.is_control()
+                || matches!(
+                    c,
+                    '\u{200b}'..='\u{200f}'
+                        | '\u{2028}'
+                        | '\u{2029}'
+                        | '\u{202a}'..='\u{202e}'
+                        | '\u{2060}'..='\u{2064}'
+                        | '\u{2066}'..='\u{2069}'
+                )
+        }) {
             return Err(ServerError::ToolNotFound(
-                "Tool name contains control characters".to_string(),
+                "Tool name contains control or Bidi/line-separator characters".to_string(),
             ));
         }
 
@@ -249,7 +260,27 @@ mod tests {
         let request = ToolRequest::new(Value::Null);
         let result = server.execute_tool(name, request).await;
         assert!(
-            matches!(result, Err(ServerError::ToolNotFound(msg)) if msg.contains("control characters"))
+            matches!(result, Err(ServerError::ToolNotFound(msg)) if msg.contains("control or Bidi/line-separator characters"))
         );
+    }
+
+    #[tokio::test]
+    async fn test_execute_tool_name_line_separator_and_bidi() {
+        let server = McpServer::new();
+        let request = ToolRequest::new(Value::Null);
+
+        for bad_name in [
+            "tool\u{2028}name",
+            "tool\u{2029}name",
+            "tool\u{202a}name",
+            "tool\u{2066}name",
+            "tool\u{200b}name",
+        ] {
+            let result = server.execute_tool(bad_name, request.clone()).await;
+            assert!(
+                matches!(result, Err(ServerError::ToolNotFound(msg)) if msg.contains("control or Bidi/line-separator characters")),
+                "Expected rejection for name with special char: {bad_name:?}"
+            );
+        }
     }
 }
