@@ -462,12 +462,21 @@ jobs:
           else
             cargo run --quiet -p xtask --bin xtask -- quality run --tier "$TIER"
           fi
+      - name: Publish quality summary
+        if: always()
+        run: |
+          if [ -f .agents/ci/quality-summary.md ]; then
+            cat .agents/ci/quality-summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload CI telemetry
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: ci-telemetry
-          path: .agents/ci/quality-run.json
+          path: |
+            .agents/ci/quality-run.json
+            .agents/ci/quality-summary.md
+          retention-days: 7
           if-no-files-found: warn
 
   # ───────────────────────────────────────────────────

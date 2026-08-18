@@ -246,6 +246,7 @@ impl CiTelemetry {
                 stage.id, stage.duration_ms, stage.cache
             );
         }
+        let _ = writeln!(md);
         let _ = writeln!(
             md,
             "- **Toolchain:** rustc={}, cargo={}, nextest={}",
@@ -267,6 +268,54 @@ impl CiTelemetry {
                 );
             }
         }
+
+        let failed_stages: Vec<&TelemetryStage> = self
+            .stages
+            .iter()
+            .filter(|s| s.status == "failed")
+            .collect();
+        if !failed_stages.is_empty() {
+            let _ = writeln!(md, "\n### Failed Command Classification & Remediation");
+            for stage in failed_stages {
+                let remediation = match stage.id.as_str() {
+                    "rust-format" => "Run `cargo fmt --all` locally to fix formatting issues.",
+                    "rust-clippy" => {
+                        "Run `cargo clippy --workspace --all-targets --all-features` locally and resolve warnings."
+                    }
+                    "rust-build" => {
+                        "Run `cargo build --workspace --all-targets` locally to fix compilation errors."
+                    }
+                    "rust-tests" => {
+                        "Run `cargo test --workspace` or `cargo nextest run --workspace` locally to debug test failures."
+                    }
+                    "rust-security-audit" => {
+                        "Check `cargo audit` advisories and update affected dependencies."
+                    }
+                    "rust-dependency-policy-(deny)" | "rust-dependency-policy-deny" => {
+                        "Check `deny.toml` rules and resolve policy violations with `cargo deny check`."
+                    }
+                    "markdown-lint-(markdownlint-cli2)" | "markdown-lint-markdownlint-cli2" => {
+                        "Run `npx markdownlint-cli2 '**/*.md'` to fix markdown lint errors."
+                    }
+                    "shell-script-lint-(shellcheck)" | "shell-script-lint-shellcheck" => {
+                        "Run `shellcheck` on modified scripts in `scripts/`."
+                    }
+                    _ => {
+                        "See [CI Observability Documentation](docs/ci-observability.md) or check job logs for error details."
+                    }
+                };
+                let _ = writeln!(md, "- ❌ **{}**: {remediation}", stage.id);
+            }
+        }
+
+        let _ = writeln!(md, "\n### Telemetry & Quality Artifacts");
+        let _ = writeln!(md, "- **Telemetry Artifact:** `{}`", config.artifact_path);
+        let _ = writeln!(
+            md,
+            "- **Quality Gate Report:** `reports/quality-report.json`"
+        );
+        let _ = writeln!(md, "- **CI Status Artifact:** `.agents/ci/ci-status.json`");
+
         md
     }
 }
@@ -396,5 +445,22 @@ mod tests {
             stage_id("CI Status Artifact Check"),
             "ci-status-artifact-check"
         );
+    }
+
+    #[test]
+    fn test_summary_failed_stage_remediation() {
+        let mut t = sample_telemetry();
+        t.stages.push(TelemetryStage {
+            id: "rust-clippy".to_string(),
+            status: "failed".to_string(),
+            duration_ms: 100,
+            cache: "not-applicable".to_string(),
+            skipped_reason: None,
+        });
+        let md = t.summary_markdown(&TelemetryConfig::default());
+        assert!(md.contains("Failed Command Classification & Remediation"));
+        assert!(md.contains("rust-clippy"));
+        assert!(md.contains("cargo clippy"));
+        assert!(md.contains("Telemetry & Quality Artifacts"));
     }
 }

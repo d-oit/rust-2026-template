@@ -83,7 +83,7 @@ impl QualityReport {
             let _ = writeln!(markdown, "| {} | {emoji} | {details} |", check.name);
         }
         let overall_upper = self.overall.to_uppercase();
-        let _ = writeln!(markdown, "\n### Overall: **{overall_upper}**");
+        let _ = writeln!(markdown, "\n## Overall: **{overall_upper}**");
 
         // Write to $GITHUB_STEP_SUMMARY if exists
         if let Ok(summary_path) = std::env::var("GITHUB_STEP_SUMMARY") {

@@ -16,7 +16,8 @@ This directory holds the artifacts the quality gate produces and CI publishes.
 - Both `ci-status.json` and `ci-summary.md` are **committed to `main`** by the CI
   `ci-success` job (so the default branch always shows the last gate result).
 - `quality-run.json` / `quality-summary.md` are **volatile artifacts**: generated on every
-  run, uploaded by the `quality-gate` job, and never committed (see `.gitignore`).
+  run, uploaded by the `quality-gate` job, and never committed (see `.gitignore`). Retention
+  defaults to 7 days as configured in `config/ci/telemetry.toml`.
 
 ## Disabling telemetry
 
