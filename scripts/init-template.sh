@@ -17,6 +17,7 @@ PROJECT_NAME=""
 PROJECT_DESC=""
 AUTHOR=""
 REPO=""
+MINIMAL_FLAG_USED=0
 
 usage() {
   cat <<'EOF'
@@ -43,7 +44,7 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)    DRY_RUN=1; shift ;;
-    --minimal)    PROFILE="minimal"; shift ;;
+    --minimal)    PROFILE="minimal"; MINIMAL_FLAG_USED=1; shift ;;
     --profile)    PROFILE="${2:?--profile requires a value}"; shift 2 ;;
     --name)       PROJECT_NAME="${2:?--name requires a value}"; shift 2 ;;
     --description) PROJECT_DESC="${2:?--description requires a value}"; shift 2 ;;
@@ -68,6 +69,10 @@ prompt PROJECT_NAME "Project name (e.g., my-app)"
 prompt PROJECT_DESC "Description"
 prompt AUTHOR "Author name"
 prompt REPO "GitHub repo (org/name)"
+
+if [[ $MINIMAL_FLAG_USED -eq 1 ]]; then
+  echo "Notice: Translating legacy --minimal shorthand to --profile minimal"
+fi
 
 ARGS=(--profile "$PROFILE" --name "$PROJECT_NAME")
 [[ -n "$PROJECT_DESC" ]] && ARGS+=(--description "$PROJECT_DESC")

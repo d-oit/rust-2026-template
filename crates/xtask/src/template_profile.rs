@@ -139,6 +139,13 @@ impl TemplateProfile {
                 )));
             }
         }
+        for wf in &self.workspace.exclude_workflows {
+            if !wf.ends_with(".yml") && !wf.ends_with(".yaml") {
+                return Err(self.invalid(&format!(
+                    "workspace.exclude_workflows entry must end with .yml or .yaml, got '{wf}'"
+                )));
+            }
+        }
         if self.ci.default_tier.trim().is_empty() {
             return Err(self.invalid("ci.default_tier must not be empty"));
         }
@@ -215,7 +222,23 @@ mod tests {
     use std::path::PathBuf;
 
     fn repo_root() -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join("..")
+        let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        if manifest_dir.join("../../config/template-profiles").exists() {
+            manifest_dir.join("..").join("..")
+        } else if let Ok(cwd) = std::env::current_dir() {
+            let mut curr = cwd;
+            loop {
+                if curr.join("config/template-profiles").exists() {
+                    return curr;
+                }
+                if !curr.pop() {
+                    break;
+                }
+            }
+            manifest_dir.join("..").join("..")
+        } else {
+            manifest_dir.join("..").join("..")
+        }
     }
 
     fn profile_path(id: &str) -> String {

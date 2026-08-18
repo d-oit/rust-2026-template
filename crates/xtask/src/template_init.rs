@@ -113,6 +113,26 @@ fn apply_profile(blueprint: &TemplateProfile) -> Result<(), XtaskError> {
         }
     }
 
+    // Drop `default-members` from Cargo.toml if `sample-app` was removed.
+    if blueprint.removed_crates(&existing).iter().any(|c| c == "sample-app") {
+        let cargo_toml_path = Path::new("Cargo.toml");
+        if cargo_toml_path.exists() {
+            let content = read_to_string(cargo_toml_path).map_err(|e| XtaskError::CacheIssue {
+                message: e.to_string(),
+            })?;
+            let mut lines: Vec<&str> = content.lines().collect();
+            lines.retain(|line| !line.starts_with("default-members ="));
+            let mut updated = lines.join("\n");
+            if !updated.ends_with('\n') {
+                updated.push('\n');
+            }
+            write(cargo_toml_path, updated).map_err(|e| XtaskError::CacheIssue {
+                message: e.to_string(),
+            })?;
+            println!("     Removed default-members from Cargo.toml");
+        }
+    }
+
     Ok(())
 }
 

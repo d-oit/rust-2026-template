@@ -30,7 +30,7 @@
         },
         "exclude_workflows": {
           "type": "array",
-          "items": { "type": "string", "pattern": ".yml$" }
+          "items": { "type": "string", "pattern": "\\.(yml|yaml)$" }
         }
       }
     },
