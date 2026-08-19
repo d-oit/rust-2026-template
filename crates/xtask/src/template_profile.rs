@@ -140,7 +140,10 @@ impl TemplateProfile {
             }
         }
         for wf in &self.workspace.exclude_workflows {
-            if !wf.ends_with(".yml") && !wf.ends_with(".yaml") {
+            let is_yaml = Path::new(wf).extension().is_some_and(|ext| {
+                ext.eq_ignore_ascii_case("yml") || ext.eq_ignore_ascii_case("yaml")
+            });
+            if !is_yaml {
                 return Err(self.invalid(&format!(
                     "workspace.exclude_workflows entry must end with .yml or .yaml, got '{wf}'"
                 )));
@@ -223,22 +226,20 @@ mod tests {
 
     fn repo_root() -> PathBuf {
         let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        if manifest_dir.join("../../config/template-profiles").exists() {
-            manifest_dir.join("..").join("..")
-        } else if let Ok(cwd) = std::env::current_dir() {
-            let mut curr = cwd;
-            loop {
-                if curr.join("config/template-profiles").exists() {
-                    return curr;
-                }
-                if !curr.pop() {
-                    break;
+        if !manifest_dir.join("../../config/template-profiles").exists() {
+            if let Ok(cwd) = std::env::current_dir() {
+                let mut curr = cwd;
+                loop {
+                    if curr.join("config/template-profiles").exists() {
+                        return curr;
+                    }
+                    if !curr.pop() {
+                        break;
+                    }
                 }
             }
-            manifest_dir.join("..").join("..")
-        } else {
-            manifest_dir.join("..").join("..")
         }
+        manifest_dir.join("..").join("..")
     }
 
     fn profile_path(id: &str) -> String {

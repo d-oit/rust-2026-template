@@ -114,7 +114,11 @@ fn apply_profile(blueprint: &TemplateProfile) -> Result<(), XtaskError> {
     }
 
     // Drop `default-members` from Cargo.toml if `sample-app` was removed.
-    if blueprint.removed_crates(&existing).iter().any(|c| c == "sample-app") {
+    if blueprint
+        .removed_crates(&existing)
+        .iter()
+        .any(|c| c == "sample-app")
+    {
         let cargo_toml_path = Path::new("Cargo.toml");
         if cargo_toml_path.exists() {
             let content = read_to_string(cargo_toml_path).map_err(|e| XtaskError::CacheIssue {
