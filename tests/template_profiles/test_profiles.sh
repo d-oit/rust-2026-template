@@ -9,7 +9,6 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 NC='\033[0m'
 
 TESTS_RUN=0
@@ -70,7 +69,7 @@ echo ""
 echo "Phase 4: Workspace Generation and Buildability Tests"
 
 TEMP_BASE=$(mktemp -d)
-trap "rm -rf '${TEMP_BASE}'" EXIT
+trap 'rm -rf "${TEMP_BASE}"' EXIT
 
 for profile in "${PROFILES[@]}"; do
     echo "  -> Testing initialization for profile '${profile}'..."
