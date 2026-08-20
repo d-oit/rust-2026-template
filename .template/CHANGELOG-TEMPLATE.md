@@ -9,17 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `stacked-prs` skill for optional stacked PR workflow via `gh-stack` GitHub CLI extension.
-- `gh-stack` optional workflow tool checks in `scripts/doctor.sh` and `scripts/bootstrap.sh`.
-- Optional `stack_id`, `stack_position`, and `stack_total` fields in `metrics-reporter` event schema for stacked PR tracking.
+- for new features.
 
 ### Changed
 
-- `AGENTS.md`: added "Stacked PRs (Optional)" section pointing to `stacked-prs` skill.
-- `atomic-commit` skill: added cross-reference to `stacked-prs` for large features with 3+ concerns.
-- `self-fix-loop` skill: added "Stacked PR Interaction" section documenting safe fix procedures on stacked branches (never amend, use `gh stack push`).
-- `scripts/doctor.sh`: added "Optional workflow tools" section checking for `gh` CLI and `gh-stack` extension.
-- `scripts/bootstrap.sh`: added informational check for `gh` CLI and `gh-stack` presence.
+- for changes in existing functionality.
 
 ### Deprecated
 
@@ -36,6 +30,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - in case of vulnerabilities.
+
+---
+
+## [0.3.6] - 2026-08-20
+
+### Added
+
+- `stacked-prs` skill for optional stacked PR workflow via `gh-stack` GitHub CLI extension.
+- `gh-stack` optional workflow tool checks in `scripts/doctor.sh` and `scripts/bootstrap.sh`.
+- Optional `stack_id`, `stack_position`, and `stack_total` fields in `metrics-reporter` event schema for stacked PR tracking.
+- `gh run watch` gate in `hotfix.yml` workflow to block DORA FDRT recovery recording until CI is green on hotfix branch.
+- Config-driven CI verification tiers (`pull-request`, `protected-branch`, `scheduled`, `release`) in `config/xtask.json`.
+- Project initialization template profiles in `config/template-profiles/` with schema validation and CI telemetry contract.
+- Adapter manifest validation for multi-agent support and `gh` CLI replacements for GitHub script actions.
+- Dedicated `workspace-tests` crate for workspace integration and architecture fitness tests.
+
+### Changed
+
+- `AGENTS.md`: added "Stacked PRs (Optional)" section pointing to `stacked-prs` skill.
+- `atomic-commit` skill: added cross-reference to `stacked-prs` for large features with 3+ concerns.
+- `self-fix-loop` skill: added "Stacked PR Interaction" section documenting safe fix procedures on stacked branches (never amend, use `gh stack push`).
+- `scripts/doctor.sh`: added "Optional workflow tools" section checking for `gh` CLI and `gh-stack` extension.
+- `scripts/bootstrap.sh`: added informational check for `gh` CLI and `gh-stack` presence.
+- Quality-gate orchestration moved into Rust-based `xtask` binary tool.
+- Upgraded dependencies: `rusqlite` to 0.40, `toml` to 1.1, `Swatinem/rust-cache` action, `taiki-e/install-action`, `actions/checkout` to 4.4.0, and `js-yaml`.
+- Replaced deprecated `criterion::black_box` with `std::hint::black_box` in benchmarks.
+- `README.md` version reference updated to point to `v0.3.6`.
+
+### Fixed
+
+- Input sanitization and validation for MCP tool names in `mcp-server-template`.
+- Command identifier validation in plugin dispatch registry (`example-registry-pattern`).
+- Unused dependencies removed from `Cargo.toml` manifests to pass `cargo-machete` quality gates.
+- Resolved `arch_fitness` test package resolution in virtual workspace.
+
+### Security
+
+- Log payload sanitization and truncation in `actor-runtime-template` to prevent CWE-117 log injection and DoS.
+- SWAR (SIMD Within A Register) fast-path string validation for control character and Bidi filtering.
 
 ---
 
@@ -355,7 +388,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.5...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.6...HEAD
+[0.3.6]: https://github.com/d-oit/rust-2026-template/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/d-oit/rust-2026-template/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/d-oit/rust-2026-template/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/d-oit/rust-2026-template/compare/v0.3.2...v0.3.3
