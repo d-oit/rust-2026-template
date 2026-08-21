@@ -295,4 +295,32 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn test_load_actual_config_xtask_json() {
+        let root_config_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .join("config")
+            .join("xtask.json");
+
+        let config = XtaskConfig::load_from_file(&root_config_path).unwrap();
+        assert_eq!(config.env_var_name, "XTASK_TIER");
+        assert_eq!(config.default_tier, "protected-branch");
+        assert_eq!(config.lint_thresholds.max_lines_per_file, 500);
+        assert!(config.lint_thresholds.clippy_warnings_as_errors);
+
+        for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
+            assert!(
+                config.tiers.contains_key(tier),
+                "config/xtask.json must define tier '{tier}'"
+            );
+            assert!(
+                !config.tiers[tier].checks.is_empty(),
+                "tier '{tier}' must contain checks"
+            );
+        }
+    }
 }
