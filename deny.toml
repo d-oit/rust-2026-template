@@ -29,6 +29,8 @@ ignore = [
     "RUSTSEC-2025-0141",
     # rustls-pemfile is a transitive dep of libsql 0.9 (no upgrade path)
     "RUSTSEC-2025-0134",
+    # h2 0.3.27 is a transitive dep of hyper 0.14 / libsql 0.9 (no upgrade path)
+    "RUSTSEC-2026-0258",
 ]
 
 # ============================================================

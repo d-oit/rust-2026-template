@@ -53,7 +53,7 @@ if command -v python3 &>/dev/null && python3 -c "import yaml" 2>/dev/null; then
 elif command -v yq &>/dev/null; then
   for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
     [[ -f "$f" ]] || continue
-    if ! yq eval '.' "$f" >/dev/null 2>&1; then
+    if ! yq '.' "$f" >/dev/null 2>&1; then
       fail "YAML syntax error: $f"
       YAML_OK=false
     fi
