@@ -1,7 +1,7 @@
 # CI Status Summary
 
-**Last updated:** 2026-08-20T10:02:49Z
-**Commit:** fc23fba25ba96de75eae5341107cd5ce9d9015b9
+**Last updated:** 2026-08-21T19:57:33Z
+**Commit:** 0e22190b3a213d31b3108e62b4b65aaf8c46bee9
 **Branch:** main
 
 ## Job Results
@@ -10,7 +10,7 @@
 |---|---|
 | lint | ✅ success |
 | test | ✅ success |
-| security | ❌ failed |
+| security | ✅ success |
 | bench | ✅ success |
 | roast | ✅ success |
 
