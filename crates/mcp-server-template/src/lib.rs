@@ -329,4 +329,19 @@ mod tests {
             );
         }
     }
+
+    #[tokio::test]
+    async fn test_execute_tool_name_safe_unicode() {
+        let server = McpServer::new();
+        let request = ToolRequest::new(Value::Null);
+
+        // Safe non-ASCII Unicode triggers the slow path (i < bytes.len()) but passes character validation
+        for safe_unicode in ["tool_🦀", "über_tool", "工具_name"] {
+            let result = server.execute_tool(safe_unicode, request.clone()).await;
+            assert!(
+                matches!(result, Err(ServerError::ToolNotFound(ref msg)) if msg == safe_unicode),
+                "Expected ToolNotFound(safe_unicode) for: {safe_unicode}"
+            );
+        }
+    }
 }
