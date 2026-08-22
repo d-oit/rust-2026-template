@@ -214,4 +214,12 @@ mod tests {
             );
         }
     }
+
+    #[test]
+    fn test_command_non_ascii_valid_char_passes_validation() {
+        // Non-ASCII printable Unicode (e.g. "cmd_é" or "cmd_🦀") within budget passes validation
+        // and falls through to the handler lookup rather than being rejected as invalid.
+        let result = build_registry().dispatch("cmd_é", "");
+        assert!(matches!(result, Err(DispatchError::Unknown(cmd)) if cmd == "cmd_é"));
+    }
 }
