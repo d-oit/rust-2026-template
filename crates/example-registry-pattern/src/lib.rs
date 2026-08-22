@@ -66,12 +66,33 @@ impl Registry {
             )));
         }
 
-        if command
-            .chars()
-            .any(|c| c.is_control() || matches!(c, '\u{2028}' | '\u{2029}'))
+        // Fast path: Check printable ASCII bytes (0x20..=0x7E) to avoid character decoding
+        let bytes = command.as_bytes();
+        let mut i = 0;
+        while i < bytes.len() {
+            let b = bytes[i];
+            if !(0x20..=0x7E).contains(&b) {
+                break;
+            }
+            i += 1;
+        }
+
+        if i < bytes.len()
+            && command[i..].chars().any(|c| {
+                c.is_control()
+                    || matches!(
+                        c,
+                        '\u{200b}'..='\u{200f}'
+                            | '\u{2028}'
+                            | '\u{2029}'
+                            | '\u{202a}'..='\u{202e}'
+                            | '\u{2060}'..='\u{2064}'
+                            | '\u{2066}'..='\u{2069}'
+                    )
+            })
         {
             return Err(DispatchError::Invalid(
-                "command identifier contains control or line-separator characters".to_string(),
+                "command identifier contains control or Bidi/line-separator characters".to_string(),
             ));
         }
 
@@ -174,5 +195,23 @@ mod tests {
         // U+2028 LINE SEPARATOR is not a control char; log-injection hardening must catch it.
         let result = build_registry().dispatch("command\u{2028}name", "");
         assert!(matches!(result, Err(DispatchError::Invalid(_))));
+    }
+
+    #[test]
+    fn test_command_unicode_bidi_and_zero_width_rejected() {
+        // Bidi controls (e.g. U+202A, U+2066) and zero-width spaces (U+200B) must be rejected.
+        for bad in [
+            "cmd\u{200b}test",
+            "cmd\u{202a}test",
+            "cmd\u{202e}test",
+            "cmd\u{2066}test",
+            "cmd\u{2069}test",
+        ] {
+            let result = build_registry().dispatch(bad, "");
+            assert!(
+                matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("control or Bidi/line-separator")),
+                "Expected rejection for command with special char: {bad:?}"
+            );
+        }
     }
 }
