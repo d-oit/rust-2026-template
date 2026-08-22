@@ -225,7 +225,7 @@ KEYWORD_MAP=(
 declare -A KW_COUNT
 for entry in "${KEYWORD_MAP[@]}"; do
   kw=$(echo "$entry" | cut -d'|' -f1)
-  count=$(echo "$ALL_TEXT" | grep -ciE "\b${kw}\b" || true)
+  count=$(echo "$ALL_TEXT" | grep -ciE "\b${kw}\b" 2>/dev/null || echo 0)
   KW_COUNT["$kw"]=$count
 done
 

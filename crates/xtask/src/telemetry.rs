@@ -246,6 +246,7 @@ impl CiTelemetry {
                 stage.id, stage.duration_ms, stage.cache
             );
         }
+        let _ = writeln!(md);
         let _ = writeln!(
             md,
             "- **Toolchain:** rustc={}, cargo={}, nextest={}",

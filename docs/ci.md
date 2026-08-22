@@ -119,68 +119,10 @@ Dependabot is configured to propose SHA-pinned updates via PRs.
 
 Cache invalidation is automatic on lockfile or toolchain changes.
 
-## Configuration-driven verification tiers (`config/xtask.json`)
-
-To decouple lifecycle policies from GitHub Actions YAML, quality checks are managed by `config/xtask.json`. Downstream adopters and template profiles configure which checks run for each lifecycle trigger (`pull-request`, `protected-branch`, `scheduled`, `release`) without hardcoding values in workflow files.
-
-The configuration file structure is validated against `schema/xtask-config.schema.json`:
-
-```json
-{
-  "env_var_name": "XTASK_TIER",
-  "default_tier": "protected-branch",
-  "tiers": {
-    "pull-request": {
-      "checks": [
-        "LocLimits",
-        "Fmt",
-        "Clippy",
-        "Build",
-        "Test",
-        "DocTest",
-        "PrivacyCheck",
-        "SecretScan"
-      ]
-    },
-    "protected-branch": {
-      "checks": [
-        "LocLimits",
-        "Fmt",
-        "Clippy",
-        "Build",
-        "Test",
-        "DocTest",
-        "Audit",
-        "Deny",
-        "Machete",
-        "Msrv",
-        "ShellCheck",
-        "MarkdownLint",
-        "PrivacyCheck",
-        "SecretScan",
-        "WorkflowValidation",
-        "CiStatusArtifact"
-      ]
-    }
-  },
-  "lint_thresholds": {
-    "max_lines_per_file": 500,
-    "clippy_warnings_as_errors": true
-  }
-}
-```
-
-Run quality gates for a specific tier locally or in CI:
-
-```bash
-cargo run -p xtask -- quality run --tier pull-request
-```
-
 ## Extending for downstream repos
 
 Generated repos inherit this CI configuration. To add stricter checks:
 
-1. Add new checks or tier definitions in `config/xtask.json`
-2. Add new jobs to the appropriate tier section in `ci.yml` if external workflow steps are needed
-3. Update the `ci-success` job's `needs` array if adding required checks
-4. Document new jobs in this file
+1. Add new jobs to the appropriate tier section in `ci.yml`
+2. Update the `ci-success` job's `needs` array if adding required checks
+3. Document new jobs in this file
