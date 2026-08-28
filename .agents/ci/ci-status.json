@@ -1,87 +1,87 @@
 {
-  "timestamp": "2026-08-28T09:46:13Z",
+  "timestamp": "2026-08-28T09:58:57Z",
   "commit": "8e2399a2e24e772837748bf2311fdb01400e8015",
   "branch": "jules-16665267300030395501-c20b51b7",
   "checks": [
     {
       "name": "LOC Limits",
       "status": "success",
-      "message": "Passed in 12.177571ms"
+      "message": "Passed in 12.780539ms"
     },
     {
       "name": "Rust Format",
       "status": "success",
-      "message": "Passed in 356.627834ms"
+      "message": "Passed in 527.080311ms"
     },
     {
       "name": "Rust Clippy",
       "status": "success",
-      "message": "Passed in 31.58465163s"
+      "message": "Passed in 2.649507962s"
     },
     {
       "name": "Rust Build",
       "status": "success",
-      "message": "Passed in 18.777703912s"
+      "message": "Passed in 6.101629182s"
     },
     {
       "name": "Rust Tests",
       "status": "success",
-      "message": "Passed in 29.9063156s"
+      "message": "Passed in 2.017529434s"
     },
     {
       "name": "Rust Doc Tests",
       "status": "success",
-      "message": "Passed in 5.713148175s"
+      "message": "Passed in 287.323842ms"
     },
     {
       "name": "Rust Security Audit",
       "status": "success",
-      "message": "Passed in 110.383161ms"
+      "message": "Passed in 101.80877ms"
     },
     {
       "name": "Rust Dependency Policy (Deny)",
       "status": "success",
-      "message": "Passed in 108.828296ms"
+      "message": "Passed in 101.613654ms"
     },
     {
       "name": "Rust Unused Dependencies (Machete)",
       "status": "success",
-      "message": "Passed in 14.354159ms"
+      "message": "Passed in 681.494µs"
     },
     {
       "name": "Rust MSRV Audit",
       "status": "success",
-      "message": "Passed in 24.36132743s"
+      "message": "Passed in 1.326588179s"
     },
     {
       "name": "Shell Script Lint (ShellCheck)",
       "status": "success",
-      "message": "Passed in 14.562592ms"
+      "message": "Passed in 888.139µs"
     },
     {
       "name": "Markdown Lint (markdownlint-cli2)",
       "status": "success",
-      "message": "Passed in 12.432384ms"
+      "message": "Passed in 655.645µs"
     },
     {
       "name": "Privacy Check (No emails)",
       "status": "success",
-      "message": "Passed in 44.679061ms"
+      "message": "Passed in 42.741996ms"
     },
     {
       "name": "Secret Scan",
       "status": "success",
-      "message": "Passed in 67.564794ms"
+      "message": "Passed in 70.290109ms"
     },
     {
       "name": "GitHub Actions Workflow Validation",
       "status": "success",
-      "message": "Passed in 6.328014095s"
+      "message": "Passed in 5.697799341s"
     },
     {
       "name": "CI Status Artifact Check",
       "status": "success",
-      "message": "Passed in 106.9µs"
+      "message": "Passed in 219.598µs"
     }
   ],
   "overall": "success"
