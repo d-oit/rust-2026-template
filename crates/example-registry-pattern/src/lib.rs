@@ -66,13 +66,36 @@ impl Registry {
             )));
         }
 
-        if command
-            .chars()
-            .any(|c| c.is_control() || matches!(c, '\u{2028}' | '\u{2029}'))
-        {
-            return Err(DispatchError::Invalid(
-                "command identifier contains control or line-separator characters".to_string(),
-            ));
+        // Fast path: Byte-scan for printable ASCII strings (0x20..=0x7E)
+        let bytes = command.as_bytes();
+        let mut i = 0;
+        while i < bytes.len() {
+            if !(0x20..=0x7E).contains(&bytes[i]) {
+                break;
+            }
+            i += 1;
+        }
+
+        if i < bytes.len() {
+            // Slow path: Full Unicode validation for control, zero-width, line separators, and Bidi characters
+            for c in command[i..].chars() {
+                if c.is_control()
+                    || matches!(
+                        c,
+                        '\u{200b}'..='\u{200f}'
+                            | '\u{2028}'
+                            | '\u{2029}'
+                            | '\u{202a}'..='\u{202e}'
+                            | '\u{2060}'..='\u{2064}'
+                            | '\u{2066}'..='\u{2069}'
+                    )
+                {
+                    return Err(DispatchError::Invalid(
+                        "command identifier contains control or Bidi/line-separator characters"
+                            .to_string(),
+                    ));
+                }
+            }
         }
 
         self.handlers
@@ -174,5 +197,22 @@ mod tests {
         // U+2028 LINE SEPARATOR is not a control char; log-injection hardening must catch it.
         let result = build_registry().dispatch("command\u{2028}name", "");
         assert!(matches!(result, Err(DispatchError::Invalid(_))));
+    }
+
+    #[test]
+    fn test_command_bidi_and_zero_width_rejected() {
+        for bad in [
+            "cmd\u{202a}name",
+            "cmd\u{202e}name",
+            "cmd\u{2066}name",
+            "cmd\u{200b}name",
+            "cmd\u{2060}name",
+        ] {
+            let result = build_registry().dispatch(bad, "");
+            assert!(
+                matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("control or Bidi/line-separator")),
+                "Expected rejection for command with special char: {bad:?}"
+            );
+        }
     }
 }
