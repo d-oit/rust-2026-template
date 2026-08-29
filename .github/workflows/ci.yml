@@ -251,7 +251,7 @@ jobs:
           components: llvm-tools-preview
       - uses: ./.github/actions/setup-rust
       - name: Install cargo-nextest and llvm-cov
-        uses: taiki-e/install-action@82cd3e7658a6f96c86c0234aeeda1748937cb0a1  # v2
+        uses: taiki-e/install-action@a2a5f6e99e1a31540baa0468acfa302cff0f359f  # v2
         with:
           tool: cargo-nextest,cargo-llvm-cov
       - name: Build workspace
@@ -281,7 +281,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: ./.github/actions/setup-rust
       - name: Install cargo-audit
-        uses: taiki-e/install-action@82cd3e7658a6f96c86c0234aeeda1748937cb0a1  # v2
+        uses: taiki-e/install-action@a2a5f6e99e1a31540baa0468acfa302cff0f359f  # v2
         with:
           tool: cargo-audit
       - name: Generate lockfile
@@ -428,7 +428,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: ./.github/actions/setup-rust
       - name: Install verification tooling
-        uses: taiki-e/install-action@82cd3e7658a6f96c86c0234aeeda1748937cb0a1  # v2
+        uses: taiki-e/install-action@a2a5f6e99e1a31540baa0468acfa302cff0f359f  # v2
         with:
           tool: cargo-nextest,cargo-audit,cargo-deny,cargo-machete
       - name: Install shellcheck and markdownlint
