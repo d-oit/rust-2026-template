@@ -50,7 +50,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: Swatinem/rust-cache@258712b0b7b1ddf8bddc9fc3b0faca682b2736c3  # v2
       - name: Install cargo-dist
-        uses: cargo-bins/cargo-binstall@e00d2c94cc0067b77737821097a62d91c0301baa  # main
+        uses: cargo-bins/cargo-binstall@75b4bfae1b2c753a6806bbce6e6cb89b602de33c  # main
       - run: cargo binstall cargo-dist --no-confirm
       - name: Run cargo-dist
         run: cargo dist build --tag ${{ github.ref_name }}
