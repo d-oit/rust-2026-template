@@ -112,18 +112,28 @@ impl McpServer {
             )));
         }
 
-        if name.chars().any(|c| {
-            c.is_control()
-                || matches!(
-                    c,
-                    '\u{200b}'..='\u{200f}'
-                        | '\u{2028}'
-                        | '\u{2029}'
-                        | '\u{202a}'..='\u{202e}'
-                        | '\u{2060}'..='\u{2064}'
-                        | '\u{2066}'..='\u{2069}'
-                )
-        }) {
+        // Security: Fast-path byte-scan for clean printable ASCII tool names (0x20..=0x7E).
+        // Skips UTF-8 character decoding when all bytes are standard printable ASCII.
+        let bytes = name.as_bytes();
+        let mut i = 0;
+        while i < bytes.len() && (0x20..=0x7E).contains(&bytes[i]) {
+            i += 1;
+        }
+
+        if i < bytes.len()
+            && name[i..].chars().any(|c| {
+                c.is_control()
+                    || matches!(
+                        c,
+                        '\u{200b}'..='\u{200f}'
+                            | '\u{2028}'
+                            | '\u{2029}'
+                            | '\u{202a}'..='\u{202e}'
+                            | '\u{2060}'..='\u{2064}'
+                            | '\u{2066}'..='\u{2069}'
+                    )
+            })
+        {
             return Err(ServerError::ToolNotFound(
                 "Tool name contains control or Bidi/line-separator characters".to_string(),
             ));
@@ -280,6 +290,57 @@ mod tests {
             assert!(
                 matches!(result, Err(ServerError::ToolNotFound(msg)) if msg.contains("control or Bidi/line-separator characters")),
                 "Expected rejection for name with special char: {bad_name:?}"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn test_execute_tool_name_byte_scan_lengths() {
+        let server = McpServer::new();
+        let request = ToolRequest::new(Value::Null);
+
+        // Test clean names across lengths 1 to 64 bytes
+        for len in 1..=64 {
+            let name = "a".repeat(len);
+            let result = server.execute_tool(&name, request.clone()).await;
+            // Clean names should pass validation and reach registry lookup (ToolNotFound with the name itself)
+            assert!(
+                matches!(result, Err(ServerError::ToolNotFound(msg)) if msg == name),
+                "Expected ToolNotFound(name) for clean string of length {len}"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn test_execute_tool_name_dirty_chars_at_various_offsets() {
+        let server = McpServer::new();
+        let request = ToolRequest::new(Value::Null);
+
+        // Test invalid control character placed at different byte positions
+        for offset in [0, 3, 7, 8, 15, 16, 31, 63] {
+            let mut name_bytes = vec![b'a'; 64];
+            name_bytes[offset] = 0x07; // ASCII BEL (control char)
+            let bad_name = String::from_utf8(name_bytes).unwrap();
+
+            let result = server.execute_tool(&bad_name, request.clone()).await;
+            assert!(
+                matches!(result, Err(ServerError::ToolNotFound(msg)) if msg.contains("control or Bidi/line-separator characters")),
+                "Expected rejection for control char at offset {offset}"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn test_execute_tool_name_safe_unicode() {
+        let server = McpServer::new();
+        let request = ToolRequest::new(Value::Null);
+
+        // Safe non-ASCII Unicode triggers the slow path (i < bytes.len()) but passes character validation
+        for safe_unicode in ["tool_🦀", "über_tool", "工具_name"] {
+            let result = server.execute_tool(safe_unicode, request.clone()).await;
+            assert!(
+                matches!(result, Err(ServerError::ToolNotFound(ref msg)) if msg == safe_unicode),
+                "Expected ToolNotFound(safe_unicode) for: {safe_unicode}"
             );
         }
     }
