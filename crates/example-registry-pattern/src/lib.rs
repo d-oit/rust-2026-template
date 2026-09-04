@@ -66,9 +66,36 @@ impl Registry {
             )));
         }
 
-        if command
-            .chars()
-            .any(|c| c.is_control() || matches!(c, '\u{2028}' | '\u{2029}'))
+        // SWAR (SIMD Within A Register) fast-path: check 8-byte chunks simultaneously for printable ASCII values (0x20..=0x7E)
+        let bytes = command.as_bytes();
+        let mut i = 0;
+
+        while i + 8 <= bytes.len() {
+            let mut arr = [0u8; 8];
+            arr.copy_from_slice(&bytes[i..i + 8]);
+            let chunk = u64::from_ne_bytes(arr);
+            let has_low = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
+            let has_high = chunk & 0x8080808080808080;
+            let y = chunk ^ 0x7F7F7F7F7F7F7F7F;
+            let zero_check = (y.wrapping_sub(0x0101010101010101) & !y) & 0x8080808080808080;
+            if (has_low | has_high | zero_check) != 0 {
+                break;
+            }
+            i += 8;
+        }
+
+        while i < bytes.len() {
+            let b = bytes[i];
+            if !(0x20..=0x7E).contains(&b) {
+                break;
+            }
+            i += 1;
+        }
+
+        if i < bytes.len()
+            && command[i..]
+                .chars()
+                .any(|c| c.is_control() || matches!(c, '\u{2028}' | '\u{2029}'))
         {
             return Err(DispatchError::Invalid(
                 "command identifier contains control or line-separator characters".to_string(),
