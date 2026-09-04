@@ -82,6 +82,22 @@ fn apply_profile(blueprint: &TemplateProfile) -> Result<(), XtaskError> {
         }
     }
 
+    // Prune `default-members` entries whose crates the profile removes;
+    // a dangling entry breaks every bare `cargo` command in the generated
+    // workspace (issue #321, profiles `library` and `service`).
+    let cargo_toml_path = Path::new("Cargo.toml");
+    if let Some(updated) = prune_default_members(
+        &read_to_string(cargo_toml_path).map_err(|e| XtaskError::CacheIssue {
+            message: e.to_string(),
+        })?,
+        &blueprint.removed_crates(&existing),
+    ) {
+        write(cargo_toml_path, updated).map_err(|e| XtaskError::CacheIssue {
+            message: e.to_string(),
+        })?;
+        println!("     Pruned dangling default-members entries");
+    }
+
     for excluded in &blueprint.workspace.exclude_paths {
         remove_path(excluded)?;
     }
@@ -99,6 +115,7 @@ fn apply_profile(blueprint: &TemplateProfile) -> Result<(), XtaskError> {
         .any(|p| p == "benchmarks")
     {
         let cargo_toml_path = Path::new("Cargo.toml");
+
         if cargo_toml_path.exists() {
             let mut content =
                 read_to_string(cargo_toml_path).map_err(|e| XtaskError::CacheIssue {
@@ -145,6 +162,48 @@ fn apply_ci_tier(blueprint: &TemplateProfile) -> Result<(), XtaskError> {
         blueprint.ci.default_tier
     );
     Ok(())
+}
+
+/// Prunes `default-members` entries whose crates the profile removes.
+///
+/// Returns `Some(updated_manifest)` when the manifest changed. If pruning
+/// empties the list, the key is dropped entirely so bare `cargo` commands
+/// fall back to all workspace members instead of failing on a dangling path.
+fn prune_default_members(manifest: &str, removed_crates: &[String]) -> Option<String> {
+    let re = regex::Regex::new(
+        r"(?m)^[ \t]*default-members[ \t]*=[ \t]*\[(?<entries>[^\]]*)\][ \t]*\r?\n?",
+    )
+    .ok()?;
+    let caps = re.captures(manifest)?;
+    let entries_raw = caps.name("entries")?;
+    let entries: Vec<&str> = entries_raw
+        .as_str()
+        .split(',')
+        .map(str::trim)
+        .filter(|entry| !entry.is_empty())
+        .collect();
+    if entries.is_empty() {
+        return None;
+    }
+    let removed_paths: std::collections::HashSet<String> = removed_crates
+        .iter()
+        .map(|crate_name| format!("crates/{crate_name}"))
+        .collect();
+    let total = entries.len();
+    let kept: Vec<&str> = entries
+        .into_iter()
+        .filter(|entry| !removed_paths.contains(entry.trim_matches(['"', '\''])))
+        .collect();
+    if kept.len() == total {
+        return None;
+    }
+    let replacement = if kept.is_empty() {
+        String::new()
+    } else {
+        format!("default-members = [{}]\n", kept.join(", "))
+    };
+    let updated = re.replace(manifest, replacement.as_str()).into_owned();
+    Some(updated)
 }
 
 /// Prints the profile's post-init checklist (items that cannot travel through a GitHub template).
@@ -300,5 +359,44 @@ mod tests {
         replace_placeholder(path.to_str().unwrap(), "placeholder", "world").unwrap();
         let content = read_to_string(&path).unwrap();
         assert_eq!(content, "Hello world!");
+    }
+
+    #[test]
+    fn default_members_pruned_when_profile_removes_crate() {
+        let manifest = concat!(
+            "[workspace]\n",
+            "members = [\"crates/*\", \"examples/*\", \"benchmarks\"]\n",
+            "default-members = [\"crates/sample-app\"]\n",
+            "resolver = \"3\"\n"
+        );
+        let updated = prune_default_members(manifest, &[String::from("sample-app")]).unwrap();
+        assert!(
+            !updated.contains("default-members"),
+            "dangling key must be dropped: {updated}"
+        );
+        assert!(
+            updated.contains("members = [\"crates/*\", \"examples/*\", \"benchmarks\"]"),
+            "members must survive: {updated}"
+        );
+        assert!(
+            updated.contains("resolver = \"3\""),
+            "unrelated lines must survive: {updated}"
+        );
+    }
+
+    #[test]
+    fn default_members_survive_when_crate_not_removed() {
+        let manifest = "[workspace]\ndefault-members = [\"crates/sample-app\"]\n";
+        assert!(prune_default_members(manifest, &[String::from("other-crate")]).is_none());
+    }
+
+    #[test]
+    fn default_members_partially_pruned_when_others_remain() {
+        let manifest = "[workspace]\ndefault-members = [\"crates/sample-app\", \"crates/xtask\"]\n";
+        let updated = prune_default_members(manifest, &[String::from("sample-app")]).unwrap();
+        assert_eq!(
+            updated,
+            "[workspace]\ndefault-members = [\"crates/xtask\"]\n"
+        );
     }
 }
