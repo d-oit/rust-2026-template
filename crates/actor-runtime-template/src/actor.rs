@@ -77,10 +77,11 @@ fn sanitize_log_payload(work: &str) -> String {
 
     // Fast path: SWAR (SIMD Within A Register) check 8-byte chunks simultaneously
     // for printable ASCII values (0x20-0x7E) excluding '\\', '"', and '\''.
+    // Uses from_le_bytes for deterministic cross-endian behavior.
     while i + 8 <= bytes.len() {
         let mut arr = [0u8; 8];
         arr.copy_from_slice(&bytes[i..i + 8]);
-        let chunk = u64::from_ne_bytes(arr);
+        let chunk = u64::from_le_bytes(arr);
 
         let has_low = (chunk.wrapping_sub(0x2020_2020_2020_2020) & !chunk) & 0x8080_8080_8080_8080;
         let has_high = chunk & 0x8080_8080_8080_8080;
@@ -88,7 +89,7 @@ fn sanitize_log_payload(work: &str) -> String {
         let zero_check = (y.wrapping_sub(0x0101_0101_0101_0101) & !y) & 0x8080_8080_8080_8080;
 
         let contains_byte = |b: u8| {
-            let mask = u64::from_ne_bytes([b; 8]);
+            let mask = u64::from_le_bytes([b; 8]);
             let x = chunk ^ mask;
             (x.wrapping_sub(0x0101_0101_0101_0101) & !x) & 0x8080_8080_8080_8080
         };
