@@ -75,7 +75,39 @@ fn sanitize_log_payload(work: &str) -> String {
     let bytes = work.as_bytes();
     let mut i = 0;
 
-    // Fast path: find the first byte that needs escaping or is non-ASCII
+    // Fast path: SWAR (SIMD Within A Register) check 8-byte chunks simultaneously
+    // for printable ASCII values (0x20-0x7E) excluding '\\', '"', and '\''.
+    // Uses from_le_bytes for deterministic cross-endian behavior.
+    while i + 8 <= bytes.len() {
+        let mut arr = [0u8; 8];
+        arr.copy_from_slice(&bytes[i..i + 8]);
+        let chunk = u64::from_le_bytes(arr);
+
+        let has_low = (chunk.wrapping_sub(0x2020_2020_2020_2020) & !chunk) & 0x8080_8080_8080_8080;
+        let has_high = chunk & 0x8080_8080_8080_8080;
+        let y = chunk ^ 0x7F7F_7F7F_7F7F_7F7F;
+        let zero_check = (y.wrapping_sub(0x0101_0101_0101_0101) & !y) & 0x8080_8080_8080_8080;
+
+        let contains_byte = |b: u8| {
+            let mask = u64::from_le_bytes([b; 8]);
+            let x = chunk ^ mask;
+            (x.wrapping_sub(0x0101_0101_0101_0101) & !x) & 0x8080_8080_8080_8080
+        };
+
+        if (has_low
+            | has_high
+            | zero_check
+            | contains_byte(b'\\')
+            | contains_byte(b'"')
+            | contains_byte(b'\''))
+            != 0
+        {
+            break;
+        }
+        i += 8;
+    }
+
+    // Scalar fallback loop for remaining bytes
     while i < bytes.len() {
         let b = bytes[i];
         if !(0x20..=0x7E).contains(&b) || b == b'\\' || b == b'"' || b == b'\'' {
@@ -102,19 +134,27 @@ fn sanitize_log_payload(work: &str) -> String {
         return out;
     }
 
-    // Slow path: some characters need escaping before MAX_LOGGED_LEN
+    // Slow path: some characters need escaping before MAX_LOGGED_LEN.
+    // Cache `escape_debug()` into a stack buffer to avoid double-iteration over escape sequences.
     let mut out = String::with_capacity(work.len().min(MAX_LOGGED_LEN) + 16);
     out.push_str(&work[..i]);
     let mut used = i;
 
     for ch in work[i..].chars() {
-        let esc_count = ch.escape_debug().count();
-        if used + esc_count > MAX_LOGGED_LEN {
+        let mut esc_buf = ['\0'; 12];
+        let mut esc_len = 0;
+        for esc_ch in ch.escape_debug() {
+            esc_buf[esc_len] = esc_ch;
+            esc_len += 1;
+        }
+
+        if used + esc_len > MAX_LOGGED_LEN {
             out.push_str("... [truncated]");
             return out;
         }
-        out.extend(ch.escape_debug());
-        used += esc_count;
+
+        out.extend(&esc_buf[..esc_len]);
+        used += esc_len;
     }
 
     out
