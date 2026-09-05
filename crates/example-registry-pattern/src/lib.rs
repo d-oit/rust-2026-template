@@ -198,13 +198,18 @@ mod tests {
     fn test_command_unicode_bidi_and_zero_width_rejected() {
         for bad in [
             "command\u{200b}name",
+            "command\u{200d}name",
             "command\u{200f}name",
             "command\u{2028}name",
             "command\u{2029}name",
             "command\u{202a}name",
+            "command\u{202c}name",
             "command\u{202e}name",
             "command\u{2060}name",
+            "command\u{2062}name",
+            "command\u{2064}name",
             "command\u{2066}name",
+            "command\u{2067}name",
             "command\u{2069}name",
         ] {
             let result = build_registry().dispatch(bad, "");
@@ -213,6 +218,31 @@ mod tests {
                 "Expected rejection for command with special char: {bad:?}"
             );
         }
+    }
+
+    #[test]
+    fn test_command_dirty_chars_at_various_offsets() {
+        for offset in [0, 3, 7, 8, 15, 16, 31, 63] {
+            let mut name_bytes = vec![b'a'; 64];
+            name_bytes[offset] = 0x07; // ASCII BEL
+            let bad_name = String::from_utf8(name_bytes).unwrap();
+
+            let result = build_registry().dispatch(&bad_name, "");
+            assert!(
+                matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("control or Bidi/line-separator characters")),
+                "Expected rejection for control char at offset {offset}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_command_bidi_after_non_ascii_safe_chars() {
+        // Test Bidi character appearing after a safe non-ASCII character (e.g. 🦀)
+        let bad_name = "cmd_🦀_\u{202a}";
+        let result = build_registry().dispatch(bad_name, "");
+        assert!(
+            matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("control or Bidi/line-separator characters"))
+        );
     }
 
     #[test]
