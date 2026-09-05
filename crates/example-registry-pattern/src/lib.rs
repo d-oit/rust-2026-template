@@ -57,8 +57,8 @@ impl Registry {
     pub fn dispatch(&self, command: &str, input: &str) -> Result<String, DispatchError> {
         // Security: Validate the command identifier before it can reach a log/error path.
         // The length cap is a *byte* budget (`str::len`), which bounds memory/resource use
-        // even for multi-byte UTF-8 identifiers, and forbids control characters plus the
-        // Unicode line/paragraph separators that `char::is_control` does not cover.
+        // even for multi-byte UTF-8 identifiers, and forbids control characters plus
+        // zero-width spaces, Unicode line/paragraph separators, and Bidi control ranges.
         const MAX_COMMAND_LEN: usize = 64;
         if command.len() > MAX_COMMAND_LEN {
             return Err(DispatchError::Invalid(format!(
@@ -66,12 +66,30 @@ impl Registry {
             )));
         }
 
-        if command
-            .chars()
-            .any(|c| c.is_control() || matches!(c, '\u{2028}' | '\u{2029}'))
+        // Security: Fast-path byte-scan for clean printable ASCII command names (0x20..=0x7E).
+        // Skips UTF-8 character decoding when all bytes are standard printable ASCII.
+        let bytes = command.as_bytes();
+        let mut i = 0;
+        while i < bytes.len() && (0x20..=0x7E).contains(&bytes[i]) {
+            i += 1;
+        }
+
+        if i < bytes.len()
+            && command[i..].chars().any(|c| {
+                c.is_control()
+                    || matches!(
+                        c,
+                        '\u{200b}'..='\u{200f}'
+                            | '\u{2028}'
+                            | '\u{2029}'
+                            | '\u{202a}'..='\u{202e}'
+                            | '\u{2060}'..='\u{2064}'
+                            | '\u{2066}'..='\u{2069}'
+                    )
+            })
         {
             return Err(DispatchError::Invalid(
-                "command identifier contains control or line-separator characters".to_string(),
+                "command identifier contains control or Bidi/line-separator characters".to_string(),
             ));
         }
 
@@ -174,5 +192,81 @@ mod tests {
         // U+2028 LINE SEPARATOR is not a control char; log-injection hardening must catch it.
         let result = build_registry().dispatch("command\u{2028}name", "");
         assert!(matches!(result, Err(DispatchError::Invalid(_))));
+    }
+
+    #[test]
+    fn test_command_unicode_bidi_and_zero_width_rejected() {
+        for bad in [
+            "command\u{200b}name",
+            "command\u{200d}name",
+            "command\u{200f}name",
+            "command\u{2028}name",
+            "command\u{2029}name",
+            "command\u{202a}name",
+            "command\u{202c}name",
+            "command\u{202e}name",
+            "command\u{2060}name",
+            "command\u{2062}name",
+            "command\u{2064}name",
+            "command\u{2066}name",
+            "command\u{2067}name",
+            "command\u{2069}name",
+        ] {
+            let result = build_registry().dispatch(bad, "");
+            assert!(
+                matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("control or Bidi/line-separator characters")),
+                "Expected rejection for command with special char: {bad:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_command_dirty_chars_at_various_offsets() {
+        for offset in [0, 3, 7, 8, 15, 16, 31, 63] {
+            let mut name_bytes = vec![b'a'; 64];
+            name_bytes[offset] = 0x07; // ASCII BEL
+            let bad_name = String::from_utf8(name_bytes).unwrap();
+
+            let result = build_registry().dispatch(&bad_name, "");
+            assert!(
+                matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("control or Bidi/line-separator characters")),
+                "Expected rejection for control char at offset {offset}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_command_bidi_after_non_ascii_safe_chars() {
+        // Test Bidi character appearing after a safe non-ASCII character (e.g. 🦀)
+        let bad_name = "cmd_🦀_\u{202a}";
+        let result = build_registry().dispatch(bad_name, "");
+        assert!(
+            matches!(result, Err(DispatchError::Invalid(msg)) if msg.contains("control or Bidi/line-separator characters"))
+        );
+    }
+
+    #[test]
+    fn test_command_fast_path_ascii_lengths() {
+        // Test clean names across lengths 1 to 64 bytes using printable ASCII fast-path
+        for len in 1..=64 {
+            let name = "a".repeat(len);
+            let result = build_registry().dispatch(&name, "");
+            assert!(
+                matches!(result, Err(DispatchError::Unknown(msg)) if msg == name),
+                "Expected Unknown(name) for clean string of length {len}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_command_safe_non_ascii_unicode() {
+        // Safe non-ASCII Unicode triggers slow path (i < bytes.len()) but passes validation
+        for safe_unicode in ["echo_🦀", "über_cmd", "命令_name"] {
+            let result = build_registry().dispatch(safe_unicode, "");
+            assert!(
+                matches!(result, Err(DispatchError::Unknown(msg)) if msg == safe_unicode),
+                "Expected Unknown(safe_unicode) for: {safe_unicode}"
+            );
+        }
     }
 }
