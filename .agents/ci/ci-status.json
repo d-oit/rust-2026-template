@@ -1,88 +1,21 @@
 {
-  "timestamp": "2026-09-05T11:10:28Z",
-  "commit": "0f9d566c70e0894ddf0ea17069678f03f51e9a3f",
-  "branch": "jules-6776755244201318869-5919b4aa",
-  "checks": [
-    {
-      "name": "LOC Limits",
-      "status": "success",
-      "message": "Passed in 15.810614ms"
-    },
-    {
-      "name": "Rust Format",
-      "status": "success",
-      "message": "Passed in 1.026589602s"
-    },
-    {
-      "name": "Rust Clippy",
-      "status": "success",
-      "message": "Passed in 2.123635585s"
-    },
-    {
-      "name": "Rust Build",
-      "status": "success",
-      "message": "Passed in 2.558092403s"
-    },
-    {
-      "name": "Rust Tests",
-      "status": "success",
-      "message": "Passed in 2.144252684s"
-    },
-    {
-      "name": "Rust Doc Tests",
-      "status": "success",
-      "message": "Passed in 335.456027ms"
-    },
-    {
-      "name": "Rust Security Audit",
-      "status": "success",
-      "message": "Passed in 104.420107ms"
-    },
-    {
-      "name": "Rust Dependency Policy (Deny)",
-      "status": "success",
-      "message": "Passed in 107.090437ms"
-    },
-    {
-      "name": "Rust Unused Dependencies (Machete)",
-      "status": "success",
-      "message": "Passed in 1.09026ms"
-    },
-    {
-      "name": "Rust MSRV Audit",
-      "status": "success",
-      "message": "Passed in 987.4176ms"
-    },
-    {
-      "name": "Shell Script Lint (ShellCheck)",
-      "status": "success",
-      "message": "Passed in 689.457µs"
-    },
-    {
-      "name": "Markdown Lint (markdownlint-cli2)",
-      "status": "success",
-      "message": "Passed in 631.861µs"
-    },
-    {
-      "name": "Privacy Check (No emails)",
-      "status": "success",
-      "message": "Passed in 73.521312ms"
-    },
-    {
-      "name": "Secret Scan",
-      "status": "success",
-      "message": "Passed in 69.388757ms"
-    },
-    {
-      "name": "GitHub Actions Workflow Validation",
-      "status": "success",
-      "message": "Passed in 8.122893066s"
-    },
-    {
-      "name": "CI Status Artifact Check",
-      "status": "success",
-      "message": "Passed in 450.117µs"
-    }
-  ],
+  "timestamp": "2026-09-05T12:37:20Z",
+  "commit": "a8c4ef585d4a370609c12b2bd37773fd3f044957",
+  "branch": "main",
+  "jobs": {
+    "validate-agents": "success",
+    "lint": "success",
+    "shellcheck": "success",
+    "gitleaks": "success",
+    "fmt": "success",
+    "clippy": "success",
+    "test": "success",
+    "security": "success",
+    "deny": "success",
+    "bench": "success",
+    "version-check": "success",
+  "msrv": "success",
+  "roast": "success"
+  },
   "overall": "success"
 }
