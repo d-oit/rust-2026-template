@@ -328,6 +328,11 @@ fn perform_replacements(
         &proj_snake,
     )?;
     replace_placeholder("benchmarks/Cargo.toml", "example-crate", proj_name)?;
+    replace_placeholder(
+        "benchmarks/benches/memory_usage.rs",
+        "example_crate",
+        &proj_snake,
+    )?;
 
     Ok(())
 }
