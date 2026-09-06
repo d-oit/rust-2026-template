@@ -1,6 +1,7 @@
 //! Validation-focused tests for `template_profile` (kept out-of-line to respect the 500-LOC limit).
 #![allow(clippy::unwrap_used, clippy::panic)]
 use super::*;
+use crate::path_rules::{is_crate_dir_name, is_safe_relative};
 
 /// Builds a profile TOML with the given workspace section body.
 fn profile_toml_with_workspace(workspace_body: &str) -> String {

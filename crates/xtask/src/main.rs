@@ -3,6 +3,7 @@ pub mod agent_adapters;
 pub mod changed_paths;
 pub mod commands;
 pub mod config;
+pub mod path_rules;
 pub mod quality;
 pub mod quality_helpers;
 pub mod release;
