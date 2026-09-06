@@ -9,6 +9,7 @@ repository.workspace = true
 description = "Secure and high-performance checkpointing template for state-intensive applications"
 readme = "README.md"
 include = ["/src", "README.md", "LICENSE"]
+publish = false
 
 # NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
 # Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.

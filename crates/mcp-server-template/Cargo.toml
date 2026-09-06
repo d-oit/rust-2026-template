@@ -8,6 +8,7 @@ authors.workspace = true
 repository.workspace = true
 description = "MCP server template crate with tool registration and dispatch"
 readme = "README.md"
+publish = false
 
 [lints.clippy]
 # Inherit workspace lints
