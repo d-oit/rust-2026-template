@@ -41,6 +41,16 @@
         "default_tier": { "type": "string", "minLength": 1 }
       }
     },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "lockfile": { "type": "string", "enum": ["committed", "ignored"] },
+        "publish_packages": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$" }
+        }
+      }
+    },
     "post_init": {
       "type": "object",
       "required": ["checklist"],

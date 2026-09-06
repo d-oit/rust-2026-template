@@ -33,10 +33,14 @@ exclude_workflows = [
 [ci]
 default_tier = "pull-request"
 
+[policy]
+lockfile = "committed"
+publish_packages = []
+
 [post_init]
 checklist = [
   "set-package-metadata",
-  "choose-cargo-lock-policy",
+  "commit-cargo-lock",
   "configure-license-policy",
   "configure-branch-protection",
   "configure-agent-skill-index",

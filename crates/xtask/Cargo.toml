@@ -19,6 +19,7 @@ clap = { workspace = true, features = ["derive"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 toml = { workspace = true }
+toml_edit = "0.23"
 thiserror = { workspace = true }
 regex = "1"
 

@@ -15,7 +15,12 @@ cognitive-complexity-threshold = 15
 allow-mixed-uninlined-format-args = false
 
 # Minimum items before suggest collect
-array-size-threshold = 512
+# 512 BYTES trips large_stack_arrays on promoted aggregates (const tables,
+# fixture data, generic AsRef boundaries) whose diagnostics carry no span
+# (known clippy limitation: the warning attributes to this file instead of
+# the code). 64 KiB still catches pathological stack arrays while allowing
+# legitimate test fixtures and lookup tables.
+array-size-threshold = 65536
 
 # Enforce documentation for public items
 missing-docs-in-crate-items = false

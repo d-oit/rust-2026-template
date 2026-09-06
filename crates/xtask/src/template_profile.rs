@@ -64,6 +64,41 @@ pub struct PostInit {
     pub checklist: Vec<String>,
 }
 
+/// How the generated project handles `Cargo.lock`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum LockfilePolicy {
+    /// Commit `Cargo.lock` (un-ignore it) — reproducible builds for binaries/services.
+    Committed,
+    /// Keep `Cargo.lock` ignored — reasonable for pure library workspaces.
+    Ignored,
+}
+
+/// Explicit post-init policy decisions (replacing open checklist questions).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProfilePolicy {
+    /// Whether the generated project commits `Cargo.lock`.
+    #[serde(default = "default_lockfile_policy")]
+    pub lockfile: LockfilePolicy,
+    /// Crate names the adopting project intends to publish (empty: publish nothing).
+    #[serde(default)]
+    pub publish_packages: Vec<String>,
+}
+
+const fn default_lockfile_policy() -> LockfilePolicy {
+    LockfilePolicy::Committed
+}
+
+impl Default for ProfilePolicy {
+    fn default() -> Self {
+        Self {
+            lockfile: default_lockfile_policy(),
+            publish_packages: Vec::new(),
+        }
+    }
+}
+
 /// A validated profile blueprint.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -74,6 +109,9 @@ pub struct TemplateProfile {
     pub workspace: ProfileWorkspace,
     /// CI defaults.
     pub ci: ProfileCi,
+    /// Explicit lockfile/publication policy.
+    #[serde(default)]
+    pub policy: ProfilePolicy,
     /// Post-init checklist.
     pub post_init: PostInit,
 }
@@ -92,12 +130,30 @@ impl TemplateProfile {
 
     /// Loads a profile by id from `PROFILES_DIR`.
     ///
+    /// Only shipped profile ids are accepted: the id is validated as a safe
+    /// identifier *before* any path is constructed, preventing traversal
+    /// (e.g. `../evil`) from reaching the filesystem.
+    ///
     /// # Errors
     /// Returns `XtaskError::InvalidConfig` when the profile is unknown or invalid.
     pub fn load(id: &str) -> Result<Self, XtaskError> {
+        if let Err(reason) = validate_profile_id_str(id) {
+            return Err(XtaskError::InvalidConfig {
+                message: format!(
+                    "invalid profile id: {reason}; expected one of {SHIPPED_PROFILES:?}"
+                ),
+            });
+        }
+        if !SHIPPED_PROFILES.contains(&id) {
+            return Err(XtaskError::InvalidConfig {
+                message: format!(
+                    "invalid profile id: '{id}' is not a shipped profile; expected one of {SHIPPED_PROFILES:?}"
+                ),
+            });
+        }
         let path = format!("{PROFILES_DIR}/{id}.toml");
         Self::load_from_path(&path).map_err(|e| XtaskError::InvalidConfig {
-            message: format!("Unknown profile '{id}' (expected one of {SHIPPED_PROFILES:?}): {e}"),
+            message: format!("Failed to load profile '{id}': {e}"),
         })
     }
 
@@ -114,18 +170,15 @@ impl TemplateProfile {
 
     /// Validates the profile against the structural rules of `schema/template-profile.schema.json`.
     ///
+    /// Every path-like field is checked with `Path::components` so no entry may
+    /// escape its permitted root (`..`, absolute paths, platform prefixes,
+    /// embedded backslashes, or control characters).
+    ///
     /// # Errors
     /// Returns `XtaskError::InvalidConfig` on the first violated rule.
     pub fn validate(&self) -> Result<Self, XtaskError> {
-        if self.metadata.id.is_empty()
-            || !self
-                .metadata
-                .id
-                .chars()
-                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
-        {
-            return Err(self.invalid("metadata.id must be `^[a-z][a-z0-9-]*$`"));
-        }
+        validate_profile_id_str(&self.metadata.id)
+            .map_err(|reason| self.invalid(&format!("metadata.id {reason}")))?;
         if self.metadata.display_name.trim().is_empty() {
             return Err(self.invalid("metadata.display_name must not be empty"));
         }
@@ -133,14 +186,27 @@ impl TemplateProfile {
             return Err(self.invalid("workspace.include_crates must contain at least one crate"));
         }
         for include in &self.workspace.include_crates {
-            if !include.starts_with("crates/") {
-                return Err(self.invalid(&format!(
-                    "workspace.include_crates entry must start with 'crates/', got '{include}'"
-                )));
-            }
+            validate_include_crate(include).map_err(|reason| {
+                self.invalid(&format!("workspace.include_crates entry {reason}"))
+            })?;
+        }
+        for excluded in &self.workspace.exclude_paths {
+            validate_exclude_path(excluded).map_err(|reason| {
+                self.invalid(&format!("workspace.exclude_paths entry {reason}"))
+            })?;
+        }
+        for wf in &self.workspace.exclude_workflows {
+            validate_exclude_workflow(wf).map_err(|reason| {
+                self.invalid(&format!("workspace.exclude_workflows entry {reason}"))
+            })?;
         }
         if self.ci.default_tier.trim().is_empty() {
             return Err(self.invalid("ci.default_tier must not be empty"));
+        }
+        for package in &self.policy.publish_packages {
+            validate_package_name(package).map_err(|reason| {
+                self.invalid(&format!("policy.publish_packages entry {reason}"))
+            })?;
         }
         Ok(self.clone())
     }
@@ -186,6 +252,10 @@ impl TemplateProfile {
             }
         }
         println!("CI default tier: {}", self.ci.default_tier);
+        println!(
+            "Policy: lockfile={:?}, publish_packages={:?}",
+            self.policy.lockfile, self.policy.publish_packages
+        );
         println!("Post-init checklist:");
         for item in &self.post_init.checklist {
             println!("  - [ ] {item}");
@@ -197,6 +267,129 @@ impl TemplateProfile {
             message: format!("Profile '{}' invalid: {message}", self.metadata.id),
         }
     }
+}
+
+/// Maximum byte length accepted for any profile-relative path entry.
+const MAX_PATH_ENTRY_LEN: usize = 512;
+
+/// Validates a profile id as a safe identifier (`^[a-z][a-z0-9-]{0,63}$`).
+///
+/// This runs *before* any filesystem path is derived from the id.
+///
+/// # Errors
+/// Returns a human-readable reason when the id is not a safe identifier.
+pub(crate) fn validate_profile_id_str(id: &str) -> Result<(), String> {
+    if id.is_empty() || id.len() > 64 {
+        return Err(format!("'{id}' must match `^[a-z][a-z0-9-]{{0,63}}$`"));
+    }
+    let first_ok = id.chars().next().is_some_and(|c| c.is_ascii_lowercase());
+    if !first_ok
+        || !id
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
+    {
+        return Err(format!("'{id}' must match `^[a-z][a-z0-9-]{{0,63}}$`"));
+    }
+    Ok(())
+}
+
+/// True when `name` is a valid crate directory name under `crates/`.
+pub(crate) fn is_crate_dir_name(name: &str) -> bool {
+    !name.is_empty()
+        && name.len() <= 64
+        && name.starts_with(|c: char| c.is_ascii_lowercase())
+        && name
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
+}
+
+/// True when `p` is a normalized relative path: no `..`, `.`, absolute root,
+/// platform prefix, backslash, control characters, or excessive length.
+pub(crate) fn is_safe_relative(p: &str) -> bool {
+    if p.is_empty()
+        || p.len() > MAX_PATH_ENTRY_LEN
+        || p.contains('\\')
+        || p.chars().any(char::is_control)
+    {
+        return false;
+    }
+    let path = std::path::Path::new(p);
+    !path.is_absolute()
+        && path
+            .components()
+            .all(|c| matches!(c, std::path::Component::Normal(_)))
+}
+
+/// Validates a `workspace.include_crates` entry as `crates/<crate-name>`.
+fn validate_include_crate(entry: &str) -> Result<(), String> {
+    let rest = entry
+        .strip_prefix("crates/")
+        .ok_or_else(|| format!("'{entry}' must start with 'crates/'"))?;
+    let mut components = std::path::Path::new(rest).components();
+    match (components.next(), components.next()) {
+        (Some(std::path::Component::Normal(name)), None) => {
+            let name = name.to_str().unwrap_or("");
+            if is_crate_dir_name(name) {
+                Ok(())
+            } else {
+                Err(format!(
+                    "'{entry}' must be `crates/<name>` where `<name>` matches `[a-z][a-z0-9-]*`"
+                ))
+            }
+        }
+        _ => Err(format!(
+            "'{entry}' must be `crates/<name>` with exactly one path component"
+        )),
+    }
+}
+
+/// Validates a `workspace.exclude_paths` entry as a contained relative path.
+fn validate_exclude_path(entry: &str) -> Result<(), String> {
+    if is_safe_relative(entry) {
+        Ok(())
+    } else {
+        Err(format!(
+            "'{entry}' must be a relative path without '..', absolute components, backslashes, or control characters"
+        ))
+    }
+}
+
+/// Validates a `workspace.exclude_workflows` entry as a single `.yml` file name.
+fn validate_exclude_workflow(entry: &str) -> Result<(), String> {
+    if !is_safe_relative(entry) {
+        return Err(format!(
+            "'{entry}' must be a relative file name without '..'"
+        ));
+    }
+    if std::path::Path::new(entry).components().count() != 1
+        || !std::path::Path::new(entry)
+            .extension()
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("yml"))
+    {
+        return Err(format!(
+            "'{entry}' must be a single workflow file name ending in '.yml'"
+        ));
+    }
+    Ok(())
+}
+
+/// Validates a `policy.publish_packages` entry as a crate/package name.
+fn validate_package_name(entry: &str) -> Result<(), String> {
+    if entry.is_empty()
+        || entry.len() > 64
+        || !entry
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_alphabetic())
+        || !entry
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+    {
+        return Err(format!(
+            "'{entry}' must be a valid package name ([A-Za-z][A-Za-z0-9_-]{{0,63}})"
+        ));
+    }
+    Ok(())
 }
 
 /// Lists supplied profiles known to exist on disk (for docs/tests).
@@ -240,7 +433,10 @@ mod tests {
     #[test]
     fn test_unknown_profile_errors() {
         let err = TemplateProfile::load("no-such-profile").unwrap_err();
-        assert!(err.to_string().contains("Unknown profile"));
+        assert!(
+            err.to_string().contains("invalid profile id"),
+            "unknown profile must be rejected as invalid id, got: {err}"
+        );
     }
 
     #[test]
@@ -302,3 +498,7 @@ checklist = ["x"]
         assert_eq!(profile.workspace.exclude_workflows, vec!["fuzz.yml"]);
     }
 }
+
+#[cfg(test)]
+#[path = "template_profile_test.rs"]
+mod template_profile_test;
