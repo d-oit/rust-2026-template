@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-05T12:37:20Z",
-  "commit": "a8c4ef585d4a370609c12b2bd37773fd3f044957",
+  "timestamp": "2026-09-06T06:47:35Z",
+  "commit": "58c3e547cb17cbc58a0e3ce904845f01541c121a",
   "branch": "main",
   "jobs": {
     "validate-agents": "success",
@@ -9,7 +9,7 @@
     "gitleaks": "success",
     "fmt": "success",
     "clippy": "success",
-    "test": "success",
+    "test": "failure",
     "security": "success",
     "deny": "success",
     "bench": "success",
