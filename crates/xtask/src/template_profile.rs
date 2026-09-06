@@ -279,15 +279,13 @@ const MAX_PATH_ENTRY_LEN: usize = 512;
 /// # Errors
 /// Returns a human-readable reason when the id is not a safe identifier.
 pub(crate) fn validate_profile_id_str(id: &str) -> Result<(), String> {
-    if id.is_empty() || id.len() > 64 {
-        return Err(format!("'{id}' must match `^[a-z][a-z0-9-]{{0,63}}$`"));
-    }
-    let first_ok = id.chars().next().is_some_and(|c| c.is_ascii_lowercase());
-    if !first_ok
-        || !id
+    let valid = !id.is_empty()
+        && id.len() <= 64
+        && id.chars().next().is_some_and(|c| c.is_ascii_lowercase())
+        && id
             .chars()
-            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
-    {
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-');
+    if !valid {
         return Err(format!("'{id}' must match `^[a-z][a-z0-9-]{{0,63}}$`"));
     }
     Ok(())
