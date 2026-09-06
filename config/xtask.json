@@ -32,6 +32,16 @@
         "SecretScan",
         "WorkflowValidation",
         "CiStatusArtifact"
+      ],
+      "required_checks": [
+        "Audit",
+        "Deny",
+        "Machete",
+        "Msrv",
+        "ShellCheck",
+        "MarkdownLint",
+        "WorkflowValidation",
+        "SecretScan"
       ]
     },
     "scheduled": {
@@ -61,6 +71,14 @@
         "Msrv",
         "WorkflowValidation",
         "PrivacyCheck",
+        "SecretScan"
+      ],
+      "required_checks": [
+        "Audit",
+        "Deny",
+        "Machete",
+        "Msrv",
+        "WorkflowValidation",
         "SecretScan"
       ]
     }

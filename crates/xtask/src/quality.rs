@@ -9,8 +9,13 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
+#[path = "quality_policy.rs"]
+mod quality_policy;
+
 /// Enum representing the individual quality gate checks.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Hash, Ord, PartialOrd, serde::Serialize, serde::Deserialize,
+)]
 pub enum QualityCheck {
     /// Line count limit validation.
     LocLimits,
@@ -99,17 +104,16 @@ pub fn plan_checks(
     // Tier precedence: explicit `--tier` > `$XTASK_TIER` env override > config default.
     let env_tier = std::env::var(&config.env_var_name).ok();
     let selected_tier = tier.or(env_tier.as_deref()).unwrap_or(&config.default_tier);
-    // Canonical tier names; keep the legacy names as aliases for backwards compatibility.
-    let canonical_tier = match selected_tier {
-        "fast-pr" => "pull-request",
-        "full-gate" | "all" => "protected-branch",
-        other => other,
-    };
+    // Canonical tier names; legacy aliases resolve in `config::canonical_tier_name`.
+    let canonical_tier = crate::config::canonical_tier_name(selected_tier);
     let Some(def) = config.tiers.get(canonical_tier) else {
         return Err(XtaskError::InvalidConfig {
             message: format!("Unsupported or unconfigured quality tier: {selected_tier}"),
         });
     };
+    // Publish the planned tier so run-time required-tool policy resolves
+    // against the tier actually being planned (including `--tier` overrides).
+    quality_policy::set_active_tier(canonical_tier);
     let mut checks = def.checks.clone();
 
     if let Some(only_str) = only {
@@ -174,15 +178,15 @@ pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskE
         QualityCheck::Build => run_build_check()?,
         QualityCheck::Test => run_test_check()?,
         QualityCheck::DocTest => run_doc_test()?,
-        QualityCheck::Audit => run_audit_check()?,
-        QualityCheck::Deny => run_deny_check()?,
-        QualityCheck::Machete => run_machete_check()?,
-        QualityCheck::Msrv => run_msrv_check()?,
-        QualityCheck::ShellCheck => run_shellcheck_check()?,
-        QualityCheck::MarkdownLint => run_markdownlint_check()?,
+        QualityCheck::Audit => run_audit_check(config)?,
+        QualityCheck::Deny => run_deny_check(config)?,
+        QualityCheck::Machete => run_machete_check(config)?,
+        QualityCheck::Msrv => run_msrv_check(config)?,
+        QualityCheck::ShellCheck => run_shellcheck_check(config)?,
+        QualityCheck::MarkdownLint => run_markdownlint_check(config)?,
         QualityCheck::PrivacyCheck => quality_helpers::run_privacy_check()?,
         QualityCheck::SecretScan => quality_helpers::run_secret_scan()?,
-        QualityCheck::WorkflowValidation => run_workflow_validation()?,
+        QualityCheck::WorkflowValidation => run_workflow_validation(config)?,
         QualityCheck::SkillEvals => run_skill_evals()?,
         QualityCheck::LlmContext => run_llm_context_check()?,
         QualityCheck::CiStatusArtifact => run_ci_status_check()?,
@@ -262,86 +266,60 @@ fn run_doc_test() -> Result<(), XtaskError> {
     commands::execute("cargo", &["test", "--doc", "--all-features"])
 }
 
-fn run_audit_check() -> Result<(), XtaskError> {
-    let has_audit = commands::execute_captured("cargo", &["audit", "--version"]).is_ok();
-    if has_audit {
+fn run_audit_check(config: &XtaskConfig) -> Result<(), XtaskError> {
+    quality_policy::run_with_tool_policy(config, QualityCheck::Audit, || {
         commands::execute("cargo", &["audit"])
-    } else {
-        println!("  ! cargo-audit not found, skipping");
-        Ok(())
-    }
+    })
 }
 
-fn run_deny_check() -> Result<(), XtaskError> {
-    let has_deny = commands::execute_captured("cargo", &["deny", "--version"]).is_ok();
-    if has_deny {
+fn run_deny_check(config: &XtaskConfig) -> Result<(), XtaskError> {
+    quality_policy::run_with_tool_policy(config, QualityCheck::Deny, || {
         commands::execute("cargo", &["deny", "check"])
-    } else {
-        println!("  ! cargo-deny not found, skipping");
-        Ok(())
-    }
+    })
 }
 
-fn run_machete_check() -> Result<(), XtaskError> {
-    let has_machete = commands::execute_captured("cargo-machete", &["--version"]).is_ok();
-    if has_machete {
+fn run_machete_check(config: &XtaskConfig) -> Result<(), XtaskError> {
+    quality_policy::run_with_tool_policy(config, QualityCheck::Machete, || {
         commands::execute("cargo-machete", &[])
-    } else {
-        println!("  ! cargo-machete not found, skipping");
-        Ok(())
-    }
+    })
 }
 
-fn run_msrv_check() -> Result<(), XtaskError> {
-    if Path::new("scripts/audit-msrv.sh").exists() {
+fn run_msrv_check(config: &XtaskConfig) -> Result<(), XtaskError> {
+    quality_policy::run_with_tool_policy(config, QualityCheck::Msrv, || {
         commands::execute("bash", &["scripts/audit-msrv.sh"])
-    } else {
-        println!("  ! scripts/audit-msrv.sh not found, skipping");
-        Ok(())
-    }
+    })
 }
 
-fn run_shellcheck_check() -> Result<(), XtaskError> {
-    let has_shellcheck = commands::execute_captured("shellcheck", &["--version"]).is_ok();
-    if has_shellcheck {
+fn run_shellcheck_check(config: &XtaskConfig) -> Result<(), XtaskError> {
+    quality_policy::run_with_tool_policy(config, QualityCheck::ShellCheck, || {
         let mut sh_files = Vec::new();
         quality_helpers::find_files(Path::new("."), "sh", &mut sh_files);
         if sh_files.is_empty() {
             println!("  ✓ No shell scripts detected");
-        } else {
-            let mut args = vec!["--severity=error"];
-            let sh_strs: Vec<String> = sh_files
-                .iter()
-                .map(|p| p.to_string_lossy().into_owned())
-                .collect();
-            for s in &sh_strs {
-                args.push(s);
-            }
-            commands::execute("shellcheck", &args)?;
+            return Ok(());
         }
-    } else {
-        println!("  ! shellcheck not found, skipping");
-    }
-    Ok(())
+        let mut args = vec!["--severity=error"];
+        let sh_strs: Vec<String> = sh_files
+            .iter()
+            .map(|p| p.to_string_lossy().into_owned())
+            .collect();
+        for s in &sh_strs {
+            args.push(s);
+        }
+        commands::execute("shellcheck", &args)
+    })
 }
 
-fn run_markdownlint_check() -> Result<(), XtaskError> {
-    let has_mdlint = commands::execute_captured("markdownlint-cli2", &["--version"]).is_ok();
-    if has_mdlint {
+fn run_markdownlint_check(config: &XtaskConfig) -> Result<(), XtaskError> {
+    quality_policy::run_with_tool_policy(config, QualityCheck::MarkdownLint, || {
         commands::execute("markdownlint-cli2", &["**/*.md"])
-    } else {
-        println!("  ! markdownlint-cli2 not found, skipping");
-        Ok(())
-    }
+    })
 }
 
-fn run_workflow_validation() -> Result<(), XtaskError> {
-    if Path::new("scripts/validate-workflows.sh").exists() {
+fn run_workflow_validation(config: &XtaskConfig) -> Result<(), XtaskError> {
+    quality_policy::run_with_tool_policy(config, QualityCheck::WorkflowValidation, || {
         commands::execute("bash", &["scripts/validate-workflows.sh"])
-    } else {
-        println!("  ! scripts/validate-workflows.sh not found, skipping");
-        Ok(())
-    }
+    })
 }
 
 fn run_skill_evals() -> Result<(), XtaskError> {
@@ -469,6 +447,7 @@ mod tests {
             "ci-smoke".to_string(),
             crate::config::TierDef {
                 checks: vec![QualityCheck::Fmt, QualityCheck::Clippy],
+                required_checks: None,
             },
         );
         let checks = plan_checks(&config, Some("ci-smoke"), None, None).unwrap();

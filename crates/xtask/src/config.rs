@@ -2,7 +2,7 @@
 
 use crate::quality::QualityCheck;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -51,6 +51,19 @@ pub enum XtaskError {
     },
 }
 
+/// Resolves legacy tier aliases to their canonical tier names.
+///
+/// Kept next to the config types because both `quality::plan_checks` and
+/// config validation must agree on the alias map.
+#[must_use]
+pub fn canonical_tier_name(selected: &str) -> &str {
+    match selected {
+        "fast-pr" => "pull-request",
+        "full-gate" | "all" => "protected-branch",
+        other => other,
+    }
+}
+
 /// Lint-related thresholds.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
@@ -71,6 +84,14 @@ pub struct LintThresholds {
 pub struct TierDef {
     /// Quality checks this tier runs, in execution order.
     pub checks: Vec<QualityCheck>,
+    /// Checks whose tool/script must be present for the tier to run: a required
+    /// check whose tool is missing fails the gate with `XtaskError::MissingTool`
+    /// instead of being skipped. When omitted, the built-in policy applies
+    /// (the `protected-branch` and `release` tiers require the
+    /// security/dependency checks; every other tier stays advisory). An
+    /// explicit empty list is a deliberate opt-out.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required_checks: Option<Vec<QualityCheck>>,
 }
 
 /// The main strongly typed configuration structure.
@@ -124,6 +145,7 @@ impl XtaskConfig {
                     Q::PrivacyCheck,
                     Q::SecretScan,
                 ],
+                required_checks: None,
             },
         );
         // Deep merge gate for protected branches: security/dependency policy plus the PR tier.
@@ -148,6 +170,7 @@ impl XtaskConfig {
                     Q::WorkflowValidation,
                     Q::CiStatusArtifact,
                 ],
+                required_checks: None,
             },
         );
         // Expensive / repo-specific checks that only make sense on a schedule.
@@ -167,6 +190,7 @@ impl XtaskConfig {
                     Q::Machete,
                     Q::Msrv,
                 ],
+                required_checks: None,
             },
         );
         // Pre-release gate.
@@ -186,6 +210,7 @@ impl XtaskConfig {
                     Q::PrivacyCheck,
                     Q::SecretScan,
                 ],
+                required_checks: None,
             },
         );
         tiers
@@ -193,11 +218,24 @@ impl XtaskConfig {
 }
 
 impl XtaskConfig {
-    /// Loads the configuration from the specified path, or returns defaults.
+    /// Loads the configuration from the specified path with fail-closed semantics.
+    ///
+    /// - **Missing file**: returns the built-in defaults. This is deliberate and
+    ///   documented: `config/xtask.json` ships with the repository and with every
+    ///   generated template project, so absence means the tool was invoked
+    ///   outside a project root. The built-in tiers equal the shipped
+    ///   configuration, so no check coverage is lost. Callers MUST NOT extend
+    ///   this fallback to any present-but-invalid case.
+    /// - **Present but unreadable, unparsable, or structurally invalid**: returns
+    ///   `XtaskError::InvalidConfig`. Substituting defaults here would silently
+    ///   revert repository-specific policy (required checks vanish while CI
+    ///   stays green) — a security fail-open. Callers must exit nonzero.
+    ///
     /// Also enforces file input limit to mitigate resource exhaustions.
     ///
     /// # Errors
-    /// Returns `XtaskError::InvalidConfig` if the file exists but cannot be read or parsed.
+    /// Returns `XtaskError::InvalidConfig` if the file exists but cannot be
+    /// read, parsed, or validated.
     pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Self, XtaskError> {
         let path = path.as_ref();
         if !path.exists() {
@@ -229,9 +267,66 @@ impl XtaskConfig {
         if config.tiers.is_empty() {
             config.tiers = Self::builtin_tiers();
         }
+        config.validate()?;
         Ok(config)
     }
+
+    /// Structural validation enforcing the fail-closed configuration contract:
+    ///
+    /// 1. `default_tier` (after legacy-alias resolution) names a defined tier;
+    /// 2. every tier runs at least one check;
+    /// 3. no tier repeats a check;
+    /// 4. check names are known variants — enforced by serde during
+    ///    deserialization, so an unknown name can never reach this point;
+    /// 5. a tier's `required_checks` are a subset of its `checks`.
+    ///
+    /// # Errors
+    /// Returns `XtaskError::InvalidConfig` describing the first violation.
+    pub fn validate(&self) -> Result<(), XtaskError> {
+        let default_canonical = canonical_tier_name(&self.default_tier);
+        if !self.tiers.contains_key(default_canonical) {
+            let defined: Vec<&str> = self.tiers.keys().map(String::as_str).collect();
+            return Err(XtaskError::InvalidConfig {
+                message: format!(
+                    "default_tier '{default_canonical}' does not name a defined tier (defined: {defined:?})"
+                ),
+            });
+        }
+        for (name, def) in &self.tiers {
+            if def.checks.is_empty() {
+                return Err(XtaskError::InvalidConfig {
+                    message: format!("tier '{name}' defines no checks"),
+                });
+            }
+            let unique: BTreeSet<QualityCheck> = def.checks.iter().copied().collect();
+            if unique.len() != def.checks.len() {
+                return Err(XtaskError::InvalidConfig {
+                    message: format!("tier '{name}' lists duplicate checks"),
+                });
+            }
+            if let Some(required) = &def.required_checks {
+                let unlisted: Vec<&str> = required
+                    .iter()
+                    .filter(|check| !unique.contains(*check))
+                    .map(|check| check.name())
+                    .collect();
+                if !unlisted.is_empty() {
+                    return Err(XtaskError::InvalidConfig {
+                        message: format!(
+                            "tier '{name}' requires check(s) [{}] that are not in its checks list",
+                            unlisted.join(", ")
+                        ),
+                    });
+                }
+            }
+        }
+        Ok(())
+    }
 }
+
+#[cfg(test)]
+#[path = "config_test.rs"]
+mod config_test;
 
 #[cfg(test)]
 mod tests {
