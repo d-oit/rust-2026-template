@@ -5,6 +5,7 @@ pub mod commands;
 pub mod config;
 pub mod quality;
 pub mod quality_helpers;
+pub mod release;
 pub mod reporting;
 pub mod telemetry;
 pub mod template_init;
@@ -54,6 +55,11 @@ enum Cmd {
     Agents {
         #[command(subcommand)]
         sub: AgentsSub,
+    },
+    /// Release automation.
+    Release {
+        #[command(subcommand)]
+        sub: release::ReleaseSub,
     },
 }
 
@@ -402,8 +408,11 @@ fn handle_agents_check_context() -> Result<(), XtaskError> {
 fn main() {
     let cli = Cli::parse();
     let config = XtaskConfig::load_from_file("config/xtask.json").unwrap_or_else(|e| {
-        println!("  ! Failed to load config/xtask.json, using defaults. Error: {e}");
-        XtaskConfig::default()
+        eprintln!("Error running xtask: {e}");
+        eprintln!(
+            "config/xtask.json exists but is invalid; refusing to fall back to defaults (fail-closed)."
+        );
+        std::process::exit(1);
     });
 
     let result = match cli.cmd {
@@ -479,6 +488,7 @@ fn main() {
             AgentsSub::Inventory { format } => handle_agents_inventory(&format),
             AgentsSub::CheckContext => handle_agents_check_context(),
         },
+        Cmd::Release { sub } => sub.run(),
     };
 
     if let Err(e) = result {

@@ -1,158 +1,173 @@
 ---
-# .github/workflows/patch-release-on-label.yml
-#
-# Trigger : PR labelled with `release:patch`
-# Effect  : bumps the patch version in every relevant file on the PR branch,
-#           then commits the changes back.
-#
-# Canonical version source : [workspace.package] version in Cargo.toml
-# Files updated by scripts/bump-version.sh:
-#   - Cargo.toml              ([workspace.package] version)
-#   - crates/*/Cargo.toml     (any crate with a standalone version line)
-#   - Cargo.lock              (regenerated via `cargo update --workspace`)
-#   - CHANGELOG.md            ([Unreleased] → [X.Y.Z], new [Unreleased] header,
-#                              diff links)
-#   - README.md               (explicit version strings)
-#   - *.md / *.yml / *.yaml / *.json  (lines matching `version = "OLD"` or
-#                              `version: "OLD"` exactly — dependency specs are
-#                              left untouched)
-#
-# Loop prevention : the bot commit sets `skip-checks: true` and the job guards
-#   on `github.actor != 'github-actions[bot]'` so re-labelling by the bot
-#   never re-triggers the workflow.
+# Trust model: no PR-head code ever runs with write permissions.
+# Job 1 is read-only: it verifies the PR via the API (open, same-repo — forks rejected,
+# a release: label present, optional expected head sha) and builds xtask from the trusted
+# dispatch-sha checkout, never from PR-head code. Job 2 (environment: release-write,
+# contents: write) only re-runs the trusted, artifact-shipped xtask binary and pushes a
+# two-file commit after a pre-push guard confirms the verified head sha is unchanged.
 
-name: Patch Release on Label
+name: Patch Release
 
 on:
-  pull_request:
-    types: [labeled]
-
-# One run per PR at a time; cancel any queued run for the same PR.
-concurrency:
-  group: patch-release-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to version-bump
+        required: true
+        type: string
+      expected_head_sha:
+        description: Optional expected PR head SHA; abort if the PR has moved
+        required: false
+        type: string
+        default: ""
 
 permissions:
-  contents: write   # push commit to PR branch
-  pull-requests: read
+  contents: read
+
+concurrency:
+  group: patch-release-${{ inputs.pr_number }}
+  cancel-in-progress: true
 
 jobs:
-  bump-patch:
-    name: Bump patch version
-    # Guard 1: only the exact label we care about
-    if: >
-      github.event.label.name == 'release:patch' &&
-      github.event.pull_request.state == 'open' &&
-      github.actor != 'github-actions[bot]'
+  verify-and-bump:
+    name: Verify PR and bump version (read-only)
     runs-on: ubuntu-latest
-
+    outputs:
+      pr_head_sha: ${{ steps.pr.outputs.pr_head_sha }}
+      head_branch: ${{ steps.pr.outputs.head_branch }}
     steps:
-      # ── Checkout the PR branch (full history for CHANGELOG links) ───────────
-      - name: Checkout PR branch
+      - name: Checkout trusted dispatch ref (xtask source)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          # Use a PAT or the default GITHUB_TOKEN.
-          # GITHUB_TOKEN pushes are visible to CI but won't re-trigger
-          # `pull_request` events, which is exactly what we want.
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+          ref: ${{ github.sha }}
+          persist-credentials: false
 
-      # ── Install stable Rust (needed for `cargo update`) ─────────────────────
+      - name: Verify pull request via API
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          EXPECTED_SHA: ${{ inputs.expected_head_sha }}
+        run: |
+          set -euo pipefail
+          PR_JSON="$(gh api "repos/${REPO}/pulls/${PR_NUMBER}")"
+          STATE="$(jq -r '.state' <<<"${PR_JSON}")"
+          HEAD_REPO="$(jq -r '.head.repo.full_name' <<<"${PR_JSON}")"
+          HEAD_BRANCH="$(jq -r '.head.ref' <<<"${PR_JSON}")"
+          HEAD_SHA="$(jq -r '.head.sha' <<<"${PR_JSON}")"
+          [ "${STATE}" = "open" ] || { echo "::error::PR ${PR_NUMBER} is not open"; exit 1; }
+          [ "${HEAD_REPO}" = "${REPO}" ] || { echo "::error::Fork PRs are not allowed"; exit 1; }
+          jq -e '[.labels[].name | startswith("release:")] | any' <<<"${PR_JSON}" >/dev/null \
+            || { echo "::error::PR has no release label"; exit 1; }
+          if [ -n "${EXPECTED_SHA}" ] && [ "${EXPECTED_SHA}" != "${HEAD_SHA}" ]; then
+            echo "::error::PR head moved: expected ${EXPECTED_SHA}, got ${HEAD_SHA}"
+            exit 1
+          fi
+          echo "pr_head_sha=${HEAD_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "head_branch=${HEAD_BRANCH}" >> "${GITHUB_OUTPUT}"
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
 
-      # ── Cache Cargo registry to speed up `cargo update` ─────────────────────
       - name: Cache Cargo registry
         uses: Swatinem/rust-cache@258712b0b7b1ddf8bddc9fc3b0faca682b2736c3  # v2
         with:
           cache-on-failure: true
 
-      # ── Run the version bump script ──────────────────────────────────────────
-      - name: Bump patch version
-        id: bump
+      - name: Checkout PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: refs/pull/${{ inputs.pr_number }}/head
+          path: pr-head
+          persist-credentials: false
+
+      - name: Build xtask from trusted checkout
+        run: cargo build -p xtask
+
+      - name: Dry-run the patch bump against the PR head
+        working-directory: pr-head
+        run: $GITHUB_WORKSPACE/target/debug/xtask release bump-patch --dry-run
+
+      - name: Bump patch version on the PR head (no push)
+        working-directory: pr-head
+        run: $GITHUB_WORKSPACE/target/debug/xtask release bump-patch
+
+      - name: Upload bumped manifest as artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: bumped-manifest
+          path: |
+            pr-head/Cargo.toml
+            pr-head/VERSION
+          if-no-files-found: warn
+
+      - name: Upload trusted xtask binary for the write job
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: xtask-binary
+          path: target/debug/xtask
+
+  push-bump:
+    name: Commit and push version bump (write)
+    needs: [verify-and-bump]
+    environment: release-write
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: refs/pull/${{ inputs.pr_number }}/head
+          persist-credentials: false
+
+      - name: Download trusted xtask binary
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v4
+        with:
+          name: xtask-binary
+          path: xtask-bin
+
+      - name: Re-run the patch bump
         run: |
-          # Make script executable in case file permissions were lost
-          chmod +x scripts/bump-version.sh
+          chmod +x xtask-bin/xtask
+          ./xtask-bin/xtask release bump-patch
 
-          # Capture old version before the bump
-          OLD=$(awk '
-            /^\[workspace\.package\]/ { in_section=1; next }
-            /^\[/                     { in_section=0 }
-            in_section && /^version[[:space:]]*=/ {
-              match($0, /"([0-9]+\.[0-9]+\.[0-9]+)"/, arr)
-              if (arr[1] != "") { print arr[1]; exit }
-            }
-          ' Cargo.toml)
-
-          # Apply the bump
-          bash scripts/bump-version.sh --execute
-
-          # Capture new version after the bump
-          NEW=$(awk '
-            /^\[workspace\.package\]/ { in_section=1; next }
-            /^\[/                     { in_section=0 }
-            in_section && /^version[[:space:]]*=/ {
-              match($0, /"([0-9]+\.[0-9]+\.[0-9]+)"/, arr)
-              if (arr[1] != "") { print arr[1]; exit }
-            }
-          ' Cargo.toml)
-
-          echo "old_version=$OLD" >> "$GITHUB_OUTPUT"
-          echo "new_version=$NEW" >> "$GITHUB_OUTPUT"
-
-      # ── Commit and push if anything changed ──────────────────────────────────
-      - name: Commit version bump
+      - name: Pre-push guard — verify PR head is unchanged
         env:
-          OLD: ${{ steps.bump.outputs.old_version }}
-          NEW: ${{ steps.bump.outputs.new_version }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          EXPECTED_SHA: ${{ needs.verify-and-bump.outputs.pr_head_sha }}
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Stage only the files the bump script touches; never stage unrelated
-          # working-tree changes that might exist on the branch.
-          git add \
-            Cargo.toml \
-            Cargo.lock \
-            CHANGELOG.md \
-            README.md \
-            "crates/*/Cargo.toml" \
-            "*.md" \
-            "*.yml" \
-            "*.yaml" \
-            "*.json" \
-            2>/dev/null || true
-
-          # Only commit if there is actually something staged
-          if git diff --cached --quiet; then
-            echo "Nothing to commit — version may already be $NEW"
-            exit 0
+          set -euo pipefail
+          LOCAL_SHA="$(git rev-parse HEAD)"
+          REMOTE_SHA="$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.head.sha')"
+          if [ "${LOCAL_SHA}" != "${EXPECTED_SHA}" ] || [ "${REMOTE_SHA}" != "${EXPECTED_SHA}" ]; then
+            echo "::error::PR head moved since verification"
+            echo "expected=${EXPECTED_SHA} local=${LOCAL_SHA} remote=${REMOTE_SHA}"
+            exit 1
           fi
 
-          git commit \
-            --message "chore(release): bump version $OLD → $NEW [skip ci]" \
-            --message "Automated patch version bump triggered by 'release:patch' label." \
-            --message "Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
-
-      # ── Surface the result as a job summary ──────────────────────────────────
-      - name: Write job summary
-        if: always()
+      - name: Commit and push the bump
         env:
-          OLD: ${{ steps.bump.outputs.old_version }}
-          NEW: ${{ steps.bump.outputs.new_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_BRANCH: ${{ needs.verify-and-bump.outputs.head_branch }}
         run: |
-          echo "## Patch release bump" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| | Version |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Before | \`$OLD\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| After  | \`$NEW\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Files updated: \`Cargo.toml\`, \`Cargo.lock\`, \`CHANGELOG.md\`, \
-            \`README.md\`, matching \`*.md / *.yml / *.yaml / *.json\`." >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> Merge this PR to ship \`v$NEW\`. \
-            The release workflow fires on the resulting version tag." >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml
+          if [ -f VERSION ]; then
+            git add VERSION
+          fi
+          if git diff --cached --quiet; then
+            echo "Nothing to commit — version already bumped"
+            exit 0
+          fi
+          git config "http.https://github.com/.extraheader" \
+            "AUTHORIZATION: basic $(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 -w0)"
+          trap 'git config --unset "http.https://github.com/.extraheader" || true' EXIT
+          git commit -m "chore(release): bump patch version [skip ci]" \
+            -m "Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          git push origin "HEAD:${HEAD_BRANCH}"
