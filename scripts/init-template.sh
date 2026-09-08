@@ -57,7 +57,7 @@ done
 # Interactive prompts (preserved from the legacy script).
 prompt() { # var label
   local var="$1"
-  if [[ -z "${!var:-}" ]]; then
+  if [[ -z "${!var:-}" ]] && [[ -t 0 ]]; then
     printf "%s: " "$2"
     read -r val
     printf -v "$var" '%s' "$val"
