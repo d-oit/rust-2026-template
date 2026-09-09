@@ -153,9 +153,9 @@ workspace: which crates stay, which workflows run, and the default CI tier.
 ```bash
 ./scripts/init-template.sh --profile library --name my-lib
 # equivalent xtask commands
-cargo xtask template init --profile minimal --name my-app
-cargo xtask template validate-profile --profile config/template-profiles/library.toml
-cargo xtask template inspect --profile service
+cargo run -p xtask --bin xtask -- template init --profile minimal --name my-app
+cargo run -p xtask --bin xtask -- template validate-profile --profile config/template-profiles/library.toml
+cargo run -p xtask --bin xtask -- template inspect --profile service
 ```
 
 `--minimal` remains a shorthand for `--profile minimal`. Full detail:

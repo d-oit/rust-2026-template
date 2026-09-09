@@ -167,7 +167,7 @@ impl InitPlan {
                 None
             };
 
-        let text_replacements = prose_rewrites(root, &removals, rename.as_ref(), identity);
+        let text_replacements = prose_rewrites(root, rename.as_ref(), identity);
 
         Ok(Self {
             root: root.to_path_buf(),
@@ -392,7 +392,6 @@ fn edit_gitignore(content: &str) -> Option<String> {
 /// Targets are code constants — never profile- or caller-controlled.
 fn prose_rewrites(
     root: &Path,
-    removals: &[PathBuf],
     rename: Option<&CrateRename>,
     identity: &ProjectIdentity,
 ) -> Vec<FileRewrite> {
@@ -404,9 +403,6 @@ fn prose_rewrites(
     let mut rewrites = Vec::new();
     let mut push = |rel: &str, pairs: Vec<(&str, String)>| {
         let path = root.join(rel);
-        if removals.iter().any(|r| path.starts_with(r)) {
-            return;
-        }
         if let Ok(content) = std::fs::read_to_string(&path) {
             let mut updated = content.clone();
             for (from, to) in pairs {

@@ -1,21 +1,48 @@
 {
-  "timestamp": "2026-09-08T20:42:34Z",
-  "commit": "ed96c9849a652b7058b54ef76412c40421ed6f96",
-  "branch": "main",
-  "jobs": {
-    "validate-agents": "success",
-    "lint": "success",
-    "shellcheck": "success",
-    "gitleaks": "success",
-    "fmt": "success",
-    "clippy": "success",
-    "test": "success",
-    "security": "success",
-    "deny": "success",
-    "bench": "success",
-    "version-check": "success",
-  "msrv": "success",
-  "roast": "success"
-  },
+  "timestamp": "2026-09-08T18:19:51Z",
+  "commit": "ea7d95d11bde44fbba083fb39a5ffa309da439a7",
+  "branch": "jules-14343582106491083419-ff65e63a",
+  "checks": [
+    {
+      "name": "LOC Limits",
+      "status": "success",
+      "message": "Passed in 12.331777ms"
+    },
+    {
+      "name": "Rust Format",
+      "status": "success",
+      "message": "Passed in 379.22563ms"
+    },
+    {
+      "name": "Rust Clippy",
+      "status": "success",
+      "message": "Passed in 484.103829ms"
+    },
+    {
+      "name": "Rust Build",
+      "status": "success",
+      "message": "Passed in 383.000863ms"
+    },
+    {
+      "name": "Rust Tests",
+      "status": "success",
+      "message": "Passed in 1.532318717s"
+    },
+    {
+      "name": "Rust Doc Tests",
+      "status": "success",
+      "message": "Passed in 270.111085ms"
+    },
+    {
+      "name": "Privacy Check (No emails)",
+      "status": "success",
+      "message": "Passed in 42.186592ms"
+    },
+    {
+      "name": "Secret Scan",
+      "status": "success",
+      "message": "Passed in 72.577152ms"
+    }
+  ],
   "overall": "success"
 }

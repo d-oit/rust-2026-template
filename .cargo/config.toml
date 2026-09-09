@@ -63,7 +63,6 @@ debug = true
 
 # ─── Cargo alias shortcuts ─────────────────────────────────────────────────
 [alias]
-xtask = "run -p xtask --bin xtask --"
 # Quick quality check
 check-all = "check --workspace --all-features"
 # Run all tests with nextest
