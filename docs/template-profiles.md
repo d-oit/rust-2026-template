@@ -28,13 +28,13 @@ Profiles live in `config/template-profiles/*.toml` and are structurally validate
 ```bash
 # Initialize with a profile (rename + shape + CI tier + checklist)
 ./scripts/init-template.sh --profile library --name my-lib
-cargo xtask template init --profile service --name my-service
+cargo run -p xtask --bin xtask -- template init --profile service --name my-service
 
 # Validate a blueprint (by id or by path) against the schema
-cargo xtask template validate-profile --profile config/template-profiles/library.toml
+cargo run -p xtask --bin xtask -- template validate-profile --profile config/template-profiles/library.toml
 
 # Inspect a profile's plan
-cargo xtask template inspect --profile minimal
+cargo run -p xtask --bin xtask -- template inspect --profile minimal
 
 # Dry-run without modifying anything
 ./scripts/init-template.sh --profile minimal --name my-app --dry-run
