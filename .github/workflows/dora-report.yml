@@ -5,6 +5,8 @@ on:
     - cron: '0 0 * * 1'  # Every Monday (to ensure it runs the first Monday)
   workflow_dispatch:  # Allow manual triggering
 
+permissions: {}
+
 jobs:
   dora-report:
     # Only run on the first Monday of the month; template-only: skip in generated repos

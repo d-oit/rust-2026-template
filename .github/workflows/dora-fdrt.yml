@@ -4,6 +4,8 @@ on:
   issues:
     types: [closed]
 
+permissions: {}
+
 jobs:
   record-fdrt:
     # Template-only: skip in generated repos
