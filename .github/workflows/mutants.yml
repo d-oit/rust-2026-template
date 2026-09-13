@@ -42,7 +42,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: ./.github/actions/setup-rust
       - name: Install cargo-mutants and nextest
-        uses: taiki-e/install-action@e67fa11c4b9316fa714ddf0abed07a0c3143b95b  # v2
+        uses: taiki-e/install-action@fa23953489c080190314742a9b907f8e97c6767c  # v2
         with:
           tool: cargo-mutants,cargo-nextest
 
