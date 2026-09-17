@@ -115,8 +115,8 @@ fi
 # Clippy on workspace (can't check staged files only)
 if [[ -n "$STAGED_RS" ]]; then
   printf "Running clippy...\n"
-  if ! cargo clippy --all-targets --all-features -- -D warnings >/dev/null 2>&1; then
-    printf "${RED}  ✗ Clippy warnings found. Run: cargo clippy --all-targets --all-features -- -D warnings${NC}\n"
+  if ! cargo clippy --workspace --all-targets --all-features -- -D warnings >/dev/null 2>&1; then
+    printf "${RED}  ✗ Clippy warnings found. Run: cargo clippy --workspace --all-targets --all-features -- -D warnings${NC}\n"
     FAILED=1
   else
     printf "${GREEN}  ✓ Clippy OK${NC}\n"

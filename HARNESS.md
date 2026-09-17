@@ -44,7 +44,7 @@ And two modes:
 | Sensor | Trigger | Config | LLM Fix Hint |
 |---|---|---|---|
 | `cargo fmt --check` | pre-commit | `.pre-commit-config.yaml` | Run `cargo fmt --all` |
-| `cargo clippy -D warnings` | pre-commit + CI | `.clippy.toml`, `.pre-commit-config.yaml` | Fix all warnings; see `.clippy.toml` for allowed exceptions |
+| `cargo clippy --workspace --all-targets --all-features -- -D warnings` | pre-commit + CI | `.clippy.toml`, `.pre-commit-config.yaml` | Fix all warnings; see `.clippy.toml` for allowed exceptions |
 | `cargo deny check` | pre-commit + Security CI | `deny.toml` | Check crate layering diagram in `Cargo.toml` comments |
 | `cargo nextest run` | CI (`ci.yml`) | `Cargo.toml` | Fix failing tests before opening PR |
 | `cargo mutants` | CI weekly (`mutants.yml`) | `[workspace.metadata.cargo-mutants]` in `Cargo.toml` | If score < threshold, add targeted unit tests |

@@ -127,7 +127,7 @@ Choose separation strategy:
 ✓ Original problem solved
 ✓ No new contradictions introduced
 ✓ Solution approaches IFR (minimal complexity added)
-✓ `cargo clippy --all-targets --all-features -- -D warnings` passes
+✓ `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes
 ✓ `cargo nextest run --workspace` passes
 ✓ No `unsafe` without `// SAFETY:` rationale
 ```

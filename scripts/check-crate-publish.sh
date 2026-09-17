@@ -84,8 +84,8 @@ for member in $MEMBERS; do
     fi
   fi
 
-  # Dry-run package (faster than full publish)
-  if ! OUTPUT=$(cargo package --list -p "$CRATE_NAME" 2>&1); then
+  # Dry-run package (faster than full publish; allow-dirty so local uncommitted checks work)
+  if ! OUTPUT=$(cargo package --list --allow-dirty -p "$CRATE_NAME" 2>&1); then
     fail "$member: package listing failed"
     echo "$OUTPUT" | head -10 | sed 's/^/    /'
   else

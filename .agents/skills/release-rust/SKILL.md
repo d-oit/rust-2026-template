@@ -53,7 +53,7 @@ curl -s https://crates.io/api/v1/crates/<your-crate-name> | python3 -m json.tool
 
 ```bash
 cargo fmt --all -- --check
-cargo clippy --all-targets --all-features -- -D warnings
+cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo nextest run --all-features
 cargo audit && cargo deny check
 ```
@@ -80,6 +80,8 @@ Pushing a tag triggers `.github/workflows/release.yml`:
 - Builds binaries for all targets
 - Creates GitHub Release with assets
 - Optionally publishes to crates.io
+
+> **Note on Multi-Crate Workspaces**: Workspace crates with internal path dependencies must be published in topological (dependency-graph) order. `cargo publish --dry-run` on a non-leaf crate fails until its dependencies are published on crates.io. Use `cargo release --workspace` or `scripts/release-manager.sh` to handle workspace releases.
 
 ## Version Scheme
 

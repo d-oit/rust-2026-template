@@ -145,11 +145,19 @@ the published package. The template already sets this up via `[workspace.package
 include = ["/src", "README.md", "LICENSE"]
 ```
 
-When you create a new crate, verify the publish surface is correct:
+When you create a new crate, verify the publish surface is correct (pass `--allow-dirty` for local iteration before committing):
 
 ```bash
-cargo package --list -p your-crate
+cargo package --list -p your-crate --allow-dirty
 ```
+
+#### Multi-Crate Workspace Publish Order
+
+In a multi-crate workspace where crates depend on each other via versioned path dependencies (e.g., `core = { path = "../core", version = "0.1.0" }`), cargo requires dependencies to exist on `crates.io` before dependent crates can be published or dry-run validated.
+
+- **Topological Order**: Crates must be published bottom-up in dependency graph order (leaf dependencies first, non-leaf dependents last).
+- **Dry-Run Behavior**: Running `cargo publish --dry-run` or `cargo package` on a non-leaf crate will fail until its internal path dependencies are published to `crates.io`. Pre-publish verification for non-leaf crates prior to publishing dependencies should check package file listings (`cargo package --list`) and manifest metadata.
+- **Publishing Tooling**: Use `cargo release --workspace` or `scripts/release-manager.sh` to handle workspace versioning and publish dependency ordering automatically.
 
 The output should **not** contain `plans/`, `agents-docs/`, `scripts/`, `.github/`,
 `.agents/`, or `.opencode/`. See

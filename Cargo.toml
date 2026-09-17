@@ -16,6 +16,7 @@ homepage = "https://github.com/your-org/your-repo"
 documentation = "https://docs.rs/your-crate"
 readme = "README.md"
 include = [
+    "/src",
     "/examples",
     "/tests",
     "/benchmarks",
