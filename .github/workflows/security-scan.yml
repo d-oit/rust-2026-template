@@ -63,15 +63,22 @@ jobs:
     steps:
       - name: Check results
         run: |
-          results=(
-            "${{ needs.gitleaks.result }}"
-            "${{ needs.cargo-audit.result }}"
-            "${{ needs.cargo-deny.result }}"
-          )
-          for res in "${results[@]}"; do
-            if [[ "$res" == "failure" ]]; then
-              echo "Security scan found issues"
-              exit 1
-            fi
-          done
+          failed=()
+          if [[ "${{ needs.gitleaks.result }}" == "failure" ]]; then
+            failed+=("gitleaks: Secret Scan detected potential hardcoded credentials (run `gitleaks detect` locally)")
+          fi
+          if [[ "${{ needs.cargo-audit.result }}" == "failure" ]]; then
+            failed+=("cargo-audit: Security advisory found in dependencies (run `cargo audit` locally)")
+          fi
+          if [[ "${{ needs.cargo-deny.result }}" == "failure" ]]; then
+            failed+=("cargo-deny: Dependency policy violation found (run `cargo deny check` locally)")
+          fi
+
+          if [ ${#failed[@]} -ne 0 ]; then
+            echo "::error::Security summary failed! Concrete failing job(s):"
+            for f in "${failed[@]}"; do
+              echo "  - $f"
+            done
+            exit 1
+          fi
           echo "All security scans passed"

@@ -35,8 +35,11 @@ delivery performance metrics and three DORA agentic metrics from available data 
 ### 1. Fetch Deployment Frequency data from GitHub API
 
 ```bash
+# Note: Combine paginated GitHub API JSON arrays using jq -s 'add // []' to avoid concatenated JSON files
+# See historical failure case dora-report-gen-20260914 in .agents/ci/regression-matrix.json
 gh api "/repos/{owner}/{repo}/releases" --paginate \
   --jq '[.[] | {tag: .tag_name, published: .published_at}]' \
+  | jq -s 'add // []' \
   > /tmp/releases.json
 ```
 
@@ -45,6 +48,7 @@ gh api "/repos/{owner}/{repo}/releases" --paginate \
 ```bash
 gh api "/repos/{owner}/{repo}/pulls?state=closed&base=main" --paginate \
   --jq '[.[] | select(.merged_at != null) | {pr: .number, created: .created_at, merged: .merged_at}]' \
+  | jq -s 'add // []' \
   > /tmp/prs.json
 ```
 

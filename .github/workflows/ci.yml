@@ -537,8 +537,9 @@ jobs:
               "deny": "${{ needs.deny.result }}",
               "bench": "${{ needs.bench.result }}",
               "version-check": "${{ needs.version-check.result }}",
-            "msrv": "${{ needs.msrv.result }}",
-            "roast": "${{ needs.roast.result }}"
+              "msrv": "${{ needs.msrv.result }}",
+              "roast": "${{ needs.roast.result }}",
+              "quality-gate": "${{ needs.quality-gate.result }}"
             },
             "overall": "${{ job.status }}"
           }
@@ -546,31 +547,30 @@ jobs:
 
       - name: Update CI summary markdown
         run: |
-          if [[ "${{ needs.lint.result }}" == "success" || "${{ needs.lint.result }}" == "skipped" ]]; then
-            STATUS_LINT="✅ success"
-          else
-            STATUS_LINT="❌ failed"
-          fi
-          if [[ "${{ needs.test.result }}" == "success" || "${{ needs.test.result }}" == "skipped" ]]; then
-            STATUS_TEST="✅ success"
-          else
-            STATUS_TEST="❌ failed"
-          fi
-          if [[ "${{ needs.security.result }}" == "success" || "${{ needs.security.result }}" == "skipped" ]]; then
-            STATUS_SECURITY="✅ success"
-          else
-            STATUS_SECURITY="❌ failed"
-          fi
-          if [[ "${{ needs.bench.result }}" == "success" || "${{ needs.bench.result }}" == "skipped" ]]; then
-            STATUS_BENCH="✅ success"
-          else
-            STATUS_BENCH="❌ failed"
-          fi
-          if [[ "${{ needs.roast.result }}" == "success" || "${{ needs.roast.result }}" == "skipped" ]]; then
-            STATUS_ROAST="✅ success"
-          else
-            STATUS_ROAST="❌ failed"
-          fi
+          status_symbol() {
+            case "$1" in
+              success) echo "✅ success" ;;
+              skipped) echo "⚪ skipped" ;;
+              failure) echo "❌ failed" ;;
+              cancelled) echo "🚫 cancelled" ;;
+              *) echo "❓ $1" ;;
+            esac
+          }
+
+          STATUS_VALIDATE_AGENTS=$(status_symbol "${{ needs.validate-agents.result }}")
+          STATUS_LINT=$(status_symbol "${{ needs.lint.result }}")
+          STATUS_SHELLCHECK=$(status_symbol "${{ needs.shellcheck.result }}")
+          STATUS_GITLEAKS=$(status_symbol "${{ needs.gitleaks.result }}")
+          STATUS_FMT=$(status_symbol "${{ needs.fmt.result }}")
+          STATUS_CLIPPY=$(status_symbol "${{ needs.clippy.result }}")
+          STATUS_TEST=$(status_symbol "${{ needs.test.result }}")
+          STATUS_SECURITY=$(status_symbol "${{ needs.security.result }}")
+          STATUS_DENY=$(status_symbol "${{ needs.deny.result }}")
+          STATUS_BENCH=$(status_symbol "${{ needs.bench.result }}")
+          STATUS_VERSION_CHECK=$(status_symbol "${{ needs.version-check.result }}")
+          STATUS_MSRV=$(status_symbol "${{ needs.msrv.result }}")
+          STATUS_ROAST=$(status_symbol "${{ needs.roast.result }}")
+          STATUS_QUALITY_GATE=$(status_symbol "${{ needs.quality-gate.result }}")
 
           cat > .agents/ci/ci-summary.md << EOF
           # CI Status Summary
@@ -583,11 +583,20 @@ jobs:
 
           | Job | Status |
           |---|---|
+          | validate-agents | $STATUS_VALIDATE_AGENTS |
           | lint | $STATUS_LINT |
+          | shellcheck | $STATUS_SHELLCHECK |
+          | gitleaks | $STATUS_GITLEAKS |
+          | fmt | $STATUS_FMT |
+          | clippy | $STATUS_CLIPPY |
           | test | $STATUS_TEST |
           | security | $STATUS_SECURITY |
+          | deny | $STATUS_DENY |
           | bench | $STATUS_BENCH |
+          | version-check | $STATUS_VERSION_CHECK |
+          | msrv | $STATUS_MSRV |
           | roast | $STATUS_ROAST |
+          | quality-gate | $STATUS_QUALITY_GATE |
 
           ## Known Issues
           - None
@@ -616,26 +625,54 @@ jobs:
 
       - name: Check all jobs passed
         run: |
-          results=(
-            "${{ needs.validate-agents.result }}"
-            "${{ needs.lint.result }}"
-            "${{ needs.shellcheck.result }}"
-            "${{ needs.gitleaks.result }}"
-            "${{ needs.fmt.result }}"
-            "${{ needs.clippy.result }}"
-            "${{ needs.test.result }}"
-            "${{ needs.security.result }}"
-            "${{ needs.deny.result }}"
-            "${{ needs.bench.result }}"
-            "${{ needs.version-check.result }}"
-            "${{ needs.msrv.result }}"
-            "${{ needs.roast.result }}"
-            "${{ needs.quality-gate.result }}"
+          declare -A job_hints=(
+            ["validate-agents"]="Agent manifest validation failed (run `cargo run -p xtask -- agents validate` locally)"
+            ["lint"]="YAML, Markdown, or Agent metrics lint failed (run `yamllint .` and `npx markdownlint-cli2 '**/*.md'` locally)"
+            ["shellcheck"]="Shell script linting failed (run `shellcheck scripts/*.sh` locally)"
+            ["gitleaks"]="Secret detection failed (run `gitleaks detect` locally)"
+            ["fmt"]="Code formatting check failed (run `cargo fmt --all` locally)"
+            ["clippy"]="Clippy lints failed (run `cargo clippy --workspace --all-targets --all-features` locally)"
+            ["test"]="Unit/integration test or doc test failed (run `cargo test --workspace` locally)"
+            ["security"]="Vulnerability audit failed (run `cargo audit` locally)"
+            ["deny"]="Dependency policy check failed (run `cargo deny check` locally)"
+            ["bench"]="Benchmark execution failed (run `cargo bench --workspace` locally)"
+            ["version-check"]="VERSION, llms.txt, or SKILLS.md consistency check failed"
+            ["msrv"]="Minimum Supported Rust Version check failed (run `cargo check` under MSRV compiler)"
+            ["roast"]="Roast scoring script failed (run `./scripts/roast-scorer.sh` locally)"
+            ["quality-gate"]="Configured xtask quality gate failed (run `cargo run -p xtask -- quality run` locally)"
           )
-          for res in "${results[@]}"; do
+
+          declare -A job_results=(
+            ["validate-agents"]="${{ needs.validate-agents.result }}"
+            ["lint"]="${{ needs.lint.result }}"
+            ["shellcheck"]="${{ needs.shellcheck.result }}"
+            ["gitleaks"]="${{ needs.gitleaks.result }}"
+            ["fmt"]="${{ needs.fmt.result }}"
+            ["clippy"]="${{ needs.clippy.result }}"
+            ["test"]="${{ needs.test.result }}"
+            ["security"]="${{ needs.security.result }}"
+            ["deny"]="${{ needs.deny.result }}"
+            ["bench"]="${{ needs.bench.result }}"
+            ["version-check"]="${{ needs.version-check.result }}"
+            ["msrv"]="${{ needs.msrv.result }}"
+            ["roast"]="${{ needs.roast.result }}"
+            ["quality-gate"]="${{ needs.quality-gate.result }}"
+          )
+
+          failed_jobs=()
+          for job in "${!job_results[@]}"; do
+            res="${job_results[$job]}"
             if [[ "$res" == "failure" || "$res" == "cancelled" ]]; then
-              echo "One or more critical CI jobs failed or were cancelled"
-              exit 1
+              hint="${job_hints[$job]:-No hint available}"
+              failed_jobs+=("Job '$job' ($res) -> $hint")
             fi
           done
+
+          if [ ${#failed_jobs[@]} -ne 0 ]; then
+            echo "::error::CI Success check failed because the following concrete job(s) failed or were cancelled:"
+            for failed in "${failed_jobs[@]}"; do
+              echo "  - $failed"
+            done
+            exit 1
+          fi
           echo "All CI jobs passed or were correctly skipped!"
