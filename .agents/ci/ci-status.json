@@ -1,21 +1,88 @@
 {
-  "timestamp": "2026-09-12T11:20:40Z",
-  "commit": "73f5aa0c8ba895b66724ffae57d2579b7b67ec41",
-  "branch": "main",
-  "jobs": {
-    "validate-agents": "success",
-    "lint": "success",
-    "shellcheck": "success",
-    "gitleaks": "success",
-    "fmt": "success",
-    "clippy": "success",
-    "test": "success",
-    "security": "success",
-    "deny": "success",
-    "bench": "success",
-    "version-check": "success",
-  "msrv": "success",
-  "roast": "success"
-  },
-  "overall": "success"
+  "timestamp": "2026-09-17T16:32:28Z",
+  "commit": "b5076dc16a2fb23c2db3a995e76ad2bb1eb9e0cb",
+  "branch": "jules-12939407564633582191-ce7b7a74",
+  "checks": [
+    {
+      "name": "LOC Limits",
+      "status": "success",
+      "message": "Passed in 14.088015ms"
+    },
+    {
+      "name": "Rust Format",
+      "status": "success",
+      "message": "Passed in 388.629743ms"
+    },
+    {
+      "name": "Rust Clippy",
+      "status": "success",
+      "message": "Passed in 1.749513317s"
+    },
+    {
+      "name": "Rust Build",
+      "status": "success",
+      "message": "Passed in 2.660212342s"
+    },
+    {
+      "name": "Rust Tests",
+      "status": "success",
+      "message": "Passed in 1.620059939s"
+    },
+    {
+      "name": "Rust Doc Tests",
+      "status": "success",
+      "message": "Passed in 301.461271ms"
+    },
+    {
+      "name": "Rust Security Audit",
+      "status": "failed",
+      "message": "Missing tool: 'cargo-audit'. Guidance: install with `cargo install cargo-audit --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+    },
+    {
+      "name": "Rust Dependency Policy (Deny)",
+      "status": "failed",
+      "message": "Missing tool: 'cargo-deny'. Guidance: install with `cargo install cargo-deny --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+    },
+    {
+      "name": "Rust Unused Dependencies (Machete)",
+      "status": "failed",
+      "message": "Missing tool: 'cargo-machete'. Guidance: install with `cargo install cargo-machete --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+    },
+    {
+      "name": "Rust MSRV Audit",
+      "status": "success",
+      "message": "Passed in 811.407076ms"
+    },
+    {
+      "name": "Shell Script Lint (ShellCheck)",
+      "status": "failed",
+      "message": "Missing tool: 'shellcheck'. Guidance: install shellcheck (e.g. `apt-get install shellcheck` or `brew install shellcheck`) (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+    },
+    {
+      "name": "Markdown Lint (markdownlint-cli2)",
+      "status": "failed",
+      "message": "Missing tool: 'markdownlint-cli2'. Guidance: install with `npm install -g markdownlint-cli2` (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+    },
+    {
+      "name": "Privacy Check (No emails)",
+      "status": "success",
+      "message": "Passed in 44.572025ms"
+    },
+    {
+      "name": "Secret Scan",
+      "status": "success",
+      "message": "Passed in 75.726114ms"
+    },
+    {
+      "name": "GitHub Actions Workflow Validation",
+      "status": "success",
+      "message": "Passed in 5.440955147s"
+    },
+    {
+      "name": "CI Status Artifact Check",
+      "status": "success",
+      "message": "Passed in 248.619µs"
+    }
+  ],
+  "overall": "failure"
 }

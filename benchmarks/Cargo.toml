@@ -11,6 +11,9 @@ workspace = true
 [dependencies]
 sample-app = { path = "../crates/sample-app", version = "0.0.0" }
 example-crate = { path = "../crates/example-crate", version = "0.0.0" }
+mcp-server-template = { path = "../crates/mcp-server-template", version = "0.0.0" }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
 
 [dev-dependencies]
 criterion = { workspace = true }
@@ -32,4 +35,9 @@ harness = false
 [[bench]]
 name = "checkpoint"
 path = "benches/checkpoint_bench.rs"
+harness = false
+
+[[bench]]
+name = "mcp_server"
+path = "benches/mcp_server_bench.rs"
 harness = false

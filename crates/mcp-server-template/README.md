@@ -81,7 +81,7 @@ impl Tool for MyTool {
 
 ## Architecture
 
-- **`McpServer`** — Registry-based tool dispatch with async RwLock
+- **`McpServer`** — Registry-based tool dispatch using a Copy-On-Write snapshot registry (`std::sync::RwLock<Arc<ToolRegistry>>`) to ensure lock contention is eliminated on hot dispatch paths without holding locks across `.await` points
 - **`Tool`** trait — `name()`, `description()`, `validate()`, `handle()`, `init()`
 - **`ToolRequest`** / **`ToolResponse`** — JSON-based I/O with optional metadata
 - **`ToolError`** — Typed errors: `InvalidInput`, `Execution`, `Validation`

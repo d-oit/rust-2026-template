@@ -74,7 +74,7 @@ Always default to bounded designs for network, filesystem, database, external AP
 
 Prefer synchronization mechanisms in this order:
 1. **Ownership and Message Passing:** Move data via bounded channels (`mpsc`, `oneshot`).
-2. **Immutable Snapshots:** Use `Arc<T>`, `ArcSwap`, or copy-on-write (`Cow`) for read-heavy shared state.
+2. **Immutable Snapshots:** Use `Arc<T>`, `ArcSwap`, or Copy-On-Write (`std::sync::RwLock<Arc<T>>`) for read-heavy shared state or registries. Lookups clone an `Arc` pointer (~1-2 ns) and release the lock immediately before lookup and async execution. On mutation, create a cloned snapshot under a short write lock and swap the `Arc`.
 3. **Short Synchronous Locks:** Use `std::sync::Mutex` or `parking_lot::Mutex` for extremely short data-only updates (e.g., updating a counter or inserting into a HashMap). Release the lock immediately before any `.await`.
 4. **Async Locks:** Use `tokio::sync::Mutex` or `tokio::sync::RwLock` ONLY when access across `.await` points is genuinely required or when waiting for lock acquisition needs to be async non-blocking.
 
@@ -121,16 +121,22 @@ for chunk in items.chunks(100) {
 
 ### Counter-Example 3: When `RwLock` is NOT the Answer
 
-**Problem:** Wrapping read-heavy config or state in `Arc<tokio::sync::RwLock<Config>>` causing reader lock contention and async overhead.
+**Problem:** Wrapping read-heavy config or tool registries in `Arc<tokio::sync::RwLock<Config>>` causing reader lock contention and async overhead on hot paths.
 
 ```rust
-// BAD: Heavy async RwLock overhead for read-heavy state lookups
-let config = state.read().await;
-let val = config.get("key");
+// BAD: Heavy async RwLock overhead for read-heavy state lookups or tool dispatch
+let registry = server.tools.read().await;
+let tool = registry.get("echo");
 
-// GOOD: Immutable snapshot or atomic swap (e.g., ArcSwap or Arc<Config>)
-let config = state.load(); // ArcSwap clone-free atomic read
-let val = config.get("key");
+// GOOD: Copy-On-Write snapshot pattern (e.g. std::sync::RwLock<Arc<Registry>>)
+// Dispatches take a sub-nanosecond Arc snapshot and drop the lock guard immediately:
+let registry = {
+    let guard = server.tools.read().unwrap_or_else(|e| e.into_inner());
+    Arc::clone(&*guard)
+};
+// Registry lookup, validation, and async handle execution run without holding any lock guard:
+let tool = registry.get("echo")?;
+tool.handle(req).await?;
 ```
 
 ### Counter-Example 4: When a Second Tokio Runtime is NOT the Answer
