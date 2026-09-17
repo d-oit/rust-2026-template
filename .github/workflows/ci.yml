@@ -176,22 +176,6 @@ jobs:
           scandir: './scripts'
           severity: warning
 
-  gitleaks:
-    name: Secret Scan (Gitleaks)
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7  # v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   # ───────────────────────────────────────────────────
   fmt:
     name: Format
@@ -278,46 +262,6 @@ jobs:
           fail_ci_if_error: false
 
   # ───────────────────────────────────────────────────
-  security:
-    name: Security Audit
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
-      - uses: ./.github/actions/setup-rust
-      - name: Install cargo-audit
-        uses: taiki-e/install-action@fa23953489c080190314742a9b907f8e97c6767c  # v2
-        with:
-          tool: cargo-audit
-      - name: Generate lockfile
-        run: cargo generate-lockfile
-      - name: Run cargo audit
-        run: cargo audit
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # ───────────────────────────────────────────────────
-  deny:
-    name: Dependency Policy (cargo-deny)
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    env:
-      RUSTC_WRAPPER: ""
-      SCCACHE_GHA_ENABLED: "false"
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25  # v2
-
-  # ───────────────────────────────────────────────────
   bench:
     name: Benchmarks
     needs: [changes]
@@ -395,12 +339,9 @@ jobs:
       - validate-agents
       - lint
       - shellcheck
-      - gitleaks
       - fmt
       - clippy
       - test
-      - security
-      - deny
       - bench
       - version-check
       - msrv
@@ -493,12 +434,9 @@ jobs:
       - validate-agents
       - lint
       - shellcheck
-      - gitleaks
       - fmt
       - clippy
       - test
-      - security
-      - deny
       - bench
       - version-check
       - msrv
@@ -529,12 +467,9 @@ jobs:
               "validate-agents": "${{ needs.validate-agents.result }}",
               "lint": "${{ needs.lint.result }}",
               "shellcheck": "${{ needs.shellcheck.result }}",
-              "gitleaks": "${{ needs.gitleaks.result }}",
               "fmt": "${{ needs.fmt.result }}",
               "clippy": "${{ needs.clippy.result }}",
               "test": "${{ needs.test.result }}",
-              "security": "${{ needs.security.result }}",
-              "deny": "${{ needs.deny.result }}",
               "bench": "${{ needs.bench.result }}",
               "version-check": "${{ needs.version-check.result }}",
               "msrv": "${{ needs.msrv.result }}",
@@ -560,12 +495,9 @@ jobs:
           STATUS_VALIDATE_AGENTS=$(status_symbol "${{ needs.validate-agents.result }}")
           STATUS_LINT=$(status_symbol "${{ needs.lint.result }}")
           STATUS_SHELLCHECK=$(status_symbol "${{ needs.shellcheck.result }}")
-          STATUS_GITLEAKS=$(status_symbol "${{ needs.gitleaks.result }}")
           STATUS_FMT=$(status_symbol "${{ needs.fmt.result }}")
           STATUS_CLIPPY=$(status_symbol "${{ needs.clippy.result }}")
           STATUS_TEST=$(status_symbol "${{ needs.test.result }}")
-          STATUS_SECURITY=$(status_symbol "${{ needs.security.result }}")
-          STATUS_DENY=$(status_symbol "${{ needs.deny.result }}")
           STATUS_BENCH=$(status_symbol "${{ needs.bench.result }}")
           STATUS_VERSION_CHECK=$(status_symbol "${{ needs.version-check.result }}")
           STATUS_MSRV=$(status_symbol "${{ needs.msrv.result }}")
@@ -586,12 +518,9 @@ jobs:
           | validate-agents | $STATUS_VALIDATE_AGENTS |
           | lint | $STATUS_LINT |
           | shellcheck | $STATUS_SHELLCHECK |
-          | gitleaks | $STATUS_GITLEAKS |
           | fmt | $STATUS_FMT |
           | clippy | $STATUS_CLIPPY |
           | test | $STATUS_TEST |
-          | security | $STATUS_SECURITY |
-          | deny | $STATUS_DENY |
           | bench | $STATUS_BENCH |
           | version-check | $STATUS_VERSION_CHECK |
           | msrv | $STATUS_MSRV |
@@ -626,32 +555,26 @@ jobs:
       - name: Check all jobs passed
         run: |
           declare -A job_hints=(
-            ["validate-agents"]="Agent manifest validation failed (run `cargo run -p xtask -- agents validate`)"
-            ["lint"]="YAML, Markdown, or Agent metrics lint failed (run `yamllint .` and `npx markdownlint-cli2`)"
-            ["shellcheck"]="Shell script linting failed (run `shellcheck scripts/*.sh`)"
-            ["gitleaks"]="Secret detection failed (run `gitleaks detect`)"
-            ["fmt"]="Code formatting check failed (run `cargo fmt --all`)"
-            ["clippy"]="Clippy lints failed (run `cargo clippy --workspace --all-targets --all-features`)"
-            ["test"]="Unit/integration test or doc test failed (run `cargo test --workspace`)"
-            ["security"]="Vulnerability audit failed (run `cargo audit`)"
-            ["deny"]="Dependency policy check failed (run `cargo deny check`)"
-            ["bench"]="Benchmark execution failed (run `cargo bench --workspace`)"
+            ["validate-agents"]="Agent manifest validation failed (run \`cargo run -p xtask -- agents validate\`)"
+            ["lint"]="YAML, Markdown, or Agent metrics lint failed (run \`yamllint .\` and \`npx markdownlint-cli2\`)"
+            ["shellcheck"]="Shell script linting failed (run \`shellcheck scripts/*.sh\`)"
+            ["fmt"]="Code formatting check failed (run \`cargo fmt --all\`)"
+            ["clippy"]="Clippy lints failed (run \`cargo clippy --workspace --all-targets --all-features\`)"
+            ["test"]="Unit/integration test or doc test failed (run \`cargo test --workspace\`)"
+            ["bench"]="Benchmark execution failed (run \`cargo bench --workspace\`)"
             ["version-check"]="VERSION, llms.txt, or SKILLS.md consistency check failed"
-            ["msrv"]="Minimum Supported Rust Version check failed (run `cargo check` under MSRV compiler)"
-            ["roast"]="Roast scoring script failed (run `./scripts/roast-scorer.sh`)"
-            ["quality-gate"]="Configured xtask quality gate failed (run `cargo run -p xtask -- quality run`)"
+            ["msrv"]="Minimum Supported Rust Version check failed (run \`cargo check\` under MSRV compiler)"
+            ["roast"]="Roast scoring script failed (run \`./scripts/roast-scorer.sh\`)"
+            ["quality-gate"]="Configured xtask quality gate failed (run \`cargo run -p xtask -- quality run\`)"
           )
 
           declare -A job_results=(
             ["validate-agents"]="${{ needs.validate-agents.result }}"
             ["lint"]="${{ needs.lint.result }}"
             ["shellcheck"]="${{ needs.shellcheck.result }}"
-            ["gitleaks"]="${{ needs.gitleaks.result }}"
             ["fmt"]="${{ needs.fmt.result }}"
             ["clippy"]="${{ needs.clippy.result }}"
             ["test"]="${{ needs.test.result }}"
-            ["security"]="${{ needs.security.result }}"
-            ["deny"]="${{ needs.deny.result }}"
             ["bench"]="${{ needs.bench.result }}"
             ["version-check"]="${{ needs.version-check.result }}"
             ["msrv"]="${{ needs.msrv.result }}"
@@ -669,7 +592,7 @@ jobs:
           done
 
           if [ ${#failed_jobs[@]} -ne 0 ]; then
-            echo "::error::CI Success check failed because the following concrete job(s) failed or were cancelled:"
+            echo "::error::CI Success check failed because concrete job(s) failed:"
             for failed in "${failed_jobs[@]}"; do
               echo "  - $failed"
             done

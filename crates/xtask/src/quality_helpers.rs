@@ -145,7 +145,7 @@ pub fn run_secret_scan() -> Result<(), XtaskError> {
             message: e.to_string(),
         })?;
 
-    let exclude_re = Regex::new(r"example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree|\.git|target|\.cargo|\.agents|\.opencode|node_modules")
+    let exclude_re = Regex::new(r"example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree|\.git|target|\.cargo|\.agents|\.opencode|node_modules|tests/fixtures/security/secret_fixture\.txt")
         .map_err(|e| XtaskError::InvalidConfig {
             message: e.to_string(),
         })?;
