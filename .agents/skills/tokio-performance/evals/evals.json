@@ -1,0 +1,109 @@
+{
+  "skill_name": "tokio-performance",
+  "version": "0.2.0",
+  "split": "60/40 train/validation",
+  "evals": [
+    {
+      "id": 1,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Our endpoint parses a small 2KB JSON string. Should we move serde_json::from_str to spawn_blocking to keep the async loop fast?",
+      "expected_output": "Recommends direct execution on the Tokio worker thread instead of spawn_blocking, pointing out that context switching and queue overhead exceed the short work duration.",
+      "files": [],
+      "assertions": [
+        "Recommends direct execution on Tokio worker thread for short CPU work",
+        "Rejects spawn_blocking due to thread context switch overhead",
+        "References workload-driven execution matrix in tokio-performance"
+      ]
+    },
+    {
+      "id": 2,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "We have a synchronous file read std::fs::read_to_string inside an async function. How should we handle this in Tokio?",
+      "expected_output": "Recommends using tokio::fs::read_to_string or tokio::task::spawn_blocking to avoid blocking the Tokio worker thread event loop on synchronous I/O.",
+      "files": [],
+      "assertions": [
+        "Identifies blocking synchronous I/O on Tokio worker thread as a correctness issue",
+        "Recommends tokio::fs::read_to_string or spawn_blocking",
+        "Explains that blocking worker threads starves other multiplexed tasks"
+      ]
+    },
+    {
+      "id": 3,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "We receive a list of 10,000 URLs and spawn a tokio::spawn task for each URL to make an HTTP fetch. How can we optimize this?",
+      "expected_output": "Identifies unbounded task fan-out as a risk for resource exhaustion and socket starvation. Recommends bounded concurrency using tokio::sync::Semaphore, buffer_unordered, or bounded channels.",
+      "files": [],
+      "assertions": [
+        "Flags unbounded tokio::spawn loop as an anti-pattern",
+        "Recommends bounded concurrency via Semaphore or buffer_unordered",
+        "Explains downstream backpressure and socket/file descriptor limits"
+      ]
+    },
+    {
+      "id": 4,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Our service acquires a std::sync::Mutex lock on a shared cache, then calls client.get(&url).await inside the lock before updating the cache. Is this correct?",
+      "expected_output": "Identifies holding a lock across an .await point as a correctness flaw causing severe contention and deadlock risk. Recommends reading state, dropping lock before .await, and re-acquiring lock briefly for update.",
+      "files": [],
+      "assertions": [
+        "Identifies holding lock across .await as a critical flaw",
+        "Recommends dropping lock guard before external async I/O",
+        "Proposes snapshotting or short data-only lock scope"
+      ]
+    },
+    {
+      "id": 5,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "We have a worker loop while let Some(msg) = rx.try_recv() in a tight loop that continuously processes incoming items without awaiting I/O. Other async tasks on the same worker are experiencing tail-latency spikes. Should we add yield_now().await after every message?",
+      "expected_output": "Evaluates scheduler starvation in repeatedly-ready loops. Advises against blindly scattering yield_now() on every message; recommends batching, event-driven async rx.recv().await, or measured cooperative yield strategy.",
+      "files": [],
+      "assertions": [
+        "Identifies repeatedly-ready loop as cause of scheduler starvation or tail-latency spikes",
+        "Discourages cargo-culting yield_now() on every single iteration",
+        "Recommends event-driven recv().await or batching with measured cooperative yields"
+      ]
+    },
+    {
+      "id": 6,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "We have a read-heavy config lookup accessed on every incoming request. We wrapped it in Arc<tokio::sync::RwLock<Config>>. Performance under heavy load is poor.",
+      "expected_output": "Recommends replacing heavy async RwLock with atomic ArcSwap, Arc<Config> immutable snapshot, or short synchronous lock if needed.",
+      "files": [],
+      "assertions": [
+        "Identifies async RwLock overhead on read-heavy state",
+        "Recommends ArcSwap or immutable Arc<Config> snapshot pattern",
+        "References counter-examples in tokio-performance"
+      ]
+    },
+    {
+      "id": 7,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Our async Tokio application creates a secondary tokio::runtime::Runtime to isolate background reporting tasks. Is this recommended?",
+      "expected_output": "Recommends against creating multiple Tokio runtimes without evidence of thread-priority or hard isolation needs. Recommends using Semaphore bounds or dedicated worker threads within the existing runtime.",
+      "files": [],
+      "assertions": [
+        "Flags secondary Tokio runtime as an anti-pattern",
+        "Recommends bounded tasks, semaphores, or dedicated thread pools instead"
+      ]
+    },
+    {
+      "id": 8,
+      "split": "train",
+      "should_trigger": false,
+      "prompt": "Run cargo test --workspace to check our unit tests",
+      "expected_output": "Should not trigger tokio-performance audit; this is a test execution command. Should suggest test-rust skill.",
+      "files": [],
+      "assertions": [
+        "Does NOT run Tokio performance audit",
+        "Suggests test-rust skill instead"
+      ]
+    }
+  ]
+}

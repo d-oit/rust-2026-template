@@ -5,7 +5,7 @@
 - **Max 500 LOC per source file** - split into submodules when exceeded
 - **Zero clippy warnings** - fix, never suppress with `#[allow(...)]` without comment
 - **Single responsibility** per module
-- **Async** - Use `tokio` when you need a runtime. CLI apps: prefer `#[tokio::main(flavor = "current_thread")]`. Sync `main` is fine when no async is required (see `sample-app`)
+- **Async** - Use `tokio` when needed. Choose execution models based on workload (direct for short CPU, `spawn_blocking` for genuinely blocking work/long CPU). See `.agents/skills/tokio-performance/SKILL.md`. Sync `main` is fine when no async is required (see `sample-app`)
 - **Error handling** - `thiserror` for library errors, `anyhow` for binaries
 - **No `unwrap()`** in library code - propagate errors
 - **Doc comments** on all public items (`///`)
@@ -13,7 +13,7 @@
 
 ## Core Invariants
 
-- **Async**: Use tokio when needed. No blocking in async paths (use `spawn_blocking`). Sync main is acceptable for simple binaries
+- **Async**: Use tokio when needed. Derive execution models from workload characteristics (direct execution vs `spawn_blocking`/dedicated pools), bound concurrency, and never hold locks across `.await`. See `.agents/skills/tokio-performance/SKILL.md`. Sync main is acceptable for simple binaries
 - **Clippy**: Zero warnings enforced (`-D warnings`). Fix, don't suppress
 - **Files**: ≤500 LOC per source file
 - **Secrets**: Never hardcode. Use environment variables or `.env` files
