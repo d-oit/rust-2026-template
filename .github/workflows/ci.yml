@@ -275,14 +275,25 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: ./.github/actions/setup-rust
       - name: Run benchmarks
-        run: cargo bench --workspace -- --output-format bencher 2>&1 | tee bench-output.txt
+        run: |
+          set -o pipefail
+          cargo bench -p benchmarks -- --output-format bencher 2>&1 | tee bench-output.txt
+      - name: Test benchmark parser
+        run: bash tests/parse_bench_test.sh
       - name: Parse and save bench results
         run: |
+          set -euo pipefail
           BENCH_DIR="benchmarks/events/$(date -u +%Y/%m/%d)"
           mkdir -p "${BENCH_DIR}"
           python3 scripts/parse_bench.py bench-output.txt \
-            ${{ github.sha }} $(date -u +%Y-%m-%dT%H:%M:%SZ) \
+            ${{ github.sha }} $(date -u +%Y-%m-%dT%H:%M:%SZ) target/criterion \
             > "${BENCH_DIR}/${{ github.sha }}.jsonl"
+          rows=$(wc -l < "${BENCH_DIR}/${{ github.sha }}.jsonl")
+          echo "Recorded ${rows} benchmark rows"
+          if [ "${rows}" -eq 0 ]; then
+            echo "::error::benchmark run produced no rows; the telemetry pipeline is broken"
+            exit 1
+          fi
       - name: Upload benchmark events
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:

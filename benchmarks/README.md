@@ -36,6 +36,12 @@ CI runs the full suite in the `Benchmarks` job and publishes the parsed results 
   `p50/p95/p99/max` per workload. Percentiles are printed in bencher format, so each one
   becomes its own row in the event stream (`…/p99`, `…/max`) with no schema change.
 
+`scripts/parse_bench.py` merges two sources by benchmark name: those harness-emitted
+percentile rows, and criterion's own `target/criterion/**/new/estimates.json` medians
+(criterion's bencher output carries no benchmark id, so its rows can only come from the
+JSON artifacts it always writes). The Benchmarks job fails if the merged run records zero
+rows, so a silent telemetry outage cannot pass as a green job again.
+
 ## Interpreting Results
 
 - Compare percentiles, not averages: tail movement outside run-to-run noise is the signal.
