@@ -10,7 +10,7 @@
 //! │          MCP Server                  │
 //! │  ┌─────────────────────────────┐    │
 //! │  │      Tool Registry           │    │
-//! │  │  (HashMap name → Box<dyn>)  │    │
+//! │  │ (Copy-On-Write Arc<HashMap>)│    │
 //! │  └─────────────────────────────┘    │
 //! │           │                          │
 //! │           ▼                          │
@@ -34,9 +34,8 @@ pub mod tool;
 pub mod tools;
 
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use thiserror::Error;
-use tokio::sync::RwLock;
 use tracing::info;
 
 pub use tool::{Tool, ToolError, ToolRequest, ToolResponse};
@@ -68,15 +67,17 @@ impl From<ToolError> for ServerError {
 pub type ToolRegistry = HashMap<&'static str, Arc<dyn Tool>>;
 
 /// MCP server with registered tools.
+/// Uses a Copy-On-Write snapshot registry (`std::sync::RwLock<Arc<ToolRegistry>>`)
+/// to ensure contention-light tool dispatches without holding locks across `.await`.
 pub struct McpServer {
-    tools: Arc<RwLock<ToolRegistry>>,
+    tools: RwLock<Arc<ToolRegistry>>,
 }
 
 impl McpServer {
     /// Create a new MCP server instance.
     pub fn new() -> Self {
         Self {
-            tools: Arc::new(RwLock::new(HashMap::new())),
+            tools: RwLock::new(Arc::new(HashMap::new())),
         }
     }
 
@@ -84,18 +85,20 @@ impl McpServer {
     pub async fn register<T: Tool + 'static>(&self, tool: T) -> Result<(), ServerError> {
         let name = tool.name();
         info!("Registering tool: {}", name);
-        self.tools.write().await.insert(name, Arc::new(tool));
+        let mut guard = self.tools.write().unwrap_or_else(|e| e.into_inner());
+        let mut new_registry = (**guard).clone();
+        new_registry.insert(name, Arc::new(tool));
+        *guard = Arc::new(new_registry);
         Ok(())
     }
 
     /// List all registered tool names.
     pub async fn list_tools(&self) -> Vec<String> {
-        self.tools
-            .read()
-            .await
-            .keys()
-            .map(|s| s.to_string())
-            .collect()
+        let registry = {
+            let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
+            Arc::clone(&*guard)
+        };
+        registry.keys().map(|s| (*s).to_string()).collect()
     }
 
     /// Execute a tool by name with the provided request.
@@ -140,8 +143,11 @@ impl McpServer {
         }
 
         let tool = {
-            let tools = self.tools.read().await;
-            tools
+            let registry = {
+                let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
+                Arc::clone(&*guard)
+            };
+            registry
                 .get(name)
                 .ok_or_else(|| ServerError::ToolNotFound(name.to_string()))?
                 .clone()
@@ -152,15 +158,11 @@ impl McpServer {
 
     /// Initialize all registered tools.
     pub async fn init(&self) -> Result<(), ServerError> {
-        let tool_names: Vec<_> = self.list_tools().await;
-        for name in &tool_names {
-            let tool = {
-                let tools = self.tools.read().await;
-                tools
-                    .get(name.as_str())
-                    .cloned()
-                    .ok_or_else(|| ServerError::Init(format!("Tool {name} missing during init")))?
-            };
+        let registry = {
+            let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
+            Arc::clone(&*guard)
+        };
+        for tool in registry.values() {
             tool.init().await?;
         }
         Ok(())
