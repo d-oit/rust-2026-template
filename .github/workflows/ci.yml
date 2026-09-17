@@ -626,20 +626,20 @@ jobs:
       - name: Check all jobs passed
         run: |
           declare -A job_hints=(
-            ["validate-agents"]="Agent manifest validation failed (run `cargo run -p xtask -- agents validate` locally)"
-            ["lint"]="YAML, Markdown, or Agent metrics lint failed (run `yamllint .` and `npx markdownlint-cli2 '**/*.md'` locally)"
-            ["shellcheck"]="Shell script linting failed (run `shellcheck scripts/*.sh` locally)"
-            ["gitleaks"]="Secret detection failed (run `gitleaks detect` locally)"
-            ["fmt"]="Code formatting check failed (run `cargo fmt --all` locally)"
-            ["clippy"]="Clippy lints failed (run `cargo clippy --workspace --all-targets --all-features` locally)"
-            ["test"]="Unit/integration test or doc test failed (run `cargo test --workspace` locally)"
-            ["security"]="Vulnerability audit failed (run `cargo audit` locally)"
-            ["deny"]="Dependency policy check failed (run `cargo deny check` locally)"
-            ["bench"]="Benchmark execution failed (run `cargo bench --workspace` locally)"
+            ["validate-agents"]="Agent manifest validation failed (run `cargo run -p xtask -- agents validate`)"
+            ["lint"]="YAML, Markdown, or Agent metrics lint failed (run `yamllint .` and `npx markdownlint-cli2`)"
+            ["shellcheck"]="Shell script linting failed (run `shellcheck scripts/*.sh`)"
+            ["gitleaks"]="Secret detection failed (run `gitleaks detect`)"
+            ["fmt"]="Code formatting check failed (run `cargo fmt --all`)"
+            ["clippy"]="Clippy lints failed (run `cargo clippy --workspace --all-targets --all-features`)"
+            ["test"]="Unit/integration test or doc test failed (run `cargo test --workspace`)"
+            ["security"]="Vulnerability audit failed (run `cargo audit`)"
+            ["deny"]="Dependency policy check failed (run `cargo deny check`)"
+            ["bench"]="Benchmark execution failed (run `cargo bench --workspace`)"
             ["version-check"]="VERSION, llms.txt, or SKILLS.md consistency check failed"
             ["msrv"]="Minimum Supported Rust Version check failed (run `cargo check` under MSRV compiler)"
-            ["roast"]="Roast scoring script failed (run `./scripts/roast-scorer.sh` locally)"
-            ["quality-gate"]="Configured xtask quality gate failed (run `cargo run -p xtask -- quality run` locally)"
+            ["roast"]="Roast scoring script failed (run `./scripts/roast-scorer.sh`)"
+            ["quality-gate"]="Configured xtask quality gate failed (run `cargo run -p xtask -- quality run`)"
           )
 
           declare -A job_results=(
