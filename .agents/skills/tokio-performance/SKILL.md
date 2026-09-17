@@ -185,11 +185,11 @@ before proposing an execution-model change, a `yield_now()`, a lock swap, or a s
 
 | Harness | What it answers | Nature |
 |---|---|---|
-| `benchmarks/benches/tokio_runtime_bench.rs` | execution strategy (direct vs `spawn_blocking`), cooperative-yield cost, bounded vs unbounded fan-out, registry contention, service-queue latency | informational telemetry, reports `p50/p95/p99/max` |
+| `benchmarks/benches/tokio_runtime_bench.rs`, `benchmarks/benches/tokio_runtime_pressure_bench.rs` | execution strategy (direct vs `spawn_blocking`), cooperative-yield cost, bounded vs unbounded fan-out, registry contention, service-queue latency | informational telemetry, reports `p50/p95/p99/max` |
 | `benchmarks/tests/tokio_runtime_behavior.rs` | bounded-queue backpressure, repeatedly-ready starvation and its yield cure, `spawn_blocking` thread identity and deadlock-freedom, permit bounds, registry no-lost-update | deterministic pass/fail, no timing thresholds |
 
 ```bash
-cargo bench -p benchmarks --bench tokio_runtime -- --quick   # full run: omit --quick
+cargo bench -p benchmarks --bench tokio_runtime --bench tokio_runtime_pressure -- --quick   # full run: omit --quick
 cargo nextest run -p benchmarks                              # deterministic invariants
 ```
 

@@ -46,3 +46,8 @@ harness = false
 name = "tokio_runtime"
 path = "benches/tokio_runtime_bench.rs"
 harness = false
+
+[[bench]]
+name = "tokio_runtime_pressure"
+path = "benches/tokio_runtime_pressure_bench.rs"
+harness = false

@@ -7,7 +7,9 @@ locally with no privileges, no external services, and no network.
 
 | Path | Purpose |
 |---|---|
-| `benches/tokio_runtime_bench.rs` | Tokio execution strategy, cooperative yielding, bounded fan-out, registry contention, service-queue latency |
+| `benches/tokio_runtime_bench.rs` | Tokio execution strategy (direct vs `spawn_blocking`) and cooperative-yield telemetry |
+| `benches/tokio_runtime_pressure_bench.rs` | Bounded vs unbounded fan-out, registry contention, service-queue latency |
+| `benches/tokio_common/mod.rs` | Shared constants, runtimes, CPU unit and percentile reporting for both targets |
 | `tests/tokio_runtime_behavior.rs` | Deterministic runtime invariants (backpressure, starvation, isolation, permit bounds, registry updates) |
 | `benches/mcp_server_bench.rs` | MCP tool-dispatch contention |
 | `benches/end_to_end.rs`, `benches/memory_usage.rs`, `benches/sanitization_bench.rs`, `benches/checkpoint_bench.rs` | Application-level microbenchmarks |
@@ -17,8 +19,8 @@ locally with no privileges, no external services, and no network.
 ## Running
 
 ```bash
-cargo bench -p benchmarks --bench tokio_runtime -- --quick   # fast local pass
-cargo bench -p benchmarks --bench tokio_runtime              # full measurement
+cargo bench -p benchmarks --bench tokio_runtime --bench tokio_runtime_pressure -- --quick
+cargo bench -p benchmarks --bench tokio_runtime --bench tokio_runtime_pressure
 cargo nextest run -p benchmarks                              # deterministic invariants
 ```
 
