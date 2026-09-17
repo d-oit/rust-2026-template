@@ -29,6 +29,8 @@ pub const READY_LOOP_ITERS: u64 = 2_000_000;
 pub const SAMPLE_ROUNDS: usize = 100;
 /// Sampling rounds for the multi-millisecond ready-loop variants.
 pub const READY_SAMPLE_ROUNDS: usize = 20;
+/// Sampling rounds for fan-out variants, which spawn `FANOUT_UNITS` tasks per round.
+pub const FANOUT_SAMPLE_ROUNDS: usize = 20;
 /// Units per fan-out measurement (kept high enough to expose queueing).
 pub const FANOUT_UNITS: usize = 4_096;
 /// Permit count for the bounded fan-out measurement.
