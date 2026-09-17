@@ -178,6 +178,41 @@ let data = fetch_remote_data(&url).await?;
 }
 ```
 
+## Regression Harness (Preferred Evidence)
+
+Performance claims in this repository are backed by the Tokio runtime harness. Reach for it
+before proposing an execution-model change, a `yield_now()`, a lock swap, or a second runtime:
+
+| Harness | What it answers | Nature |
+|---|---|---|
+| `benchmarks/benches/tokio_runtime_bench.rs`, `benchmarks/benches/tokio_runtime_pressure_bench.rs` | execution strategy (direct vs `spawn_blocking`), cooperative-yield cost, bounded vs unbounded fan-out, registry contention, service-queue latency | informational telemetry, reports `p50/p95/p99/max` |
+| `benchmarks/tests/tokio_runtime_behavior.rs` | bounded-queue backpressure, repeatedly-ready starvation and its yield cure, `spawn_blocking` thread identity and deadlock-freedom, permit bounds, registry no-lost-update | deterministic pass/fail, no timing thresholds |
+
+```bash
+cargo bench -p benchmarks --bench tokio_runtime --bench tokio_runtime_pressure -- --quick   # full run: omit --quick
+cargo nextest run -p benchmarks                              # deterministic invariants
+```
+
+Each benchmark group runs an instrumented sampling pass whose percentiles are printed in
+bencher format, so `scripts/parse_bench.py` records them as `…/p50`, `…/p95`, `…/p99`, `…/max`
+rows in `benchmarks/events/**` — the same machine-readable event stream as every other bench.
+
+### How to Interpret Results
+
+- **Read tails, not averages.** A change is only interesting when `p95`/`p99` move outside
+  run-to-run noise. Criterion's slope covers medians; the emitted percentiles cover tails.
+- **Deterministic rows are gates, performance rows are evidence.** No CI check compares
+  absolute timings across machines; `benchmarks/events/**` is a time series for trend
+  comparison, never a threshold.
+- **Compare like with like.** Same machine class, toolchain, and workload size. A laptop
+  number does not transfer to production; a GitHub-hosted runner number does not either.
+- **Change architecture only for the symptom you measured.** `p99` of direct CPU units that
+  degrades as fan-out grows justifies `spawn_blocking`; a starved peer in the behavior test
+  justifies `yield_now()` or batching at that specific loop; queue-depth growth justifies a
+  bounded channel. A second runtime (Counter-Example 4) needs all of the above to be ruled out.
+- **Add a workload instead of arguing.** If a trade-off is not represented, extend the
+  harness first, then cite the new row in the discussion.
+
 ## Observability
 
 Capture metrics to distinguish execution phase behavior:
@@ -197,7 +232,7 @@ Capture metrics to distinguish execution phase behavior:
 - [ ] Channels have deliberate capacity limits and backpressure.
 - [ ] Locks are data-only, short-lived, and never held across `.await` calls or external I/O.
 - [ ] Repeatedly-ready loops are evaluated for fairness and scheduler starvation without cargo-culting `yield_now()`.
-- [ ] Claims of async performance improvements are verified by benchmarks under representative load.
+- [ ] Claims of async performance improvements are backed by the regression harness (`benchmarks/benches/tokio_runtime_bench.rs` tails or `benchmarks/tests/tokio_runtime_behavior.rs` invariants), not by intuition.
 
 ## Integration & Cross-References
 
@@ -211,3 +246,4 @@ Capture metrics to distinguish execution phase behavior:
 - Tokio documentation: https://tokio.rs/tokio/tutorial
 - Principles for Fast Tokio Applications: https://dial9-rs.github.io/blog/principles-for-fast-tokio-applications/
 - Rust Performance Book: https://nnethercote.github.io/perf-book/
+- Harness entry point: [`benchmarks/README.md`](../../../benchmarks/README.md)
