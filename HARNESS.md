@@ -45,11 +45,11 @@ And two modes:
 |---|---|---|---|
 | `cargo fmt --check` | pre-commit | `.pre-commit-config.yaml` | Run `cargo fmt --all` |
 | `cargo clippy -D warnings` | pre-commit + CI | `.clippy.toml`, `.pre-commit-config.yaml` | Fix all warnings; see `.clippy.toml` for allowed exceptions |
-| `cargo deny check` | pre-commit + CI | `deny.toml` | Check crate layering diagram in `Cargo.toml` comments |
+| `cargo deny check` | pre-commit + Security CI | `deny.toml` | Check crate layering diagram in `Cargo.toml` comments |
 | `cargo nextest run` | CI (`ci.yml`) | `Cargo.toml` | Fix failing tests before opening PR |
 | `cargo mutants` | CI weekly (`mutants.yml`) | `[workspace.metadata.cargo-mutants]` in `Cargo.toml` | If score < threshold, add targeted unit tests |
 | `shellcheck` | pre-commit | `.shellcheckrc` | Fix shell script issues at severity=warning |
-| `gitleaks` | CI (`security-scan.yml`) | `.gitleaks.toml` | Remove secrets; use env vars or `.env` |
+| `gitleaks` | Security CI (`security-scan.yml`) | `.gitleaks.toml` | Remove secrets; use env vars or `.env` |
 | Architecture fitness | `tests/arch_fitness.rs` | `Cargo.toml` dev-deps | HARNESS VIOLATION message includes fix instructions |
 | Snapshot tests | `tests/behaviour_harness.rs` | `Cargo.toml` `insta = "=1.47.2"` | Run `cargo insta review` to approve new baselines |
 

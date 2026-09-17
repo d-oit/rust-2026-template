@@ -176,22 +176,6 @@ jobs:
           scandir: './scripts'
           severity: warning
 
-  gitleaks:
-    name: Secret Scan (Gitleaks)
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7  # v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   # ───────────────────────────────────────────────────
   fmt:
     name: Format
@@ -278,46 +262,6 @@ jobs:
           fail_ci_if_error: false
 
   # ───────────────────────────────────────────────────
-  security:
-    name: Security Audit
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
-      - uses: ./.github/actions/setup-rust
-      - name: Install cargo-audit
-        uses: taiki-e/install-action@fa23953489c080190314742a9b907f8e97c6767c  # v2
-        with:
-          tool: cargo-audit
-      - name: Generate lockfile
-        run: cargo generate-lockfile
-      - name: Run cargo audit
-        run: cargo audit
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # ───────────────────────────────────────────────────
-  deny:
-    name: Dependency Policy (cargo-deny)
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    env:
-      RUSTC_WRAPPER: ""
-      SCCACHE_GHA_ENABLED: "false"
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25  # v2
-
-  # ───────────────────────────────────────────────────
   bench:
     name: Benchmarks
     needs: [changes]
@@ -395,12 +339,9 @@ jobs:
       - validate-agents
       - lint
       - shellcheck
-      - gitleaks
       - fmt
       - clippy
       - test
-      - security
-      - deny
       - bench
       - version-check
       - msrv
@@ -493,12 +434,9 @@ jobs:
       - validate-agents
       - lint
       - shellcheck
-      - gitleaks
       - fmt
       - clippy
       - test
-      - security
-      - deny
       - bench
       - version-check
       - msrv
@@ -529,16 +467,14 @@ jobs:
               "validate-agents": "${{ needs.validate-agents.result }}",
               "lint": "${{ needs.lint.result }}",
               "shellcheck": "${{ needs.shellcheck.result }}",
-              "gitleaks": "${{ needs.gitleaks.result }}",
               "fmt": "${{ needs.fmt.result }}",
               "clippy": "${{ needs.clippy.result }}",
               "test": "${{ needs.test.result }}",
-              "security": "${{ needs.security.result }}",
-              "deny": "${{ needs.deny.result }}",
               "bench": "${{ needs.bench.result }}",
               "version-check": "${{ needs.version-check.result }}",
-            "msrv": "${{ needs.msrv.result }}",
-            "roast": "${{ needs.roast.result }}"
+              "msrv": "${{ needs.msrv.result }}",
+              "roast": "${{ needs.roast.result }}",
+              "quality-gate": "${{ needs.quality-gate.result }}"
             },
             "overall": "${{ job.status }}"
           }
@@ -556,10 +492,10 @@ jobs:
           else
             STATUS_TEST="❌ failed"
           fi
-          if [[ "${{ needs.security.result }}" == "success" || "${{ needs.security.result }}" == "skipped" ]]; then
-            STATUS_SECURITY="✅ success"
+          if [[ "${{ needs.quality-gate.result }}" == "success" || "${{ needs.quality-gate.result }}" == "skipped" ]]; then
+            STATUS_QUALITY="✅ success"
           else
-            STATUS_SECURITY="❌ failed"
+            STATUS_QUALITY="❌ failed"
           fi
           if [[ "${{ needs.bench.result }}" == "success" || "${{ needs.bench.result }}" == "skipped" ]]; then
             STATUS_BENCH="✅ success"
@@ -585,7 +521,7 @@ jobs:
           |---|---|
           | lint | $STATUS_LINT |
           | test | $STATUS_TEST |
-          | security | $STATUS_SECURITY |
+          | quality-gate | $STATUS_QUALITY |
           | bench | $STATUS_BENCH |
           | roast | $STATUS_ROAST |
 
@@ -620,12 +556,9 @@ jobs:
             "${{ needs.validate-agents.result }}"
             "${{ needs.lint.result }}"
             "${{ needs.shellcheck.result }}"
-            "${{ needs.gitleaks.result }}"
             "${{ needs.fmt.result }}"
             "${{ needs.clippy.result }}"
             "${{ needs.test.result }}"
-            "${{ needs.security.result }}"
-            "${{ needs.deny.result }}"
             "${{ needs.bench.result }}"
             "${{ needs.version-check.result }}"
             "${{ needs.msrv.result }}"
