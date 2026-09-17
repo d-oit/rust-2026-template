@@ -58,7 +58,7 @@ cargo build --release 2>&1
 ### 4. Lint with Clippy
 
 ```bash
-cargo clippy --all-targets --all-features -- \
+cargo clippy --workspace --all-targets --all-features -- \
   -D warnings \
   -W clippy::pedantic \
   -W clippy::nursery \

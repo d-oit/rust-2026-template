@@ -92,7 +92,7 @@ fi
 
 Before committing, verify:
 - `cargo fmt --check` passes
-- `cargo clippy --all-targets --all-features -- -D warnings` passes
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes
 - `cargo nextest run --workspace` passes
 - No `unsafe` blocks without `// SAFETY:` comments
 

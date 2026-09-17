@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CIRegressionMatrix",
+  "description": "Schema for tracking historical CI pipeline failure classes and remediation signatures.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RegressionCase"
+      }
+    }
+  },
+  "required": ["version", "cases"],
+  "additionalProperties": false,
+  "$defs": {
+    "RegressionCase": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "workflow": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "failure_category": {
+          "type": "string"
+        },
+        "failure_type": {
+          "type": "string",
+          "enum": ["content", "infrastructure", "tool", "automation"]
+        },
+        "subsystem": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "reproducible_locally": {
+          "type": "boolean"
+        },
+        "reproduction_command": {
+          "type": ["string", "null"]
+        },
+        "detection_signatures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "remediation_hint": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "workflow",
+        "commit",
+        "run_id",
+        "failure_category",
+        "failure_type",
+        "subsystem",
+        "summary",
+        "reproducible_locally",
+        "detection_signatures",
+        "remediation_hint"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
