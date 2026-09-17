@@ -9,8 +9,14 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-echo "==> Running xtask quality run --tier pull-request to generate telemetry..."
-cargo run --quiet -p xtask --bin xtask -- quality run --tier pull-request
+# CI runs this suite inside the quality-gate job, which has already executed the tier;
+# `--use-existing` skips the re-run so the artifacts under test are the job's own.
+if [[ "${1:-}" == "--use-existing" ]]; then
+    echo "==> Using telemetry artifacts produced by the current job"
+else
+    echo "==> Running xtask quality run --tier pull-request to generate telemetry..."
+    cargo run --quiet -p xtask --bin xtask -- quality run --tier pull-request
+fi
 
 JSON_ARTIFACT=".agents/ci/quality-run.json"
 SUMMARY_ARTIFACT=".agents/ci/quality-summary.md"
