@@ -482,31 +482,27 @@ jobs:
 
       - name: Update CI summary markdown
         run: |
-          if [[ "${{ needs.lint.result }}" == "success" || "${{ needs.lint.result }}" == "skipped" ]]; then
-            STATUS_LINT="✅ success"
-          else
-            STATUS_LINT="❌ failed"
-          fi
-          if [[ "${{ needs.test.result }}" == "success" || "${{ needs.test.result }}" == "skipped" ]]; then
-            STATUS_TEST="✅ success"
-          else
-            STATUS_TEST="❌ failed"
-          fi
-          if [[ "${{ needs.quality-gate.result }}" == "success" || "${{ needs.quality-gate.result }}" == "skipped" ]]; then
-            STATUS_QUALITY="✅ success"
-          else
-            STATUS_QUALITY="❌ failed"
-          fi
-          if [[ "${{ needs.bench.result }}" == "success" || "${{ needs.bench.result }}" == "skipped" ]]; then
-            STATUS_BENCH="✅ success"
-          else
-            STATUS_BENCH="❌ failed"
-          fi
-          if [[ "${{ needs.roast.result }}" == "success" || "${{ needs.roast.result }}" == "skipped" ]]; then
-            STATUS_ROAST="✅ success"
-          else
-            STATUS_ROAST="❌ failed"
-          fi
+          status_symbol() {
+            case "$1" in
+              success) echo "✅ success" ;;
+              skipped) echo "⚪ skipped" ;;
+              failure) echo "❌ failed" ;;
+              cancelled) echo "🚫 cancelled" ;;
+              *) echo "❓ $1" ;;
+            esac
+          }
+
+          STATUS_VALIDATE_AGENTS=$(status_symbol "${{ needs.validate-agents.result }}")
+          STATUS_LINT=$(status_symbol "${{ needs.lint.result }}")
+          STATUS_SHELLCHECK=$(status_symbol "${{ needs.shellcheck.result }}")
+          STATUS_FMT=$(status_symbol "${{ needs.fmt.result }}")
+          STATUS_CLIPPY=$(status_symbol "${{ needs.clippy.result }}")
+          STATUS_TEST=$(status_symbol "${{ needs.test.result }}")
+          STATUS_BENCH=$(status_symbol "${{ needs.bench.result }}")
+          STATUS_VERSION_CHECK=$(status_symbol "${{ needs.version-check.result }}")
+          STATUS_MSRV=$(status_symbol "${{ needs.msrv.result }}")
+          STATUS_ROAST=$(status_symbol "${{ needs.roast.result }}")
+          STATUS_QUALITY_GATE=$(status_symbol "${{ needs.quality-gate.result }}")
 
           cat > .agents/ci/ci-summary.md << EOF
           # CI Status Summary
@@ -519,11 +515,17 @@ jobs:
 
           | Job | Status |
           |---|---|
+          | validate-agents | $STATUS_VALIDATE_AGENTS |
           | lint | $STATUS_LINT |
+          | shellcheck | $STATUS_SHELLCHECK |
+          | fmt | $STATUS_FMT |
+          | clippy | $STATUS_CLIPPY |
           | test | $STATUS_TEST |
-          | quality-gate | $STATUS_QUALITY |
           | bench | $STATUS_BENCH |
+          | version-check | $STATUS_VERSION_CHECK |
+          | msrv | $STATUS_MSRV |
           | roast | $STATUS_ROAST |
+          | quality-gate | $STATUS_QUALITY_GATE |
 
           ## Known Issues
           - None
@@ -552,23 +554,48 @@ jobs:
 
       - name: Check all jobs passed
         run: |
-          results=(
-            "${{ needs.validate-agents.result }}"
-            "${{ needs.lint.result }}"
-            "${{ needs.shellcheck.result }}"
-            "${{ needs.fmt.result }}"
-            "${{ needs.clippy.result }}"
-            "${{ needs.test.result }}"
-            "${{ needs.bench.result }}"
-            "${{ needs.version-check.result }}"
-            "${{ needs.msrv.result }}"
-            "${{ needs.roast.result }}"
-            "${{ needs.quality-gate.result }}"
+          declare -A job_hints=(
+            ["validate-agents"]="Agent manifest validation failed (run \`cargo run -p xtask -- agents validate\`)"
+            ["lint"]="YAML, Markdown, or Agent metrics lint failed (run \`yamllint .\` and \`npx markdownlint-cli2\`)"
+            ["shellcheck"]="Shell script linting failed (run \`shellcheck scripts/*.sh\`)"
+            ["fmt"]="Code formatting check failed (run \`cargo fmt --all\`)"
+            ["clippy"]="Clippy lints failed (run \`cargo clippy --workspace --all-targets --all-features\`)"
+            ["test"]="Unit/integration test or doc test failed (run \`cargo test --workspace\`)"
+            ["bench"]="Benchmark execution failed (run \`cargo bench --workspace\`)"
+            ["version-check"]="VERSION, llms.txt, or SKILLS.md consistency check failed"
+            ["msrv"]="Minimum Supported Rust Version check failed (run \`cargo check\` under MSRV compiler)"
+            ["roast"]="Roast scoring script failed (run \`./scripts/roast-scorer.sh\`)"
+            ["quality-gate"]="Configured xtask quality gate failed (run \`cargo run -p xtask -- quality run\`)"
           )
-          for res in "${results[@]}"; do
+
+          declare -A job_results=(
+            ["validate-agents"]="${{ needs.validate-agents.result }}"
+            ["lint"]="${{ needs.lint.result }}"
+            ["shellcheck"]="${{ needs.shellcheck.result }}"
+            ["fmt"]="${{ needs.fmt.result }}"
+            ["clippy"]="${{ needs.clippy.result }}"
+            ["test"]="${{ needs.test.result }}"
+            ["bench"]="${{ needs.bench.result }}"
+            ["version-check"]="${{ needs.version-check.result }}"
+            ["msrv"]="${{ needs.msrv.result }}"
+            ["roast"]="${{ needs.roast.result }}"
+            ["quality-gate"]="${{ needs.quality-gate.result }}"
+          )
+
+          failed_jobs=()
+          for job in "${!job_results[@]}"; do
+            res="${job_results[$job]}"
             if [[ "$res" == "failure" || "$res" == "cancelled" ]]; then
-              echo "One or more critical CI jobs failed or were cancelled"
-              exit 1
+              hint="${job_hints[$job]:-No hint available}"
+              failed_jobs+=("Job '$job' ($res) -> $hint")
             fi
           done
+
+          if [ ${#failed_jobs[@]} -ne 0 ]; then
+            echo "::error::CI Success check failed because concrete job(s) failed:"
+            for failed in "${failed_jobs[@]}"; do
+              echo "  - $failed"
+            done
+            exit 1
+          fi
           echo "All CI jobs passed or were correctly skipped!"

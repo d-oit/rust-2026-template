@@ -39,7 +39,8 @@ jobs:
             gitleaks detect --report-format json --report-path gitleaks-report.json --verbose
             EXIT_CODE=$?
           else
-            docker run --rm -v "$PWD:/path" zricethezav/gitleaks:latest detect --source="/path" --report-format json --report-path /path/gitleaks-report.json --verbose
+            docker run --rm -v "$PWD:/path" zricethezav/gitleaks:latest \
+              detect --source="/path" --report-format json --report-path /path/gitleaks-report.json --verbose
             EXIT_CODE=$?
           fi
 
@@ -170,7 +171,7 @@ jobs:
           DENY_EXIT=$?
           cargo deny check > cargo-deny-text.log 2>&1
           if [ $DENY_EXIT -ne 0 ]; then
-            echo "::error::cargo-deny detected dependency policy violations (advisories, licenses, bans, sources)."
+            echo "::error::cargo-deny detected dependency policy violations."
             exit $DENY_EXIT
           fi
 
@@ -231,46 +232,56 @@ jobs:
 
           echo "## Security Gate Verification Summary" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Control | Upstream Result | Failure Category | Diagnostic & Remediation Guidance |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Control | Upstream Result | Failure Category | Diagnostic Guidance |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
 
           # 1. Gitleaks
           if [ "$GITLEAKS_RES" = "success" ]; then
-            echo "| Secret Scan (Gitleaks) | ✅ PASSED | None | No plain-text secrets or sensitive tokens detected. |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Secret Scan (Gitleaks) | ✅ PASSED | None | No secrets or sensitive tokens detected. |" \
+              >> "$GITHUB_STEP_SUMMARY"
           elif [ "$GITLEAKS_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
-            echo "| Secret Scan (Gitleaks) | ❌ INFRASTRUCTURE FAILURE | Tool/Environment Setup | Runner or checkout failed. Re-run workflow. |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Secret Scan (Gitleaks) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Runner/checkout failed. |" \
+              >> "$GITHUB_STEP_SUMMARY"
           else
             FAILED=1
-            echo "| Secret Scan (Gitleaks) | ❌ SECURITY FINDING | Secret Leak | Hardcoded credentials or tokens detected. Revoke exposed secret, scrub git history, or update \`.gitleaks.toml\` if false positive. Structured report in workflow artifacts. |" >> "$GITHUB_STEP_SUMMARY"
+            MSG="| Secret Scan (Gitleaks) | ❌ SECURITY FINDING | Secret Leak | Credentials detected. Revoke secret. |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           fi
 
           # 2. Cargo Audit
           if [ "$AUDIT_RES" = "success" ]; then
-            echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No known Rust vulnerability advisories detected in lockfile. |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No vulnerability advisories detected. |" \
+              >> "$GITHUB_STEP_SUMMARY"
           elif [ "$AUDIT_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
-            echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool/Environment Setup | Cargo audit installation or lockfile generation failed. Re-run workflow. |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo audit failed. |" \
+              >> "$GITHUB_STEP_SUMMARY"
           else
             FAILED=1
-            echo "| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Known CVE or security advisory found in dependencies. Update dependency version or add advisory ID to \`deny.toml\` and \`.cargo/audit.toml\` with justification. Structured JSON in workflow artifacts. |" >> "$GITHUB_STEP_SUMMARY"
+            MSG="| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Advisory found. |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           fi
 
           # 3. Cargo Deny
           if [ "$DENY_RES" = "success" ]; then
-            echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with advisory, license, ban, and source policies. |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with policy. |" \
+              >> "$GITHUB_STEP_SUMMARY"
           elif [ "$DENY_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
-            echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool/Environment Setup | Cargo deny installation failed. Re-run workflow. |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo deny failed. |" \
+              >> "$GITHUB_STEP_SUMMARY"
           else
             FAILED=1
-            echo "| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate, unapproved license, or unhandled advisory. Inspect \`deny.toml\` rules, remove dependency, or update allowlists. Structured JSON in workflow artifacts. |" >> "$GITHUB_STEP_SUMMARY"
+            MSG="| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate/license. |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           fi
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
           if [ $FAILED -ne 0 ]; then
             echo "### ⚠️ Security Gate Status: FAILED" >> "$GITHUB_STEP_SUMMARY"
-            echo "One or more security controls failed. Check details above and uploaded artifacts for remediation." >> "$GITHUB_STEP_SUMMARY"
+            echo "One or more security controls failed. Check details above and uploaded artifacts." \
+              >> "$GITHUB_STEP_SUMMARY"
             exit 1
           else
             echo "### ✅ Security Gate Status: PASSED" >> "$GITHUB_STEP_SUMMARY"

@@ -14,7 +14,8 @@ echo "=== Running Security Workflow Integration & Regression Tests ==="
 echo "[TEST] Validating Gitleaks secret detection on test fixture..."
 GITLEAKS_OUTPUT=$(mktemp)
 if command -v gitleaks >/dev/null 2>&1; then
-  if gitleaks detect --source="${FIXTURE_DIR}/secret_fixture.txt" --no-git --report-format json --report-path="${GITLEAKS_OUTPUT}" >/dev/null 2>&1; then
+  if gitleaks detect --source="${FIXTURE_DIR}/secret_fixture.txt" --no-git \
+      --report-format json --report-path="${GITLEAKS_OUTPUT}" >/dev/null 2>&1; then
     echo "ERROR: Gitleaks failed to detect secret in fixture file!"
     exit 1
   fi
@@ -24,7 +25,7 @@ else
 fi
 rm -f "${GITLEAKS_OUTPUT}"
 
-# 2. Test Security Summary Formatting Logic for all 3 Scanner Classes
+# 2. Test Security Summary Formatting Logic for all Scanner Classes
 echo "[TEST] Validating Security Summary Markdown generator and classification..."
 
 parse_summary() {
@@ -43,38 +44,44 @@ parse_summary() {
   cat > "${summary_out}" << EOF
 ## Security Gate Verification Summary
 
-| Control | Upstream Result | Failure Category | Diagnostic & Remediation Guidance |
+| Control | Upstream Result | Failure Category | Diagnostic Guidance |
 |---|---|---|---|
 EOF
 
   if [ "$gitleaks_res" = "success" ]; then
-    echo "| Secret Scan (Gitleaks) | ✅ PASSED | None | No plain-text secrets or sensitive tokens detected. |" >> "${summary_out}"
+    echo "| Secret Scan (Gitleaks) | ✅ PASSED | None | No secrets detected. |" >> "${summary_out}"
   elif [ "$gitleaks_type" = "infrastructure_failure" ]; then
     FAILED=1
-    echo "| Secret Scan (Gitleaks) | ❌ INFRASTRUCTURE FAILURE | Tool/Environment Setup | Runner or checkout failed. Re-run workflow. |" >> "${summary_out}"
+    echo "| Secret Scan (Gitleaks) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Runner/checkout failed. |" \
+      >> "${summary_out}"
   else
     FAILED=1
-    echo "| Secret Scan (Gitleaks) | ❌ SECURITY FINDING | Secret Leak | Hardcoded credentials or tokens detected. Revoke exposed secret, scrub git history, or update \`.gitleaks.toml\` if false positive. Structured report in workflow artifacts. |" >> "${summary_out}"
+    echo "| Secret Scan (Gitleaks) | ❌ SECURITY FINDING | Secret Leak | Credentials detected. |" \
+      >> "${summary_out}"
   fi
 
   if [ "$audit_res" = "success" ]; then
-    echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No known Rust vulnerability advisories detected in lockfile. |" >> "${summary_out}"
+    echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No advisories detected. |" >> "${summary_out}"
   elif [ "$audit_type" = "infrastructure_failure" ]; then
     FAILED=1
-    echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool/Environment Setup | Cargo audit installation or lockfile generation failed. Re-run workflow. |" >> "${summary_out}"
+    echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo audit failed. |" \
+      >> "${summary_out}"
   else
     FAILED=1
-    echo "| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Known CVE or security advisory found in dependencies. Update dependency version or add advisory ID to \`deny.toml\` and \`.cargo/audit.toml\` with justification. Structured JSON in workflow artifacts. |" >> "${summary_out}"
+    echo "| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Advisory found. |" \
+      >> "${summary_out}"
   fi
 
   if [ "$deny_res" = "success" ]; then
-    echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with advisory, license, ban, and source policies. |" >> "${summary_out}"
+    echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with policy. |" >> "${summary_out}"
   elif [ "$deny_type" = "infrastructure_failure" ]; then
     FAILED=1
-    echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool/Environment Setup | Cargo deny installation failed. Re-run workflow. |" >> "${summary_out}"
+    echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo deny failed. |" \
+      >> "${summary_out}"
   else
     FAILED=1
-    echo "| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate, unapproved license, or unhandled advisory. Inspect \`deny.toml\` rules, remove dependency, or update allowlists. Structured JSON in workflow artifacts. |" >> "${summary_out}"
+    echo "| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate/license. |" \
+      >> "${summary_out}"
   fi
 
   if [ $FAILED -ne 0 ]; then
@@ -108,7 +115,7 @@ echo "[PASS] Scenario C (Cargo deny policy violation) classified correctly."
 # Test Scenario D: Infrastructure / Tool installation failure
 SCENARIO_D=$(parse_summary "success" "none" "failure" "infrastructure_failure" "success" "none")
 echo "$SCENARIO_D" | grep -q "INFRASTRUCTURE FAILURE" || (echo "Scenario D failed" && exit 1)
-echo "$SCENARIO_D" | grep -q "Tool/Environment Setup" || (echo "Scenario D failed category" && exit 1)
+echo "$SCENARIO_D" | grep -q "Tool Setup" || (echo "Scenario D failed category" && exit 1)
 echo "[PASS] Scenario D (Infrastructure failure) distinguished from security finding."
 
 # Test Scenario E: All Scans Passed
