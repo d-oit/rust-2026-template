@@ -1,7 +1,7 @@
 # CI Status Summary
 
-**Last updated:** 2026-09-17T16:57:46Z
-**Commit:** 4ede728394a9269eb6fdeb9686ca72354730ddf8
+**Last updated:** 2026-09-17T18:20:37Z
+**Commit:** c6ef1f37e721f8436996758170092be50001c431
 **Branch:** main
 
 ## Job Results
@@ -11,12 +11,9 @@
 | validate-agents | ✅ success |
 | lint | ✅ success |
 | shellcheck | ✅ success |
-| gitleaks | ✅ success |
 | fmt | ✅ success |
 | clippy | ✅ success |
 | test | ✅ success |
-| security | ✅ success |
-| deny | ✅ success |
 | bench | ✅ success |
 | version-check | ✅ success |
 | msrv | ✅ success |
