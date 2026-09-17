@@ -296,11 +296,27 @@ jobs:
             echo "::error::benchmark run produced no rows; the telemetry pipeline is broken"
             exit 1
           fi
+      - name: Update benchmark history
+        run: bash scripts/update-bench-history.sh
+      - name: Benchmark comparison (informational)
+        run: |
+          set -uo pipefail
+          {
+            echo "### Benchmark comparison (informational)"
+            echo ""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          bash scripts/compare-benchmarks.sh \
+            --commit-a auto --commit-b "${{ github.sha }}" 2>&1 \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
       - name: Upload benchmark events
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: benchmark-events
-          path: benchmarks/events/
+          path: |
+            benchmarks/events/
+            benchmarks/history.jsonl
 
   # ───────────────────────────────────────────────────
   version-check:
@@ -566,7 +582,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .agents/ci/ benchmarks/events/
+          git add .agents/ci/ benchmarks/events/ benchmarks/history.jsonl
           git commit -m "chore: update CI status and benchmark events [skip ci]" || true
           git push origin main
         continue-on-error: true

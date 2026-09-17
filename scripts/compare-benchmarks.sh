@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # scripts/compare-benchmarks.sh
-# Compare benchmark results between two commits and report regressions.
+# Compare benchmark results between two commits.
+#
+# Informational only: no CI gate compares machine-dependent timings, so this never
+# fails a build (issue #337). Use it to prompt a re-measurement on the same machine.
+#
 # Usage: ./scripts/compare-benchmarks.sh [--commit-a <sha>] [--commit-b <sha>]
 set -euo pipefail
 
@@ -21,13 +25,13 @@ fi
 # --- Parse arguments ---
 COMMIT_A=""
 COMMIT_B=""
-for arg in "$@"; do
-  case $arg in
-    --commit-a) shift; COMMIT_A="${1:-}"; shift ;;
-    --commit-a=*) COMMIT_A="${arg#*=}" ;;
-    --commit-b) shift; COMMIT_B="${1:-}"; shift ;;
-    --commit-b=*) COMMIT_B="${arg#*=}" ;;
-    *) echo "Unknown argument: $arg"; exit 1 ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --commit-a) COMMIT_A="${2:-}"; shift 2 ;;
+    --commit-a=*) COMMIT_A="${1#*=}"; shift ;;
+    --commit-b) COMMIT_B="${2:-}"; shift 2 ;;
+    --commit-b=*) COMMIT_B="${1#*=}"; shift ;;
+    *) echo "Unknown argument: $1"; exit 1 ;;
   esac
 done
 
@@ -39,9 +43,29 @@ if [[ -z "$COMMIT_B" ]]; then
   COMMIT_B=$(git rev-parse HEAD 2>/dev/null || echo "")
 fi
 
+# `--commit-a auto` picks the newest event-bearing run other than the current commit, which
+# is what CI wants: chore commits and other non-bench pushes have no telemetry of their own.
+if [[ "${COMMIT_A}" == "auto" ]]; then
+  COMMIT_A=""
+  while IFS= read -r candidate; do
+    sha="$(basename "${candidate}" .jsonl)"
+    [[ "${sha}" == "${COMMIT_B}" ]] && continue
+    if [[ -s "${candidate}" ]]; then
+      COMMIT_A="${sha}"
+      break
+    fi
+  done < <(find benchmarks/events -name '*.jsonl' -type f -printf '%T@ %p\n' 2>/dev/null \
+    | sort -rn | awk '{print $2}')
+
+  if [[ -z "${COMMIT_A}" ]]; then
+    echo -e "${YELLOW}[WARN]${NC} No previous event-bearing benchmark run found"
+    exit 0
+  fi
+fi
+
 if [[ -z "$COMMIT_A" || -z "$COMMIT_B" ]]; then
   echo -e "${RED}[ERROR]${NC} Could not determine commits to compare"
-  echo "Usage: ./scripts/compare-benchmarks.sh [--commit-a <sha>] [--commit-b <sha>]"
+  echo "Usage: ./scripts/compare-benchmarks.sh [--commit-a <sha>|auto] [--commit-b <sha>]"
   exit 1
 fi
 
@@ -64,13 +88,13 @@ EVENTS_B=$(find_events "$COMMIT_B")
 
 if [[ -z "$EVENTS_A" ]]; then
   echo -e "${YELLOW}[WARN]${NC} No benchmark events found for commit ${COMMIT_A:0:8}"
-  echo "  Run 'cargo bench --workspace -- --output-format bencher' to generate baseline"
+  echo "  Run 'cargo bench --workspace' to generate baseline"
   exit 0
 fi
 
 if [[ -z "$EVENTS_B" ]]; then
   echo -e "${YELLOW}[WARN]${NC} No benchmark events found for commit ${COMMIT_B:0:8}"
-  echo "  Run 'cargo bench --workspace -- --output-format bencher' to generate current results"
+  echo "  Run 'cargo bench --workspace' to generate current results"
   exit 0
 fi
 
@@ -95,7 +119,7 @@ def load_events(files):
                 try:
                     data = json.loads(line)
                     name = data.get('benchmark', 'unknown')
-                    ns = data.get('nanoseconds', 0)
+                    ns = data.get('ns_per_iter') or data.get('nanoseconds') or 0
                     if ns > 0:
                         benchmarks[name] = ns
                 except json.JSONDecodeError:
@@ -108,8 +132,9 @@ events_b = sys.argv[2].split('\n') if sys.argv[2] else []
 benchmarks_a = load_events(events_a)
 benchmarks_b = load_events(events_b)
 
-if not benchmarks_a and not benchmarks_b:
-    print("No benchmark data available for comparison")
+if not benchmarks_a or not benchmarks_b:
+    print(f"No comparable data: baseline has {len(benchmarks_a)} benchmarks, "
+          f"current has {len(benchmarks_b)}")
     sys.exit(0)
 
 # Compare
@@ -154,8 +179,10 @@ if unchanged:
 if not regressions and not improvements:
     print("No significant changes detected")
 
-if regressions:
-    sys.exit(1)
+if regressions or improvements:
+    print()
+    print("NOTE: informational only. No CI gate compares machine-dependent timings;")
+    print("      treat >10% deltas as a prompt to measure again on the same machine.")
 PYTHON_SCRIPT
 else
   echo -e "${YELLOW}[WARN]${NC} python3 not found, cannot parse benchmark data"
