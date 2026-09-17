@@ -90,8 +90,9 @@ rust-2026-template/
 [![codecov](https://codecov.io/gh/d-oit/rust-2026-template/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88-blue.svg)](https://www.rust-lang.org)
+[![Template Version](https://img.shields.io/badge/version-0.3.6-blue)](.template/CHANGELOG-TEMPLATE.md#0.3.6)
 
-**Latest release: v0.3.4** — see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) for the full changelog.
+**Latest release: v0.3.6** — see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) for the full changelog.
 
 <!-- cargo-sync-readme start -->
 
@@ -164,7 +165,6 @@ This repository uses a layered documentation strategy to serve both human develo
 │   ├── context/         # Cross-repo context for derived repositories
 │   └── skills/          # Executable task knowledge and canonical workflows
 ├── .cargo/              # Cargo configuration (linker, profiles, aliases)
-├── .codacy/             # Codacy static analysis and agent review configs
 ├── .github/             # GitHub Actions workflows and issue templates
 ├── agents-docs/         # Detailed documentation for AI agents
 ├── benchmarks/          # Criterion benchmark suites
@@ -202,6 +202,12 @@ The project enforces high standards through a multi-layered verification process
 - **Local Gates:** Run `./scripts/quality-gates.sh` before committing to mirror the CI checks locally.
 - **Mutation Testing:** Periodic runs of `cargo-mutants` verify that your tests actually catch bugs.
 
+## GitHub Hardening
+
+This template includes guidance for securing harness files, hooks, workflow definitions, and related governance files on GitHub. The guidance covers optional protections for sensitive paths, CODEOWNERS patterns, branch configuration, and security features.
+
+See [docs/github-hardening.md](docs/github-hardening.md) for the full guide.
+
 ## Feature Flags
 
 The root package has no optional features (it only exports a tiny example API).
@@ -214,8 +220,32 @@ Real feature flags live on member crates that implement them, for example:
 | `hybrid-storage-template` | `sqlite` | Fail-closed SQLite **stub** (not production) |
 | `hybrid-storage-template` | `kv` | redb key-value backend |
 
-Pattern selection: [docs/patterns/README.md](docs/patterns/README.md). For a slim
-app workspace, run `./scripts/init-template.sh --minimal …`.
+Pattern selection: [docs/patterns/README.md](docs/patterns/README.md).
+
+## Project Profiles
+
+Choose a validated blueprint from `config/template-profiles/` that shapes the generated
+workspace: which crates stay, which workflows run, and the default CI tier.
+
+| Profile | Best for | Keeps |
+|---|---|---|
+| `minimal` | Small app | `sample-app` + renamed lib crate + `xtask`; drops pattern crates, benchmarks, fuzz, heavy workflows |
+| `library` | Reusable library | renamed lib crate + `xtask` + workspace tests |
+| `cli` | Binary tool | `sample-app` + renamed lib crate + `xtask` + tests |
+| `service` | Long-running service | actor/storage/registry patterns + `xtask` |
+| `workspace` | Full reference | every crate, benchmark, and workflow |
+| `ai-agent` | Agent-centric dev | `sample-app` + lib crate + `xtask` + agent tooling |
+
+```bash
+./scripts/init-template.sh --profile library --name my-lib
+# equivalent xtask commands
+cargo run -p xtask --bin xtask -- template init --profile minimal --name my-app
+cargo run -p xtask --bin xtask -- template validate-profile --profile config/template-profiles/library.toml
+cargo run -p xtask --bin xtask -- template inspect --profile service
+```
+
+`--minimal` remains a shorthand for `--profile minimal`. Full detail:
+[docs/template-profiles.md](docs/template-profiles.md).
 
 ## Benchmarks
 
@@ -376,9 +406,10 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 - **Safety:** `#![forbid(unsafe_code)]` at workspace and crate roots.
 - **Errors:** `thiserror` for libraries, `anyhow` for binaries. No `unwrap()` in libs.
 - **Async:** Use `tokio` when you need a runtime. CLI apps that use async: prefer `#[tokio::main(flavor = "current_thread")]`. Sync `main` is fine when no async is required (`sample-app`).
-- **Async Safety:** Avoid blocking calls; use `spawn_blocking` when necessary.
+- **Async Safety & Execution:** Choose execution models based on workload characteristics: keep short bounded CPU work on Tokio worker threads, offload genuinely blocking operations or long CPU work to `spawn_blocking` or dedicated worker pools, default to bounded concurrency/channels for backpressure, and keep lock scopes minimal (never across `.await`). Reference `.agents/skills/tokio-performance/SKILL.md` for Tokio architecture choices.
 - **Tracing:** Minimize CLI tracing metadata (thread IDs/names) unless high-concurrency.
 - **Quality SSOT:** Prefer `./scripts/quality-gates.sh` before push. `cargo run -p xtask quality-gates` delegates to that script.
+- **Verification tiers:** Which checks run for each lifecycle trigger (pull request / protected branch / scheduled / release) is configured in `config/xtask.json` (`tiers` map: `pull-request`, `protected-branch`, `scheduled`, `release`) — not in workflow YAML. Override per run via `xtask quality run --tier <name>` or `$XTASK_TIER`. Legacy names `fast-pr` and `full-gate`/`all` are aliases for `pull-request` and `protected-branch`.
 
 ### Security & Configuration
 - **Hardening:** Enforce `#[serde(deny_unknown_fields)]` on config structs.
@@ -404,6 +435,12 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 4. **Implement:** Write code adhering to conventions.
 5. **Quality Check:** Run `./scripts/quality-gates.sh`.
 6. **Commit:** Use conventional commit format.
+
+### Stacked PRs (Optional)
+
+For large features with 3+ distinct concerns, stacked PRs are available via `gh stack`.
+This is OPTIONAL — default to single-PR atomic commits. See `.agents/skills/stacked-prs/SKILL.md`.
+Requires GitHub and `gh` CLI. Install: `gh extension install github/gh-stack`
 
 ## Agentic Metrics Reporting
 
@@ -621,19 +658,22 @@ git clone https://github.com/YOUR_USER/YOUR_REPO.git
 cd YOUR_REPO
 ```
 
-### Recommended: minimal init (most apps)
+### Recommended: use a project profile (most apps)
 
 ```bash
-./scripts/init-template.sh --minimal \
+./scripts/init-template.sh --profile minimal \
   --name your-crate-name \
   --description "Your description" \
   --author "Your Name" \
   --repo YOUR_USER/YOUR_REPO
 ```
 
-`--minimal` keeps `sample-app` + your renamed lib crate + `xtask`, and removes
-optional pattern crates (MCP, actor, storage demos, …) plus optional workflows
-(DORA, mutants, eval, …). Core CI/security workflows stay.
+Profiles are validated blueprints in `config/template-profiles/` (issue #286):
+`minimal`, `library`, `cli`, `service`, `workspace`, `ai-agent` choose which crates,
+workflows, and CI-tier default the generated project keeps. `--minimal` is shorthand
+for `--profile minimal` (keeps `sample-app` + your renamed lib crate + `xtask`; drops
+optional pattern crates and heavy workflows). See
+[docs/template-profiles.md](docs/template-profiles.md) for the selection table.
 
 **Versions:** leave `VERSION` / workspace version at `0.0.0` until you ship.
 Template release notes (`v0.3.x`) are only in `.template/CHANGELOG-TEMPLATE.md`.
