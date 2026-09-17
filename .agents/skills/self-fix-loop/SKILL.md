@@ -108,8 +108,10 @@ Phase 6: RETRY LOOP
 | `cargo fmt` | Run `cargo fmt --all` |
 | `cargo clippy` | Fix warnings, respect `-D warnings` |
 | `cargo test` | Debug test failures, fix or skip flaky |
-| `cargo audit` | Update vulnerable dependency |
-| `cargo deny` | Fix license or advisory violations |
+| `cargo audit` | Update vulnerable dependency (refer to `.agents/ci/regression-matrix.json`) |
+| `cargo deny` | Fix license or advisory violations (refer to `.agents/ci/regression-matrix.json`) |
+| `markdownlint` | Fix heading increments/links (refer to `.agents/ci/regression-matrix.json`) |
+| `gitleaks` | Remove secret or add exception (refer to `.agents/ci/regression-matrix.json`) |
 | `cargo machete` | Remove unused dependencies |
 | Linker errors | Check `build-essential`, `pkg-config` |
 

@@ -93,3 +93,4 @@ Without Node.js, use `--no-export` to generate only the `.excalidraw` source.
 
 - [ ] Committing workspace changes without regenerating the overview.
 - [ ] Manually editing the SVG instead of using the generator script.
+- [ ] Direct push failures caused by missing retry loops or unhandled concurrent updates on main (see case `update-diagram-push-20260917` in `.agents/ci/regression-matrix.json`).
