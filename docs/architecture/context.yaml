@@ -48,4 +48,4 @@ stack:
 conventions:
   error_handling: "Propagate errors with thiserror/anyhow. No unwrap() in library code."
   testing: "AAA pattern. Unit tests in source files, integration tests in tests/."
-  async: "No blocking calls in async context. Use spawn_blocking for CPU-heavy tasks."
+  async: "Workload-driven execution: direct execution for short CPU work, spawn_blocking or pools for blocking/long CPU work, bounded concurrency, minimal lock scopes."
