@@ -53,7 +53,7 @@ curl -s https://crates.io/api/v1/crates/<your-crate-name> | python3 -m json.tool
 
 ```bash
 cargo fmt --all -- --check
-cargo clippy --all-targets --all-features -- -D warnings
+cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo nextest run --all-features
 cargo audit && cargo deny check
 ```

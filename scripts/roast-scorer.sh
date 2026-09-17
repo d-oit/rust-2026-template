@@ -63,7 +63,7 @@ check_code_quality() {
   local reasons=()
 
   # Clippy check (5 pts)
-  if ! cargo clippy --all-targets --all-features -- -D warnings > /dev/null 2>&1; then
+  if ! cargo clippy --workspace --all-targets --all-features -- -D warnings > /dev/null 2>&1; then
     score=$((score - 5))
     reasons+=("clippy warnings")
   fi

@@ -44,7 +44,7 @@ When a computational sensor fires:
 | Sensor | Command | Config | Stage |
 |--------|---------|--------|-------|
 | fmt | `cargo fmt --all -- --check` | `.pre-commit-config.yaml` | pre-commit |
-| clippy | `cargo clippy --all-targets --all-features -- -D warnings` | `.clippy.toml`, `.pre-commit-config.yaml` | pre-commit + CI |
+| clippy | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | `.clippy.toml`, `.pre-commit-config.yaml` | pre-commit + CI |
 | deny | `cargo deny check` | `deny.toml` | pre-commit + CI |
 | nextest | `cargo nextest run` | `Cargo.toml` | CI |
 | mutants | `cargo mutants` | `[workspace.metadata.cargo-mutants]` in `Cargo.toml` | CI weekly |
