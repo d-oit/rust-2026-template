@@ -15,8 +15,8 @@
 mod tokio_common;
 
 use crate::tokio_common::{
-    DISPATCHES, FANOUT_CONCURRENCY, FANOUT_UNITS, MESSAGES, SAMPLE_ROUNDS, WRITES, echo_request,
-    multi_thread_runtime, report_latencies,
+    DISPATCHES, FANOUT_CONCURRENCY, FANOUT_SAMPLE_ROUNDS, FANOUT_UNITS, MESSAGES, SAMPLE_ROUNDS,
+    WRITES, echo_request, multi_thread_runtime, report_latencies,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 use mcp_server_template::{CalcTool, EchoTool, McpServer};
@@ -113,9 +113,9 @@ fn bench_fanout_backpressure(c: &mut Criterion) {
         b.iter(|| rt.block_on(async { black_box(fanout_unbounded(FANOUT_UNITS).await) }));
     });
 
-    let mut bounded = rt.block_on(fanout_bounded_latencies(SAMPLE_ROUNDS));
+    let mut bounded = rt.block_on(fanout_bounded_latencies(FANOUT_SAMPLE_ROUNDS));
     report_latencies("tokio_fanout/bounded", &mut bounded);
-    let mut unbounded = rt.block_on(fanout_unbounded_latencies(SAMPLE_ROUNDS));
+    let mut unbounded = rt.block_on(fanout_unbounded_latencies(FANOUT_SAMPLE_ROUNDS));
     report_latencies("tokio_fanout/unbounded", &mut unbounded);
     group.finish();
 }

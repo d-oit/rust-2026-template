@@ -277,7 +277,7 @@ jobs:
       - name: Run benchmarks
         run: |
           set -o pipefail
-          cargo bench -p benchmarks -- --output-format bencher 2>&1 | tee bench-output.txt
+          cargo bench --workspace 2>&1 | tee bench-output.txt
       - name: Test benchmark parser
         run: bash tests/parse_bench_test.sh
       - name: Parse and save bench results

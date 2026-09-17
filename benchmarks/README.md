@@ -16,6 +16,11 @@ locally with no privileges, no external services, and no network.
 | `events/YYYY/MM/DD/<sha>.jsonl` | Machine-readable telemetry, one record per benchmark per run |
 | `history.jsonl` | Aggregated trend input consumed by `scripts/compare-benchmarks.sh` |
 
+> **Template note:** the bench targets exercise the template's example crates
+> (`sample-app`, `example-crate`, `mcp-server-template`). When a derived project removes or
+> renames them, adapt the corresponding workload or drop that target; the shared pieces for
+> the Tokio harness live in `benches/tokio_common/`.
+
 ## Running
 
 ```bash
