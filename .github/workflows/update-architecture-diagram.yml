@@ -10,6 +10,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: update-architecture-diagram
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -18,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
@@ -33,32 +39,45 @@ jobs:
         working-directory: .agents/skills/architecture-diagram
         run: npm ci
 
-      - name: Regenerate overview diagram
-        run: |
-          python .agents/skills/architecture-diagram/scripts/generate_overview.py \
-            --root . \
-            --out .template/overview.excalidraw \
-            --svg-out .template/overview.svg \
-            --png-out .template/overview.png
-
-      - name: Copy SVG to docs
-        run: |
-          cp .template/overview.svg docs/src/overview.svg
-
-      - name: Check for changes
-        id: changes
-        run: |
-          if git diff --quiet .template/ docs/src/overview.svg; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Commit and push
-        if: steps.changes.outputs.changed == 'true'
+      - name: Regenerate and push overview diagram
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .template/ docs/src/overview.svg
-          git commit -m "docs: regenerate overview diagram [skip ci]"
-          git push
+
+          MAX_RETRIES=5
+          count=0
+
+          while [ $count -lt $MAX_RETRIES ]; do
+            count=$((count + 1))
+            echo "Attempt $count of $MAX_RETRIES..."
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            python .agents/skills/architecture-diagram/scripts/generate_overview.py \
+              --root . \
+              --out .template/overview.excalidraw \
+              --svg-out .template/overview.svg \
+              --png-out .template/overview.png
+
+            cp .template/overview.svg docs/src/overview.svg
+
+            if git diff --quiet .template/ docs/src/overview.svg; then
+              echo "No diagram changes detected against latest main."
+              exit 0
+            fi
+
+            git add .template/ docs/src/overview.svg
+            git commit -m "docs: regenerate overview diagram [skip ci]"
+
+            if git push origin main; then
+              echo "Successfully pushed architecture diagram update."
+              exit 0
+            fi
+
+            echo "Push failed due to concurrent update, retrying..."
+            sleep 2
+          done
+
+          echo "Failed to push architecture diagram after $MAX_RETRIES attempts."
+          exit 1
