@@ -81,6 +81,8 @@ Pushing a tag triggers `.github/workflows/release.yml`:
 - Creates GitHub Release with assets
 - Optionally publishes to crates.io
 
+> **Note on Multi-Crate Workspaces**: Workspace crates with internal path dependencies must be published in topological (dependency-graph) order. `cargo publish --dry-run` on a non-leaf crate fails until its dependencies are published on crates.io. Use `cargo release --workspace` or `scripts/release-manager.sh` to handle workspace releases.
+
 ## Version Scheme
 
 - `MAJOR.MINOR.PATCH` (Semantic Versioning)
