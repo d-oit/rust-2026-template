@@ -4,13 +4,20 @@ from datetime import datetime, timezone
 from statistics import mean
 import os
 
-def load_json(path):
+def load_json(path, required=False):
     if not os.path.exists(path):
+        if required:
+            raise FileNotFoundError(f"Required input JSON file not found: {path}")
         return []
     with open(path, 'r') as f:
         try:
-            return json.load(f)
-        except json.JSONDecodeError:
+            data = json.load(f)
+            if required and not isinstance(data, list):
+                raise ValueError(f"Required JSON file {path} must contain a JSON array, got {type(data).__name__}")
+            return data
+        except json.JSONDecodeError as e:
+            if required:
+                raise ValueError(f"Failed to parse required JSON file {path}: {e}") from e
             return []
 
 def load_jsonl(path):
@@ -26,8 +33,10 @@ def load_jsonl(path):
                     continue
     return data
 
-def deployment_frequency(releases, period_days=30):
-    cutoff = datetime.now(timezone.utc).timestamp() - (period_days * 86400)
+def deployment_frequency(releases, period_days=30, now_dt=None):
+    if now_dt is None:
+        now_dt = datetime.now(timezone.utc)
+    cutoff = now_dt.timestamp() - (period_days * 86400)
     recent = []
     for r in releases:
         try:
@@ -44,8 +53,10 @@ def deployment_frequency(releases, period_days=30):
     else: tier = 'Low'
     return {'count': len(recent), 'per_day': round(per_day, 3), 'tier': tier}
 
-def change_lead_time(prs, period_days=30):
-    cutoff = datetime.now(timezone.utc).timestamp() - (period_days * 86400)
+def change_lead_time(prs, period_days=30, now_dt=None):
+    if now_dt is None:
+        now_dt = datetime.now(timezone.utc)
+    cutoff = now_dt.timestamp() - (period_days * 86400)
     durations = []
     for pr in prs:
         try:
@@ -126,15 +137,25 @@ def main():
     parser.add_argument('--template', required=True)
     parser.add_argument('--period-days', type=int, default=30)
     parser.add_argument('--repo', default='unknown/repo')
+    parser.add_argument('--now', help='Reference ISO 8601 timestamp for evaluation period (e.g. 2026-09-17T00:00:00Z)')
     args = parser.parse_args()
 
-    releases = load_json(args.releases)
-    prs = load_json(args.prs)
+    now_dt = None
+    if args.now:
+        now_str = args.now.replace('Z', '+00:00')
+        now_dt = datetime.fromisoformat(now_str)
+        if now_dt.tzinfo is None:
+            now_dt = now_dt.replace(tzinfo=timezone.utc)
+    else:
+        now_dt = datetime.now(timezone.utc)
+
+    releases = load_json(args.releases, required=True)
+    prs = load_json(args.prs, required=True)
     agent_metrics_data = load_jsonl(args.agent_metrics)
     dora_metrics_data = load_jsonl(args.dora_metrics)
 
-    df = deployment_frequency(releases, args.period_days)
-    clt = change_lead_time(prs, args.period_days)
+    df = deployment_frequency(releases, args.period_days, now_dt=now_dt)
+    clt = change_lead_time(prs, args.period_days, now_dt=now_dt)
     cfr = change_failure_rate(dora_metrics_data)
     fdrt = failed_deployment_recovery_time(dora_metrics_data)
     am = agentic_metrics(agent_metrics_data)
@@ -157,7 +178,7 @@ def main():
         template_content = "# DORA Report Placeholder"
 
     report = template_content
-    report = report.replace('{{ timestamp }}', datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'))
+    report = report.replace('{{ timestamp }}', now_dt.strftime('%Y-%m-%dT%H:%M:%SZ'))
     report = report.replace('{{ period_days }}', str(args.period_days))
     report = report.replace('{{ repo }}', args.repo)
 
