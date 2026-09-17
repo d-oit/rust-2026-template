@@ -107,6 +107,8 @@ jobs:
         run: cargo run --quiet -p xtask --bin xtask -- agents validate
         env:
           RUSTC_WRAPPER: ""
+      - name: Test llms context generation
+        run: bash tests/generate_llms_txt_test.sh
 
   # ───────────────────────────────────────────────────
   lint:
@@ -424,6 +426,10 @@ jobs:
           else
             cargo run --quiet -p xtask --bin xtask -- quality run --tier "$TIER"
           fi
+      - name: Validate CI regression matrix
+        run: bash tests/ci_regression_matrix_test.sh
+      - name: Validate quality-gate telemetry contract
+        run: bash tests/ci_telemetry/telemetry_integration_test.sh --use-existing
       - name: Publish quality summary
         if: always()
         run: |

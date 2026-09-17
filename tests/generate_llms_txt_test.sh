@@ -12,7 +12,6 @@ OUTPUT_FILE="${REPO_ROOT}/llms-full.txt"
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Test counter
@@ -87,24 +86,25 @@ test_missing_files_handling() {
     echo ""
     echo "Test 2: Verify graceful handling of missing optional files"
     
-    # Create a temporary test directory
+    # Create a temporary fake repository: the generator derives its root from the
+    # script location (`dirname $0/..`), so the script must live under `scripts/`.
     TEST_DIR=$(mktemp -d)
-    trap "rm -rf ${TEST_DIR}" EXIT
-    
-    # Copy script to test directory
-    cp "${GENERATE_SCRIPT}" "${TEST_DIR}/"
-    
+    trap 'rm -rf "${TEST_DIR}"' EXIT
+
+    mkdir -p "${TEST_DIR}/scripts"
+    cp "${GENERATE_SCRIPT}" "${TEST_DIR}/scripts/"
+
     # Create only llms.txt (other files will be missing)
     echo "# Test llms.txt" > "${TEST_DIR}/llms.txt"
-    
+
     # Run script from test directory
     cd "${TEST_DIR}"
-    
+
     # Capture output
-    output=$(bash generate-llms-txt.sh 2>&1 || true)
+    output=$(bash scripts/generate-llms-txt.sh 2>&1 || true)
     
     # Check if script completed (exit code 0)
-    if bash generate-llms-txt.sh > /dev/null 2>&1; then
+    if bash scripts/generate-llms-txt.sh > /dev/null 2>&1; then
         print_test_result "Script completes without error" "PASS"
     else
         print_test_result "Script completes without error" "FAIL"
@@ -134,39 +134,38 @@ test_missing_files_handling() {
     return 0
 }
 
-# Test 3: Verify that the generated llms-full.txt contains the actual UTC timestamp
-test_utc_timestamp() {
+# Test 3: Verify that the generated llms-full.txt carries the project VERSION
+#
+# The generator deliberately emits `> Version: <VERSION>` instead of a timestamp
+# (commit a991c6b) so the output is deterministic and can be diffed in CI.
+test_version_header() {
     echo ""
-    echo "Test 3: Verify UTC timestamp in generated file"
-    
+    echo "Test 3: Verify the project VERSION is carried into the generated file"
+
     # Run the script
     bash "${GENERATE_SCRIPT}" > /dev/null 2>&1
-    
+
     # Check if output file exists
     if [[ ! -f "${OUTPUT_FILE}" ]]; then
         print_test_result "Output file exists" "FAIL"
         return 1
     fi
-    
-    # Check for UTC timestamp pattern (YYYY-MM-DD HH:MM:SS UTC)
-    if grep -q "Last generated:.*[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\} UTC" "${OUTPUT_FILE}"; then
-        print_test_result "UTC timestamp present" "PASS"
+
+    expected="> Version: $(cat "${REPO_ROOT}/VERSION")"
+    if [[ "$(grep -m1 '^> Version: ' "${OUTPUT_FILE}")" == "${expected}" ]]; then
+        print_test_result "Version header present: ${expected}" "PASS"
     else
-        print_test_result "UTC timestamp present" "FAIL"
+        print_test_result "Version header present: ${expected}" "FAIL"
         return 1
     fi
-    
-    # Extract the timestamp
-    timestamp=$(grep "Last generated:" "${OUTPUT_FILE}" | sed 's/.*Last generated: //' | sed 's/ UTC.*//')
-    
-    # Verify timestamp is recent (within last 5 minutes)
-    if command -v date > /dev/null 2>&1; then
-        current_time=$(date -u +"%Y-%m-%d %H:%M:%S")
-        print_test_result "Timestamp format valid: ${timestamp}" "PASS"
-    else
-        print_test_result "Timestamp format valid: ${timestamp}" "PASS"
+
+    # The generated file must stay deterministic: no timestamp may creep back in.
+    if grep -qE '[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} UTC' "${OUTPUT_FILE}"; then
+        print_test_result "Generated file contains no timestamp" "FAIL"
+        return 1
     fi
-    
+    print_test_result "Generated file contains no timestamp" "PASS"
+
     return 0
 }
 
@@ -179,7 +178,7 @@ main() {
     # Run all tests
     test_aggregation_with_headers
     test_missing_files_handling
-    test_utc_timestamp
+    test_version_header
     
     # Print summary
     echo ""
