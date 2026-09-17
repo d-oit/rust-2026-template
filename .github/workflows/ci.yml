@@ -314,6 +314,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Check VERSION matches Cargo.toml
         run: bash scripts/propagate-version.sh --check
+      - name: Check template version badge matches changelog
+        run: bash scripts/check-template-version.sh
       - name: Check llms.txt is current
         run: |
           bash scripts/generate-llms-txt.sh
