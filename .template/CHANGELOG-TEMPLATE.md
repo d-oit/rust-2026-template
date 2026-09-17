@@ -33,6 +33,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.7] - 2026-09-17
+
+### Added
+
+- Tokio runtime regression harness: `benchmarks/benches/tokio_runtime_bench.rs` and `benchmarks/benches/tokio_runtime_pressure_bench.rs` report `p50/p95/p99/max` telemetry for execution strategy, fairness, fan-out, registry contention and service queues.
+- `benchmarks/tests/tokio_runtime_behavior.rs`: deterministic runtime invariants for bounded-queue backpressure, scheduler starvation and its yield cure, `spawn_blocking` isolation, permit bounds and registry updates.
+- `tests/parse_bench_test.sh`: benchmark event parser regression suite, wired into the `Benchmarks` job.
+- Historical CI regression matrix in `.agents/ci/regression-matrix.json` with `schema/ci-regression-matrix.schema.json` and signature tests.
+- `benchmarks/README.md`: how to run the harness, read its tails, and adapt it in derived projects.
+
+### Changed
+
+- `crates/mcp-server-template`: tool dispatch uses a copy-on-write snapshot registry (`std::sync::RwLock<Arc<ToolRegistry>>`), so no lock is held across `.await`.
+- Security scanning is owned by `security-scan.yml` as the single source of truth, with per-control failure classification, structured artifacts and regression fixtures.
+- `scripts/parse_bench.py` merges harness percentile rows with criterion's `target/criterion/**/new/estimates.json` medians.
+- Benchmarks job runs `cargo bench --workspace`, so bench targets of any kind in any member are recorded for derived projects.
+- `tokio-performance` skill: workload-aware execution-model guidance, with the regression harness as the preferred evidence source.
+- Release guidance documents topological workspace publishing and `--allow-dirty` for local package checks.
+
+### Fixed
+
+- `cargo clippy` sensor parity: `.githooks/pre-commit`, skills and `scripts/roast-scorer.sh` run `--workspace`, matching CI.
+- `Cargo.toml`: `/src` restored to `[workspace.package].include` so inherited package includes cannot produce a sourceless crate.
+- Benchmarks job records telemetry again; it previously wrote 0-byte event files while reporting success.
+- Generated quality summaries are markdownlint-clean (`MD009`, `MD058`), so repeated quality runs no longer fail on their own artifacts.
+- DORA report generation handles paginated API output and missing report directories.
+- Architecture diagram workflow retries safely against concurrent `main` updates.
+
+### Security
+
+- `cargo deny` uses the global `--format json` position; the secret-scan exclusion is narrowed to the deliberate fixture file.
+- Least-privilege permissions in the DORA and hotfix workflows.
+
+---
+
 ## [0.3.6] - 2026-08-20
 
 ### Added
@@ -388,7 +423,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.6...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.7...HEAD
+[0.3.7]: https://github.com/d-oit/rust-2026-template/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/d-oit/rust-2026-template/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/d-oit/rust-2026-template/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/d-oit/rust-2026-template/compare/v0.3.3...v0.3.4
