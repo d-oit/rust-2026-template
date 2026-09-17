@@ -246,6 +246,7 @@ impl CiTelemetry {
                 stage.id, stage.duration_ms, stage.cache
             );
         }
+        let _ = writeln!(md);
         let _ = writeln!(
             md,
             "- **Toolchain:** rustc={}, cargo={}, nextest={}",
@@ -395,6 +396,21 @@ mod tests {
         assert_eq!(
             stage_id("CI Status Artifact Check"),
             "ci-status-artifact-check"
+        );
+    }
+
+    /// The stage table used to abut the toolchain bullet, which the repo's own
+    /// markdownlint gate (MD058) rejects on the next run.
+    #[test]
+    fn test_summary_separates_stage_table_from_toolchain_bullet() {
+        let md = sample_telemetry().summary_markdown(&TelemetryConfig::default());
+        assert!(
+            md.contains("\n\n- **Toolchain:**"),
+            "stage table must be separated from the toolchain bullet by a blank line"
+        );
+        assert!(
+            md.lines().all(|line| line == line.trim_end()),
+            "generated summary must not contain trailing whitespace"
         );
     }
 }

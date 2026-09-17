@@ -59,18 +59,24 @@ impl QualityReport {
         println!("=================================================================");
     }
 
-    /// Writes the report to `GITHUB_STEP_SUMMARY` or a specified file as markdown.
+    /// Renders the markdown summary written to `.agents/ci/ci-summary.md`.
     ///
-    /// # Errors
-    /// Returns `XtaskError::CacheIssue` if the file cannot be written.
-    pub fn write_github_summary(&self) -> Result<(), XtaskError> {
+    /// Kept separate from the file writes so the rendering contract (labels, table
+    /// shape, no trailing whitespace) is testable without touching the filesystem.
+    #[must_use]
+    pub fn summary_markdown(&self) -> String {
         use std::fmt::Write as _;
 
         let mut markdown = String::new();
         let _ = writeln!(markdown, "# Quality Gate Run Summary\n");
         let _ = writeln!(markdown, "**Timestamp:** {}", self.timestamp);
         let _ = writeln!(markdown, "**Commit:** {}", self.commit);
-        let _ = writeln!(markdown, "**Branch:** {}\n", self.branch);
+        let branch = if self.branch.trim().is_empty() {
+            "detached"
+        } else {
+            self.branch.trim()
+        };
+        let _ = writeln!(markdown, "**Branch:** {branch}\n");
         let _ = writeln!(markdown, "| Check | Status | Details |");
         let _ = writeln!(markdown, "|---|---|---|");
         for check in &self.checks {
@@ -84,6 +90,15 @@ impl QualityReport {
         }
         let overall_upper = self.overall.to_uppercase();
         let _ = writeln!(markdown, "\n## Overall: **{overall_upper}**");
+        markdown
+    }
+
+    /// Writes the report to `GITHUB_STEP_SUMMARY` or a specified file as markdown.
+    ///
+    /// # Errors
+    /// Returns `XtaskError::CacheIssue` if the file cannot be written.
+    pub fn write_github_summary(&self) -> Result<(), XtaskError> {
+        let markdown = self.summary_markdown();
 
         // Write to $GITHUB_STEP_SUMMARY if exists
         if let Ok(summary_path) = std::env::var("GITHUB_STEP_SUMMARY") {
@@ -187,5 +202,29 @@ mod tests {
         assert_eq!(report.overall, "success");
         assert_eq!(report.checks.len(), 1);
         assert_eq!(report.checks[0].status, "success");
+    }
+
+    /// A detached HEAD used to render `**Branch:** ` with a trailing space, which the
+    /// repo's own markdownlint gate (MD009) rejects on the next run.
+    #[test]
+    fn test_summary_marks_detached_branch_without_trailing_whitespace() {
+        let report = QualityReport {
+            timestamp: "2026-09-17T00:00:00Z".to_string(),
+            commit: "abc1234".to_string(),
+            branch: String::new(),
+            checks: vec![CheckResult {
+                name: "Rust Format".to_string(),
+                status: "success".to_string(),
+                message: None,
+            }],
+            overall: "success".to_string(),
+        };
+
+        let markdown = report.summary_markdown();
+        assert!(markdown.contains("**Branch:** detached"));
+        assert!(
+            markdown.lines().all(|line| line == line.trim_end()),
+            "generated summary must not contain trailing whitespace"
+        );
     }
 }
