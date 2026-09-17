@@ -5,7 +5,7 @@ category: analysis
 license: MIT
 metadata:
   author: d-oit
-  version: "0.2.10"
+  version: "0.2.11"
   adapted-from: d-o-hub/github-template-ai-agents
   tags: triz analysis innovation contradiction rust architecture audit
 ---
@@ -20,7 +20,7 @@ Systematic innovation audit for Rust codebases, workspace architectures, and CI/
 - Reviewing `scripts/`, CI pipelines, or `Cargo.toml` manifests for hidden trade-offs
 - Analyzing an architecture for scalability vs. complexity bottlenecks
 - Performing a swarm-based TRIZ audit on a Rust project
-- Reviewing `unsafe` boundaries, async vs. sync, or `tokio::spawn` vs. `spawn_blocking` choices
+- Reviewing `unsafe` boundaries, async vs. sync, or Tokio scheduling/concurrency choices
 
 ## Input Requirements
 
@@ -62,7 +62,7 @@ Example: `analysis/triz-scripts-2026-06-18.md`
 ### Ideal Final Result (IFR) for Rust Audits
 
 ```text
-"The ideal Rust system performs its function with zero unsafe, zero clones, zero contention"
+"The ideal Rust system performs its function with minimal unsafe code, unnecessary cloning, and contention"
 
 1. What is the ideal outcome for this scope?
 2. What prevents reaching it? (current type/ownership/CI constraints)
@@ -74,14 +74,32 @@ Example: `analysis/triz-scripts-2026-06-18.md`
 
 | Improving | vs Worsening | → Principle | Rust Pattern |
 |---|---|---|---|
-| Throughput | vs Latency | #7, #13, #17 | Batching, parking_lot::RwLock, lock-free channels |
+| Throughput | vs Latency | #7, #13, #17 | Batching, bounded queues, workload-aware scheduling |
 | API ergonomics | vs Binary size | #1, #15 | Feature flags, `#[cfg]`, trait-based DI |
 | Compile time | vs Runtime perf | #13, #35 | LTO off, `cargo-bloat` profile tuning |
 | Safety | vs Performance | #12, #4 | `unsafe` minimization, scoped SIMD |
-| Genericity | vs Compile time | #2, #6 | Trait specialization, sealed traits |
-| Async surface | vs Blocking cost | #1, #15 | `spawn_blocking`, `tokio::task::yield_now` |
+| Genericity | vs Compile time | #2, #6 | Carefully scoped generics, sealed traits |
+| Async surface | vs Blocking cost | #1, #15 | Workload-aware direct execution, `spawn_blocking`, bounded workers |
+| Throughput | vs Fairness | #13, #15 | Batching, bounded poll work, deliberate `yield_now` |
+| Concurrency | vs Resource usage | #1, #35 | `Semaphore`, bounded `mpsc`, worker pools |
+| Shared state | vs Contention | #1, #2 | Ownership/message passing, short lock scope |
 | Build matrix | vs CI minutes | #1, #9 | `cargo-hack`, workspace inheritance |
 | Test coverage | vs Test runtime | #13, #35 | `cargo-nextest` sharding, proptest shrinking |
+
+## Tokio-Specific Audit Rules
+
+When auditing async Rust, do not treat `spawn_blocking` as a universal optimization. Determine whether work is blocking, short bounded CPU work, sustained CPU work, or latency-sensitive. Consider scheduler fairness, coordination overhead, blocking-pool pressure, batching, and isolation.
+
+Check for:
+- unbounded `tokio::spawn` fan-out
+- queues without deliberate backpressure
+- locks held across `.await`
+- expensive work while holding a lock
+- repeatedly-ready loops that monopolize workers
+- fragmented small I/O operations
+- claims of performance without representative benchmarks
+
+For detailed Tokio performance guidance, invoke the `tokio-performance` skill.
 
 ## Software Contradiction Matrix (General)
 
@@ -97,15 +115,15 @@ Example: `analysis/triz-scripts-2026-06-18.md`
 
 | Strategy | When | Rust Pattern |
 |---|---|---|
-| **Time** | Different behavior at stages | Lifecycle generics, `OnceCell`, `Phased init` |
+| **Time** | Different behavior at stages | Lifecycle generics, `OnceCell`, phased init |
 | **Space** | Different behavior in context | Crate features, `cfg` flags, `target_arch` |
 | **Condition** | Different by input | Trait objects, sealed traits, `match` |
 | **System-level** | New component resolves | Newtype wrapper, sidecar crate, separate binary |
 
 ## Integration with Other Skills
 
-- **agent-coordination**: Orchestrate as a swarm sub-task where multiple agents analyze
-  different crates or pipelines in parallel.
+- **tokio-performance**: Apply for Tokio scheduling, fairness, contention, blocking, and bounded-concurrency analysis.
+- **agent-coordination**: Orchestrate as a swarm sub-task where multiple agents analyze different crates or pipelines in parallel.
 - **task-decomposition**: Use to break a large workspace audit into smaller scoped TRIZ analyses.
 - **anti-ai-slop**: Apply after TRIZ resolutions to keep the rewrite idiomatic and not boilerplate-heavy.
 
@@ -116,21 +134,24 @@ Example: `analysis/triz-scripts-2026-06-18.md`
 - Recommendations mapped to TRIZ inventive principles
 - Rust-idiomatic pattern suggested (not just generic advice)
 - Findings saved to `analysis/triz-<scope>-YYYY-MM-DD.md`
+- Async recommendations are workload-aware rather than cargo-cult patterns
 
 ## Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "This Rust code compiles, no contradictions exist" | Compilation proves type safety, not design trade-offs. Many crates have hidden coupling or unsafe audit gaps. |
-| "TRIZ is too theoretical for Rust" | TRIZ principles map directly to Rust patterns: segmentation = crate split, taking out = extract trait, asymmetry = `PhantomData`. |
+| "This Rust code compiles, no contradictions exist" | Compilation proves type safety, not design trade-offs. Many crates have hidden coupling or runtime bottlenecks. |
+| "TRIZ is too theoretical for Rust" | TRIZ principles map directly to Rust patterns: segmentation = crate split, taking out = extract trait, separation = workload-specific execution. |
 | "Just run clippy, that catches everything" | Clippy catches idiomatic violations; TRIZ catches architectural contradictions clippy cannot see. |
+| "spawn_blocking is always faster" | It adds coordination and uses a shared blocking pool; workload characteristics determine the appropriate execution model. |
 
 ## Red Flags
 
 - [ ] Skipping the contradiction statement and jumping straight to solutions
-- [ ] Defining contradictions too vaguely to map to specific TRIZ principles
+- [ ] Defining contradictions too vaguely to map to specific principles
 - [ ] Not saving findings to `analysis/` as specified
-- [ ] Proposing non-idiomatic Rust (e.g., dynamic dispatch where static would do)
+- [ ] Proposing non-idiomatic Rust or speculative optimization without measurement
+- [ ] Treating `spawn_blocking`, `yield_now`, locks, or extra runtimes as universal performance fixes
 
 ## Reference Files
 
@@ -139,9 +160,12 @@ Example: `analysis/triz-scripts-2026-06-18.md`
 - `references/evolution.md` - TRIZ evolution trends for system design
 - [The Rust Performance Book](https://nnethercote.github.io/perf-book/)
 - [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
+- [Tokio tutorial](https://tokio.rs/tokio/tutorial)
+- [Principles for Fast Tokio Applications](https://dial9-rs.github.io/blog/principles-for-fast-tokio-applications/)
 
 ## Related Skills
 
+- `tokio-performance` - Tokio scheduling, fairness, contention, blocking, I/O, and concurrency audits
 - `triz-solver` - Apply TRIZ principles to solve specific problems
 - `task-decomposition` - Break audits into scoped sub-tasks
 - `goap-agent` - Use TRIZ in Phase 1 (Analyze) of GOAP
