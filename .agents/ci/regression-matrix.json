@@ -1,0 +1,144 @@
+{
+  "$schema": "../../schema/ci-regression-matrix.schema.json",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "sec-scan-cargo-audit-deny-20260818",
+      "date": "2026-08-18",
+      "workflow": "Security Scan",
+      "commit": "532da2968aaf358ace01516805017d73c38bece5",
+      "run_id": "32168143906",
+      "failure_category": "cargo-audit + cargo-deny",
+      "failure_type": "content",
+      "subsystem": "cargo-audit / cargo-deny",
+      "summary": "Security advisories or dependency license/banned crate policy violations detected during scheduled security scan.",
+      "reproducible_locally": true,
+      "reproduction_command": "cargo audit && cargo deny check",
+      "detection_signatures": [
+        "Crate: ",
+        "Vulnerability found",
+        "advisory found for crate",
+        "cargo-deny failed"
+      ],
+      "remediation_hint": "Update vulnerable dependencies using cargo update or add ignored advisory IDs to both .cargo/audit.toml and deny.toml if false positive."
+    },
+    {
+      "id": "ci-cargo-deny-20260820",
+      "date": "2026-08-20",
+      "workflow": "CI",
+      "commit": "fc23fba25ba96de75eae5341107cd5ce9d9015b9",
+      "run_id": "32356491040",
+      "failure_category": "cargo-deny",
+      "failure_type": "content",
+      "subsystem": "cargo-deny",
+      "summary": "Dependency policy violation due to unapproved licenses or untrusted sources in transitive dependencies.",
+      "reproducible_locally": true,
+      "reproduction_command": "cargo deny check",
+      "detection_signatures": [
+        "A package was found that failed policy check",
+        "advisories check failed",
+        "licenses check failed",
+        "bans check failed",
+        "error[bans]"
+      ],
+      "remediation_hint": "Review deny.toml settings or remove/replace non-compliant dependency."
+    },
+    {
+      "id": "sec-scan-cargo-audit-deny-20260821",
+      "date": "2026-08-21",
+      "workflow": "Security Scan",
+      "commit": "26732114c2d928ef5447ec83fc4e18965363e3d6",
+      "run_id": "32470508225",
+      "failure_category": "cargo-audit + cargo-deny",
+      "failure_type": "content",
+      "subsystem": "cargo-audit / cargo-deny",
+      "summary": "Transitive security advisory flagged by cargo-audit and cargo-deny.",
+      "reproducible_locally": true,
+      "reproduction_command": "cargo audit && cargo deny check",
+      "detection_signatures": [
+        "RUSTSEC-",
+        "Security advisory found",
+        "advisories failed"
+      ],
+      "remediation_hint": "Run cargo update or configure advisory exemptions in .cargo/audit.toml and deny.toml in sync."
+    },
+    {
+      "id": "ci-markdown-lint-20260828",
+      "date": "2026-08-28",
+      "workflow": "CI",
+      "commit": "5f4c4b8ea656617706c49a75e319273ad41b60fe",
+      "run_id": "33160926706",
+      "failure_category": "Markdown Lint",
+      "failure_type": "content",
+      "subsystem": "markdownlint",
+      "summary": "Markdown formatting or structure violation (MD001 heading increment, MD042 empty links, etc.). Diagnostic control: all code tests passed.",
+      "reproducible_locally": true,
+      "reproduction_command": "npx markdownlint-cli2 '**/*.md'",
+      "detection_signatures": [
+        "MD001",
+        "MD042",
+        "MD031",
+        "markdownlint-cli2",
+        "heading-increment"
+      ],
+      "remediation_hint": "Run `npx markdownlint-cli2 '**/*.md'` locally and fix Markdown formatting or heading hierarchy errors."
+    },
+    {
+      "id": "sec-scan-gitleaks-20260904",
+      "date": "2026-09-04",
+      "workflow": "Security Scan",
+      "commit": "592909cbe95b3a261ec0edf6fdd5e46719eb525f",
+      "run_id": "33867806284",
+      "failure_category": "Gitleaks",
+      "failure_type": "content",
+      "subsystem": "gitleaks",
+      "summary": "Gitleaks detected hardcoded secret or token pattern in commit history.",
+      "reproducible_locally": true,
+      "reproduction_command": "gitleaks detect --verbose",
+      "detection_signatures": [
+        "leaks found",
+        "Secret detected",
+        "Gitleaks detected"
+      ],
+      "remediation_hint": "Remove hardcoded secret/credentials or add path/finding exception to .gitleaks.toml."
+    },
+    {
+      "id": "dora-report-gen-20260914",
+      "date": "2026-09-14",
+      "workflow": "Monthly DORA Report",
+      "commit": "5269a86dab5b95482756c17b831294a619f0ce76",
+      "run_id": "34799355570",
+      "failure_category": "DORA report generation",
+      "failure_type": "tool",
+      "subsystem": "dora-report",
+      "summary": "DORA report generation failure caused by API pagination array concatenation or missing target directory.",
+      "reproducible_locally": true,
+      "reproduction_command": "python3 .agents/skills/dora-report/scripts/compute_dora.py --releases /tmp/releases.json --prs /tmp/prs.json --agent-metrics .agents/metrics.jsonl --dora-metrics dora-metrics.jsonl --template .agents/skills/dora-report/templates/DORA-REPORT.md.jinja --output reports/DORA-REPORT.md --period-days 30 --repo d-oit/rust-2026-template",
+      "detection_signatures": [
+        "Error validating releases data",
+        "is not a JSON list",
+        "No such file or directory: 'reports/DORA-REPORT.md'"
+      ],
+      "remediation_hint": "Ensure reports/ directory exists and process GitHub API paginated output using `jq -s 'add // []'`."
+    },
+    {
+      "id": "update-diagram-push-20260917",
+      "date": "2026-09-17",
+      "workflow": "Update Overview Diagram",
+      "commit": "b3a5b0e399edfb1f73916dc42851db8b904ebf20",
+      "run_id": "35236198451",
+      "failure_category": "direct push after successful generation",
+      "failure_type": "automation",
+      "subsystem": "architecture-diagram-updater",
+      "summary": "Direct push failed due to concurrent commit on main branch after architecture diagram generation.",
+      "reproducible_locally": false,
+      "reproduction_command": "python3 .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --out .template/overview.excalidraw --svg-out .template/overview.svg --png-out .template/overview.png",
+      "detection_signatures": [
+        "Failed to push architecture diagram",
+        "Push failed due to concurrent update",
+        "fetch origin main"
+      ],
+      "remediation_hint": "Retry workflow or ensure retry loop in update-architecture-diagram.yml fetches and resets against origin/main."
+    }
+  ]
+}

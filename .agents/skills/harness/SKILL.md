@@ -33,10 +33,11 @@ When a computational sensor fires:
 
 1. **Read the full error message** — it includes a fix hint.
 2. **Classify the error:** fmt / lint / test / arch / security.
-3. **Apply the minimal fix** — do not refactor unrelated code.
-4. **Re-run the specific sensor** — `cargo fmt`, `cargo clippy`, etc.
-5. **Only commit when the sensor is green.**
-6. **Write a metrics event** to `.agents/events/YYYY/MM/DD/` per the `metrics-reporter` skill.
+3. **Check historical regression signatures:** Consult `.agents/ci/regression-matrix.json` to see if the failure matches a known historical pattern (e.g. `MD001` heading jumps, `cargo-deny` policy violations, or `gitleaks` findings).
+4. **Apply the minimal fix** — do not refactor unrelated code.
+5. **Re-run the specific sensor** — `cargo fmt`, `cargo clippy`, etc.
+6. **Only commit when the sensor is green.**
+7. **Write a metrics event** to `.agents/events/YYYY/MM/DD/` per the `metrics-reporter` skill.
 
 ## Sensor Quick Reference
 
@@ -65,4 +66,6 @@ The steering loop closes the harness: sensors fire → humans and agents update 
 ## References
 
 - Full harness map: [`HARNESS.md`](../../HARNESS.md) at repo root.
+- Historical CI Regression Matrix: [`.agents/ci/regression-matrix.json`](../../ci/regression-matrix.json)
+- Matrix test suite: [`tests/ci_regression_matrix_test.sh`](../../../tests/ci_regression_matrix_test.sh)
 - Agent-optimised error output: `scripts/harness-check.sh` runs each sensor and emits structured error output with `HARNESS VIOLATION` prefix.
