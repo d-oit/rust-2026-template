@@ -1,0 +1,8 @@
+name: Fixture Missing Trigger (must FAIL structure)
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi

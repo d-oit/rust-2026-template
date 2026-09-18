@@ -1,0 +1,9 @@
+name: Fixture Tag Ref (must FAIL pinning)
+on: push
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
