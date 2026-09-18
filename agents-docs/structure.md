@@ -107,7 +107,8 @@ rust-2026-template/
 ├── hooks/                         # Git hooks (session-start.sh, etc.)
 ├── monitoring/                    # Monitoring configuration
 ├── plans/
-│   ├── GOAP_STATE.md              # AI agent world state tracker
+│   ├── GOAP_STATE.md              # AI agent world state pointer (≤20 lines, ADR 0005)
+│   ├── _status.json               # Machine anchor: active_plan, phases, handover_ref
 │   └── adr/                       # Architecture Decision Records
 ├── reports/                       # Generated HTML reports (git-ignored)
 ├── schema/                        # JSON Schema definitions
