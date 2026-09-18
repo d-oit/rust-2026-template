@@ -33,6 +33,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.8] - 2026-09-18
+
+### Added
+
+- `scripts/check-template-version.sh`: fails when the README version badge disagrees with the newest release in `.template/CHANGELOG-TEMPLATE.md`; wired into the `VERSION consistency check` job.
+- `scripts/update-bench-history.sh`: aggregates `benchmarks/events/**/*.jsonl` into `benchmarks/history.jsonl`, preserving rows across event retention pruning.
+
+### Changed
+
+- Benchmarks job records a trend: history aggregation after parsing, plus an informational comparison against the newest event-bearing run, written to both the step log and summary.
+- Shell suites under `tests/` now run in CI: the llms context generator suite in `Validate Agent Entrypoints`, and the regression-matrix and telemetry-contract suites in `Quality Gate`.
+- `tests/ci_telemetry/telemetry_integration_test.sh` gained `--use-existing`, so the quality-gate job validates its own artifacts instead of re-running the tier.
+
+### Fixed
+
+- `scripts/compare-benchmarks.sh`: reads the `ns_per_iter` field the event format writes (was `nanoseconds`, so every comparison silently reported nothing), parses `--commit-a`/`--commit-b` correctly, reports incomparable runs instead of "no significant changes", and is informational only — no machine-dependent timing gate.
+- `tests/generate_llms_txt_test.sh`: rebuilt its fixture as a fake repository with the generator under `scripts/`, and asserts the VERSION header instead of the timestamp removed in `a991c6b`; two shellcheck warnings fixed.
+- Removed `tests/quality_gate_test.sh`, which only re-ran the quality gate the job already executes.
+- README version badge, "Latest release" line and generated `llms-full.txt` realigned with the changelog.
+
+---
+
 ## [0.3.7] - 2026-09-17
 
 ### Added
@@ -423,7 +445,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.7...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.8...HEAD
+[0.3.8]: https://github.com/d-oit/rust-2026-template/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/d-oit/rust-2026-template/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/d-oit/rust-2026-template/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/d-oit/rust-2026-template/compare/v0.3.4...v0.3.5
