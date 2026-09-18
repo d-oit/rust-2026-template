@@ -408,6 +408,8 @@ mod tests {
         let pr = plan_checks(&config, Some("pull-request"), None, None).unwrap();
         assert!(pr.contains(&QualityCheck::Test));
         assert!(!pr.contains(&QualityCheck::Deny));
+        // GOAP guardrail (ADR 0005) must run on every PR, not just post-merge.
+        assert!(pr.contains(&QualityCheck::WorkflowValidation));
         // protected-branch is the deep merge gate.
         let merge = plan_checks(&config, Some("protected-branch"), None, None).unwrap();
         assert!(merge.contains(&QualityCheck::Deny));

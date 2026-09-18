@@ -144,6 +144,7 @@ impl XtaskConfig {
                     Q::DocTest,
                     Q::PrivacyCheck,
                     Q::SecretScan,
+                    Q::WorkflowValidation,
                 ],
                 required_checks: None,
             },
@@ -406,6 +407,13 @@ mod tests {
         assert_eq!(config.default_tier, "protected-branch");
         assert_eq!(config.lint_thresholds.max_lines_per_file, 500);
         assert!(config.lint_thresholds.clippy_warnings_as_errors);
+        // GOAP guardrail (ADR 0005) must run on every PR, not just post-merge.
+        assert!(
+            config.tiers["pull-request"]
+                .checks
+                .contains(&QualityCheck::WorkflowValidation),
+            "shipped pull-request tier must include WorkflowValidation"
+        );
 
         for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
             assert!(
