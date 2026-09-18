@@ -20,6 +20,12 @@ Enable intelligent planning and execution of complex multi-step tasks through sy
 
 Always use the `plans/` folder for all files. Use `plans/GOAP_STATE.md` to track persistent state.
 
+`GOAP_STATE.md` is a tracked pointer file (at most 20 lines: goal, active-plan
+pointer, last-verified stamp, next steps) — see ADR 0005. Per-task detail lives
+in `plans/<nn>-<slug>.md` and is indexed by `plans/_status.json:active_plan`.
+Never paste commit hashes, PR/issue numbers, CI logs, or host-local notes into
+the pointer file; update it on handover only.
+
 ## When to Use This Skill
 
 Use this skill when facing:

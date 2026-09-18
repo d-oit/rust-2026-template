@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GOAPStatus",
+  "description": "Machine anchor for agent session resume. See plans/adr/0005-goap-state-stays-tracked.md.",
+  "type": "object",
+  "properties": {
+    "active_plan": {
+      "type": ["string", "null"],
+      "description": "Path to the active plan file under plans/, or null when idle"
+    },
+    "phases": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "handover_ref": {
+      "type": ["string", "null"],
+      "description": "Path to a handover file, or null when none is pending"
+    }
+  },
+  "required": ["active_plan", "phases", "handover_ref"],
+  "additionalProperties": false
+}
