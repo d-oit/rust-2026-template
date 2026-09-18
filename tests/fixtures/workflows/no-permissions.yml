@@ -1,0 +1,7 @@
+name: Fixture No Permissions (must FAIL permissions)
+on: push
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi

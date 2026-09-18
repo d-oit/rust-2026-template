@@ -28,7 +28,7 @@ warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 
 FAILED=0
-WORKFLOWS_DIR=".github/workflows"
+WORKFLOWS_DIR="${WORKFLOWS_DIR:-.github/workflows}"
 
 if [[ ! -d "$WORKFLOWS_DIR" ]]; then
   echo -e "${RED}[ERROR]${NC} Workflows directory not found: $WORKFLOWS_DIR"
@@ -85,7 +85,7 @@ for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
       ref=$(echo "$line" | sed -n 's/.*uses:\s*.*@\([^#]*\).*/\1/p' | tr -d ' ')
       # Allow SHA refs (40+ hex chars) and local paths
       if [[ ${#ref} -lt 40 ]] && ! echo "$ref" | grep -qE '^[a-f0-9]{40,}$'; then
-        warn "Tag-based ref in $(basename "$f"): $ref (prefer SHA pinning)"
+        fail "Tag-based ref in $(basename "$f"): $ref (SHA pinning required)"
         PINNING_ISSUES=$((PINNING_ISSUES + 1))
       fi
     fi
@@ -94,7 +94,7 @@ done
 if [[ $PINNING_ISSUES -eq 0 ]]; then
   pass "SHA pinning: all actions pinned"
 else
-  warn "SHA pinning: $PINNING_ISSUES tag-based references found"
+  fail "SHA pinning: $PINNING_ISSUES tag-based references found"
 fi
 echo ""
 
@@ -105,15 +105,15 @@ for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
   [[ -f "$f" ]] || continue
   fname=$(basename "$f")
   if ! grep -q '^name:' "$f"; then
-    warn "$fname: missing 'name' field"
+    fail "$fname: missing 'name' field"
     STRUCTURE_OK=false
   fi
   if ! grep -q '^on:' "$f" && ! grep -q '^"on":' "$f"; then
-    warn "$fname: missing 'on' trigger"
+    fail "$fname: missing 'on' trigger"
     STRUCTURE_OK=false
   fi
   if ! grep -q '^jobs:' "$f"; then
-    warn "$fname: missing 'jobs' section"
+    fail "$fname: missing 'jobs' section"
     STRUCTURE_OK=false
   fi
 done
@@ -130,14 +130,14 @@ for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
   fname=$(basename "$f")
   # Check if top-level permissions are declared (restrictive by default)
   if ! grep -q '^permissions:' "$f"; then
-    warn "$fname: no top-level permissions (defaults to broad permissions)"
+    fail "$fname: no top-level permissions (least privilege required)"
     PERM_ISSUES=$((PERM_ISSUES + 1))
   fi
 done
 if [[ $PERM_ISSUES -eq 0 ]]; then
   pass "Permissions: all workflows declare permissions"
 else
-  warn "Permissions: $PERM_ISSUES workflows without explicit permissions"
+  fail "Permissions: $PERM_ISSUES workflows without explicit permissions"
 fi
 echo ""
 
