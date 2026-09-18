@@ -1,0 +1,6 @@
+{"timestamp": "2026-06-08T11:12:35Z", "commit": "b5dee008b89792d1eac0d73b22d16c4f73ec2f27", "benchmark": "end_to_end_placeholder", "ns_per_iter": 0, "throughput_mb_s": null}
+{"timestamp": "2026-06-08T11:12:35Z", "commit": "b5dee008b89792d1eac0d73b22d16c4f73ec2f27", "benchmark": "memory_usage_placeholder", "ns_per_iter": 17, "throughput_mb_s": null}
+{"timestamp": "2026-06-08T11:12:35Z", "commit": "b5dee008b89792d1eac0d73b22d16c4f73ec2f27", "benchmark": "sanitization/old_clean_ascii", "ns_per_iter": 160, "throughput_mb_s": null}
+{"timestamp": "2026-06-08T11:12:35Z", "commit": "b5dee008b89792d1eac0d73b22d16c4f73ec2f27", "benchmark": "sanitization/new_clean_ascii", "ns_per_iter": 51, "throughput_mb_s": null}
+{"timestamp": "2026-06-08T11:12:35Z", "commit": "b5dee008b89792d1eac0d73b22d16c4f73ec2f27", "benchmark": "sanitization/old_dirty_unicode", "ns_per_iter": 148, "throughput_mb_s": null}
+{"timestamp": "2026-06-08T11:12:35Z", "commit": "b5dee008b89792d1eac0d73b22d16c4f73ec2f27", "benchmark": "sanitization/new_dirty_unicode", "ns_per_iter": 66, "throughput_mb_s": null}
