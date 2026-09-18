@@ -445,20 +445,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.8...HEAD
-[0.3.8]: https://github.com/d-oit/rust-2026-template/compare/v0.3.7...v0.3.8
-[0.3.7]: https://github.com/d-oit/rust-2026-template/compare/v0.3.6...v0.3.7
-[0.3.6]: https://github.com/d-oit/rust-2026-template/compare/v0.3.5...v0.3.6
-[0.3.5]: https://github.com/d-oit/rust-2026-template/compare/v0.3.4...v0.3.5
-[0.3.4]: https://github.com/d-oit/rust-2026-template/compare/v0.3.3...v0.3.4
-[0.3.3]: https://github.com/d-oit/rust-2026-template/compare/v0.3.2...v0.3.3
-[0.3.2]: https://github.com/d-oit/rust-2026-template/compare/v0.3.1...v0.3.2
-[0.3.1]: https://github.com/d-oit/rust-2026-template/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/d-oit/rust-2026-template/compare/v0.2.3...v0.3.0
-[0.2.3]: https://github.com/d-oit/rust-2026-template/compare/v0.2.2...v0.2.3
-[0.2.2]: https://github.com/d-oit/rust-2026-template/compare/v0.2.1...v0.2.2
-[0.2.1]: https://github.com/d-oit/rust-2026-template/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/d-oit/rust-2026-template/compare/v0.1.2...v0.2.0
-[0.1.2]: https://github.com/d-oit/rust-2026-template/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/d-oit/rust-2026-template/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/d-oit/rust-2026-template/releases/tag/v0.1.0
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/b0755ce...HEAD
+[0.3.8]: https://github.com/d-oit/rust-2026-template/commit/b0755ce
+[0.3.7]: https://github.com/d-oit/rust-2026-template/commit/12667b4
+[0.3.6]: https://github.com/d-oit/rust-2026-template/commit/fc23fba
+[0.3.5]: https://github.com/d-oit/rust-2026-template/commit/634e458
+[0.3.4]: https://github.com/d-oit/rust-2026-template/commit/35d1265
+[0.3.3]: https://github.com/d-oit/rust-2026-template/commit/3e7d57e
+[0.3.2]: https://github.com/d-oit/rust-2026-template/commit/75a784e
+[0.3.1]: https://github.com/d-oit/rust-2026-template/commit/75a784e
+[0.3.0]: https://github.com/d-oit/rust-2026-template/commit/8247b62
+[0.2.3]: https://github.com/d-oit/rust-2026-template/commit/b5dee00
+[0.2.2]: https://github.com/d-oit/rust-2026-template/commit/621fe3c
+[0.2.1]: https://github.com/d-oit/rust-2026-template/commit/af0b971
+[0.2.0]: https://github.com/d-oit/rust-2026-template/commit/ea9aeaf
+[0.1.2]: https://github.com/d-oit/rust-2026-template/commit/2a5cdb8
+[0.1.1]: https://github.com/d-oit/rust-2026-template/commit/3ef4a88
+[0.1.0]: https://github.com/d-oit/rust-2026-template/commit/0f2b45a
