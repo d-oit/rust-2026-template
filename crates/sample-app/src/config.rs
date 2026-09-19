@@ -190,8 +190,10 @@ pub fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
 
         info!("Loading config from: {sanitized_path}");
 
-        // Security: Check metadata before opening to prevent hanging on FIFOs (DoS).
-        let metadata = std::fs::metadata(&path)?;
+        // Security: Open file FIRST to avoid TOCTOU (Time-of-Check to Time-of-Use)
+        // vulnerabilities, then inspect metadata via the opened file handle.
+        let file = std::fs::File::open(&path)?;
+        let metadata = file.metadata()?;
 
         if !metadata.is_file() {
             return Err(AppError::Config(format!(
@@ -199,7 +201,6 @@ pub fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
             )));
         }
 
-        let file = std::fs::File::open(&path)?;
         let file_size = metadata.len();
         if file_size > MAX_CONFIG_SIZE {
             return Err(AppError::Config(format!(
