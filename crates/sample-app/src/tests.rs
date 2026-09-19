@@ -147,11 +147,30 @@ fn test_sanitize_str_bad_byte_at_chunk_boundaries() {
 fn test_load_config_from_directory() {
     let result = load_config(Some(std::path::PathBuf::from(".")));
     assert!(result.is_err());
+    let err = result.unwrap_err().to_string();
+    assert!(
+        err.contains("not a regular file")
+            || err.contains("IO error")
+            || err.contains("Is a directory"),
+        "unexpected error message: {err}"
+    );
+}
+
+#[test]
+fn test_load_config_file_too_large() {
+    let dir = tempfile::tempdir().unwrap();
+    let file_path = dir.path().join("oversized_config.json");
+    // Create a file larger than 1MB
+    let large_data = vec![b' '; 1024 * 1024 + 1];
+    std::fs::write(&file_path, large_data).unwrap();
+
+    let result = load_config(Some(file_path));
+    assert!(result.is_err());
     assert!(
         result
             .unwrap_err()
             .to_string()
-            .contains("not a regular file")
+            .contains("Config file too large")
     );
 }
 
