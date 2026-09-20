@@ -46,9 +46,11 @@ if [ -f "$CHANGELOG" ]; then
   awk '/^## /{count++; if(count==2) exit} count==1{print}' "$CHANGELOG"
 fi
 
-# Print CI health status
-if [ -f ".agents/ci/ci-status.json" ]; then
-  echo "--- CI Status ---"
+# Print Evidence Freshness / CI Status
+echo "--- Evidence Freshness Status ---"
+if command -v cargo &>/dev/null; then
+  cargo run --quiet -p xtask --bin xtask -- quality status || true
+elif [ -f ".agents/ci/ci-status.json" ]; then
   if command -v python3 &>/dev/null; then
     python3 -c "
 import json
@@ -58,16 +60,10 @@ print(f\"Timestamp: {data.get('timestamp', 'unknown')}\")
 print(f\"Commit: {data.get('commit', 'unknown')[:8]}\")
 print(f\"Branch: {data.get('branch', 'unknown')}\")
 print(f\"Overall: {data.get('overall', 'unknown')}\")
-# Support both legacy jobs map and current checks array formats
-failed = []
-if 'jobs' in data:
-    failed = [k for k, v in data['jobs'].items() if v == 'failure']
-elif 'checks' in data:
-    failed = [c['name'] for c in data['checks'] if c.get('status') == 'failure']
-if failed:
-    print(f'Failed: {\", \".join(failed)}')
 " 2>/dev/null || echo "  (Could not parse CI status)"
   fi
+else
+  echo "Evidence Status: MISSING"
 fi
 
 # Print skill count
