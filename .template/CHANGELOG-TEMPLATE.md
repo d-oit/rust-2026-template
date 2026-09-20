@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- for changes in existing functionality.
+- Upgraded cargo-dist from 0.27.0 to 0.32.0 across template configuration (`dist-workspace.toml` and release workflow).
 
 ### Deprecated
 
