@@ -13,7 +13,98 @@ use std::io::Write as _;
 use std::path::Path;
 
 /// Current telemetry artifact schema version (bump on any breaking field change).
-pub const SCHEMA_VERSION: u32 = 1;
+pub const SCHEMA_VERSION: u32 = 2;
+
+/// Freshness status of execution evidence.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum EvidenceStatus {
+    /// Evidence exists, all checks passed, and fingerprint matches current workspace/policy state.
+    Green,
+    /// Evidence exists, but one or more checks failed.
+    Red,
+    /// Evidence exists, but workspace state or policy inputs have moved on.
+    Stale,
+    /// No evidence artifact was found.
+    Missing,
+}
+
+impl std::fmt::Display for EvidenceStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Green => write!(f, "GREEN"),
+            Self::Red => write!(f, "RED"),
+            Self::Stale => write!(f, "STALE"),
+            Self::Missing => write!(f, "MISSING"),
+        }
+    }
+}
+
+/// Fingerprint embedding workspace state and policy hashes for freshness validation.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct EvidenceFingerprint {
+    /// Git commit SHA (HEAD or `GITHUB_SHA`).
+    pub head_commit: String,
+    /// Hash of HEAD commit + uncommitted edits / untracked file status.
+    pub worktree_hash: String,
+    /// Quality gate tier used for the run.
+    pub tier: String,
+    /// Hash of policy inputs (e.g. `config/xtask.json`, `deny.toml`, workflow files).
+    pub policy_hash: String,
+}
+
+/// Simple, deterministic FNV-1a 64-bit hashing function for string/bytes fingerprinting.
+#[must_use]
+pub fn fnv1a_hash(bytes: &[u8]) -> u64 {
+    let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
+    for &byte in bytes {
+        hash ^= u64::from(byte);
+        hash = hash.wrapping_mul(0x0100_0000_01b3);
+    }
+    hash
+}
+
+/// Computes the evidence fingerprint for the current workspace state and specified tier.
+#[must_use]
+pub fn compute_fingerprint(tier: &str) -> EvidenceFingerprint {
+    let head_commit = std::env::var("GITHUB_SHA").unwrap_or_else(|_| {
+        commands::execute_captured("git", &["rev-parse", "HEAD"])
+            .unwrap_or_else(|_| "unknown_sha".to_string())
+            .trim()
+            .to_string()
+    });
+
+    let git_status =
+        commands::execute_captured("git", &["status", "--porcelain"]).unwrap_or_default();
+    let git_diff = commands::execute_captured("git", &["diff", "HEAD"]).unwrap_or_default();
+    let mut worktree_bytes = Vec::new();
+    worktree_bytes.extend_from_slice(head_commit.as_bytes());
+    worktree_bytes.extend_from_slice(git_status.as_bytes());
+    worktree_bytes.extend_from_slice(git_diff.as_bytes());
+    let worktree_hash = format!("{:016x}", fnv1a_hash(&worktree_bytes));
+
+    let policy_files = [
+        "config/xtask.json",
+        "deny.toml",
+        ".github/workflows/ci.yml",
+        ".github/workflows/security-scan.yml",
+    ];
+    let mut policy_bytes = Vec::new();
+    for file_path in policy_files {
+        if let Ok(content) = fs::read(file_path) {
+            policy_bytes.extend_from_slice(file_path.as_bytes());
+            policy_bytes.extend_from_slice(&content);
+        }
+    }
+    let policy_hash = format!("{:016x}", fnv1a_hash(&policy_bytes));
+
+    EvidenceFingerprint {
+        head_commit,
+        worktree_hash,
+        tier: tier.to_string(),
+        policy_hash,
+    }
+}
 
 /// Configurable telemetry behaviour (budgets are configuration, not application logic).
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -125,6 +216,9 @@ pub struct CiTelemetry {
     pub stages: Vec<TelemetryStage>,
     /// Toolchain versions at run time.
     pub toolchain: ToolchainInfo,
+    /// Evidence fingerprint matching workspace and policy state at execution time.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fingerprint: Option<EvidenceFingerprint>,
 }
 
 /// Converts a human check name ("Rust Format") into a kebab-case stage id ("rust-format").
@@ -161,6 +255,17 @@ impl ToolchainInfo {
 }
 
 impl CiTelemetry {
+    /// Checks evidence freshness against the given expected fingerprint.
+    #[must_use]
+    pub fn check_freshness(&self, expected_fingerprint: &EvidenceFingerprint) -> EvidenceStatus {
+        if self.stages.iter().any(|stage| stage.status == "failed") {
+            return EvidenceStatus::Red;
+        }
+        match &self.fingerprint {
+            Some(fp) if fp == expected_fingerprint => EvidenceStatus::Green,
+            _ => EvidenceStatus::Stale,
+        }
+    }
     /// Writes the JSON artifact and the Markdown summary next to it.
     ///
     /// # Errors
@@ -220,6 +325,10 @@ impl CiTelemetry {
         );
         let _ = writeln!(md, "- **Tier:** {}", self.tier);
         let _ = writeln!(md, "- **Plan source:** {}", self.plan_source);
+        if let Some(fp) = &self.fingerprint {
+            let _ = writeln!(md, "- **Worktree Hash:** {}", fp.worktree_hash);
+            let _ = writeln!(md, "- **Policy Hash:** {}", fp.policy_hash);
+        }
         let _ = writeln!(md, "- **Scope:** {} {}", self.scope.mode, {
             if self.scope.packages.is_empty() {
                 "(whole workspace)".to_string()
@@ -273,144 +382,5 @@ impl CiTelemetry {
 }
 
 #[cfg(test)]
-mod tests {
-    #![allow(clippy::unwrap_used)]
-    use super::*;
-    use std::path::PathBuf;
-
-    fn sample_telemetry() -> CiTelemetry {
-        CiTelemetry {
-            schema_version: SCHEMA_VERSION,
-            timestamp: "2026-08-09T00:00:00Z".to_string(),
-            tier: "pull-request".to_string(),
-            plan_source: "config/xtask.json".to_string(),
-            scope: TelemetryScope {
-                mode: "affected-packages".to_string(),
-                packages: vec!["xtask".to_string()],
-                fallback_used: false,
-            },
-            stages: vec![
-                TelemetryStage {
-                    id: "rust-format".to_string(),
-                    status: "passed".to_string(),
-                    duration_ms: 12,
-                    cache: "not-applicable".to_string(),
-                    skipped_reason: None,
-                },
-                TelemetryStage {
-                    id: "rust-tests".to_string(),
-                    status: "skipped".to_string(),
-                    duration_ms: 0,
-                    cache: "not-applicable".to_string(),
-                    skipped_reason: Some("not affected by changed paths".to_string()),
-                },
-            ],
-            toolchain: ToolchainInfo {
-                rustc: "rustc 1.88.0".to_string(),
-                cargo: "cargo 1.88.0".to_string(),
-                nextest: "cargo-nextest 0.9".to_string(),
-            },
-        }
-    }
-
-    #[test]
-    fn test_serializes_with_schema_version() {
-        let json = serde_json::to_value(sample_telemetry()).unwrap();
-        assert_eq!(json["schema_version"], 1);
-        assert_eq!(json["scope"]["mode"], "affected-packages");
-        assert_eq!(json["stages"][1]["status"], "skipped");
-        // No secrets/source fields are emitted by the struct.
-        let keys: Vec<&str> = json
-            .as_object()
-            .unwrap()
-            .keys()
-            .map(String::as_str)
-            .collect();
-        assert!(
-            !keys
-                .iter()
-                .any(|k| k.to_lowercase().contains("token") || k.to_lowercase().contains("secret"))
-        );
-    }
-
-    #[test]
-    fn test_emit_writes_artifact_and_summary() {
-        let dir = tempfile::tempdir().unwrap();
-        let config = TelemetryConfig {
-            enabled: true,
-            detail: "full".to_string(),
-            retention_days: 7,
-            summary_path: dir
-                .path()
-                .join("quality-summary.md")
-                .to_string_lossy()
-                .into_owned(),
-            artifact_path: dir
-                .path()
-                .join("quality-run.json")
-                .to_string_lossy()
-                .into_owned(),
-            budgets: TelemetryBudgets {
-                max_stage_duration_ms: 600_000,
-            },
-        };
-        sample_telemetry().emit(&config).unwrap();
-        let artifact: CiTelemetry =
-            serde_json::from_str(&std::fs::read_to_string(&config.artifact_path).unwrap()).unwrap();
-        assert_eq!(artifact.schema_version, SCHEMA_VERSION);
-        assert_eq!(artifact.stages.len(), 2);
-        let summary = std::fs::read_to_string(&config.summary_path).unwrap();
-        assert!(summary.contains("pull-request"));
-        assert!(summary.contains("rust-format"));
-    }
-
-    #[test]
-    fn test_config_load_disabled_skips_emit() {
-        let dir = tempfile::tempdir().unwrap();
-        let config = TelemetryConfig {
-            enabled: false,
-            detail: "full".to_string(),
-            retention_days: 7,
-            summary_path: dir.path().join("s.md").to_string_lossy().into_owned(),
-            artifact_path: dir.path().join("a.json").to_string_lossy().into_owned(),
-            budgets: TelemetryBudgets {
-                max_stage_duration_ms: 600_000,
-            },
-        };
-        sample_telemetry().emit(&config).unwrap();
-        assert!(!PathBuf::from(&config.artifact_path).exists());
-    }
-
-    #[test]
-    fn test_summary_marks_budget_exceeded() {
-        let mut t = sample_telemetry();
-        t.stages[0].duration_ms = 999_999;
-        let md = t.summary_markdown(&TelemetryConfig::default());
-        assert!(md.contains("Budget exceeded"));
-        assert!(md.contains("rust-format"));
-    }
-
-    #[test]
-    fn test_stage_id_kebab() {
-        assert_eq!(stage_id("Rust Format"), "rust-format");
-        assert_eq!(
-            stage_id("CI Status Artifact Check"),
-            "ci-status-artifact-check"
-        );
-    }
-
-    /// The stage table used to abut the toolchain bullet, which the repo's own
-    /// markdownlint gate (MD058) rejects on the next run.
-    #[test]
-    fn test_summary_separates_stage_table_from_toolchain_bullet() {
-        let md = sample_telemetry().summary_markdown(&TelemetryConfig::default());
-        assert!(
-            md.contains("\n\n- **Toolchain:**"),
-            "stage table must be separated from the toolchain bullet by a blank line"
-        );
-        assert!(
-            md.lines().all(|line| line == line.trim_end()),
-            "generated summary must not contain trailing whitespace"
-        );
-    }
-}
+#[path = "telemetry_test.rs"]
+mod tests;

@@ -11,10 +11,11 @@
     "plan_source",
     "scope",
     "stages",
-    "toolchain"
+    "toolchain",
+    "fingerprint"
   ],
   "properties": {
-    "schema_version": { "const": 1 },
+    "schema_version": { "const": 2 },
     "timestamp": { "type": "string", "format": "date-time" },
     "tier": { "type": "string", "minLength": 1 },
     "plan_source": { "type": "string", "minLength": 1 },
@@ -48,6 +49,16 @@
         "rustc": { "type": "string" },
         "cargo": { "type": "string" },
         "nextest": { "type": "string" }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "required": ["head_commit", "worktree_hash", "tier", "policy_hash"],
+      "properties": {
+        "head_commit": { "type": "string" },
+        "worktree_hash": { "type": "string" },
+        "tier": { "type": "string" },
+        "policy_hash": { "type": "string" }
       }
     }
   }

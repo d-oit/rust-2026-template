@@ -66,7 +66,7 @@ import sys
 with open('${JSON_ARTIFACT}', 'r') as f:
     data = json.load(f)
 
-assert data.get('schema_version') == 1, 'Invalid schema_version'
+assert data.get('schema_version') == 2, 'Invalid schema_version'
 assert 'tier' in data and data['tier'], 'Missing tier'
 assert 'plan_source' in data and data['plan_source'], 'Missing plan_source'
 assert 'scope' in data and 'mode' in data['scope'], 'Missing scope'
@@ -75,8 +75,15 @@ assert 'toolchain' in data, 'Missing toolchain'
 assert 'rustc' in data['toolchain'], 'Missing rustc in toolchain'
 assert 'cargo' in data['toolchain'], 'Missing cargo in toolchain'
 assert 'nextest' in data['toolchain'], 'Missing nextest in toolchain'
+assert 'fingerprint' in data, 'Missing fingerprint'
+assert 'head_commit' in data['fingerprint'], 'Missing head_commit in fingerprint'
+assert 'worktree_hash' in data['fingerprint'], 'Missing worktree_hash in fingerprint'
+assert 'policy_hash' in data['fingerprint'], 'Missing policy_hash in fingerprint'
 
 print('Structural verification PASSED')
 "
+
+echo "==> Verifying xtask quality status reports GREEN after run..."
+cargo run --quiet -p xtask --bin xtask -- quality status --tier pull-request
 
 echo "==> Telemetry integration test completed successfully!"
