@@ -60,8 +60,10 @@ python3 .agents/skills/dora-report/scripts/compute_dora.py \
   --prs /tmp/prs.json \
   --agent-metrics .agents/metrics.jsonl \
   --dora-metrics dora-metrics.jsonl \
+  --policy plans/dora.json \
   --template .agents/skills/dora-report/templates/DORA-REPORT.md.jinja \
   --output reports/DORA-REPORT.md \
+  --manifest-output reports/dora-manifest.json \
   --period-days 30 \
   --repo $(git remote get-url origin | sed 's/.*github.com[:\/]\(.*\)\.git/\1/')
 ```

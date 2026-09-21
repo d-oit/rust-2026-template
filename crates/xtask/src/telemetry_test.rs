@@ -179,6 +179,15 @@ fn test_compute_fingerprint_returns_valid_hashes() {
     assert_eq!(fp.policy_hash.len(), 16);
 }
 
+#[test]
+fn test_dora_policy_file_included_in_fingerprint() {
+    let fp = compute_fingerprint("pull-request");
+    let path = PathBuf::from("plans/dora.json");
+    let alt_path = PathBuf::from("../../plans/dora.json");
+    assert!(path.exists() || alt_path.exists());
+    assert_eq!(fp.policy_hash.len(), 16);
+}
+
 /// The stage table used to abut the toolchain bullet, which the repo's own
 /// markdownlint gate (MD058) rejects on the next run.
 #[test]

@@ -26,6 +26,17 @@
 
 {{ overall_tier_badge }}
 
+## Derivation Manifest
+
+- **Evaluation Window:** {{ start_iso }} to {{ timestamp }} ({{ period_days }} days)
+- **Percentile Method:** {{ policy.percentile_method }}
+- **Revert Predicate:** {{ policy.revert_predicate }}
+- **Bot Allowlist:** {{ policy.bot_allowlist_str }}
+- **Input Hashes (SHA-256):**
+  - `releases.json`: `{{ input_hashes.releases }}`
+  - `prs.json`: `{{ input_hashes.prs }}`
+  - `policy`: `{{ input_hashes.policy }}`
+
 ## Trend: Last 3 Periods
 
 <!-- Table auto-generated from historical dora-metrics.jsonl -->

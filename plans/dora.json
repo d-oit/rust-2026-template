@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "period_days": 30,
+  "bot_allowlist": [
+    "dependabot[bot]",
+    "renovate[bot]",
+    "github-actions[bot]"
+  ],
+  "merge_strategy": "squash_rebase_merge",
+  "percentile_method": "mean",
+  "revert_predicate": "title_contains_revert",
+  "thresholds": {
+    "deployment_frequency_per_day": {
+      "elite": 1.0,
+      "high": 0.142857,
+      "medium": 0.033333
+    },
+    "change_lead_time_hours": {
+      "elite": 1.0,
+      "high": 24.0,
+      "medium": 168.0
+    },
+    "change_failure_rate": {
+      "elite": 0.05,
+      "high": 0.10,
+      "medium": 0.15
+    },
+    "fdrt_hours": {
+      "elite": 1.0,
+      "high": 24.0,
+      "medium": 168.0
+    }
+  }
+}
