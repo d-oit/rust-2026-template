@@ -157,6 +157,11 @@ strip = false
 opt-level = 3
 debug = true
 
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
 # ─── cargo-mutants configuration ─────────────────────────────────────────────
 [workspace.metadata.cargo-mutants]
 exclude_re = [

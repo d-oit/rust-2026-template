@@ -21,6 +21,9 @@ publish = false
 # This binary crate uses many args in CLI handler functions
 too_many_arguments = "allow"
 
+[package.metadata.dist]
+dist = true
+
 [[bin]]
 name = "sample-app"
 path = "src/main.rs"
