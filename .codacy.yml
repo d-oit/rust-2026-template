@@ -16,5 +16,4 @@ exclude_paths:
   - ".git/**"
   - "dist/**"
   - ".cargo/**"
-  - "scripts/**"
   - ".agents/skills/**"
