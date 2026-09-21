@@ -36,13 +36,12 @@ exclude_workflows = [
 default_tier = "protected-branch"
 
 [policy]
-lockfile = "committed"
+lockfile = "ignored"
 publish_packages = []
 
 [post_init]
 checklist = [
   "set-package-metadata",
-  "commit-cargo-lock",
   "configure-license-policy",
   "configure-branch-protection",
   "declare-public-api-surface",

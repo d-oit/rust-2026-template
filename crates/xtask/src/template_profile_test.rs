@@ -99,6 +99,42 @@ fn test_is_safe_relative_rejects_component_attacks() {
 }
 
 #[test]
+fn test_shipped_profiles_lockfile_policies() {
+    let repo_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..");
+    for id in SHIPPED_PROFILES {
+        let path = repo_root
+            .join(format!("{PROFILES_DIR}/{id}.toml"))
+            .to_string_lossy()
+            .into_owned();
+        let profile = TemplateProfile::load_from_path(&path)
+            .unwrap_or_else(|e| panic!("profile {id} must load: {e}"));
+        if *id == "library" {
+            assert_eq!(
+                profile.policy.lockfile,
+                LockfilePolicy::Ignored,
+                "library profile must have LockfilePolicy::Ignored"
+            );
+            assert!(
+                !profile.post_init.checklist.contains(&"commit-cargo-lock".to_string()),
+                "library profile checklist must not instruct to commit cargo lock"
+            );
+        } else {
+            assert_eq!(
+                profile.policy.lockfile,
+                LockfilePolicy::Committed,
+                "profile '{id}' must have LockfilePolicy::Committed"
+            );
+            assert!(
+                profile.post_init.checklist.contains(&"commit-cargo-lock".to_string()),
+                "profile '{id}' checklist must contain commit-cargo-lock"
+            );
+        }
+    }
+}
+
+#[test]
 fn test_is_crate_dir_name_rules() {
     for ok in ["example-crate", "a", "sample-app2"] {
         assert!(is_crate_dir_name(ok), "{ok} must be valid");
