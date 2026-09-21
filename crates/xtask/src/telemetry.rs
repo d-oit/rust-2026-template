@@ -86,6 +86,7 @@ pub fn compute_fingerprint(tier: &str) -> EvidenceFingerprint {
     let policy_files = [
         "config/xtask.json",
         "deny.toml",
+        "plans/dora.json",
         ".github/workflows/ci.yml",
         ".github/workflows/security-scan.yml",
     ];

@@ -150,5 +150,115 @@ class TestComputeDora(unittest.TestCase):
         self.assertIn("Failed to parse required JSON file", res.stderr)
         self.assertIn(str(rel_path), res.stderr)
 
+    def test_deterministic_byte_identical_snapshots_with_pinned_now(self):
+        releases_data = [
+            {"tag": "v1.0.0", "published": "2026-09-01T10:00:00Z"},
+            {"tag": "v1.1.0", "published": "2026-09-10T12:00:00Z"}
+        ]
+        prs_data = [
+            {"pr": 1, "created": "2026-09-01T08:00:00Z", "merged": "2026-09-01T10:00:00Z"}
+        ]
+        policy_data = {
+            "version": "1.0",
+            "period_days": 30,
+            "bot_allowlist": ["dependabot[bot]"],
+            "merge_strategy": "squash_rebase_merge",
+            "percentile_method": "mean",
+            "revert_predicate": "title_contains_revert"
+        }
+
+        rel_path = self.dir_path / "releases.json"
+        pr_path = self.dir_path / "prs.json"
+        agent_path = self.dir_path / "agent.jsonl"
+        dora_path = self.dir_path / "dora.jsonl"
+        policy_path = self.dir_path / "policy.json"
+
+        out_path1 = self.dir_path / "run1" / "DORA-REPORT.md"
+        manifest_path1 = self.dir_path / "run1" / "dora-manifest.json"
+        out_path2 = self.dir_path / "run2" / "DORA-REPORT.md"
+        manifest_path2 = self.dir_path / "run2" / "dora-manifest.json"
+
+        with open(rel_path, "w") as f:
+            json.dump(releases_data, f)
+        with open(pr_path, "w") as f:
+            json.dump(prs_data, f)
+        with open(policy_path, "w") as f:
+            json.dump(policy_data, f)
+        agent_path.touch()
+        dora_path.touch()
+
+        now = "2026-09-17T00:00:00Z"
+
+        def run_cli(out_p, manifest_p):
+            cmd = [
+                sys.executable,
+                str(SCRIPT_DIR / "compute_dora.py"),
+                "--releases", str(rel_path),
+                "--prs", str(pr_path),
+                "--agent-metrics", str(agent_path),
+                "--dora-metrics", str(dora_path),
+                "--policy", str(policy_path),
+                "--template", str(TEMPLATE_PATH),
+                "--output", str(out_p),
+                "--manifest-output", str(manifest_p),
+                "--repo", "d-oit/rust-2026-template",
+                "--now", now
+            ]
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            self.assertEqual(res.returncode, 0, f"compute_dora.py failed: {res.stderr}")
+
+        run_cli(out_path1, manifest_path1)
+        run_cli(out_path2, manifest_path2)
+
+        # Verify reports and manifests are byte-identical across runs
+        self.assertEqual(out_path1.read_bytes(), out_path2.read_bytes())
+        self.assertEqual(manifest_path1.read_bytes(), manifest_path2.read_bytes())
+
+    def test_derivation_manifest_contents(self):
+        rel_path = self.dir_path / "releases.json"
+        pr_path = self.dir_path / "prs.json"
+        agent_path = self.dir_path / "agent.jsonl"
+        dora_path = self.dir_path / "dora.jsonl"
+        policy_path = self.dir_path / "policy.json"
+        out_path = self.dir_path / "DORA-REPORT.md"
+        manifest_path = self.dir_path / "dora-manifest.json"
+
+        with open(rel_path, "w") as f:
+            json.dump([{"tag": "v1.0.0", "published": "2026-09-01T10:00:00Z"}], f)
+        with open(pr_path, "w") as f:
+            json.dump([], f)
+        with open(policy_path, "w") as f:
+            json.dump({"version": "1.0", "period_days": 30, "bot_allowlist": ["renovate[bot]"]}, f)
+        agent_path.touch()
+        dora_path.touch()
+
+        now = "2026-09-17T00:00:00Z"
+        cmd = [
+            sys.executable,
+            str(SCRIPT_DIR / "compute_dora.py"),
+            "--releases", str(rel_path),
+            "--prs", str(pr_path),
+            "--agent-metrics", str(agent_path),
+            "--dora-metrics", str(dora_path),
+            "--policy", str(policy_path),
+            "--template", str(TEMPLATE_PATH),
+            "--output", str(out_path),
+            "--manifest-output", str(manifest_path),
+            "--now", now
+        ]
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0)
+
+        with open(manifest_path, "r") as f:
+            manifest = json.load(f)
+
+        self.assertEqual(manifest["schema_version"], "1.0")
+        self.assertEqual(manifest["evaluation_window"]["now_iso"], "2026-09-17T00:00:00Z")
+        self.assertEqual(manifest["evaluation_window"]["start_iso"], "2026-08-18T00:00:00Z")
+        self.assertEqual(manifest["scanned_counts"]["releases"], 1)
+        self.assertEqual(manifest["policy"]["bot_allowlist"], ["renovate[bot]"])
+        self.assertIn("releases", manifest["input_hashes"])
+        self.assertIn("policy", manifest["input_hashes"])
+
 if __name__ == "__main__":
     unittest.main()
