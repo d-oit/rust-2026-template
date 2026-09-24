@@ -9,28 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- for new features.
+- Fail-closed when-changed selection & explain subcommand (`xtask quality explain`): added declarative path-to-check glob mapping in `config/xtask.json` and `XtaskConfig` (`when_changed`), enabling granular check selection with `xtask quality explain` and fail-closed selection on unreadable git state (PR #388, Issue #365).
+- `scripts/distill-strikes.sh`: clusters repeated sensor failure signatures from `.agents/ci/regression-matrix.json` and recent telemetry history, automatically scaffolding draft starter skills and red fixtures when strikes reach threshold without overwriting existing skills (PR #386, Issue #374).
+- Release provenance regression fixtures: added offline ELF/Mach-O/PE binary verification test in `tests/release_provenance_test.sh` and documented fixtures under `tests/fixtures/release_provenance/` to guard against regressions in `cargo-auditable` binary embedding (PR #387, Issues #381, #377).
+- Release CycloneDX SBOM generation: enabled `cargo-cyclonedx = true` in `dist-workspace.toml` and automated installation via `taiki-e/install-action` in `.github/workflows/release.yml` (PR #389, Issue #380).
+- GitHub artifact attestations for release binaries: integrated `actions/attest-build-provenance` into `.github/workflows/release.yml` with `gh attestation verify` verification documented in `release-rust` skill (PR #393, Issue #379).
+- Release preflight gate: added dedicated `preflight` job in `.github/workflows/release.yml` verifying that tag strictly matches `v$(cat VERSION)`, asserting manifest consistency via `scripts/propagate-version.sh --check`, and failing fast if the release tag already exists on GitHub (PR #392, Issues #391, #369).
+- `scripts/doctor.sh` strict mode: added `--strict` flag to fail closed (exit code 1) on missing managed git hooks, broken skill symlinks, uncommitted changes, or shadowed `core.hooksPath` (Issue #373).
+- Deterministic DORA snapshot derivation manifest: added deterministic calculation, policy file `plans/dora.json`, and SHA-256 derivation manifest generation in `dora-report` (PR #384).
+- Evidence freshness fingerprinting: added worktree, head commit, and policy file hashing to `crates/xtask` telemetry and `xtask quality status` subcommand (PR #375).
 
 ### Changed
 
-- Upgraded cargo-dist from 0.27.0 to 0.32.0 across template configuration (`dist-workspace.toml` and release workflow).
-
-### Deprecated
-
-- for soon-to-be removed features.
+- Upgraded cargo-dist from 0.27.0 to 0.32.0 across template configuration (`dist-workspace.toml` and release workflow) with multi-stage plan/host architecture (PR #383).
+- Profile-specific lockfile policies: template initialization for binary profiles (`cli`, `service`, `ai-agent`) tracks and commits `Cargo.lock` by default for reproducible application builds while library profiles preserve lockfile ignore rules (PR #385, Issue #382).
+- Dynamic telemetry contract verification: `tests/ci_telemetry/telemetry_integration_test.sh` dynamically derives the target tier from the generated artifact when `--use-existing` is supplied, fixing `EvidenceStatus::Stale` tier mismatches in protected-branch CI.
+- Architecture diagram workflow resilience: `.github/workflows/update-architecture-diagram.yml` automatically falls back to PR creation (`docs/update-overview-diagram`) when direct pushes to protected `main` are declined by repository rules.
+- MSRV workspace inheritance: `benchmarks/Cargo.toml` and `examples/hello_world/Cargo.toml` now inherit `version.workspace = true`, `edition.workspace = true`, and `rust-version.workspace = true`.
+- License allowance linting: configured `unused-allowed-license = "allow"` in `deny.toml` to suppress benign unmatched license warnings in starter template.
 
 ### Removed
 
-- for now removed features.
+- Removed duplicate and conflicting `.github/workflows/release-drafter.yml` and `.github/release-drafter.yml`, standardizing on `git-cliff` as the canonical single source of truth for release notes (PR #392, Issue #390).
 
 ### Fixed
 
-- for any bug fixes.
+- Fixed `crates/xtask/src/telemetry.rs` markdown summary table formatting to ensure strict `markdownlint-cli2` compliance.
+- Fixed `scripts/audit-msrv.sh` member discovery to filter for directories containing `Cargo.toml`, preventing false warnings on standalone example files (`examples/roast-scorer.rs`).
+- Fixed yamllint comment spacing and document start headers in test fixture workflows and `.github/workflows/test-init-template.yml`.
+- Fixed line-length and job output block placement in `.github/workflows/release.yml`.
+- Formatted `crates/xtask/src/template_profile_test.rs` to satisfy `cargo fmt`.
+- Added missing `Rationalizations`, `Red Flags`, and `evals/evals.json` across `harness`, `secret-lint`, and `tokio-performance` skills to pass skill authoring compliance.
 
 ### Security
 
-- in case of vulnerabilities.
-
+- Prevented TOCTOU race condition in config loading (`e4f4927`, PR #363).
+- Added SWAR fast-path byte scan for tool validation in `mcp-server` (`dc29777`, PR #358).
 ---
 
 ## [0.3.8] - 2026-09-18

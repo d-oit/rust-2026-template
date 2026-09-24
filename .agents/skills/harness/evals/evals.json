@@ -1,0 +1,34 @@
+{
+  "skill_name": "harness",
+  "version": "1.0.0",
+  "split": "60/40 train/validation",
+  "evals": [
+    {
+      "id": 1,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "A CI sensor fired with a cargo-deny error. How should I respond per the harness protocol?",
+      "expected_output": "Follow the sensor response protocol: read full error message, classify error, consult regression matrix, apply minimal fix, re-run sensor locally, and write metrics event.",
+      "files": [],
+      "assertions": [
+        "Follows sensor response protocol in harness",
+        "Checks .agents/ci/regression-matrix.json for known patterns",
+        "Applies minimal fix without refactoring unrelated code",
+        "Re-runs sensor before committing"
+      ]
+    },
+    {
+      "id": 2,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "We noticed that a markdown lint sensor fired 3 times across recent runs. What action should be taken under the harness steering loop?",
+      "expected_output": "Run distill-strikes.sh to cluster failure signatures and scaffold a draft starter skill or red fixture without overwriting existing skills.",
+      "files": [],
+      "assertions": [
+        "References the harness steering loop for repeated strikes (>2 times)",
+        "Recommends running scripts/distill-strikes.sh",
+        "Mentions updating feedforward guides to close the loop"
+      ]
+    }
+  ]
+}

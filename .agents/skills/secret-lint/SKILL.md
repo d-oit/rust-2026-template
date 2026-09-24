@@ -31,3 +31,17 @@ The `secretlint.yml` workflow runs this skill on every push to `main` and `devel
 - `.secretlintrc.json`: Ruleset configuration (at root).
 - `.secretlintignore`: Ignore patterns (at root).
 - `package.json`: Dependencies and scripts (in this folder).
+
+## Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "It's only a test secret, so it's fine to commit." | Test secrets can leak patterns or trigger scanner false alarms. Use fixture mocks or ignore rules. |
+| "I'll clean up the commit history later." | Once pushed, secrets are compromised. Prevent them from entering git in the first place. |
+| "I can bypass pre-commit with --no-verify." | Bypassing pre-commit bypasses secret checks and risks leaking production credentials. |
+
+## Red Flags
+
+- [ ] Using `--no-verify` to bypass secret scanning
+- [ ] Committing hardcoded credentials or API keys directly to git
+- [ ] Disabling secretlint rules globally instead of configuring `.secretlintignore`

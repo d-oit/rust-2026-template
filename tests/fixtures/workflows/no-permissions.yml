@@ -1,3 +1,4 @@
+---
 name: Fixture No Permissions (must FAIL permissions)
 on: push
 jobs:

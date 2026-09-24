@@ -234,6 +234,19 @@ Capture metrics to distinguish execution phase behavior:
 - [ ] Repeatedly-ready loops are evaluated for fairness and scheduler starvation without cargo-culting `yield_now()`.
 - [ ] Claims of async performance improvements are backed by the regression harness (`benchmarks/benches/tokio_runtime_bench.rs` tails or `benchmarks/tests/tokio_runtime_behavior.rs` invariants), not by intuition.
 
+## Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "Moving this small parse to spawn_blocking will make it faster." | Thread context switching and queue overhead outweigh short CPU operations (<10-50µs). Run directly. |
+| "Spawning an unbounded number of tasks is fine because Tokio is lightweight." | Unbounded task creation exhausts file descriptors, network buffers, and memory. Use semaphores or bounded channels. |
+| "A yield_now() loop fixes my starvation problem." | Loops relying on `yield_now()` to prevent starvation indicate design flaws. Use event-driven notifications or channels. |
+
+## Red Flags
+
+- [ ] Holding `std::sync::Mutex` locks across `.await` points
+- [ ] Performing blocking synchronous filesystem or network I/O directly on Tokio worker threads
+- [ ] Unbounded `tokio::spawn` loops without backpressure or permits
 ## Integration & Cross-References
 
 - **`AGENTS.md`**: Canonical project contract for coding agents.

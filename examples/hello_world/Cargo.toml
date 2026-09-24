@@ -1,9 +1,10 @@
 [package]
 name = "hello_world"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 publish = false
-license = "MIT"
+license.workspace = true
 
 [lints.clippy]
 # Examples often have simple main functions that return Result for convenience
