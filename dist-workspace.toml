@@ -5,7 +5,8 @@ members = ["cargo:."]
 [dist]
 # Embed auditable dependency metadata in release binaries
 auditable = true
-# The preferred dist version to use in CI (Cargo.toml SemVer syntax)
+# Enable CycloneDX SBOM generation
+cargo-cyclonedx = true
 cargo-dist-version = "0.32.0"
 # CI backends to support
 ci = "github"

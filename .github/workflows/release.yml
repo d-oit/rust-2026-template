@@ -157,6 +157,10 @@ jobs:
       - name: Install dependencies
         run: |
           ${{ matrix.packages_install }}
+      - name: Install cargo-cyclonedx
+        uses: taiki-e/install-action@76c2e6406e52637deed7160d77bded76bd83e06e  # v2
+        with:
+          tool: cargo-cyclonedx
       - name: Build artifacts
         run: |
           dist build ${{ needs.plan.outputs.tag-flag }} \
