@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # doctor.sh - Environment diagnostics for this Rust template.
 # Checks required/optional tools, git state, symlinks, hooks, and core files.
-set -uo pipefail
+STRICT=0
+if [[ "${1:-}" == "--strict" ]]; then
+  STRICT=1
+fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
@@ -15,8 +18,14 @@ ISSUES=0
 
 pass() { printf "  ${GREEN}✓${NC} %s\n" "$1"; }
 fail() { printf "  ${RED}✗${NC} %s\n" "$1"; ISSUES=$((ISSUES + 1)); }
-warn() { printf "  ${YELLOW}!${NC} %s\n" "$1"; }
-
+warn() {
+  if [[ $STRICT -eq 1 ]]; then
+    printf "  ${RED}✗${NC} %s (strict failure)\n" "$1"
+    ISSUES=$((ISSUES + 1))
+  else
+    printf "  ${YELLOW}!${NC} %s\n" "$1"
+  fi
+}
 echo "=== Environment Diagnostics ==="
 echo ""
 
@@ -127,6 +136,8 @@ echo ""
 # --- Summary ---
 if [[ $ISSUES -eq 0 ]]; then
   echo -e "${GREEN}All checks passed.${NC}"
+  exit 0
 else
   echo -e "${RED}$ISSUES issue(s) found.${NC}"
+  exit 1
 fi
