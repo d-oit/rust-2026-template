@@ -45,8 +45,8 @@ for skill_path in "$SKILLS_SRC"/*/; do
   skill_name="${skill_path%/}"
   skill_name="${skill_name##*/}"
 
-  # Skip hidden/backup folders
-  if [[ "$skill_name" == _* ]] || [[ "$skill_name" == .* ]]; then
+  # Skip hidden/backup folders and drafts directory
+  if [[ "$skill_name" == _* ]] || [[ "$skill_name" == .* ]] || [[ "$skill_name" == "drafts" ]]; then
     continue
   fi
 
@@ -114,7 +114,7 @@ for skill_path in "$SKILLS_SRC"/*/; do
   skill_name="${skill_path%/}"
   skill_name="${skill_name##*/}"
 
-  [[ "$skill_name" != _* ]] && [[ "$skill_name" != .* ]] || continue
+  [[ "$skill_name" != _* ]] && [[ "$skill_name" != .* ]] && [[ "$skill_name" != "drafts" ]] || continue
 
   skill_file="${skill_path}SKILL.md"
   [[ -f "$skill_file" ]] || continue

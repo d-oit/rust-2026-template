@@ -64,12 +64,12 @@ And two modes:
 ## Steering Loop
 
 When any sensor fires **repeatedly** (>2 times in one sprint):
-1. Identify the root cause category (maintainability / architecture / behaviour)
-2. Update the corresponding **feedforward guide** to prevent recurrence
-3. If no guide exists, create one in `.agents/skills/` using the `skill-creator` skill
-4. Document the update in `CHANGELOG.md`
+1. Run `./scripts/distill-strikes.sh --threshold 3` to cluster failure signatures from `.agents/ci/regression-matrix.json` and recent quality run history.
+2. If a sensor signature reaches the threshold and has no existing guide, `distill-strikes.sh` automatically drafts a starter skill skeleton (`.agents/skills/drafts/<subsystem>/SKILL.md`) containing verbatim failure outputs and HARNESS VIOLATION hints, alongside a red fixture sample. Existing skills are never overwritten; if a guide already exists, the script refuses to overwrite and points to it.
+3. Review and refine the draft skill using `skill-creator` principles. Note that promotion requires human/agent review and a green sensor verification run.
+4. Update the corresponding **feedforward guide** to prevent recurrence and document the update in `CHANGELOG.md`.
 
-The steering loop closes the harness: sensors fire → humans and agents update guides → sensors fire less.
+The steering loop closes the harness: sensors fire → `distill-strikes.sh` drafts starter skills → humans and agents update guides → sensors fire less.
 
 ## Self-Correction Protocol for Agents
 

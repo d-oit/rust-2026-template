@@ -56,12 +56,12 @@ When a computational sensor fires:
 
 When any sensor fires **repeatedly** (>2 times in one sprint):
 
-1. Identify the root cause category (maintainability / architecture / behaviour).
-2. Update the corresponding **feedforward guide** to prevent recurrence.
-3. If no guide exists, create one in `.agents/skills/` using the `skill-creator` skill.
-4. Document the update in `CHANGELOG.md`.
+1. Run `./scripts/distill-strikes.sh --threshold 3` to cluster repeated failure signatures from `.agents/ci/regression-matrix.json` and recent quality history.
+2. If the fail-fast threshold is reached and no guide exists, `distill-strikes.sh` drafts a starter skill skeleton (`.agents/skills/drafts/<subsystem>/SKILL.md`) with verbatim HARNESS VIOLATION hints and a red fixture sample. If an existing skill exists, `distill-strikes.sh` refuses to overwrite and points to it instead.
+3. Review and refine the draft skill with `skill-creator` principles. Draft promotion requires a green sensor verification run.
+4. Update the corresponding **feedforward guide** to prevent recurrence and document the update in `CHANGELOG.md`.
 
-The steering loop closes the harness: sensors fire → humans and agents update guides → sensors fire less.
+The steering loop closes the harness: sensors fire → `distill-strikes.sh` drafts starter skills → humans and agents update guides → sensors fire less.
 
 ## References
 
