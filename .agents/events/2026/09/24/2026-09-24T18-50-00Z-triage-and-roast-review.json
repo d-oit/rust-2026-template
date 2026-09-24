@@ -1,0 +1,11 @@
+{
+  "event_id": "1790275800-omp",
+  "task_id": "review-roast-triage-merge",
+  "skill": "issue-triage",
+  "status": "success",
+  "started_at": "2026-09-24T18:00:00Z",
+  "finished_at": "2026-09-24T18:50:00Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "ae25337"
+}
