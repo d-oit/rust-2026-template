@@ -174,7 +174,7 @@
 <text x="620.00" y="343.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#2b8a3e" text-anchor="start"><tspan x="620.00" dy="0">.github/workflows/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="620.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="620.00" dy="0">22 workflow files</tspan></text>
+<text x="620.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="620.00" dy="0">21 workflow files</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M891.50 323.39 L1149.92 322.61 L1150.96 377.72 L889.65 376.23" stroke="none" fill="#f8f9fa"/>
@@ -184,7 +184,7 @@
 <text x="900.00" y="343.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#f76707" text-anchor="start"><tspan x="900.00" dy="0">scripts/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="900.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="900.00" dy="0">31 shell scripts</tspan></text>
+<text x="900.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="900.00" dy="0">32 shell scripts</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M311.80 348.47 C314.48 352.07,322.81 349.89,330.02 348.19 M310.07 350.10 C316.32 350.65,323.70 350.64,329.00 349.26" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
