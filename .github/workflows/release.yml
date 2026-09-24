@@ -31,7 +31,8 @@ jobs:
           TREE_VERSION="$(cat VERSION | tr -d '[:space:]')"
           EXPECTED_TAG="v${TREE_VERSION}"
           if [ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}" ]; then
-            echo "::error::Tag '${GITHUB_REF_NAME}' does not match VERSION '${TREE_VERSION}' (expected '${EXPECTED_TAG}')"
+            echo "::error::Tag '${GITHUB_REF_NAME}' does not match VERSION '${TREE_VERSION}'"
+            echo "Expected: '${EXPECTED_TAG}'"
             exit 1
           fi
           echo "✓ Tag '${GITHUB_REF_NAME}' matches VERSION '${TREE_VERSION}'"
