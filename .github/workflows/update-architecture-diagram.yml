@@ -16,7 +16,7 @@ concurrency:
 
 permissions:
   contents: write
-
+  pull-requests: write
 jobs:
   regenerate:
     runs-on: ubuntu-latest
@@ -79,5 +79,16 @@ jobs:
             sleep 2
           done
 
-          echo "Failed to push architecture diagram after $MAX_RETRIES attempts."
+          echo "Direct push to main was declined (branch protection or repository rules). Falling back to PR..."
+          BRANCH="docs/update-overview-diagram"
+          git checkout -B "$BRANCH"
+          if git push -u origin "$BRANCH" --force; then
+            gh pr create \
+              --title "docs: regenerate overview diagram [skip ci]" \
+              --body "Automated overview diagram update generated against main." \
+              --base main \
+              --head "$BRANCH" || echo "PR already exists or created"
+            exit 0
+          fi
+          echo "Failed to push architecture diagram or create fallback PR."
           exit 1

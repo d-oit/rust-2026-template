@@ -11,17 +11,21 @@ cd "${REPO_ROOT}"
 
 # CI runs this suite inside the quality-gate job, which has already executed the tier;
 # `--use-existing` skips the re-run so the artifacts under test are the job's own.
-if [[ "${1:-}" == "--use-existing" ]]; then
-    echo "==> Using telemetry artifacts produced by the current job"
-else
-    echo "==> Running xtask quality run --tier pull-request to generate telemetry..."
-    cargo run --quiet -p xtask --bin xtask -- quality run --tier pull-request
-fi
-
 JSON_ARTIFACT=".agents/ci/quality-run.json"
 SUMMARY_ARTIFACT=".agents/ci/quality-summary.md"
 SCHEMA="schema/ci-telemetry.schema.json"
 
+TARGET_TIER="pull-request"
+if [[ "${1:-}" == "--use-existing" ]]; then
+    echo "==> Using telemetry artifacts produced by the current job"
+    if [[ -f "${JSON_ARTIFACT}" ]]; then
+        TARGET_TIER=$(python3 -c "import json; print(json.load(open('${JSON_ARTIFACT}')).get('tier', 'pull-request'))")
+    fi
+else
+    TARGET_TIER="${1:-pull-request}"
+    echo "==> Running xtask quality run --tier ${TARGET_TIER} to generate telemetry..."
+    cargo run --quiet -p xtask --bin xtask -- quality run --tier "${TARGET_TIER}"
+fi
 echo "==> Checking artifact presence..."
 if [[ ! -f "${JSON_ARTIFACT}" ]]; then
     echo "ERROR: Missing ${JSON_ARTIFACT}" >&2
@@ -84,6 +88,5 @@ print('Structural verification PASSED')
 "
 
 echo "==> Verifying xtask quality status reports GREEN after run..."
-cargo run --quiet -p xtask --bin xtask -- quality status --tier pull-request
-
+cargo run --quiet -p xtask --bin xtask -- quality status --tier "${TARGET_TIER}"
 echo "==> Telemetry integration test completed successfully!"
