@@ -117,7 +117,10 @@ fn test_shipped_profiles_lockfile_policies() {
                 "library profile must have LockfilePolicy::Ignored"
             );
             assert!(
-                !profile.post_init.checklist.contains(&"commit-cargo-lock".to_string()),
+                !profile
+                    .post_init
+                    .checklist
+                    .contains(&"commit-cargo-lock".to_string()),
                 "library profile checklist must not instruct to commit cargo lock"
             );
         } else {
@@ -127,7 +130,10 @@ fn test_shipped_profiles_lockfile_policies() {
                 "profile '{id}' must have LockfilePolicy::Committed"
             );
             assert!(
-                profile.post_init.checklist.contains(&"commit-cargo-lock".to_string()),
+                profile
+                    .post_init
+                    .checklist
+                    .contains(&"commit-cargo-lock".to_string()),
                 "profile '{id}' checklist must contain commit-cargo-lock"
             );
         }

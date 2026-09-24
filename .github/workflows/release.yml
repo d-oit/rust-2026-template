@@ -239,7 +239,8 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
-    outputs:
+      id-token: write
+      attestations: write
       val: ${{ steps.host.outputs.manifest }}
       release_type: ${{ steps.release-type.outputs.type }}
     steps:
@@ -270,6 +271,10 @@ jobs:
           pattern: artifacts-*
           path: target/distrib/
           merge-multiple: true
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be  # v2
+        with:
+          subject-path: "target/distrib/*"
       - id: host
         shell: bash
         run: |

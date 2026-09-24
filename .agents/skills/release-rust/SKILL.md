@@ -80,9 +80,18 @@ Pushing a tag triggers `.github/workflows/release.yml`:
 - **Release Preflight**: Verifies that the tag matches `v$(cat VERSION)`, checks that the release does not already exist, and asserts manifest consistency.
 - **Release Gates**: Runs release-tier quality checks.
 - **Changelog**: Generated using `git-cliff` as the canonical source of truth for release notes.
-- **Dist Build**: Builds binaries for all targets via cargo-dist.
+- **Dist Build**: Builds binaries for all targets via cargo-dist with CycloneDX SBOM and cargo-auditable.
+- **Attestations**: Generates signed GitHub build provenance attestations for all release artifacts.
 - **Creates GitHub Release**: Publishes the release with assets.
 - Optionally publishes to crates.io.
+
+### 5. Verifying Release Attestations
+
+Consumers can verify artifact integrity and build provenance using the GitHub CLI:
+
+```bash
+gh attestation verify <binary-archive-or-file> --owner d-oit
+```
 
 ## Version Scheme
 
