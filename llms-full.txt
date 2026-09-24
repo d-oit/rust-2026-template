@@ -225,16 +225,16 @@ Pattern selection: [docs/patterns/README.md](docs/patterns/README.md).
 ## Project Profiles
 
 Choose a validated blueprint from `config/template-profiles/` that shapes the generated
-workspace: which crates stay, which workflows run, and the default CI tier.
+workspace: which crates stay, which workflows run, the default CI tier, and lockfile policy.
 
-| Profile | Best for | Keeps |
-|---|---|---|
-| `minimal` | Small app | `sample-app` + renamed lib crate + `xtask`; drops pattern crates, benchmarks, fuzz, heavy workflows |
-| `library` | Reusable library | renamed lib crate + `xtask` + workspace tests |
-| `cli` | Binary tool | `sample-app` + renamed lib crate + `xtask` + tests |
-| `service` | Long-running service | actor/storage/registry patterns + `xtask` |
-| `workspace` | Full reference | every crate, benchmark, and workflow |
-| `ai-agent` | Agent-centric dev | `sample-app` + lib crate + `xtask` + agent tooling |
+| Profile | Best for | Keeps | Lockfile Policy |
+|---|---|---|---|
+| `minimal` | Small app | `sample-app` + renamed lib crate + `xtask`; drops pattern crates, benchmarks, fuzz, heavy workflows | Committed (`Cargo.lock` tracked) |
+| `library` | Reusable library | renamed lib crate + `xtask` + workspace tests | Ignored (library standard) |
+| `cli` | Binary tool | `sample-app` + renamed lib crate + `xtask` + tests | Committed (`Cargo.lock` tracked) |
+| `service` | Long-running service | actor/storage/registry patterns + `xtask` | Committed (`Cargo.lock` tracked) |
+| `workspace` | Full reference | every crate, benchmark, and workflow | Committed (`Cargo.lock` tracked) |
+| `ai-agent` | Agent-centric dev | `sample-app` + lib crate + `xtask` + agent tooling | Committed (`Cargo.lock` tracked) |
 
 ```bash
 ./scripts/init-template.sh --profile library --name my-lib
@@ -291,19 +291,10 @@ The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to
 
 ## Cargo.lock Policy
 
-This template does **not** commit `Cargo.lock` because it is designed to be
-adopted as a library or workspace template. Downstream users resolve their own
-dependency trees via `cargo update`.
+The template repository itself does **not** commit `Cargo.lock` by default because it acts as a template for library and application crates alike. Downstream lockfile handling is determined by template initialization profiles:
 
-**If you are building a binary application** (not a library), you should commit
-`Cargo.lock` for reproducible builds. To opt in, remove the `Cargo.lock` line
-from `.gitignore`:
-
-```bash
-sed -i '/^Cargo.lock$/d' .gitignore
-git add Cargo.lock .gitignore
-git commit -m "chore: track Cargo.lock for binary application"
-```
+- **Binary Application Profiles** (`cli`, `service`, `ai-agent`, `minimal`, `workspace`): `cargo xtask template init` automatically un-ignores and tracks `Cargo.lock` in `.gitignore` so generated binary projects commit `Cargo.lock` for reproducible builds by default.
+- **Library Profile** (`library`): Keeps `Cargo.lock` ignored in `.gitignore`, adhering to Cargo recommendations for library crates so downstream consumers resolve exact dependency versions via `cargo update`.
 
 See the [Cargo docs on Cargo.lock](https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html) for full rationale.
 
