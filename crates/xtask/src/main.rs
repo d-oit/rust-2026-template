@@ -16,7 +16,9 @@ pub mod toolchain;
 
 use clap::{Parser, Subcommand};
 use config::{XtaskConfig, XtaskError};
-use quality_runner::{handle_github_summary, handle_quality_run, handle_quality_status};
+use quality_runner::{
+    handle_github_summary, handle_quality_explain, handle_quality_run, handle_quality_status,
+};
 
 #[derive(Parser)]
 #[command(name = "xtask")]
@@ -67,6 +69,15 @@ enum Cmd {
 enum QualitySub {
     /// Plan quality checks.
     Plan {
+        #[arg(long)]
+        tier: Option<String>,
+        #[arg(long)]
+        only: Option<String>,
+        #[arg(long)]
+        changed_from: Option<String>,
+    },
+    /// Explain check selection for the active tier and changed paths.
+    Explain {
         #[arg(long)]
         tier: Option<String>,
         #[arg(long)]
@@ -179,6 +190,10 @@ fn handle_agents_check_context() -> Result<(), XtaskError> {
     agent_adapters::AgentAdaptersManifest::load()?.check_context()
 }
 
+#[expect(
+    clippy::too_many_lines,
+    reason = "main CLI dispatcher spans subcommands across quality, template, report, agents, and release"
+)]
 fn main() {
     let cli = Cli::parse();
     let config = XtaskConfig::load_from_file("config/xtask.json").unwrap_or_else(|e| {
@@ -213,6 +228,16 @@ fn main() {
                     Err(e) => Err(e),
                 }
             }
+            QualitySub::Explain {
+                tier,
+                only,
+                changed_from,
+            } => handle_quality_explain(
+                &config,
+                tier.as_deref(),
+                only.as_deref(),
+                changed_from.as_deref(),
+            ),
             QualitySub::Run {
                 tier,
                 only,

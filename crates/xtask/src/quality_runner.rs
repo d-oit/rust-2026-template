@@ -115,17 +115,16 @@ pub fn handle_quality_run(
         });
     }
 
-    // Telemetry scope: affected packages when a base was supplied, else the whole workspace.
+    // Detailed plan result to inspect scope and fail-closed fallback status
+    let plan_result = quality::plan_checks_detailed(config, tier, only, changed_from)?;
     let (scope_mode, scope_packages, scope_fallback) = changed_from.map_or_else(
         || ("all", Vec::new(), false),
-        |base| {
-            let affected = crate::changed_paths::ChangedPaths::from_git(base).map_or_else(
-                |_| {
-                    println!("  ! Unable to resolve changed paths; falling back to full scope");
-                    Vec::new()
-                },
-                |cp| crate::changed_paths::affected_crates(&cp.changed_files),
-            );
+        |_base| {
+            let cp = plan_result.changed_paths.as_ref();
+            let fallback = cp.is_none() || cp.is_some_and(|c| c.fallback_used);
+            let affected = cp.map_or_else(Vec::new, |c| {
+                crate::changed_paths::affected_crates(&c.changed_files)
+            });
             let is_affected = !affected.is_empty();
             (
                 if is_affected {
@@ -134,7 +133,7 @@ pub fn handle_quality_run(
                     "all"
                 },
                 affected,
-                !is_affected,
+                fallback || !is_affected,
             )
         },
     );
@@ -214,6 +213,58 @@ pub fn handle_quality_run(
             exit_code: Some(1),
         })
     }
+}
+
+/// Explains check selection decisions without running checks.
+///
+/// # Errors
+/// Returns `XtaskError` if tier is invalid or plan computation fails.
+pub fn handle_quality_explain(
+    config: &XtaskConfig,
+    tier: Option<&str>,
+    only: Option<&str>,
+    changed_from: Option<&str>,
+) -> Result<(), XtaskError> {
+    let plan = quality::plan_checks_detailed(config, tier, only, changed_from)?;
+    let canonical_tier = report_tier(config, tier);
+    println!("=== Quality Check Selection Explanation ===");
+    println!("Tier: {canonical_tier}");
+    if let Some(base) = changed_from {
+        println!("Base SHA / Reference: {base}");
+        if plan.fallback_used {
+            println!(
+                "Git state status: UNREADABLE (fail-closed fallback active; selecting all checks)"
+            );
+        } else if let Some(ref cp) = plan.changed_paths {
+            println!("Changed files detected: {}", cp.changed_files.len());
+            for f in &cp.changed_files {
+                println!("  - {f}");
+            }
+        }
+    } else {
+        println!("Base SHA / Reference: none (full workspace run)");
+    }
+    println!();
+    println!(
+        "Selected Checks ({} of {}):",
+        plan.selected_checks.len(),
+        plan.full_tier_checks.len()
+    );
+    for detail in plan.details.iter().filter(|d| d.selected) {
+        println!("  ✓ {:<35} : {}", detail.check.name(), detail.reason);
+    }
+    println!();
+    println!("Skipped Checks:");
+    let skipped: Vec<_> = plan.details.iter().filter(|d| !d.selected).collect();
+    if skipped.is_empty() {
+        println!("  (none)");
+    } else {
+        for detail in skipped {
+            println!("  ⏭ {:<35} : {}", detail.check.name(), detail.reason);
+        }
+    }
+    println!("===========================================");
+    Ok(())
 }
 
 /// Checks the freshness status of telemetry evidence.

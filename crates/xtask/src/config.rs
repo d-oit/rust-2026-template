@@ -94,6 +94,52 @@ pub struct TierDef {
     pub required_checks: Option<Vec<QualityCheck>>,
 }
 
+/// Converts a glob pattern (supporting `**`, `*`, `?`) to a regex `String`.
+#[must_use]
+pub fn glob_to_regex_pattern(glob: &str) -> String {
+    let mut regex = String::from("^");
+    let chars: Vec<char> = glob.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] == '*' {
+            if i + 1 < chars.len() && chars[i + 1] == '*' {
+                i += 2;
+                if i < chars.len() && chars[i] == '/' {
+                    i += 1;
+                    regex.push_str("(?:^|.*/)?");
+                } else {
+                    regex.push_str(".*");
+                }
+            } else {
+                i += 1;
+                regex.push_str("[^/]*");
+            }
+        } else if chars[i] == '?' {
+            i += 1;
+            regex.push_str("[^/]");
+        } else {
+            let c = chars[i];
+            i += 1;
+            if matches!(
+                c,
+                '.' | '+' | '(' | ')' | '{' | '}' | '[' | ']' | '^' | '$' | '|' | '\\'
+            ) {
+                regex.push('\\');
+            }
+            regex.push(c);
+        }
+    }
+    regex.push('$');
+    regex
+}
+
+/// Checks whether a file path matches a glob pattern.
+#[must_use]
+pub fn glob_match(pattern: &str, path: &str) -> bool {
+    let re_str = glob_to_regex_pattern(pattern);
+    regex::Regex::new(&re_str).is_ok_and(|re| re.is_match(path))
+}
+
 /// The main strongly typed configuration structure.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
@@ -106,6 +152,9 @@ pub struct XtaskConfig {
     /// built-in defaults for names not present here, so a minimal config still works.
     #[serde(default)]
     pub tiers: BTreeMap<String, TierDef>,
+    /// Declarative path->check glob mapping for when-changed check selection.
+    #[serde(default)]
+    pub when_changed: BTreeMap<QualityCheck, Vec<String>>,
     /// Configurable thresholds.
     pub lint_thresholds: LintThresholds,
 }
@@ -116,6 +165,7 @@ impl Default for XtaskConfig {
             env_var_name: "XTASK_TIER".to_string(),
             default_tier: "protected-branch".to_string(),
             tiers: Self::builtin_tiers(),
+            when_changed: Self::builtin_when_changed(),
             lint_thresholds: LintThresholds {
                 max_lines_per_file: 500,
                 clippy_warnings_as_errors: true,
@@ -215,6 +265,80 @@ impl XtaskConfig {
             },
         );
         tiers
+    }
+
+    /// Built-in default path->check glob mappings.
+    fn builtin_when_changed() -> BTreeMap<QualityCheck, Vec<String>> {
+        use QualityCheck as Q;
+        let rust_globs = vec![
+            "crates/**/*.rs".to_string(),
+            "src/**/*.rs".to_string(),
+            "examples/**/*.rs".to_string(),
+            "tests/**/*.rs".to_string(),
+            "benchmarks/**/*.rs".to_string(),
+            "fuzz/**/*.rs".to_string(),
+            "Cargo.toml".to_string(),
+            "Cargo.lock".to_string(),
+            "rust-toolchain.toml".to_string(),
+        ];
+        let mut map = BTreeMap::new();
+        map.insert(Q::Fmt, rust_globs.clone());
+        map.insert(Q::Clippy, rust_globs.clone());
+        map.insert(Q::Build, rust_globs.clone());
+        map.insert(Q::Test, rust_globs.clone());
+        map.insert(Q::DocTest, rust_globs);
+        map.insert(
+            Q::Audit,
+            vec![
+                "Cargo.toml".to_string(),
+                "Cargo.lock".to_string(),
+                "deny.toml".to_string(),
+                ".cargo/audit.toml".to_string(),
+            ],
+        );
+        map.insert(
+            Q::Deny,
+            vec![
+                "Cargo.toml".to_string(),
+                "Cargo.lock".to_string(),
+                "deny.toml".to_string(),
+            ],
+        );
+        map.insert(
+            Q::Machete,
+            vec![
+                "crates/**/*.rs".to_string(),
+                "src/**/*.rs".to_string(),
+                "examples/**/*.rs".to_string(),
+                "tests/**/*.rs".to_string(),
+                "Cargo.toml".to_string(),
+                "Cargo.lock".to_string(),
+            ],
+        );
+        map.insert(
+            Q::Msrv,
+            vec![
+                "crates/**/*.rs".to_string(),
+                "src/**/*.rs".to_string(),
+                "Cargo.toml".to_string(),
+                "Cargo.lock".to_string(),
+                "rust-toolchain.toml".to_string(),
+                "scripts/audit-msrv.sh".to_string(),
+            ],
+        );
+        map.insert(
+            Q::ShellCheck,
+            vec!["scripts/**/*.sh".to_string(), "**/*.sh".to_string()],
+        );
+        map.insert(Q::MarkdownLint, vec!["**/*.md".to_string()]);
+        map.insert(
+            Q::WorkflowValidation,
+            vec![
+                ".github/workflows/*.yml".to_string(),
+                "scripts/validate-workflows.sh".to_string(),
+            ],
+        );
+        map
     }
 }
 
@@ -328,102 +452,3 @@ impl XtaskConfig {
 #[cfg(test)]
 #[path = "config_test.rs"]
 mod config_test;
-
-#[cfg(test)]
-mod tests {
-    #![allow(clippy::unwrap_used)]
-    use super::*;
-    use std::io::Write;
-
-    #[test]
-    fn test_default_config() {
-        let config = XtaskConfig::default();
-        assert_eq!(config.default_tier, "protected-branch");
-        assert_eq!(config.env_var_name, "XTASK_TIER");
-        assert_eq!(config.lint_thresholds.max_lines_per_file, 500);
-        for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
-            assert!(
-                config.tiers.contains_key(tier),
-                "builtin tier {tier} must exist"
-            );
-        }
-    }
-
-    #[test]
-    fn test_load_non_existent_file() {
-        let result = XtaskConfig::load_from_file("non-existent-file.json").unwrap();
-        assert_eq!(result.default_tier, "protected-branch");
-        assert_eq!(result.tiers.len(), 4);
-    }
-
-    #[test]
-    fn test_load_valid_file_without_tiers() {
-        // A config without a `tiers` key still loads (backwards compatible via serde default).
-        let temp = tempfile::tempdir().unwrap();
-        let path = temp.path().join("valid-xtask-config.json");
-        let mut file = File::create(&path).unwrap();
-        file.write_all(b"{\"env_var_name\":\"TEST_TIER\",\"default_tier\":\"fast-pr\",\"lint_thresholds\":{\"max_lines_per_file\":300,\"clippy_warnings_as_errors\":false}}").unwrap();
-
-        let result = XtaskConfig::load_from_file(&path).unwrap();
-        assert_eq!(result.default_tier, "fast-pr");
-        assert_eq!(result.env_var_name, "TEST_TIER");
-        assert_eq!(result.lint_thresholds.max_lines_per_file, 300);
-        assert!(!result.lint_thresholds.clippy_warnings_as_errors);
-        // Falls back to built-in tiers.
-        assert_eq!(result.tiers.len(), 4);
-    }
-
-    #[test]
-    fn test_load_custom_tier_overrides_builtin() {
-        let temp = tempfile::tempdir().unwrap();
-        let path = temp.path().join("custom-tiers.json");
-        std::fs::write(
-            &path,
-            r#"{"env_var_name":"XTASK_TIER","default_tier":"ci-smoke","tiers":{"ci-smoke":{"checks":["Fmt","Clippy"]}},"lint_thresholds":{"max_lines_per_file":500,"clippy_warnings_as_errors":true}}"#,
-        )
-        .unwrap();
-        let result = XtaskConfig::load_from_file(&path).unwrap();
-        assert_eq!(
-            result.tiers["ci-smoke"].checks,
-            vec![
-                crate::quality::QualityCheck::Fmt,
-                crate::quality::QualityCheck::Clippy
-            ]
-        );
-    }
-
-    #[test]
-    fn test_load_actual_config_xtask_json() {
-        let root_config_path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .join("config")
-            .join("xtask.json");
-
-        let config = XtaskConfig::load_from_file(&root_config_path).unwrap();
-        assert_eq!(config.env_var_name, "XTASK_TIER");
-        assert_eq!(config.default_tier, "protected-branch");
-        assert_eq!(config.lint_thresholds.max_lines_per_file, 500);
-        assert!(config.lint_thresholds.clippy_warnings_as_errors);
-        // GOAP guardrail (ADR 0005) must run on every PR, not just post-merge.
-        assert!(
-            config.tiers["pull-request"]
-                .checks
-                .contains(&QualityCheck::WorkflowValidation),
-            "shipped pull-request tier must include WorkflowValidation"
-        );
-
-        for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
-            assert!(
-                config.tiers.contains_key(tier),
-                "config/xtask.json must define tier '{tier}'"
-            );
-            assert!(
-                !config.tiers[tier].checks.is_empty(),
-                "tier '{tier}' must contain checks"
-            );
-        }
-    }
-}

@@ -91,76 +91,176 @@ impl QualityCheck {
     }
 }
 
-/// Determine which check variants to run based on tier, `--only`, and `--changed-from`.
+/// Individual check selection status and explanation.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct DetailedCheckSelection {
+    /// The quality check.
+    pub check: QualityCheck,
+    /// Whether the check was selected to run.
+    pub selected: bool,
+    /// Explanation reason for selection or skipping.
+    pub reason: String,
+}
+
+/// Consolidated plan checks result.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct PlanChecksResult {
+    /// Full set of checks defined for the active tier.
+    pub full_tier_checks: Vec<QualityCheck>,
+    /// List of checks selected to run.
+    pub selected_checks: Vec<QualityCheck>,
+    /// Detailed selection decisions for every check in the tier.
+    pub details: Vec<DetailedCheckSelection>,
+    /// True if git state could not be resolved and fail-closed fallback was used.
+    pub fallback_used: bool,
+    /// Changed paths information if `--changed-from` was supplied.
+    pub changed_paths: Option<ChangedPaths>,
+}
+
+fn matches_only_filter(check: QualityCheck, o_list: &[&str]) -> bool {
+    let ch_name = check.name().to_lowercase();
+    o_list.iter().any(|&o| {
+        let o_lower = o.to_lowercase();
+        ch_name.contains(&o_lower)
+            || match check {
+                QualityCheck::LocLimits => o_lower == "loc",
+                QualityCheck::Fmt => o_lower == "fmt" || o_lower == "format",
+                QualityCheck::Clippy => o_lower == "clippy" || o_lower == "lint",
+                QualityCheck::Build => o_lower == "build",
+                QualityCheck::Test => o_lower == "test" || o_lower == "tests",
+                QualityCheck::Audit => o_lower == "audit",
+                QualityCheck::Deny => o_lower == "deny",
+                QualityCheck::Machete => o_lower == "machete" || o_lower == "deps",
+                QualityCheck::ShellCheck => o_lower == "shell" || o_lower == "shellcheck",
+                QualityCheck::MarkdownLint => o_lower == "markdown" || o_lower == "md",
+                QualityCheck::PrivacyCheck => o_lower == "privacy",
+                QualityCheck::SecretScan => o_lower == "secret",
+                _ => false,
+            }
+    })
+}
+
+fn check_matches_when_changed(
+    check: QualityCheck,
+    config: &XtaskConfig,
+    cp: &ChangedPaths,
+) -> (bool, String) {
+    if cp.fallback_used {
+        return (
+            true,
+            "selected (unreadable git state; fail-closed fallback active)".to_string(),
+        );
+    }
+    let Some(patterns) = config.when_changed.get(&check) else {
+        return (
+            true,
+            "always run (no when_changed rule for check)".to_string(),
+        );
+    };
+    if patterns.is_empty() {
+        return (
+            true,
+            "always run (no when_changed pattern specified)".to_string(),
+        );
+    }
+    for pattern in patterns {
+        if cp
+            .changed_files
+            .iter()
+            .any(|file| crate::config::glob_match(pattern, file))
+        {
+            return (true, format!("matched glob pattern '{pattern}'"));
+        }
+    }
+    (
+        false,
+        format!(
+            "no changed files matched patterns [{}]",
+            patterns.join(", ")
+        ),
+    )
+}
+
+/// Determine which check variants to run based on tier, `--only`, and `--changed-from` with detailed explanations.
 ///
 /// # Errors
-/// Returns `XtaskError` if git diff command fails or if an invalid tier is specified.
-pub fn plan_checks(
+/// Returns `XtaskError` if an invalid tier is specified.
+pub fn plan_checks_detailed(
     config: &XtaskConfig,
     tier: Option<&str>,
     only: Option<&str>,
     changed_from: Option<&str>,
-) -> Result<Vec<QualityCheck>, XtaskError> {
-    // Tier precedence: explicit `--tier` > `$XTASK_TIER` env override > config default.
+) -> Result<PlanChecksResult, XtaskError> {
     let env_tier = std::env::var(&config.env_var_name).ok();
     let selected_tier = tier.or(env_tier.as_deref()).unwrap_or(&config.default_tier);
-    // Canonical tier names; legacy aliases resolve in `config::canonical_tier_name`.
     let canonical_tier = crate::config::canonical_tier_name(selected_tier);
     let Some(def) = config.tiers.get(canonical_tier) else {
         return Err(XtaskError::InvalidConfig {
             message: format!("Unsupported or unconfigured quality tier: {selected_tier}"),
         });
     };
-    // Publish the planned tier so run-time required-tool policy resolves
-    // against the tier actually being planned (including `--tier` overrides).
     quality_policy::set_active_tier(canonical_tier);
-    let mut checks = def.checks.clone();
+    let full_tier_checks = def.checks.clone();
+    let only_checks: Option<Vec<&str>> =
+        only.map(|only_str| only_str.split(',').map(str::trim).collect());
 
-    if let Some(only_str) = only {
-        let only_checks: Vec<&str> = only_str.split(',').map(str::trim).collect();
-        checks.retain(|check| {
-            let ch_name = check.name().to_lowercase();
-            only_checks.iter().any(|&o| {
-                let o_lower = o.to_lowercase();
-                ch_name.contains(&o_lower)
-                    || match check {
-                        QualityCheck::LocLimits => o_lower == "loc",
-                        QualityCheck::Fmt => o_lower == "fmt" || o_lower == "format",
-                        QualityCheck::Clippy => o_lower == "clippy" || o_lower == "lint",
-                        QualityCheck::Build => o_lower == "build",
-                        QualityCheck::Test => o_lower == "test" || o_lower == "tests",
-                        QualityCheck::Audit => o_lower == "audit",
-                        QualityCheck::Deny => o_lower == "deny",
-                        QualityCheck::Machete => o_lower == "machete" || o_lower == "deps",
-                        QualityCheck::ShellCheck => o_lower == "shell" || o_lower == "shellcheck",
-                        QualityCheck::MarkdownLint => o_lower == "markdown" || o_lower == "md",
-                        QualityCheck::PrivacyCheck => o_lower == "privacy",
-                        QualityCheck::SecretScan => o_lower == "secret",
-                        _ => false,
-                    }
-            })
+    let cp_opt = match changed_from {
+        Some(base_sha) => Some(ChangedPaths::from_git(base_sha)?),
+        None => None,
+    };
+    let fallback_used = cp_opt.as_ref().is_some_and(|cp| cp.fallback_used);
+
+    let mut details = Vec::new();
+    let mut selected_checks = Vec::new();
+
+    for check in &full_tier_checks {
+        if let Some(ref o_list) = only_checks {
+            if !matches_only_filter(*check, o_list) {
+                details.push(DetailedCheckSelection {
+                    check: *check,
+                    selected: false,
+                    reason: "excluded by --only filter".to_string(),
+                });
+                continue;
+            }
+        }
+
+        let (selected, reason) = cp_opt.as_ref().map_or_else(
+            || (true, "selected (full tier run)".to_string()),
+            |cp| check_matches_when_changed(*check, config, cp),
+        );
+
+        if selected {
+            selected_checks.push(*check);
+        }
+        details.push(DetailedCheckSelection {
+            check: *check,
+            selected,
+            reason,
         });
     }
 
-    if let Some(base_sha) = changed_from {
-        let cp = ChangedPaths::from_git(base_sha)?;
-        checks.retain(|check| match check {
-            QualityCheck::Fmt
-            | QualityCheck::Clippy
-            | QualityCheck::Build
-            | QualityCheck::Test
-            | QualityCheck::DocTest
-            | QualityCheck::Audit
-            | QualityCheck::Deny
-            | QualityCheck::Machete => cp.has_code_changes,
+    Ok(PlanChecksResult {
+        full_tier_checks,
+        selected_checks,
+        details,
+        fallback_used,
+        changed_paths: cp_opt,
+    })
+}
 
-            QualityCheck::ShellCheck => cp.has_shell_changes,
-            QualityCheck::MarkdownLint => cp.has_markdown_changes,
-            _ => true,
-        });
-    }
-
-    Ok(checks)
+/// Determine which check variants to run based on tier, `--only`, and `--changed-from`.
+///
+/// # Errors
+/// Returns `XtaskError` if an invalid tier is specified.
+pub fn plan_checks(
+    config: &XtaskConfig,
+    tier: Option<&str>,
+    only: Option<&str>,
+    changed_from: Option<&str>,
+) -> Result<Vec<QualityCheck>, XtaskError> {
+    let result = plan_checks_detailed(config, tier, only, changed_from)?;
+    Ok(result.selected_checks)
 }
 
 /// Executes a single quality check.
@@ -378,81 +478,5 @@ fn run_roast_scorer() -> Result<(), XtaskError> {
 }
 
 #[cfg(test)]
-mod tests {
-    #![allow(clippy::unwrap_used)]
-    use super::*;
-
-    #[test]
-    fn test_plan_checks_fast_pr() {
-        let config = XtaskConfig::default();
-        let checks = plan_checks(&config, Some("fast-pr"), None, None).unwrap();
-        assert!(checks.contains(&QualityCheck::LocLimits));
-        assert!(checks.contains(&QualityCheck::Fmt));
-        assert!(checks.contains(&QualityCheck::Test));
-        assert!(!checks.contains(&QualityCheck::ShellCheck));
-    }
-
-    #[test]
-    fn test_plan_checks_only() {
-        let config = XtaskConfig::default();
-        let checks = plan_checks(&config, Some("fast-pr"), Some("fmt,clippy"), None).unwrap();
-        assert_eq!(checks.len(), 2);
-        assert!(checks.contains(&QualityCheck::Fmt));
-        assert!(checks.contains(&QualityCheck::Clippy));
-    }
-
-    #[test]
-    fn test_plan_checks_canonical_tiers() {
-        let config = XtaskConfig::default();
-        // pull-request is the fast correctness tier.
-        let pr = plan_checks(&config, Some("pull-request"), None, None).unwrap();
-        assert!(pr.contains(&QualityCheck::Test));
-        assert!(!pr.contains(&QualityCheck::Deny));
-        // GOAP guardrail (ADR 0005) must run on every PR, not just post-merge.
-        assert!(pr.contains(&QualityCheck::WorkflowValidation));
-        // protected-branch is the deep merge gate.
-        let merge = plan_checks(&config, Some("protected-branch"), None, None).unwrap();
-        assert!(merge.contains(&QualityCheck::Deny));
-        assert!(merge.contains(&QualityCheck::Audit));
-        // scheduled carries the expensive eval/roast checks, not the PR-tier trivia.
-        let scheduled = plan_checks(&config, Some("scheduled"), None, None).unwrap();
-        assert!(scheduled.contains(&QualityCheck::RoastScorer));
-        // release is the pre-release security + build gate.
-        let release = plan_checks(&config, Some("release"), None, None).unwrap();
-        assert!(release.contains(&QualityCheck::Audit));
-    }
-
-    #[test]
-    fn test_plan_checks_legacy_aliases() {
-        let config = XtaskConfig::default();
-        let fast = plan_checks(&config, Some("fast-pr"), None, None).unwrap();
-        let pr = plan_checks(&config, Some("pull-request"), None, None).unwrap();
-        assert_eq!(fast, pr);
-        let full = plan_checks(&config, Some("full-gate"), None, None).unwrap();
-        let all = plan_checks(&config, Some("all"), None, None).unwrap();
-        let merge = plan_checks(&config, Some("protected-branch"), None, None).unwrap();
-        assert_eq!(full, merge);
-        assert_eq!(all, merge);
-    }
-
-    #[test]
-    fn test_plan_checks_unknown_tier_is_error() {
-        let config = XtaskConfig::default();
-        let err = plan_checks(&config, Some("no-such-tier"), None, None).unwrap_err();
-        assert!(err.to_string().contains("no-such-tier"));
-    }
-
-    #[test]
-    fn test_plan_checks_custom_tier_from_config() {
-        let mut config = XtaskConfig::default();
-        config.tiers.insert(
-            "ci-smoke".to_string(),
-            crate::config::TierDef {
-                checks: vec![QualityCheck::Fmt, QualityCheck::Clippy],
-                required_checks: None,
-            },
-        );
-        let checks = plan_checks(&config, Some("ci-smoke"), None, None).unwrap();
-        assert_eq!(checks, vec![QualityCheck::Fmt, QualityCheck::Clippy]);
-    }
-}
+#[path = "quality_test.rs"]
+mod tests;

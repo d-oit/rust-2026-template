@@ -22,6 +22,8 @@ pub struct ChangedPaths {
     pub has_markdown_changes: bool,
     /// The actual files that changed.
     pub changed_files: Vec<String>,
+    /// True if git state could not be resolved and full fallback selection was used.
+    pub fallback_used: bool,
 }
 
 /// Extracts the unique top-level crate names (`crates/<name>/…`) that contain changed files,
@@ -131,28 +133,46 @@ impl ChangedPaths {
             has_shell_changes,
             has_markdown_changes,
             changed_files: files.iter().map(|s| s.as_ref().to_string()).collect(),
+            fallback_used: false,
+        }
+    }
+
+    /// Creates a fallback `ChangedPaths` struct indicating unreadable git state.
+    /// All boolean flags are set to true so fail-closed selection keeps all checks.
+    #[must_use]
+    pub const fn git_fallback() -> Self {
+        Self {
+            has_code_changes: true,
+            has_heavy_changes: true,
+            has_agent_changes: true,
+            has_workflow_changes: true,
+            has_shell_changes: true,
+            has_markdown_changes: true,
+            changed_files: Vec::new(),
+            fallback_used: true,
         }
     }
 
     /// Queries git to retrieve changed files since the given base SHA, then classifies them.
+    /// Fail-closed: when git state cannot be read or git fails, returns a fallback
+    /// structure with `fallback_used = true` so all checks are selected.
     ///
     /// # Errors
-    /// Returns `XtaskError::CommandFailure` if the git command fails to run or execute.
+    /// Returns `XtaskError` (or fallback on git diff error).
     pub fn from_git(base_sha: &str) -> Result<Self, XtaskError> {
         let output = Command::new("git")
             .args(["diff", "--name-only", base_sha])
-            .output()
-            .map_err(|_e| XtaskError::CommandFailure {
-                command: format!("git diff --name-only {base_sha}"),
-                exit_code: None,
-            })?;
+            .output();
 
-        if !output.status.success() {
-            return Err(XtaskError::CommandFailure {
-                command: format!("git diff --name-only {base_sha}"),
-                exit_code: output.status.code(),
-            });
-        }
+        let output = match output {
+            Ok(out) if out.status.success() => out,
+            _ => {
+                eprintln!(
+                    "  ! Unable to read git diff for '{base_sha}'; failing closed (selecting all checks)"
+                );
+                return Ok(Self::git_fallback());
+            }
+        };
 
         let stdout = String::from_utf8_lossy(&output.stdout);
         let files: Vec<&str> = stdout

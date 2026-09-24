@@ -84,6 +84,20 @@
       ]
     }
   },
+  "when_changed": {
+    "Fmt": ["crates/**/*.rs", "src/**/*.rs", "examples/**/*.rs", "tests/**/*.rs", "benchmarks/**/*.rs", "fuzz/**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml"],
+    "Clippy": ["crates/**/*.rs", "src/**/*.rs", "examples/**/*.rs", "tests/**/*.rs", "benchmarks/**/*.rs", "fuzz/**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml"],
+    "Build": ["crates/**/*.rs", "src/**/*.rs", "examples/**/*.rs", "tests/**/*.rs", "benchmarks/**/*.rs", "fuzz/**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml"],
+    "Test": ["crates/**/*.rs", "src/**/*.rs", "examples/**/*.rs", "tests/**/*.rs", "benchmarks/**/*.rs", "fuzz/**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml"],
+    "DocTest": ["crates/**/*.rs", "src/**/*.rs", "examples/**/*.rs", "tests/**/*.rs", "benchmarks/**/*.rs", "fuzz/**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml"],
+    "Audit": ["Cargo.toml", "Cargo.lock", "deny.toml", ".cargo/audit.toml"],
+    "Deny": ["Cargo.toml", "Cargo.lock", "deny.toml"],
+    "Machete": ["crates/**/*.rs", "src/**/*.rs", "examples/**/*.rs", "tests/**/*.rs", "Cargo.toml", "Cargo.lock"],
+    "Msrv": ["crates/**/*.rs", "src/**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "scripts/audit-msrv.sh"],
+    "ShellCheck": ["scripts/**/*.sh", "**/*.sh"],
+    "MarkdownLint": ["**/*.md"],
+    "WorkflowValidation": [".github/workflows/*.yml", "scripts/validate-workflows.sh"]
+  },
   "lint_thresholds": {
     "max_lines_per_file": 500,
     "clippy_warnings_as_errors": true
