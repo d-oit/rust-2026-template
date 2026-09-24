@@ -446,6 +446,8 @@ jobs:
           fi
       - name: Validate CI regression matrix
         run: bash tests/ci_regression_matrix_test.sh
+      - name: Validate release provenance regression fixture
+        run: bash tests/release_provenance_test.sh
       - name: Validate quality-gate telemetry contract
         run: bash tests/ci_telemetry/telemetry_integration_test.sh --use-existing
       - name: Publish quality summary
