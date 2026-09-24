@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/d-oit/rust-2026-template/schema/xtask-config.schema.json",
   "title": "Xtask Configuration (config/xtask.json)",
-  "description": "Typed configuration file for CI verification tiers, environment variable overrides, default tier selection, and lint thresholds.",
+  "description": "Typed configuration file for CI verification tiers configuration, path-based check selection, environment variable overrides, default tier selection, and lint thresholds.",
   "type": "object",
   "required": [
     "env_var_name",
@@ -55,9 +55,24 @@
                 "RoastScorer"
               ]
             }
+          },
+          "required_checks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "additionalProperties": false
+      }
+    },
+    "when_changed": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
       }
     },
     "lint_thresholds": {

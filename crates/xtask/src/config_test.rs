@@ -166,3 +166,95 @@ fn missing_config_file_keeps_the_deliberate_defaults_fallback() {
     assert!(result.validate().is_ok());
     assert_eq!(result.tiers.len(), 4);
 }
+
+#[test]
+fn test_default_config() {
+    let config = XtaskConfig::default();
+    assert_eq!(config.default_tier, "protected-branch");
+    assert_eq!(config.env_var_name, "XTASK_TIER");
+    assert_eq!(config.lint_thresholds.max_lines_per_file, 500);
+    for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
+        assert!(
+            config.tiers.contains_key(tier),
+            "builtin tier {tier} must exist"
+        );
+    }
+}
+
+#[test]
+fn test_load_non_existent_file() {
+    let result = XtaskConfig::load_from_file("non-existent-file.json").unwrap();
+    assert_eq!(result.default_tier, "protected-branch");
+    assert_eq!(result.tiers.len(), 4);
+}
+
+#[test]
+fn test_load_valid_file_without_tiers() {
+    // A config without a `tiers` key still loads (backwards compatible via serde default).
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("valid-xtask-config.json");
+    let mut file = File::create(&path).unwrap();
+    file.write_all(b"{\"env_var_name\":\"TEST_TIER\",\"default_tier\":\"fast-pr\",\"lint_thresholds\":{\"max_lines_per_file\":300,\"clippy_warnings_as_errors\":false}}").unwrap();
+
+    let result = XtaskConfig::load_from_file(&path).unwrap();
+    assert_eq!(result.default_tier, "fast-pr");
+    assert_eq!(result.env_var_name, "TEST_TIER");
+    assert_eq!(result.lint_thresholds.max_lines_per_file, 300);
+    assert!(!result.lint_thresholds.clippy_warnings_as_errors);
+    // Falls back to built-in tiers.
+    assert_eq!(result.tiers.len(), 4);
+}
+
+#[test]
+fn test_load_custom_tier_overrides_builtin() {
+    let temp = tempfile::tempdir().unwrap();
+    let path = temp.path().join("custom-tiers.json");
+    std::fs::write(
+        &path,
+        r#"{"env_var_name":"XTASK_TIER","default_tier":"ci-smoke","tiers":{"ci-smoke":{"checks":["Fmt","Clippy"]}},"lint_thresholds":{"max_lines_per_file":500,"clippy_warnings_as_errors":true}}"#,
+    )
+    .unwrap();
+    let result = XtaskConfig::load_from_file(&path).unwrap();
+    assert_eq!(
+        result.tiers["ci-smoke"].checks,
+        vec![
+            crate::quality::QualityCheck::Fmt,
+            crate::quality::QualityCheck::Clippy
+        ]
+    );
+}
+
+#[test]
+fn test_load_actual_config_xtask_json() {
+    let root_config_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("config")
+        .join("xtask.json");
+
+    let config = XtaskConfig::load_from_file(&root_config_path).unwrap();
+    assert_eq!(config.env_var_name, "XTASK_TIER");
+    assert_eq!(config.default_tier, "protected-branch");
+    assert_eq!(config.lint_thresholds.max_lines_per_file, 500);
+    assert!(config.lint_thresholds.clippy_warnings_as_errors);
+    // GOAP guardrail (ADR 0005) must run on every PR, not just post-merge.
+    assert!(
+        config.tiers["pull-request"]
+            .checks
+            .contains(&QualityCheck::WorkflowValidation),
+        "shipped pull-request tier must include WorkflowValidation"
+    );
+
+    for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
+        assert!(
+            config.tiers.contains_key(tier),
+            "config/xtask.json must define tier '{tier}'"
+        );
+        assert!(
+            !config.tiers[tier].checks.is_empty(),
+            "tier '{tier}' must contain checks"
+        );
+    }
+}

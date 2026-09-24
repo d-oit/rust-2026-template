@@ -79,6 +79,7 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 - **Tracing:** Minimize CLI tracing metadata (thread IDs/names) unless high-concurrency.
 - **Quality SSOT:** Prefer `./scripts/quality-gates.sh` before push. `cargo run -p xtask quality-gates` delegates to that script.
 - **Verification tiers:** Which checks run for each lifecycle trigger (pull request / protected branch / scheduled / release) is configured in `config/xtask.json` (`tiers` map: `pull-request`, `protected-branch`, `scheduled`, `release`) — not in workflow YAML. Override per run via `xtask quality run --tier <name>` or `$XTASK_TIER`. Legacy names `fast-pr` and `full-gate`/`all` are aliases for `pull-request` and `protected-branch`.
+- **When-changed check selection:** `xtask quality run --changed-from <ref>` uses declarative `when_changed` glob mappings in `config/xtask.json` (e.g. `crates/**/*.rs` -> Rust checks, `scripts/**/*.sh` -> ShellCheck). Use `xtask quality explain --changed-from <ref>` to inspect selected vs skipped checks and matched patterns. Unreadable git state fails closed by selecting all checks and recording `fallback_used: true`.
 
 ### Security & Configuration
 - **Hardening:** Enforce `#[serde(deny_unknown_fields)]` on config structs.
