@@ -16,9 +16,41 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  # Cheap, read-only preflight: ensure tag matches tree VERSION and release does not already exist
+  preflight:
+    name: Release Preflight
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
+        with:
+          fetch-depth: 0
+      - name: Verify tag matches VERSION
+        run: |
+          TREE_VERSION="$(cat VERSION | tr -d '[:space:]')"
+          EXPECTED_TAG="v${TREE_VERSION}"
+          if [ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}" ]; then
+            echo "::error::Tag '${GITHUB_REF_NAME}' does not match VERSION '${TREE_VERSION}' (expected '${EXPECTED_TAG}')"
+            exit 1
+          fi
+          echo "✓ Tag '${GITHUB_REF_NAME}' matches VERSION '${TREE_VERSION}'"
+      - name: Verify release does not already exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "::error::GitHub Release for '${GITHUB_REF_NAME}' already exists! Aborting."
+            exit 1
+          fi
+          echo "✓ Release '${GITHUB_REF_NAME}' does not exist yet."
+      - name: Verify version consistency across manifests
+        run: bash scripts/propagate-version.sh --check
+
   # Run the release-tier quality gates before building anything
   verify:
     name: Quality Gates (release tier)
+    needs: [preflight]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6

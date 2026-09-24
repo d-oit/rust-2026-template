@@ -77,11 +77,12 @@ git push origin main --tags
 
 Pushing a tag triggers `.github/workflows/release.yml`:
 
-- Builds binaries for all targets
-- Creates GitHub Release with assets
-- Optionally publishes to crates.io
-
-> **Note on Multi-Crate Workspaces**: Workspace crates with internal path dependencies must be published in topological (dependency-graph) order. `cargo publish --dry-run` on a non-leaf crate fails until its dependencies are published on crates.io. Use `cargo release --workspace` or `scripts/release-manager.sh` to handle workspace releases.
+- **Release Preflight**: Verifies that the tag matches `v$(cat VERSION)`, checks that the release does not already exist, and asserts manifest consistency.
+- **Release Gates**: Runs release-tier quality checks.
+- **Changelog**: Generated using `git-cliff` as the canonical source of truth for release notes.
+- **Dist Build**: Builds binaries for all targets via cargo-dist.
+- **Creates GitHub Release**: Publishes the release with assets.
+- Optionally publishes to crates.io.
 
 ## Version Scheme
 
