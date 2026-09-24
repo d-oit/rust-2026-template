@@ -86,13 +86,14 @@ info "Checking workspace member crates..."
 
 # Get workspace members from Cargo.toml
 MEMBERS=$(python3 -c "
-import tomllib, glob
+import tomllib, glob, os
 with open('Cargo.toml', 'rb') as f:
     data = tomllib.load(f)
 members = data.get('workspace', {}).get('members', [])
 for m in members:
     for expanded in glob.glob(m):
-        print(expanded)
+        if os.path.isdir(expanded) and os.path.isfile(os.path.join(expanded, 'Cargo.toml')):
+            print(expanded)
 " 2>/dev/null || awk '
   /^\[workspace\]/ { in_ws=1; next }
   /^\[/ { in_ws=0; next }

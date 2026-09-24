@@ -36,6 +36,7 @@ ignore = [
 # ============================================================
 [licenses]
 version = 2
+unused-allowed-license = "allow"
 # List of allowed licenses (SPDX identifiers)
 allow = [
   "MIT",

@@ -1,0 +1,32 @@
+{
+  "skill_name": "secret-lint",
+  "version": "1.0.0",
+  "split": "60/40 train/validation",
+  "evals": [
+    {
+      "id": 1,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "I need to check our repository for credentials and API keys before opening a pull request. How do I scan for secrets?",
+      "expected_output": "Run make secrets-lint from the repository root to invoke secretlint.",
+      "files": [],
+      "assertions": [
+        "Recommends running make secrets-lint",
+        "Mentions pre-commit hook and CI secretlint.yml integration",
+        "References .secretlintrc.json configuration"
+      ]
+    },
+    {
+      "id": 2,
+      "split": "train",
+      "should_trigger": true,
+      "prompt": "Secretlint is reporting a false positive on a synthetic test token in our test suite. How do I handle this?",
+      "expected_output": "Configure .secretlintignore at the repository root to exclude the specific test fixture or pattern rather than disabling rules globally.",
+      "files": [],
+      "assertions": [
+        "Recommends updating .secretlintignore for false positive exclusion",
+        "Warns against bypassing secret checks or committing real credentials"
+      ]
+    }
+  ]
+}

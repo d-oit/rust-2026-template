@@ -1,3 +1,4 @@
+---
 name: Fixture Tag Ref (must FAIL pinning)
 on: push
 permissions:

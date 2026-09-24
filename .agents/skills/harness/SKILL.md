@@ -63,6 +63,20 @@ When any sensor fires **repeatedly** (>2 times in one sprint):
 
 The steering loop closes the harness: sensors fire → `distill-strikes.sh` drafts starter skills → humans and agents update guides → sensors fire less.
 
+## Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The sensor is just being pedantic, I'll bypass it." | Computational sensors exist to prevent regressions. Never suppress without approval. |
+| "I'll fix this CI failure after committing." | Committing broken code breaks peers and pipelines. Always verify sensors pass before commit. |
+| "I don't need to check the regression matrix." | Checking `.agents/ci/regression-matrix.json` saves time by identifying known failure patterns. |
+
+## Red Flags
+
+- [ ] Committing code while computational sensors are red
+- [ ] Suppressing sensor errors rather than fixing root causes
+- [ ] Ignoring repeated sensor strikes instead of running `distill-strikes.sh`
+
 ## References
 
 - Full harness map: [`HARNESS.md`](../../HARNESS.md) at repo root.
