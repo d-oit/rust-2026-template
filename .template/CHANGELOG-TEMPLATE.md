@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `reviewing-pull-requests` skill: impact-based PR triage (blast radius over diff size), a `What NOT to Flag` false-positive list, draft-post separation with a human gate, and `references/gh-recipes.md` covering `gh` list/view/comment/close plus the permissions matrix.
+
+### Changed
+
+- Skill validation and skill evaluations now run on the `pull-request` and `protected-branch` tiers, with `when_changed` glob mappings so skill edits trigger them instead of surfacing only in the scheduled tier.
+- `structure_check.sh` scores nine real signals (spec-conformant `name`/`description`, body budget, evals) instead of awarding a point for a `## When to Use` heading that cannot influence triggering.
+
+### Removed
+
+- `.mimocode/` (3368 files, one tracked release command) and its stale exclusions in `quality_helpers.rs`; defensive ignore patterns in `.gitignore`, `.markdownlint-cli2.jsonc`, and `.gitleaks.toml` are retained for adopters who use the tool.
+- Duplicated 111-line `skill-evaluator/references/evaluating-skills.md`, replaced with a pointer to the canonical `skill-creator` copy.
+
+### Fixed
+
+- `validate-skills.sh` counted body lines by stopping at the first `---` after the frontmatter, so horizontal rules inside a body truncated the count (e.g. `anti-ai-slop` reported 12 of 118). Body budget checks across the skill system were effectively inert.
+- `dora-report` silently returned default policy when a DORA policy file was malformed, producing wrong metrics with no signal; the error now reports to stderr with the failing path.
+- `xtask template_init` documented transactional apply semantics that the code does not provide; the doc now states that each write is atomic but a later I/O failure can leave earlier changes in place. `plan_rename` and `prose_rewrites` no longer touch crates and files that the same plan removes.
+- `harness` and `secret-lint` evals had no negative cases; each gained a validation case testing refusal rather than happy-path compliance.
+
+---
+
+## [0.3.9] - 2026-09-24
+
+### Added
+
 - Fail-closed when-changed selection & explain subcommand (`xtask quality explain`): added declarative path-to-check glob mapping in `config/xtask.json` and `XtaskConfig` (`when_changed`), enabling granular check selection with `xtask quality explain` and fail-closed selection on unreadable git state (PR #388, Issue #365).
 - `scripts/distill-strikes.sh`: clusters repeated sensor failure signatures from `.agents/ci/regression-matrix.json` and recent telemetry history, automatically scaffolding draft starter skills and red fixtures when strikes reach threshold without overwriting existing skills (PR #386, Issue #374).
 - Release provenance regression fixtures: added offline ELF/Mach-O/PE binary verification test in `tests/release_provenance_test.sh` and documented fixtures under `tests/fixtures/release_provenance/` to guard against regressions in `cargo-auditable` binary embedding (PR #387, Issues #381, #377).
@@ -460,6 +485,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clippy configuration (.clippy.toml)
 
 [Unreleased]: https://github.com/d-oit/rust-2026-template/compare/b0755ce...HEAD
+[0.3.9]: https://github.com/d-oit/rust-2026-template/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/d-oit/rust-2026-template/commit/b0755ce
 [0.3.7]: https://github.com/d-oit/rust-2026-template/commit/12667b4
 [0.3.6]: https://github.com/d-oit/rust-2026-template/commit/fc23fba
