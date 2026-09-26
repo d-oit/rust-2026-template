@@ -355,6 +355,69 @@ fn test_validate_app_name_bad_byte_at_swar_chunk_boundaries() {
 }
 
 #[test]
+fn test_validate_app_name_all_forbidden_unicode_ranges() {
+    let config = CheckpointConfig::default();
+
+    // Test zero-width spaces and Bidi controls (\u{200b}..=\u{200f})
+    for ch in '\u{200b}'..='\u{200f}' {
+        let name = format!("app_{ch}_test");
+        assert!(
+            CheckpointManager::<TestState>::validate_app_name(&name, &config).is_err(),
+            "Expected rejection for char U+{:04X}",
+            ch as u32
+        );
+    }
+
+    // Test Line & Paragraph Separators (\u{2028}, \u{2029})
+    for ch in ['\u{2028}', '\u{2029}'] {
+        let name = format!("app_{ch}_test");
+        assert!(
+            CheckpointManager::<TestState>::validate_app_name(&name, &config).is_err(),
+            "Expected rejection for separator U+{:04X}",
+            ch as u32
+        );
+    }
+
+    // Test Bidi embedding/override (\u{202a}..=\u{202e})
+    for ch in '\u{202a}'..='\u{202e}' {
+        let name = format!("app_{ch}_test");
+        assert!(
+            CheckpointManager::<TestState>::validate_app_name(&name, &config).is_err(),
+            "Expected rejection for Bidi override U+{:04X}",
+            ch as u32
+        );
+    }
+
+    // Test invisible formatters (\u{2060}..=\u{2064})
+    for ch in '\u{2060}'..='\u{2064}' {
+        let name = format!("app_{ch}_test");
+        assert!(
+            CheckpointManager::<TestState>::validate_app_name(&name, &config).is_err(),
+            "Expected rejection for invisible formatter U+{:04X}",
+            ch as u32
+        );
+    }
+
+    // Test Bidi isolate controls (\u{2066}..=\u{2069})
+    for ch in '\u{2066}'..='\u{2069}' {
+        let name = format!("app_{ch}_test");
+        assert!(
+            CheckpointManager::<TestState>::validate_app_name(&name, &config).is_err(),
+            "Expected rejection for Bidi isolate U+{:04X}",
+            ch as u32
+        );
+    }
+
+    // Test safe non-ASCII Unicode strings pass validation
+    for safe_unicode in ["app_🦀", "über_app", "应用_name", "app-v1.0.0-α"] {
+        assert!(
+            CheckpointManager::<TestState>::validate_app_name(safe_unicode, &config).is_ok(),
+            "Expected safe non-ASCII string '{safe_unicode}' to pass validation"
+        );
+    }
+}
+
+#[test]
 fn test_validate_app_name_clean_at_swar_chunk_alignments() {
     // Clean printable names must pass the fast path untouched at every chunk alignment.
     for n in [0usize, 1, 7, 8, 9, 15, 16, 17, 23, 24, 31, 32, 63, 64] {
