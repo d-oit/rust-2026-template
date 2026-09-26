@@ -1,9 +1,9 @@
 //! The immutable initialization plan.
 //!
-//! `InitPlan::build` performs *all* reads, validation, and content preparation
-//! up front. It mutates nothing: every filesystem operation the apply step will
-//! perform is decided and pre-computed here, so a failure during planning (or
-//! during apply) is either a no-op or a clean abort rather than partial state.
+//! `InitPlan::build` performs all reads, validation, and content preparation
+//! without mutating project files. Applying the plan is not transactional:
+//! each file replacement is atomic, but a later I/O failure can leave earlier
+//! removals or writes in place.
 
 use super::validate::{self, ProjectIdentity};
 use crate::config::XtaskError;
@@ -107,7 +107,11 @@ impl InitPlan {
             push_contained_if_exists(&mut removals, &path, root)?;
         }
 
-        let rename = plan_rename(root, &crates_dir, identity)?;
+        let rename = if removed_names.iter().any(|name| name == "example-crate") {
+            None
+        } else {
+            plan_rename(root, &crates_dir, identity)?
+        };
 
         let root_manifest_path = root.join("Cargo.toml");
         let root_manifest_content = read_required(&root_manifest_path)?;
@@ -167,7 +171,7 @@ impl InitPlan {
                 None
             };
 
-        let text_replacements = prose_rewrites(root, rename.as_ref(), identity);
+        let text_replacements = prose_rewrites(root, rename.as_ref(), identity, &removed_paths);
 
         Ok(Self {
             root: root.to_path_buf(),
@@ -394,6 +398,7 @@ fn prose_rewrites(
     root: &Path,
     rename: Option<&CrateRename>,
     identity: &ProjectIdentity,
+    removed_paths: &[String],
 ) -> Vec<FileRewrite> {
     let name = identity.name.as_str();
     let snake = identity.name_snake();
@@ -403,6 +408,13 @@ fn prose_rewrites(
     let mut rewrites = Vec::new();
     let mut push = |rel: &str, pairs: Vec<(&str, String)>| {
         let path = root.join(rel);
+        let relative = Path::new(rel);
+        if removed_paths
+            .iter()
+            .any(|removed| relative.starts_with(Path::new(removed)))
+        {
+            return;
+        }
         if let Ok(content) = std::fs::read_to_string(&path) {
             let mut updated = content.clone();
             for (from, to) in pairs {
@@ -443,6 +455,10 @@ fn prose_rewrites(
     push(
         "benchmarks/Cargo.toml",
         vec![("example-crate", name.to_string())],
+    );
+    push(
+        "benchmarks/benches/memory_usage.rs",
+        vec![("example_crate", snake.clone())],
     );
     if let Some(r) = rename {
         for rel in ["src/lib.rs", "README.md"] {
