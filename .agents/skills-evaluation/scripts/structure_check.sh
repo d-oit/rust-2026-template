@@ -1,5 +1,10 @@
 #!/bin/bash
 # .agents/skills-evaluation/scripts/structure_check.sh
+#
+# set -u matters here: a signal variable that is referenced but never assigned
+# silently scores zero, which reads as a passing check. That exact bug shipped
+# once (body_within_budget) and ShellCheck did not flag it.
+set -uo pipefail
 
 SKILLS_DIR=".agents/skills"
 ITERATION_DIR=${1:-".agents/skills-evaluation/iterations/baseline"}
@@ -42,6 +47,7 @@ for skill_dir in "$SKILLS_DIR"/*/; do
     # Body size. The open spec recommends <500 lines; this repo budgets 250 so
     # the always-loaded instruction set stays small.
     body_lines=$(awk 'NR==1 && /^---[[:space:]]*$/ {fm=1; next} fm && !seen && /^---[[:space:]]*$/ {seen=1; next} seen {c++} END {print c+0}' "$skill_md")
+    body_within_budget=$([ "$body_lines" -le 250 ] && echo 1 || echo 0)
 
     # Evals
     eval_count=0
