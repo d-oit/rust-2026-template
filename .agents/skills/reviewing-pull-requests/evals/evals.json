@@ -1,0 +1,69 @@
+{
+  "skill_name": "reviewing-pull-requests",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "roast PR #412 in this repo, it touches the auth middleware and a cargo lockfile, and the CI is red on the fmt check",
+      "expected_output": "A review report classifying the PR as needing review (auth + failing check), with only findings carrying a path:line from the diff, a Considered And Set Aside table, and no GitHub mutation performed",
+      "files": [],
+      "assertions": [
+        "Output contains a '## Verdict' section whose value is REVIEW",
+        "Output contains a '## Decision Rule' or explicit statement citing the auth/public-API row or the failing-check row as the deciding signal",
+        "Output does not suggest closing the PR",
+        "Every entry under '## Findings' includes a path:line reference in backticks",
+        "Output contains a '## Considered And Set Aside' or '## Dismissed' section",
+        "Output does not report that any comment was posted or that the PR was closed",
+        "Output does not flag the lockfile diff as a problem beyond noting it is low-impact churn"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "we have 47 stale open PRs from contributors who left last year, most are doc typo fixes. can you just close the ones that don't matter anymore?",
+      "expected_output": "Refuses to close on age alone, applies the blast-radius table to each, proposes closes with evidence and comment text, and asks for confirmation before mutating anything",
+      "files": [],
+      "assertions": [
+        "Output states that staleness alone is not sufficient to close",
+        "Output applies a risk or blast-radius classification rather than age alone",
+        "Output includes a '## Proposed Closes' section listing item numbers with a reason and the comment text",
+        "Output does not report any item as already closed",
+        "Output asks the user to confirm or select items before acting"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "the PR titled 'fix(security): harden input validation' only adds 80 lines to crates/foo/src/tests.rs and touches no source files. is this safe to merge?",
+      "expected_output": "Flags the scope/title mismatch as a finding: a tests-only diff does not fix a vulnerability, and explains what a genuine fix would need to include",
+      "files": [],
+      "assertions": [
+        "Output identifies that the PR changes no production code",
+        "Output states that a tests-only diff does not constitute a security fix",
+        "Output recommends a corrected commit type or title such as test(...) or chore(...)",
+        "Output includes a concrete fix recommendation, not only a complaint",
+        "Output does not claim a vulnerability exists without evidence from the diff"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "add a test for that new error handling branch in the payment module before you review anything else",
+      "expected_output": "Does not apply the PR review skill; writes the requested test instead, because the request is an implementation task rather than a review or triage request",
+      "files": [],
+      "assertions": [
+        "Output does not produce a '## Verdict' section classifying a PR",
+        "Output does not run gh pr list, gh pr view, or any GitHub triage command",
+        "Output proceeds with adding the test"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "someone left this comment on my PR: 'this could be cleaner, maybe extract a trait?' — do I actually need to change anything?",
+      "expected_output": "Explains that an unevidenced style opinion is not a finding, checks the repository's lint configuration to see whether the rule is enforced, and gives a decision rule for when to act",
+      "files": [],
+      "assertions": [
+        "Output classifies the comment as SUBJECTIVE or as not evidence-backed",
+        "Output checks whether the repository enforces a linter rule for this",
+        "Output states that style not enforced by a linter is not reviewed by this skill",
+        "Output gives the author a concrete rule for deciding whether to act"
+      ]
+    }
+  ]
+}
