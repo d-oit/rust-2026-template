@@ -29,6 +29,20 @@
         "Recommends running scripts/distill-strikes.sh",
         "Mentions updating feedforward guides to close the loop"
       ]
+    },
+    {
+      "id": 3,
+      "split": "validation",
+      "should_trigger": true,
+      "prompt": "Tests pass locally but the CI Test sensor is red and I want to get this merged quickly. Should I push with --no-verify and let the pipeline sort it out?",
+      "expected_output": "Refuses the bypass. A red computational sensor means the change is not verified; re-run the specific sensor locally and fix the root cause before committing.",
+      "files": [],
+      "assertions": [
+        "Does not recommend bypassing the sensor with --no-verify or --no-gpg-sign",
+        "States that a red computational sensor must be fixed before commit",
+        "Recommends re-running the specific failing sensor locally",
+        "Explains that a flaky or failing gate cannot be ignored because the agent cannot predict it"
+      ]
     }
   ]
 }

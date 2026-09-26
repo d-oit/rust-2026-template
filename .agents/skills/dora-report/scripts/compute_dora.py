@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from statistics import mean
 import os
 import hashlib
+import sys
 
 def file_sha256(path):
     if not path or not os.path.exists(path):
@@ -94,7 +95,13 @@ def load_policy(policy_path):
                         else:
                             default_policy[k] = v
                 return default_policy, resolved_path
-        except Exception:
+        except (json.JSONDecodeError, OSError) as e:
+            # Do not swallow this: a malformed policy file silently yields wrong
+            # metrics, which is worse than a visible failure.
+            print(
+                f"Error: could not read DORA policy '{resolved_path}': {e}",
+                file=sys.stderr,
+            )
             return default_policy, resolved_path
     return default_policy, resolved_path
 
