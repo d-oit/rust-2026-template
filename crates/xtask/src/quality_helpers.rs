@@ -72,10 +72,12 @@ pub fn run_privacy_check() -> Result<(), XtaskError> {
         }
     })?;
 
-    let exclude_re = Regex::new(r"example\.com|example\.org|test\.com|\.git|target|\.opencode|\.mimocode|\.cargo|node_modules")
-        .map_err(|e| XtaskError::InvalidConfig {
-            message: e.to_string(),
-        })?;
+    let exclude_re = Regex::new(
+        r"example\.com|example\.org|test\.com|\.git|target|\.opencode|\.cargo|node_modules",
+    )
+    .map_err(|e| XtaskError::InvalidConfig {
+        message: e.to_string(),
+    })?;
 
     let mut files = Vec::new();
     let is_git = Command::new("git")
