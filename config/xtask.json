@@ -10,6 +10,8 @@
         "Build",
         "Test",
         "DocTest",
+        "SkillValidation",
+        "SkillEvals",
         "PrivacyCheck",
         "SecretScan",
         "WorkflowValidation"
@@ -29,6 +31,8 @@
         "Msrv",
         "ShellCheck",
         "MarkdownLint",
+        "SkillValidation",
+        "SkillEvals",
         "PrivacyCheck",
         "SecretScan",
         "WorkflowValidation",
@@ -96,7 +100,9 @@
     "Msrv": ["crates/**/*.rs", "src/**/*.rs", "Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "scripts/audit-msrv.sh"],
     "ShellCheck": ["scripts/**/*.sh", "**/*.sh"],
     "MarkdownLint": ["**/*.md"],
-    "WorkflowValidation": [".github/workflows/*.yml", "scripts/validate-workflows.sh"]
+    "WorkflowValidation": [".github/workflows/*.yml", "scripts/validate-workflows.sh"],
+    "SkillValidation": [".agents/skills/**", ".agents/SKILLS.md", "scripts/validate-skills.sh", ".claude/skills", ".qwen/skills"],
+    "SkillEvals": [".agents/skills/**", "scripts/run-evals.sh"]
   },
   "lint_thresholds": {
     "max_lines_per_file": 500,
