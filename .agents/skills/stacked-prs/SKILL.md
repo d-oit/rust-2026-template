@@ -5,12 +5,13 @@ description: >
   Use ONLY when a feature has 3+ distinct concerns with clear dependencies.
   NOT for bug fixes, hotfixes, or small changes. Requires GitHub.
   Triggers: "stacked PRs", "gh stack", "split into layers", "stack this".
-category: workflow
+
 license: MIT
 metadata:
+  category: workflow
   author: d-oit
   version: "0.1.0"
-  optional: true
+  optional: "true"
   upstream: https://github.com/github/gh-stack
 ---
 

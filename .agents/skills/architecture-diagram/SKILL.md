@@ -1,10 +1,9 @@
 ---
-name: overview-diagram
-version: 1.0.0
+name: architecture-diagram
 description: Generate a human-friendly overview infographic by scanning the live project structure, including workspace crates, skills, and scripts. Use this skill whenever the user asks to regenerate, refresh, or update the overview diagram. Triggers on phrases like "update the overview", "regenerate the overview SVG", or "sync the overview".
-category: documentation
 license: MIT
 metadata:
+  category: documentation
   author: d-oit
   version: "1.0"
   platform: agentskills.io
@@ -13,12 +12,6 @@ metadata:
 # Overview Diagram
 
 Generates a human-friendly overview infographic showing what the project is, how to get started, what's inside, and how it all connects.
-
-## When to Use
-
-- User asks to update / regenerate / sync the overview diagram.
-- Crates, skills, scripts, or workflows have changed.
-- First-time setup (diagram doesn't exist yet).
 
 ## Execution
 

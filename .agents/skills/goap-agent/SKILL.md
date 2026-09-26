@@ -6,9 +6,10 @@ description: >
   mapping, parallel/sequential/swarm/iterative execution strategies, or
   coordination of multiple specialized agents with quality gates.
   Triggers: "complex task", "plan implementation", "multi-step", "coordinate agents".
-category: workflow
+
 license: MIT
 metadata:
+  category: workflow
   author: d-oit
   version: "0.2.10"
   adapted-from: d-o-hub/github-template-ai-agents
@@ -25,14 +26,6 @@ pointer, last-verified stamp, next steps) — see ADR 0005. Per-task detail live
 in `plans/<nn>-<slug>.md` and is indexed by `plans/_status.json:active_plan`.
 Never paste commit hashes, PR/issue numbers, CI logs, or host-local notes into
 the pointer file; update it on handover only.
-
-## When to Use This Skill
-
-Use this skill when facing:
-- **Complex Multi-Step Tasks**: Tasks requiring 5+ distinct steps
-- **Cross-Domain Problems**: Issues spanning multiple areas
-- **Optimization Opportunities**: Tasks benefiting from parallel execution
-- **Quality-Critical Work**: Projects requiring validation checkpoints
 
 ## Core GOAP Methodology
 

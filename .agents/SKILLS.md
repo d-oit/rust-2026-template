@@ -9,7 +9,7 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | Skill | Path | Description |
 |-------|------|-------------|
 | `anti-ai-slop` | [skills/anti-ai-slop/SKILL.md](skills/anti-ai-slop/SKILL.md) | Apply this skill when auditing, writing, or reviewing Rust code to avoid generic |
-| `overview-diagram` | [skills/architecture-diagram/SKILL.md](skills/architecture-diagram/SKILL.md) | Generate a human-friendly overview infographic by scanning the live project structure, including wor |
+| `architecture-diagram` | [skills/architecture-diagram/SKILL.md](skills/architecture-diagram/SKILL.md) | Generate a human-friendly overview infographic by scanning the live project structure, including wor |
 | `atomic-commit` | [skills/atomic-commit/SKILL.md](skills/atomic-commit/SKILL.md) | Atomic git workflow - validates, commits, pushes, creates PR/MR, and verifies CI |
 | `build-rust` | [skills/build-rust/SKILL.md](skills/build-rust/SKILL.md) | Compile, test, and verify Rust projects following 2026 best practices. |
 | `codacy` | [skills/codacy/SKILL.md](skills/codacy/SKILL.md) | Use Codacy static analysis CLIs to query PR analysis, triage issues, suppress false positives, and r |
@@ -22,6 +22,7 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `metrics-reporter` | [skills/metrics-reporter/SKILL.md](skills/metrics-reporter/SKILL.md) | Record agentic task completion via event files for DORA observability. |
 | `privacy-first` | [skills/privacy-first/SKILL.md](skills/privacy-first/SKILL.md) | Prevent email addresses and personal data from entering the codebase. |
 | `release-rust` | [skills/release-rust/SKILL.md](skills/release-rust/SKILL.md) | Create and publish a new release of the Rust project. Handles version bumping, |
+| `reviewing-pull-requests` | [skills/reviewing-pull-requests/SKILL.md](skills/reviewing-pull-requests/SKILL.md) | Review GitHub pull requests and triage open PRs and issues: classify blast |
 | `secret-lint` | [skills/secret-lint/SKILL.md](skills/secret-lint/SKILL.md) | Automated secret scanning using secretlint to prevent credential leaks. |
 | `self-fix-loop` | [skills/self-fix-loop/SKILL.md](skills/self-fix-loop/SKILL.md) | Self-learning fix loop - commit, push, monitor CI, auto-fix failures using |
 | `skill-creator` | [skills/skill-creator/SKILL.md](skills/skill-creator/SKILL.md) | Create new skills, modify and improve existing skills, and measure skill performance. Use when users |

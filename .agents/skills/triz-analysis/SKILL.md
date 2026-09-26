@@ -1,9 +1,10 @@
 ---
 name: triz-analysis
 description: "Run a systematic TRIZ contradiction audit against a Rust codebase, architecture, or workflow to identify hidden trade-offs and innovation opportunities. Use when facing design trade-offs, contradictory requirements, or needing to identify innovation opportunities through systematic contradiction analysis. Triggers: 'TRIZ audit', 'contradiction analysis', 'innovation audit', 'trade-off analysis', 'hidden trade-offs'."
-category: analysis
+
 license: MIT
 metadata:
+  category: analysis
   author: d-oit
   version: "0.2.11"
   adapted-from: d-o-hub/github-template-ai-agents
@@ -13,14 +14,6 @@ metadata:
 # TRIZ Analysis — Rust Edition
 
 Systematic innovation audit for Rust codebases, workspace architectures, and CI/CD pipelines.
-
-## When to Use
-
-- Auditing a Rust workspace for technical contradictions
-- Reviewing `scripts/`, CI pipelines, or `Cargo.toml` manifests for hidden trade-offs
-- Analyzing an architecture for scalability vs. complexity bottlenecks
-- Performing a swarm-based TRIZ audit on a Rust project
-- Reviewing `unsafe` boundaries, async vs. sync, or Tokio scheduling/concurrency choices
 
 ## Input Requirements
 
@@ -155,9 +148,6 @@ For detailed Tokio performance guidance, invoke the `tokio-performance` skill.
 
 ## Reference Files
 
-- `references/principles.md` - All 40 TRIZ principles with software examples
-- `references/patterns.md` - Common software contradiction patterns and resolutions
-- `references/evolution.md` - TRIZ evolution trends for system design
 - [The Rust Performance Book](https://nnethercote.github.io/perf-book/)
 - [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
 - [Tokio tutorial](https://tokio.rs/tokio/tutorial)

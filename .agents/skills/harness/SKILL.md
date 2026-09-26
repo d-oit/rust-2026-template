@@ -6,9 +6,10 @@ description: >
   Use when a sensor fires, before making code changes, or when setting up
   agent context for a new task.
   Triggers: "harness", "sensor fire", "CI failure", "self-correction".
-category: rust
+
 license: MIT
 metadata:
+  category: rust
   author: d-oit
   version: "1.0"
   tags: harness sensors ci quality self-correction
@@ -79,7 +80,7 @@ The steering loop closes the harness: sensors fire → `distill-strikes.sh` draf
 
 ## References
 
-- Full harness map: [`HARNESS.md`](../../HARNESS.md) at repo root.
+- Full harness map: [`HARNESS.md`](../../../HARNESS.md) at repo root.
 - Historical CI Regression Matrix: [`.agents/ci/regression-matrix.json`](../../ci/regression-matrix.json)
 - Matrix test suite: [`tests/ci_regression_matrix_test.sh`](../../../tests/ci_regression_matrix_test.sh)
 - Agent-optimised error output: `scripts/harness-check.sh` runs each sensor and emits structured error output with `HARNESS VIOLATION` prefix.

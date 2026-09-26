@@ -7,9 +7,10 @@ description: >
   Triggers: "this looks AI-generated", "too much boilerplate", "meaningless names",
   "over-abstracted", "audit my code", "humanize this", "why is this so verbose",
   "remove unnecessary abstractions", "fix docs", "anti-pattern review".
-category: code-quality
+
 license: MIT
 metadata:
+  category: code-quality
   author: d-oit
   version: "1.0"
   adapted-from: d-o-hub/github-template-ai-agents
@@ -17,14 +18,6 @@ metadata:
 ---
 
 # Anti-AI-Slop Skill — Rust Edition
-
-## When to Use
-
-- User asks for this skill's functionality
-
-AI tools generate recognizable Rust monoculture. This skill audits and fixes it.
-
----
 
 ## How to Use
 

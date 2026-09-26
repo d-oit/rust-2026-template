@@ -8,20 +8,15 @@ description: >
   "batch implement", or "address all issues".
   Triggers: "all issues", "implement all", "batch issues", "open issues",
   "fix all", "address all issues".
-category: workflow
+
 license: MIT
 metadata:
+  category: workflow
   author: d-oit
   version: "0.2.0"
 ---
 
 # Issue Triage & Batch Implementation Skill
-
-## When to Use
-
-- User asks for this skill's functionality
-
-Reads all open issues, categorizes them, plans implementation order, and coordinates batch implementation in a single PR/MR. Supports GitHub and GitLab.
 
 ## Overview
 

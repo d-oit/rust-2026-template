@@ -5,19 +5,16 @@ description: >
   changelog, tagging, and GitHub Release creation via CI.
   Use when preparing a release, tagging a version, or publishing to crates.io.
   Triggers: "release", "publish crate", "new version", "bump version".
-category: rust
+
 license: MIT
 metadata:
+  category: rust
   author: d-oit
   version: "1.0"
   tags: rust release publish crates semantic-versioning
 ---
 
 # Skill: release-rust
-
-## When to Use
-
-- User asks for this skill's functionality
 
 ## Purpose
 

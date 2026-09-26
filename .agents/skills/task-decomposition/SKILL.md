@@ -5,9 +5,10 @@ description: >
   and success criteria. Use when planning multi-step projects, coordinating agents,
   or decomposing complex requests.
   Triggers: "break down task", "decompose", "plan steps", "task breakdown".
-category: agent
+
 license: MIT
 metadata:
+  category: agent
   author: d-oit
   version: "0.2.10"
   adapted-from: d-o-hub/github-template-ai-agents
@@ -16,12 +17,6 @@ metadata:
 # Task Decomposition
 
 Decompose high-level objectives into manageable, testable sub-tasks.
-
-## When to Use
-
-- Complex requests with multiple components
-- Multi-phase projects requiring coordination
-- Tasks benefiting from parallel execution
 
 ## Framework
 

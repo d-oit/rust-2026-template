@@ -1,18 +1,15 @@
 ---
 name: metrics-reporter
 description: "Record agentic task completion via event files for DORA observability."
-category: metrics
+
 license: MIT
 metadata:
+  category: metrics
   author: jules
   version: "2.0"
 ---
 
 # Skill: metrics-reporter
-
-## When to Use
-
-- User asks for this skill's functionality
 
 ## Purpose
 

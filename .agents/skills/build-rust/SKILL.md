@@ -5,19 +5,16 @@ description: >
   Use when asked to build, compile, or check a Rust project, when CI/CD pipeline
   needs build steps, or when investigating build failures.
   Triggers: "build rust", "compile project", "cargo build", "check rust".
-category: rust
+
 license: MIT
 metadata:
+  category: rust
   author: d-oit
   version: "1.0"
   tags: rust build cargo compile ci
 ---
 
 # Skill: build-rust
-
-## When to Use
-
-- User asks for this skill's functionality
 
 ## Purpose
 

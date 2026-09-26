@@ -5,19 +5,16 @@ description: >
   integration tests, doc tests, and coverage. Use nextest for parallel execution.
   Use when running tests, debugging failures, or checking coverage.
   Triggers: "run tests", "cargo test", "test suite", "coverage".
-category: rust
+
 license: MIT
 metadata:
+  category: rust
   author: d-oit
   version: "1.0"
   tags: rust test nextest coverage proptest
 ---
 
 # Skill: test-rust
-
-## When to Use
-
-- User asks for this skill's functionality
 
 ## Purpose
 

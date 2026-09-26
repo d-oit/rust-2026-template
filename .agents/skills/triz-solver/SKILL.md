@@ -1,9 +1,10 @@
 ---
 name: triz-solver
 description: Systematic problem-solving using TRIZ (Theory of Inventive Problem Solving) principles adapted for software engineering. Use when stuck on complex problems, facing technical contradictions, optimizing system design, or seeking innovative solutions beyond trial-and-error. Prevents solving the wrong problem correctly.
-category: innovation-problem-solving
+
 license: MIT
 metadata:
+  category: innovation-problem-solving
   author: d-oit
   version: "0.2.10"
   adapted-from: d-o-hub/github-template-ai-agents
@@ -13,15 +14,6 @@ metadata:
 # TRIZ Problem Solver — Rust Edition
 
 Systematic innovation methodology for Rust engineering problems.
-
-## When to Use
-
-- Complex Rust problems with apparent trade-offs
-- System design contradictions (improving X worsens Y)
-- Architecture refactoring decisions in a workspace
-- Seeking innovative solutions beyond incremental improvement
-- Agent instruction optimization
-- Stuck on borrow-checker, lifetime, or trait-bound conflicts
 
 ## Core Protocol
 
@@ -46,9 +38,9 @@ Systematic innovation methodology for Rust engineering problems.
 4. Can the type system enforce correctness without runtime checks?
 ```
 
-## 40 Inventive Principles (Software Edition)
+## Inventive Principles (Software Edition)
 
-### Top 10 for Rust
+### Principles Applied to Rust
 
 | # | Principle | Rust Analogy | When to Apply |
 |---|---|---|---|
@@ -59,13 +51,15 @@ Systematic innovation methodology for Rust engineering problems.
 | 5 | **Merging** | Batch operations, reduce round-trips | Excessive function calls, I/O |
 | 6 | **Universality** | Shared trait, polymorphism | Duplicate implementations |
 | 7 | **Nesting** | `Cow`, lifetime hierarchies | Flat complex types |
+| 9 | **Intermediary** | Insert an adapter, cache, or queue between two components | Two systems must change in lockstep |
 | 12 | **Inversion** | Pull-based deps, IoC, callbacks | Current push approach failing |
 | 13 | **Dynamics** | Runtime config, feature flags, hot-reload | Static rigid configurations |
-| 17 | **Another dimension** | Add newtype, wrapper, sidecar | Impasse at current abstraction level |
+| 15 | **Feedback** | Telemetry, regression test, sensor-driven gate | No way to tell whether a change helped |
+| 17 | **Another dimension** | Add newtype, wrapper, sidecar, index | Impasse at current abstraction level |
+| 35 | **Parameter change** | Retune batch size, shard count, lock width | Algorithm is sound; the tunable is wrong |
 
-### Extended Reference
-
-See `references/principles.md` for all 40 principles with software examples.
+This table is the complete set the contradiction matrix below draws from. A
+resolution citing a number absent from this table has not applied a principle.
 
 ## Contradiction Matrix (Software)
 
@@ -170,7 +164,7 @@ Apply: #12 Inversion → Risk-based auth (challenge only suspicious sessions)
 Result: Both sync and async callers served
 ```
 
-### Example 4: Agent Instruction Optimization
+### Example 5: Agent Instruction Optimization
 
 ```text
 Problem: More instructions improve reliability but consume context
@@ -179,7 +173,7 @@ Apply: #4 Asymmetry → Heavy knowledge in `references/`, load lazily
 Result: Reliability maintained, context efficiency improved
 ```
 
-### Example 5: Lifetime vs Extensibility
+### Example 6: Lifetime vs Extensibility
 
 ```text
 Problem: Adding a borrow makes the trait less flexible for downstream impls
@@ -223,9 +217,6 @@ Result: Borrow enforced where needed, flexible where not
 
 ## Reference Files
 
-- `references/principles.md` - All 40 TRIZ principles with software examples
-- `references/patterns.md` - Common software contradiction patterns and resolutions
-- `references/evolution.md` - TRIZ evolution trends for system design
 - [The Rust Performance Book](https://nnethercote.github.io/perf-book/)
 - [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
 - [Rustonomicon](https://doc.rust-lang.org/nomicon/)
