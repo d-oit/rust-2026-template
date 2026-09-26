@@ -1,9 +1,10 @@
 ---
 name: skill-evaluator
 description: "Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usage spot checks. Use when you need to check a skill, add evals, benchmark a skill, validate outputs against assertions, or compare current skill behavior against a baseline."
-category: meta
+
 license: MIT
 metadata:
+  category: meta
   author: d-oit
   version: "1.1"
   source: d-o-hub/github-template-ai-agents
@@ -14,14 +15,6 @@ metadata:
 
 Evaluate local skills with a repeatable loop: inspect structure, read eval definitions,
 run one or more realistic prompts, then score the output with explicit assertions and evidence.
-
-## When To Use
-
-- Test whether a skill is wired correctly
-- Check whether `evals/evals.json` exists and is usable
-- Run a real prompt through a skill and grade the result
-- Compare a skill against a no-skill baseline or older snapshot
-- Identify missing folders, weak evals, and flaky assertions
 
 ## Required Inputs
 
@@ -154,7 +147,8 @@ PASS | NEEDS_WORK | FAIL — <one-sentence summary>
 
 ## References
 
-- `references/evaluating-skills.md` — condensed eval workflow and grading guidance
+- `../skill-creator/references/evaluating-skills.md` — the canonical eval workflow and
+  grading guidance. This is a sibling copy removed to stop the two drifting.
 
 ## Rationalizations
 

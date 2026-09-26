@@ -5,9 +5,10 @@ description: >
   with zero-warnings policy. Orchestrates complete code submission as state machine
   with rollback on failure. Supports GitHub (gh) and GitLab (glab).
   Triggers: "commit changes", "push and create PR", "submit code", "atomic commit".
-category: workflow
+
 license: MIT
 metadata:
+  category: workflow
   author: d-oit
   version: "0.3.0"
   adapted-from: d-o-hub/github-template-ai-agents
@@ -16,8 +17,6 @@ metadata:
 # Atomic Commit Skill
 
 ## When to Use
-
-- User asks for this skill's functionality
 
 Atomic workflow: validate → commit → push → PR/MR → verify. All changes committed as single unit with **zero warnings** policy.
 

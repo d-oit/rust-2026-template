@@ -57,6 +57,14 @@ static FIXTURE_FILES: &[(&str, &str)] = &[
     ),
     ("crates/sample-app/src/main.rs", "fn main() {}\n"),
     ("benchmarks/placeholder.txt", "x\n"),
+    (
+        "benchmarks/Cargo.toml",
+        "[package]\nname = \"benchmarks\"\ndescription = \"uses example-crate\"\n",
+    ),
+    (
+        "benchmarks/benches/memory_usage.rs",
+        "fn bench() { let _ = example_crate::greet(\"name\"); }\n",
+    ),
     (".github/workflows/removed.yml", "on: []\n"),
     (
         "config/xtask.json",
@@ -375,6 +383,33 @@ fn execute_applies_the_plan_end_to_end() {
         leftovers.is_empty(),
         "temp files must not leak: {leftovers:?}"
     );
+}
+
+#[test]
+fn execute_respects_profile_that_excludes_example_crate() {
+    let (_dir, root) = fixture();
+    let profile_toml = PROFILE_TOML.replace("crates/example-crate", "crates/sample-app");
+    let blueprint = TemplateProfile::from_toml(&profile_toml).unwrap();
+    let plan = InitPlan::build(&root, &blueprint, &identity()).unwrap();
+
+    assert!(plan.rename.is_none());
+    apply::execute(&plan).unwrap();
+    assert!(!root.join("crates/example-crate").exists());
+    assert!(root.join("crates/sample-app").exists());
+}
+
+#[test]
+fn execute_rewrites_benchmark_crate_reference_after_rename() {
+    let (_dir, root) = fixture();
+    let profile_toml =
+        PROFILE_TOML.replace("exclude_paths = [\"benchmarks\"]", "exclude_paths = []");
+    let blueprint = TemplateProfile::from_toml(&profile_toml).unwrap();
+    let plan = InitPlan::build(&root, &blueprint, &identity()).unwrap();
+
+    apply::execute(&plan).unwrap();
+    let benchmark = fs::read_to_string(root.join("benchmarks/benches/memory_usage.rs")).unwrap();
+    assert!(benchmark.contains("my_app::greet"));
+    assert!(!benchmark.contains("example_crate::"));
 }
 
 #[test]

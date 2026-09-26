@@ -2,6 +2,13 @@
 
 Condensed eval workflow and grading guidance for skill evaluation.
 
+## Table of Contents
+
+- [Evaluation Goals](#evaluation-goals)
+- [Grading Rules](#grading-rules)
+- [Workflow Steps](#workflow-steps)
+- [Output Format](#output-format)
+
 ## Evaluation Goals
 
 | Goal | When to Use |

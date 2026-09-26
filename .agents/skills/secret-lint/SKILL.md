@@ -1,7 +1,9 @@
 ---
 name: secret-lint
 description: Automated secret scanning using secretlint to prevent credential leaks.
-category: security
+
+metadata:
+  category: security
 ---
 
 # Secret Lint Skill

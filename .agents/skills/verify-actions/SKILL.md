@@ -5,24 +5,18 @@ description: >
   pinning. Never trust version comments — always resolve the real SHA from the
   upstream repository. Use when editing CI workflows, adding new actions, auditing
   pinned versions, or fixing version mismatches.
-category: ci
+
 license: MIT
 compatibility: Works with Claude Code, OpenCode, and similar agents. Requires gh CLI for GitHub or glab CLI for GitLab.
 allowed-tools: Bash Read Grep Glob WebFetch
 metadata:
+  category: ci
   author: d-oit
   version: "1.1"
   tags: ci cd github-actions gitlab-actions sha-pinning security supply-chain
 ---
 
 # Verify Actions
-
-## When to Use
-
-- User asks for this skill's functionality
-
-Never trust version comments in workflow files. Always verify the correct SHA
-against the actual upstream release before pinning or updating an action.
 
 ## Why This Matters
 
@@ -138,4 +132,6 @@ using — upstream may have released newer versions.
 
 | Rationalization | Reality |
 |-----------------|---------|
-| "Placeholder" | "Placeholder" |
+| "The version comment already tells me which version this is" | The comment is a claim, not a fact. Resolve the SHA against the upstream tag before trusting it. |
+| "I'll just bump the SHA to the latest commit on main" | Pinning `main` defeats the purpose of SHA pinning — the supply chain is unpinned again. |
+| "Only one workflow uses this action, so no consistency check needed" | Version skew usually appears later, when a second workflow is added or a matrix job runs. Check on every change. |

@@ -5,9 +5,10 @@ description: >
   before committing to it. Use when creating a new crate, starting a new Rust project,
   or before the first cargo publish.
   Triggers: "check crate name", "is name taken", "crates.io available", "new crate".
-category: rust
+
 license: MIT
 metadata:
+  category: rust
   author: d-oit
   version: "1.0"
   tags: rust crates naming publish
@@ -20,13 +21,6 @@ metadata:
 Verify that a new Rust crate name is **available and appropriate** on crates.io before
 committing to it in `Cargo.toml`. This is a generic skill for any Rust project using
 this template — run it whenever you create a new crate (workspace member or standalone).
-
-## When to Use
-
-- Creating a new crate under `crates/` in the workspace
-- Starting a new Rust project from this template
-- Before the first `cargo publish`
-- When renaming a crate
 
 ## Availability Check
 

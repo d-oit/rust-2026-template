@@ -12,6 +12,11 @@ CLI_SKILL_DIRS=(
   ".qwen/skills"
 )
 
+# Body budget for a single SKILL.md, excluding frontmatter.
+# The Agent Skills spec recommends <500 lines; this repo's skill-creator sets
+# the tighter 250-line budget so the always-loaded instruction set stays small.
+MAX_SKILL_BODY_LINES=250
+
 FAILED=0
 
 # Colors (disabled in CI)
@@ -121,16 +126,44 @@ for skill_path in "$SKILLS_SRC"/*/; do
 
   skill_failed=0
 
-  # Check: frontmatter should contain name field (warn only for existing skills)
-  has_name=$(awk '/^---$/{n++} n==1 && /^name:/{print "yes"; exit}' "$skill_file")
-  if [[ -z "$has_name" ]]; then
-    printf "  ${YELLOW}⚠${NC} %s: Missing 'name' field in frontmatter (recommended)\n" "$skill_name"
+  # Hard check: frontmatter `name` must exist and match the directory name.
+  # REQUIRED by the Agent Skills spec; packaging hard-fails without it.
+  fm_name=$(awk '/^---$/{n++} n==1 && /^name:/{sub(/^name:[[:space:]]*/,""); gsub(/"/,""); print; exit}' "$skill_file")
+  if [[ -z "$fm_name" ]]; then
+    printf "  ${RED}✗${NC} %s: Missing 'name' in frontmatter (spec-required)\n" "$skill_name"
+    skill_failed=1
+  elif [[ "$fm_name" != "$skill_name" ]]; then
+    printf "  ${RED}✗${NC} %s: name '%s' must match directory name (spec-required)\n" "$skill_name" "$fm_name"
+    skill_failed=1
   fi
 
-  # Check: frontmatter should contain category field (warn only)
-  has_category=$(awk '/^---$/{n++} n==1 && /^category:/{print "yes"; exit}' "$skill_file")
+  # Hard check: frontmatter limited to the six portable spec fields.
+  non_spec=$(awk '/^---$/{n++} n==1 && /^[a-zA-Z_-]+:/{sub(/:.*/,""); print}' "$skill_file" \
+    | grep -vxE 'name|description|license|compatibility|metadata|allowed-tools' || true)
+  if [[ -n "$non_spec" ]]; then
+    printf "  ${RED}✗${NC} %s: Non-spec frontmatter key(s): %s (use metadata.* instead)\n" \
+      "$skill_name" "$(echo "$non_spec" | tr '\n' ' ')"
+    skill_failed=1
+  fi
+
+  # Hard check: description present and within the 1024-character spec limit.
+  fm_desc=$(awk '/^---$/{n++} n==1 && /^description:/{sub(/^description:[[:space:]]*/,""); print; exit}' "$skill_file")
+  if [[ -z "$fm_desc" ]]; then
+    printf "  ${RED}✗${NC} %s: Missing 'description' in frontmatter (spec-required)\n" "$skill_name"
+    skill_failed=1
+  fi
+
+  # Hard check: SKILL.md stays within the documented budget.
+  body_lines=$(awk 'NR==1 && /^---[[:space:]]*$/ {fm=1; next} fm && !seen && /^---[[:space:]]*$/ {seen=1; next} seen {c++} END {print c+0}' "$skill_file")
+  if [[ -n "$body_lines" && "$body_lines" -gt "$MAX_SKILL_BODY_LINES" ]]; then
+    printf "  ${RED}✗${NC} %s: body is %s lines (max %s)\n" "$skill_name" "$body_lines" "$MAX_SKILL_BODY_LINES"
+    skill_failed=1
+  fi
+
+  # Warning: frontmatter should contain a category (spec-legal only under metadata)
+  has_category=$(awk '/^---$/{n++} n==1 && /^  ?category:/{print "yes"; exit}' "$skill_file")
   if [[ -z "$has_category" ]]; then
-    printf "  ${YELLOW}⚠${NC} %s: Missing 'category' field in frontmatter (recommended)\n" "$skill_name"
+    printf "  ${YELLOW}⚠${NC} %s: Missing 'metadata.category' in frontmatter (recommended)\n" "$skill_name"
   fi
 
   # Check: body must contain ## Rationalizations heading

@@ -2,9 +2,9 @@
 # scripts/check-template-version.sh
 # Guards against template version drift between the changelog and the README badge.
 #
-# The template release workflow (.mimocode/commands/update-template-changelog.md) updates
-# both; scoping a release to the changelog alone previously left the badge and the generated
-# context files advertising the previous version.
+# The template release workflow updates the changelog and the README badge together; scoping a
+# release to the changelog alone previously left the badge and the generated context files
+# advertising the previous version.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

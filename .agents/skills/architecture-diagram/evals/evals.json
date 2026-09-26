@@ -1,120 +1,38 @@
-[
-  {
-    "id": "overview-excalidraw",
-    "prompt": "Generate the overview diagram in Excalidraw format",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/test-overview.excalidraw",
-    "expected_output": "Overview Excalidraw JSON file with 4 frames and clean rendering",
-    "assertions": [
-      {
-        "type": "file_exists",
-        "path": "/tmp/test-overview.excalidraw"
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"type\": \"excalidraw\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"text\": \"GETTING STARTED\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"text\": \"WHAT'S INSIDE\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"text\": \"HOW IT CONNECTS\""
-      }
-    ]
-  },
-  {
-    "id": "overview-sections",
-    "prompt": "Generate the overview diagram and verify all 4 sections exist",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/test-overview.excalidraw",
-    "expected_output": "Excalidraw JSON contains WHAT IS THIS, HOW TO START, BY THE NUMBERS, ECOSYSTEM MAP frames",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"WHAT IS THIS?\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"HOW TO START\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"BY THE NUMBERS\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"ECOSYSTEM MAP\""
-      }
-    ]
-  },
-  {
-    "id": "overview-arrows",
-    "prompt": "Generate the overview diagram and verify arrows exist between steps and ecosystem boxes",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/test-overview.excalidraw",
-    "expected_output": "Excalidraw JSON contains arrow elements with startBinding and endBinding",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"type\": \"arrow\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"startBinding\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"endBinding\""
-      }
-    ]
-  },
-  {
-    "id": "overview-frames",
-    "prompt": "Generate the overview diagram and verify frames are present",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/test-overview.excalidraw",
-    "expected_output": "Excalidraw JSON contains frame elements for section grouping",
-    "assertions": [
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"type\": \"frame\""
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/test-overview.excalidraw",
-        "value": "\"children\": ["
-      }
-    ]
-  },
-  {
-    "id": "overview-custom-path",
-    "prompt": "Generate the overview diagram to a custom output path",
-    "command": "python .agents/skills/architecture-diagram/scripts/generate_overview.py --root . --no-export --out /tmp/custom-overview.excalidraw",
-    "expected_output": "Excalidraw file written to custom path",
-    "assertions": [
-      {
-        "type": "file_exists",
-        "path": "/tmp/custom-overview.excalidraw"
-      },
-      {
-        "type": "content_contains",
-        "path": "/tmp/custom-overview.excalidraw",
-        "value": "\"type\": \"excalidraw\""
-      }
-    ]
-  }
-]
+{
+  "skill_name": "architecture-diagram",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Regenerate the overview diagram in Excalidraw format so I can review the layout before publishing it",
+      "expected_output": "Runs scripts/generate_overview.py with --no-export and writes an Excalidraw JSON file containing the section frames",
+      "files": [],
+      "assertions": [
+        "Runs python .agents/skills/architecture-diagram/scripts/generate_overview.py with --no-export",
+        "Writes a file whose content contains \"type\": \"excalidraw\"",
+        "Generated file contains the section heading texts GETTING STARTED, BY THE NUMBERS, and HOW IT CONNECTS"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Update the overview infographic and check that the numbered stats still reflect the current repo size",
+      "expected_output": "Generated Excalidraw file contains a BY THE NUMBERS frame and arrow elements bound to start and end elements",
+      "files": [],
+      "assertions": [
+        "Generated file contains \"BY THE NUMBERS\"",
+        "Generated file contains \"type\": \"arrow\"",
+        "Generated file contains \"startBinding\" and \"endBinding\""
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Regenerate the overview but write it somewhere other than the default path so I can diff it against the current one",
+      "expected_output": "Excalidraw file is written to the custom path passed via --out",
+      "files": [],
+      "assertions": [
+        "Passes a custom --out path to generate_overview.py",
+        "A file exists at that custom --out path",
+        "Custom-path file contains \"type\": \"excalidraw\""
+      ]
+    }
+  ]
+}

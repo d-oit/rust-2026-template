@@ -1,22 +1,16 @@
 ---
 name: skill-creator
 description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
-category: meta
+
 license: MIT
 metadata:
+  category: meta
   author: d-oit
   version: "1.0"
   source: d-o-hub/github-template-ai-agents
 ---
 
 # Skill Creator
-
-## When to Use
-
-- User asks for this skill's functionality
-
-Create and improve skills following the Agent Skills specification.
-A skill extends agent capabilities with specialized knowledge, workflows, and tools.
 
 ## Core Loop
 

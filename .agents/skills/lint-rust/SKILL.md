@@ -5,19 +5,16 @@ description: >
   format check, security audit, supply chain, and unused dependencies.
   Use before committing, during CI, or when reviewing code quality.
   Triggers: "lint rust", "clippy", "static analysis", "code quality".
-category: rust
+
 license: MIT
 metadata:
+  category: rust
   author: d-oit
   version: "1.0"
   tags: rust lint clippy audit deny machete
 ---
 
 # Skill: lint-rust
-
-## When to Use
-
-- User asks for this skill's functionality
 
 ## Purpose
 

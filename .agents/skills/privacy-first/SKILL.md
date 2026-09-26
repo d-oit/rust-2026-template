@@ -5,10 +5,11 @@ description: >
   Use when user asks to "prevent emails", "remove personal data", "privacy check",
   "no email", or when writing/editing any Rust code, Cargo.toml, config, or documentation files.
   Also triggers during code review, quality gate checks, or when adding contact information.
-category: security
+
 license: MIT
 compatibility: Works with Claude Code, OpenCode, and similar agents. No external dependencies.
 metadata:
+  category: security
   author: d-oit
   version: "1.0"
   adapted-from: d-o-hub/github-template-ai-agents
@@ -16,13 +17,6 @@ metadata:
 ---
 
 # Privacy First
-
-## When to Use
-
-- User asks for this skill's functionality
-
-This skill ensures no email addresses or personal data leak into the Rust codebase.
-It provides detection, prevention, and automated checking for Rust projects.
 
 ## When to Activate
 

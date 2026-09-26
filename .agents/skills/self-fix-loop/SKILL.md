@@ -6,9 +6,10 @@ description: >
   Supports GitHub Actions and GitLab CI.
   Use when CI fails and you need to iteratively fix until green.
   Triggers: "fix CI", "loop until green", "auto-fix failures", "self-fix".
-category: workflow
+
 license: MIT
 metadata:
+  category: workflow
   author: d-oit
   version: "0.3.0"
   adapted-from: d-o-hub/github-template-ai-agents
@@ -17,8 +18,6 @@ metadata:
 # Self-Fix Loop Skill
 
 ## When to Use
-
-- User asks for this skill's functionality
 
 Automated self-learning cycle: **commit → push → monitor → analyze failures → fix → retry** until all CI checks pass.
 
