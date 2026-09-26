@@ -40,7 +40,18 @@ for skill_dir in "$SKILLS_DIR"/*/; do
 
     # Spec conformance: name must match the directory, description <= 1024 chars.
     fm_name=$(awk '/^---$/{n++} n==1 && /^name:/{sub(/^name:[[:space:]]*/,""); gsub(/"/,""); print; exit}' "$skill_md")
-    desc_len=$(awk '/^---$/{n++} n==1 && /^description:/{sub(/^description:[[:space:]]*/,""); print; exit}' "$skill_md" | wc -c)
+    # Handle both inline (`description: text`) and block scalars (`description: >`).
+    # Measuring only the first line reads the ">" marker as 2 chars, which makes
+    # the length check vacuous for every skill that uses a folded scalar.
+    desc_len=$(awk '
+        /^---[[:space:]]*$/ {n++; next}
+        n==1 && /^description:/ {
+            grab=1; sub(/^description:[[:space:]]*/,"")
+            if ($0 !~ /^[>|]/) {print; exit}
+            next
+        }
+        n==1 && grab {if ($0 ~ /^[^[:space:]]/) exit; gsub(/^[[:space:]]+/,""); print}
+    ' "$skill_md" | wc -c)
     name_matches_dir=$([ "$fm_name" = "$skill" ] && echo 1 || echo 0)
     desc_in_spec=$([ "$desc_len" -le 1025 ] && echo 1 || echo 0)
 
