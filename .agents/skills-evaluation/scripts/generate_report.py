@@ -34,10 +34,16 @@ def generate_report(iteration_dir):
         f.write(f"- FAIL: {fails}\n\n")
 
         f.write("## Detailed Results\n\n")
-        f.write("| Skill | Score | Verdict | Evals | Assertions |\n")
-        f.write("|-------|-------|---------|-------|------------|\n")
+        f.write("| Skill | Score | Verdict | Evals | Assertions | Body lines | Name=dir | Desc <=1024 |\n")
+        f.write("|-------|-------|---------|-------|------------|-----------|---------|-------------|\n")
         for item in sorted(data, key=lambda x: x['skill']):
-            f.write(f"| {item['skill']} | {item['score']}/{item['max_score']} | {item['verdict']} | {item['eval_count']} | {item['assertion_count']} |\n")
+            f.write(
+                f"| {item['skill']} | {item['score']}/{item['max_score']} | {item['verdict']} "
+                f"| {item['eval_count']} | {item['assertion_count']} "
+                f"| {item.get('body_lines', 'n/a')} "
+                f"| {'yes' if item.get('name_matches_dir') else 'no'} "
+                f"| {'yes' if item.get('description_chars', 9999) <= 1024 else 'no'} |\n"
+            )
 
     print(f"Report generated: {report_file}")
 
