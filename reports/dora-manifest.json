@@ -1,0 +1,60 @@
+{
+  "evaluation_window": {
+    "now_iso": "2026-09-28T07:43:42Z",
+    "period_days": 30,
+    "start_iso": "2026-08-29T07:43:42Z"
+  },
+  "input_hashes": {
+    "agent_metrics": "b2cf678485e07dc2f9dac6913091d7d77879cb904ba14ee89f958e77b21a03d6",
+    "dora_metrics": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "policy": "89bd8289b3e0ecb05dc3d6dfe607e129217523a0d0be62417348b068fb8d0ec9",
+    "prs": "525d6c786360675492f256bbbb25790608880efe06f24b696c071ae5b4bbce45",
+    "releases": "8f4b0af6a8d5bda9c97f8adf4dcc3fdfd20c1ddae6bebca6f54b5763807218b2"
+  },
+  "metrics": {
+    "agentic_metrics": {
+      "avg_tokens": 0,
+      "human_intervention_rate": 0.0,
+      "success_rate": 1.0,
+      "total_tasks": 2
+    },
+    "change_failure_rate": {
+      "hotfixes": 0,
+      "rate": 0,
+      "tier": "N/A",
+      "total": 0
+    },
+    "change_lead_time": {
+      "avg_hours": 21.35,
+      "tier": "High"
+    },
+    "deployment_frequency": {
+      "count": 0,
+      "per_day": 0.0,
+      "tier": "Low"
+    },
+    "failed_deployment_recovery_time": {
+      "avg_hours": 0,
+      "tier": "N/A"
+    },
+    "overall_tier": "Low"
+  },
+  "policy": {
+    "bot_allowlist": [
+      "dependabot[bot]",
+      "renovate[bot]",
+      "github-actions[bot]"
+    ],
+    "merge_strategy": "squash_rebase_merge",
+    "percentile_method": "mean",
+    "policy_file": "plans/dora.json",
+    "revert_predicate": "title_contains_revert"
+  },
+  "scanned_counts": {
+    "agent_metrics": 2,
+    "dora_metrics": 0,
+    "prs": 243,
+    "releases": 1
+  },
+  "schema_version": "1.0"
+}
