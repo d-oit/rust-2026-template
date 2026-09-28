@@ -119,6 +119,31 @@ for e in evals:
   fi
 done
 
+# --- Skill script unit tests ---
+# evals.json describes expectations for the model; it does not execute the
+# skill's code. Any test file shipped alongside a skill script runs here, so a
+# regression in the script itself fails the gate. The DORA report aborted on
+# every scheduled run from 2026-07-13 and nothing noticed, because no pipeline
+# executed test_compute_dora.py.
+SCRIPT_TESTS=()
+while IFS= read -r found; do
+  [[ -n "$found" ]] && SCRIPT_TESTS+=("$found")
+done < <(find "$SKILLS_DIR" -type f \( -name 'test_*.py' -o -name '*_test.py' \) | sort)
+
+for test_file in "${SCRIPT_TESTS[@]:-}"; do
+  [[ -f "$test_file" ]] || continue
+  TOTAL=$((TOTAL + 1))
+  if python3 "$test_file" >/dev/null 2>&1; then
+    PASSED=$((PASSED + 1))
+    RESULTS+=("$test_file|PASS|script unit tests")
+  else
+    FAILED=$((FAILED + 1))
+    RESULTS+=("$test_file|FAIL|script unit tests failed")
+    echo -e "${RED}[FAIL]${NC} $test_file"
+    python3 "$test_file" 2>&1 | tail -20
+  fi
+done
+
 # --- Summary ---
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

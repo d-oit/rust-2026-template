@@ -162,11 +162,8 @@ impl McpServer {
         }
 
         let tool = {
-            let registry = {
-                let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
-                Arc::clone(&*guard)
-            };
-            registry
+            let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
+            guard
                 .get(name)
                 .ok_or_else(|| ServerError::ToolNotFound(name.to_string()))?
                 .clone()
