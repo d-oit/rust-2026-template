@@ -111,11 +111,18 @@ def deployment_frequency(releases, period_days=30, now_dt=None, policy=None):
     cutoff = now_dt.timestamp() - (period_days * 86400)
     recent = []
     for r in releases:
+        # A release with no published timestamp (draft, or a tag never released)
+        # is not a deployment. `gh release list` emits `published: null` for
+        # these, which previously raised AttributeError here and crashed the
+        # whole report - the except below only covered ValueError/KeyError.
+        published = r.get('published')
+        if not published:
+            continue
         try:
-            published_str = r['published'].replace('Z', '+00:00')
+            published_str = published.replace('Z', '+00:00')
             if datetime.fromisoformat(published_str).timestamp() > cutoff:
                 recent.append(r)
-        except (ValueError, KeyError):
+        except ValueError:
             continue
 
     per_day = len(recent) / period_days
