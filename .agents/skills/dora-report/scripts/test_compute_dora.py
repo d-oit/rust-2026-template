@@ -4,6 +4,7 @@ import tempfile
 import unittest
 import json
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Add script directory to sys.path
@@ -69,6 +70,31 @@ class TestComputeDora(unittest.TestCase):
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]["metric"], "deployment")
         self.assertEqual(data[1]["metric"], "change_failure")
+
+    def test_deployment_frequency_ignores_release_with_null_published(self):
+        # `gh release list` emits `published: null` for drafts and for tags that
+        # were never released. This crashed the scheduled DORA Report every week
+        # from at least 2026-07-13: the attribute access on None raised
+        # AttributeError, which the surrounding except (ValueError, KeyError) did
+        # not cover, so the whole report aborted.
+        now = datetime(2026, 9, 26, tzinfo=timezone.utc)
+        releases = [
+            {"tag": "v1", "published": None},
+            {"tag": "v2", "published": "2026-09-20T00:00:00Z"},
+            {"tag": "v3", "published": "2026-01-01T00:00:00Z"},
+        ]
+
+        result = compute_dora.deployment_frequency(releases, 30, now_dt=now, policy=None)
+
+        # Only v2 is both non-null and inside the 30-day window.
+        self.assertEqual(result["count"], 1)
+
+    def test_deployment_frequency_tolerates_all_null_published(self):
+        now = datetime(2026, 9, 26, tzinfo=timezone.utc)
+        result = compute_dora.deployment_frequency(
+            [{"tag": "v1", "published": None}], 30, now_dt=now, policy=None
+        )
+        self.assertEqual(result["count"], 0)
 
     def test_multi_page_paginated_input(self):
         # Fixture representing multi-page GitHub API output combined into a single array
