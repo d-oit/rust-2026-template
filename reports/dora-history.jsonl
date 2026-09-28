@@ -1,0 +1,1 @@
+{"generated_at":"2026-09-28T07:43:42Z","metrics":{"change_failure_rate":{"hotfixes":0,"rate":0,"tier":"N/A","total":0},"change_lead_time":{"avg_hours":21.35,"tier":"High"},"deployment_frequency":{"count":0,"per_day":0.0,"tier":"Low"},"failed_deployment_recovery_time":{"avg_hours":0,"tier":"N/A"}},"period_days":30}

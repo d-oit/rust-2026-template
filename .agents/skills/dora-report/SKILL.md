@@ -25,7 +25,8 @@ delivery performance metrics and three DORA agentic metrics from available data 
 - GitHub CLI (`gh`) installed and authenticated
 - Python 3.9+ available
 - `.agents/metrics.jsonl` exists
-- `dora-metrics.jsonl` exists
+- `dora-metrics.jsonl` exists (event log: deployment, change-failure and recovery events)
+- `reports/dora-history.jsonl` exists (weekly report snapshots for the trend table; created on first run when missing)
 
 ## Steps
 
@@ -61,14 +62,19 @@ python3 .agents/skills/dora-report/scripts/compute_dora.py \
   --template .agents/skills/dora-report/templates/DORA-REPORT.md.jinja \
   --output reports/DORA-REPORT.md \
   --manifest-output reports/dora-manifest.json \
+  --history reports/dora-history.jsonl \
   --period-days 30 \
   --repo $(git remote get-url origin | sed 's/.*github.com[:\/]\(.*\)\.git/\1/')
 ```
 
+`--dora-metrics` is the event log; `--history` is the report snapshot history. The script replaces any stored
+snapshot from the same UTC ISO week with the current one, appends snapshots from new weeks, and renders the
+latest three snapshots (rolling windows ending on each report date) as the report's trend table.
+
 ### 4. Review and commit the report
 
 ```bash
-git add reports/DORA-REPORT.md
+git add reports/DORA-REPORT.md reports/dora-manifest.json reports/dora-history.jsonl
 git commit -m "docs(dora): update reports/DORA-REPORT.md [skip ci]"
 ```
 

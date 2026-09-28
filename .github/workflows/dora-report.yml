@@ -72,6 +72,7 @@ jobs:
             --template .agents/skills/dora-report/templates/DORA-REPORT.md.jinja \
             --output reports/DORA-REPORT.md \
             --manifest-output reports/dora-manifest.json \
+            --history reports/dora-history.jsonl \
             --period-days 30 \
             --repo ${{ github.repository }}
 

@@ -14,9 +14,10 @@ The skill computes:
 ## Data Sources
 
 - **GitHub API**: For releases and pull request timestamps.
-- **dora-metrics.jsonl**: For change failure and recovery events.
+- **dora-metrics.jsonl**: Event log for change failure and recovery events; it is an input, not report history.
 - **.agents/metrics.jsonl**: For agent activity and success metrics.
+- **reports/dora-history.jsonl**: Weekly report snapshots (rolling windows ending on each report date) that back the trend table. The CLI replaces the snapshot of the current UTC ISO week and appends new weeks.
 
 ## Automation
 
-A GitHub Actions workflow is configured to run this skill on the first Monday of every month, ensuring the `reports/DORA-REPORT.md` is always current.
+A GitHub Actions workflow is configured to run this skill every Monday, ensuring the `reports/DORA-REPORT.md` is always current.

@@ -1,0 +1,12 @@
+{
+  "event_id": "1790586678-omp",
+  "task_id": "record-dora-history-trend",
+  "skill": "dora-report",
+  "status": "success",
+  "started_at": "2026-09-28T08:13:00Z",
+  "finished_at": "2026-09-28T09:11:18Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "fe7f1e9",
+  "summary": "Added committed weekly snapshot history for the DORA report. compute_dora.py gained optional --history: strict pre-write JSONL read (file/line errors), same-UTC-ISO-week replacement, chronological sort, compact serialization, atomic os.replace, and a channeled trend_table (latest three rolling windows) in the template. Seeded reports/dora-history.jsonl from reports/dora-manifest.json and rendered its single row in reports/DORA-REPORT.md; wired --history reports/dora-history.jsonl into .github/workflows/dora-report.yml; updated SKILL.md, README.md and docs/dora-metrics.md. 19/19 unittest tests pass (7 new CLI tests written test-first), smoke run in a temp dir rendered both rows and left repo artifacts and dora-metrics.jsonl (event log, 0 bytes) untouched; ./scripts/quality-gates.sh 18/18 SUCCESS (exit 0)."
+}
