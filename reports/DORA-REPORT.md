@@ -37,6 +37,10 @@
   - `prs.json`: `525d6c786360675492f256bbbb25790608880efe06f24b696c071ae5b4bbce45`
   - `policy`: `89bd8289b3e0ecb05dc3d6dfe607e129217523a0d0be62417348b068fb8d0ec9`
 
-## Trend: Last 3 Periods
+## Trend: Latest 3 Weekly Reports
 
-<!-- Table auto-generated from historical dora-metrics.jsonl -->
+Each row is a rolling window ending on its report date; older weekly snapshots stay in the history file.
+
+| Report date (UTC) | Window (days) | Deployment frequency | Change lead time | Change failure rate | Recovery time |
+|---|---|---|---|---|---|
+| 2026-09-28 | 30 | 0.0/day (0 releases) | 21.35 h | N/A | N/A |

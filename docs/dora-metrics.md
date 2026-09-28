@@ -24,6 +24,14 @@ Change Lead Time measures the time it takes for a commit to get into production.
 **How it works:**
 1. The DORA report workflow (`.github/workflows/dora-report.yml`) computes lead time from PR metadata.
 2. It calculates the difference between `merged_at` and `created_at`.
-3. Results are recorded in `dora-metrics.jsonl`.
+3. Results are captured in the weekly report snapshot history, `reports/dora-history.jsonl`, and rendered in the report's trend table. `dora-metrics.jsonl` holds deployment/failure/recovery events only — it is not report history.
 
 **Target (DORA Elite):** < 24 hours
+
+## Weekly Trend
+
+`reports/dora-history.jsonl` stores one snapshot per report run: `generated_at`, `period_days`, and the four core
+metric objects. A run replaces the snapshot of the current UTC ISO week and appends a snapshot for a new week, so
+re-running in the same week updates that week's point instead of adding a duplicate. `reports/DORA-REPORT.md` renders
+the latest three snapshots as its `Trend` table; each row is a rolling window ending on its report date, so adjacent
+rows overlap rather than covering disjoint calendar periods.

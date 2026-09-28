@@ -44,6 +44,91 @@ def load_jsonl(path):
                     continue
     return data
 
+HISTORY_TABLE_COLUMNS = ("Report date (UTC)", "Window (days)", "Deployment frequency",
+                         "Change lead time", "Change failure rate", "Recovery time")
+HISTORY_ROW_LIMIT = 3
+HISTORY_METRIC_FIELDS = {
+    "deployment_frequency": ("per_day", "count", "tier"), "change_lead_time": ("avg_hours", "tier"),
+    "change_failure_rate": ("rate", "hotfixes", "total", "tier"), "failed_deployment_recovery_time": ("avg_hours", "tier"),
+}
+
+def parse_history_timestamp(value):
+    return datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
+
+def history_record_error(record):
+    if not isinstance(record, dict):
+        return f"expected a JSON object, got {type(record).__name__}"
+    generated_at = record.get('generated_at')
+    if not isinstance(generated_at, str):
+        return "missing string field 'generated_at'"
+    try:
+        parse_history_timestamp(generated_at)
+    except ValueError:
+        return f"'generated_at' must be UTC 'YYYY-MM-DDTHH:MM:SSZ', got {generated_at!r}"
+    if type(record.get('period_days')) is not int or record['period_days'] <= 0:
+        return "'period_days' must be a positive integer"
+    metrics = record.get('metrics')
+    if not isinstance(metrics, dict):
+        return "missing object field 'metrics'"
+    for name, fields in HISTORY_METRIC_FIELDS.items():
+        metric = metrics.get(name)
+        missing = [f for f in fields if not isinstance(metric, dict) or f not in metric]
+        if missing:
+            return f"metric {name!r} is missing field {missing[0]!r}"
+    return None
+
+def load_history(path):
+    """Read the trend table's snapshot history; malformed lines are fatal, unlike load_jsonl."""
+    if not os.path.exists(path):
+        return []
+    records = []
+    with open(path, 'r') as f:
+        for lineno, line in enumerate(f, start=1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Failed to parse DORA history file {path}: line {lineno}: {e}") from e
+            reason = history_record_error(record)
+            if reason:
+                raise ValueError(f"Invalid DORA history record in {path}: line {lineno}: {reason}")
+            records.append(record)
+    return records
+
+def merge_history_records(records, current_record):
+    current_week = parse_history_timestamp(current_record['generated_at']).isocalendar()[:2]
+    merged = [r for r in records
+              if parse_history_timestamp(r['generated_at']).isocalendar()[:2] != current_week]
+    merged.append(current_record)
+    merged.sort(key=lambda r: r['generated_at'])
+    return merged
+
+def save_history(path, records):
+    if path_dir := os.path.dirname(path):
+        os.makedirs(path_dir, exist_ok=True)
+    payload = "".join(json.dumps(r, sort_keys=True, separators=(',', ':')) + "\n" for r in records)
+    with open(path + '.tmp', 'w') as f:
+        f.write(payload)
+    os.replace(path + '.tmp', path)
+
+def render_trend_table(records):
+    lines = ["| " + " | ".join(HISTORY_TABLE_COLUMNS) + " |",
+             "|" + "---|" * len(HISTORY_TABLE_COLUMNS)]
+    for record in records[-HISTORY_ROW_LIMIT:]:
+        m = record['metrics']
+        df, clt = m['deployment_frequency'], m['change_lead_time']
+        cfr, fdrt = m['change_failure_rate'], m['failed_deployment_recovery_time']
+        lines.append("| " + " | ".join([
+            record['generated_at'][:10],
+            str(record['period_days']),
+            f"{df['per_day']}/day ({df['count']} releases)",
+            "N/A" if clt['tier'] == 'N/A' else f"{clt['avg_hours']} h",
+            "N/A" if cfr['tier'] == 'N/A' else f"{round(cfr['rate'] * 100, 1)}% ({cfr['hotfixes']}/{cfr['total']})",
+            "N/A" if fdrt['tier'] == 'N/A' else f"{fdrt['avg_hours']} h",
+        ]) + " |")
+    return "\n".join(lines)
+
 def load_policy(policy_path):
     default_policy = {
         "version": "1.0",
@@ -239,6 +324,8 @@ def main():
     parser.add_argument('--period-days', type=int, help='Evaluation window in days (overrides policy if set)')
     parser.add_argument('--repo', default='unknown/repo')
     parser.add_argument('--now', help='Reference ISO 8601 timestamp for evaluation period (e.g. 2026-09-17T00:00:00Z)')
+    parser.add_argument('--history', help='Path to DORA snapshot history JSONL (weekly trend memory); '
+                                          'when omitted no history is read or written')
     args = parser.parse_args()
 
     policy, resolved_policy_path = load_policy(args.policy)
@@ -269,6 +356,26 @@ def main():
     am = agentic_metrics(agent_metrics_data)
 
     overall_tier = get_overall_tier([df['tier'], clt['tier'], cfr['tier'], fdrt['tier']])
+
+    current_record = {
+        "generated_at": now_iso,
+        "period_days": period_days,
+        "metrics": {
+            "deployment_frequency": df, "change_lead_time": clt,
+            "change_failure_rate": cfr, "failed_deployment_recovery_time": fdrt,
+        },
+    }
+    # History is read (and must be valid) before anything is written, so a
+    # malformed history file cannot leave a fresh report/manifest behind.
+    if args.history:
+        try:
+            trend_records = merge_history_records(load_history(args.history), current_record)
+        except ValueError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        trend_records = [current_record]
+    trend_table = render_trend_table(trend_records)
 
     input_hashes = {
         'releases': file_sha256(args.releases),
@@ -366,6 +473,7 @@ def main():
     report = report.replace('{{ am.avg_tokens }}', str(am['avg_tokens']))
 
     report = report.replace('{{ overall_tier_badge }}', overall_tier_badge)
+    report = report.replace('{{ trend_table }}', trend_table)
 
     bot_allowlist_str = ", ".join(manifest["policy"]["bot_allowlist"]) if manifest["policy"]["bot_allowlist"] else "none"
     report = report.replace('{{ policy.percentile_method }}', manifest["policy"]["percentile_method"])
@@ -381,6 +489,11 @@ def main():
 
     with open(args.output, 'w') as f:
         f.write(report)
+
+    # Snapshots are committed only after the report is safely on disk, so the
+    # history never claims a week whose report was not generated.
+    if args.history:
+        save_history(args.history, trend_records)
 
 if __name__ == '__main__':
     main()
