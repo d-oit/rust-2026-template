@@ -60,9 +60,11 @@ pub fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
 
     // Bolt: Use nested loops to eliminate redundant division/remainder operations
     // when accessing the DIGITS_TABLE in the hot loop.
+    // Hoist outer-loop invariant computation (`tens * 100`) outside the inner loop.
     'outer: for (tens, t_str) in DIGITS_TABLE.iter().enumerate() {
+        let tens_base = tens * 100;
         for (ones, o_str) in DIGITS_TABLE.iter().enumerate() {
-            let i = tens * 100 + ones;
+            let i = tens_base + ones;
             if i == 0 {
                 continue; // continues inner loop; `break 'outer` below
             }
