@@ -1,0 +1,27 @@
+{
+  "event_id": "20261003T123451Z-codex",
+  "task_id": "rust-template-adopter-audit-2026-10-03",
+  "parent_task_id": "github-open-issues-prs-2026-10-03",
+  "workflow_id": null,
+  "agent_id": "Codex",
+  "agent_type": "automated",
+  "skill": "issue-triage",
+  "skill_version": "0.2.0",
+  "status": "success",
+  "started_at": "2026-10-03T10:20:43Z",
+  "finished_at": "2026-10-03T12:34:51Z",
+  "success": true,
+  "human_interventions": 1,
+  "git_branch": "fix/template-profile-dependency-closure",
+  "git_sha": "d46f304",
+  "artifacts": [
+    "config/template-profiles/ai-agent.toml",
+    "config/template-profiles/cli.toml",
+    "config/template-profiles/library.toml",
+    "config/template-profiles/minimal.toml",
+    "config/template-profiles/service.toml",
+    "crates/xtask/src/config_test.rs",
+    "crates/xtask/src/template_profile_test.rs"
+  ],
+  "notes": "Template-focused adopter audit found partial profiles retained workspace-tests despite pruning its local dev-dependencies, and a config test assumed the template default tier after initialization rewrites it. Fixed profile dependency closure and made assertions match configured adopter state. A real minimal initialization passed cargo check and all 144 nextest tests; the full template quality gate passed 18/18."
+}

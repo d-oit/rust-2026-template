@@ -2,14 +2,13 @@
 [metadata]
 id = "cli"
 display_name = "Rust CLI"
-description = "Binary-first workspace: app crate plus a supporting library and tests."
+description = "Binary-first workspace: app crate and supporting library, with tests kept in each crate."
 
 [workspace]
 include_crates = [
   "crates/example-crate",
   "crates/sample-app",
   "crates/xtask",
-  "crates/workspace-tests",
 ]
 exclude_paths = [
   "benchmarks",

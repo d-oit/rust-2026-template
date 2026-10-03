@@ -2,6 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::panic)]
 use super::*;
 use crate::path_rules::{is_crate_dir_name, is_safe_relative};
+use std::collections::HashSet;
 
 /// Builds a profile TOML with the given workspace section body.
 fn profile_toml_with_workspace(workspace_body: &str) -> String {
@@ -147,6 +148,108 @@ fn test_shipped_profiles_lockfile_policies() {
             );
         }
     }
+}
+
+#[test]
+fn test_shipped_profiles_keep_local_path_dependencies() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..");
+    let root_manifest: toml::Value =
+        toml::from_str(&std::fs::read_to_string(root.join("Cargo.toml")).unwrap()).unwrap();
+    let workspace_dependencies = root_manifest
+        .get("workspace")
+        .and_then(|workspace| workspace.get("dependencies"))
+        .and_then(toml::Value::as_table)
+        .unwrap();
+    let crates_root = root.join("crates").canonicalize().unwrap();
+
+    for id in SHIPPED_PROFILES {
+        let profile_file = root
+            .join(format!("{PROFILES_DIR}/{id}.toml"))
+            .to_string_lossy()
+            .into_owned();
+        let profile = TemplateProfile::load_from_path(&profile_file)
+            .unwrap_or_else(|e| panic!("profile {id} must load: {e}"));
+        let included: HashSet<_> = profile.workspace.include_crates.iter().cloned().collect();
+
+        for crate_path in &profile.workspace.include_crates {
+            let crate_dir = root.join(crate_path);
+            let crate_manifest = crate_dir.join("Cargo.toml");
+            // An initialized adopter has already removed crates from other
+            // profiles; validate the retained manifests that are still present.
+            if !crate_manifest.is_file() {
+                continue;
+            }
+            let manifest: toml::Value =
+                toml::from_str(&std::fs::read_to_string(crate_manifest).unwrap()).unwrap();
+
+            for dependencies in dependency_tables(&manifest) {
+                for (name, specification) in dependencies {
+                    let inherited = specification
+                        .get("workspace")
+                        .and_then(toml::Value::as_bool)
+                        == Some(true);
+                    let workspace_specification = workspace_dependencies.get(name);
+                    let path = specification
+                        .get("path")
+                        .and_then(toml::Value::as_str)
+                        .or_else(|| {
+                            inherited
+                                .then_some(workspace_specification)
+                                .flatten()
+                                .and_then(|spec| spec.get("path"))
+                                .and_then(toml::Value::as_str)
+                        });
+                    let Some(path) = path else {
+                        continue;
+                    };
+                    let base = if inherited { &root } else { &crate_dir };
+                    let dependency = base.join(path).canonicalize().unwrap_or_else(|error| {
+                        panic!(
+                            "profile {id}: local dependency {name} path {path} is invalid: {error}"
+                        )
+                    });
+                    let Ok(relative) = dependency.strip_prefix(&crates_root) else {
+                        continue;
+                    };
+                    let dependency_path =
+                        format!("crates/{}", relative.to_string_lossy().replace('\\', "/"));
+                    assert!(
+                        included.contains(&dependency_path),
+                        "profile '{id}' keeps '{crate_path}' but prunes local path dependency '{dependency_path}'"
+                    );
+                }
+            }
+        }
+    }
+}
+
+fn dependency_tables(manifest: &toml::Value) -> Vec<&toml::map::Map<String, toml::Value>> {
+    const GROUPS: [&str; 3] = ["dependencies", "dev-dependencies", "build-dependencies"];
+
+    fn push_group<'a>(
+        manifest: &'a toml::Value,
+        group: &str,
+        tables: &mut Vec<&'a toml::map::Map<String, toml::Value>>,
+    ) {
+        if let Some(table) = manifest.get(group).and_then(toml::Value::as_table) {
+            tables.push(table);
+        }
+    }
+
+    let mut tables = Vec::new();
+    for group in GROUPS {
+        push_group(manifest, group, &mut tables);
+    }
+    if let Some(targets) = manifest.get("target").and_then(toml::Value::as_table) {
+        for target in targets.values() {
+            for group in GROUPS {
+                push_group(target, group, &mut tables);
+            }
+        }
+    }
+    tables
 }
 
 #[test]
