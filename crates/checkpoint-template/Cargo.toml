@@ -35,4 +35,3 @@ bincode_reloaded = { version = "3", features = ["serde"] }
 tempfile = "3"
 tokio-test = { workspace = true }
 proptest = { workspace = true }
-insta = { workspace = true }

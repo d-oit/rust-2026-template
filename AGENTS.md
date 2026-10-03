@@ -93,6 +93,7 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 - **File Size:** Max 500 LOC per source file.
 - **Docs:** All public items must have `///` doc comments.
 - **TDD:** Add or update tests before implementing logic.
+- **Snapshots:** Treat snapshot changes as behavior changes. Inspect them with `cargo insta review` and accept only intentional, deterministic output changes; never update snapshots just to clear a failing test.
 - **Search:** Always use `--exclude-dir=target` (and `.git`) in search commands.
 - **Context:** Run `bash scripts/generate-llms-txt.sh` after significant arch changes.
 - **Commits:** Strictly use lowercase for the subject line (e.g., `fix(scope): add ...` not `fix(scope): Add ...`). Sentence-case or start-case will fail CI.

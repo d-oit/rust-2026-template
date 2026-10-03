@@ -18,6 +18,5 @@ example-registry-pattern = { path = "../example-registry-pattern", version = "0.
 insta = { workspace = true }
 mcp-server-template = { path = "../mcp-server-template", version = "0.0.0" }
 sample-app = { path = "../sample-app", version = "0.0.0" }
-serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }

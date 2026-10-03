@@ -51,7 +51,34 @@ And two modes:
 | `shellcheck` | pre-commit | `.shellcheckrc` | Fix shell script issues at severity=warning |
 | `gitleaks` | Security CI (`security-scan.yml`) | `.gitleaks.toml` | Remove secrets; use env vars or `.env` |
 | Architecture fitness | `tests/arch_fitness.rs` | `Cargo.toml` dev-deps | HARNESS VIOLATION message includes fix instructions |
-| Snapshot tests | `tests/behaviour_harness.rs` | `Cargo.toml` `insta = "=1.47.2"` | Run `cargo insta review` to approve new baselines |
+| Snapshot tests | `crates/workspace-tests/tests/behaviour_harness.rs` | Workspace requirement `insta = "1"` (`^1`) | Run `cargo insta review` to inspect pending snapshots |
+
+The manifest requirement follows compatible Insta 1.x releases; `Cargo.lock` records the version resolved for this workspace. Do not describe that lockfile resolution as an exact manifest pin.
+
+### Testing Responsibilities
+
+| Tool | Use it for |
+|---|---|
+| `cargo nextest` | Running unit and integration tests |
+| `proptest` | Checking invariants across generated inputs |
+| Insta | Recording stable, observable behavior and structured output |
+| `cargo-mutants` | Checking whether tests detect code changes |
+| Clippy | Static analysis and Rust-specific diagnostics |
+| `cargo-audit` / `cargo-deny` | Vulnerability, license, and dependency policy checks |
+
+Use ordinary assertions for small invariants and snapshots for multi-field output:
+
+```rust
+let response = serde_json::json!({
+    "success": true,
+    "total": 100,
+    "unit": "items",
+});
+assert_eq!(response["total"], 100);
+insta::assert_yaml_snapshot!("response", response);
+```
+
+Snapshot files are reviewed behavior contracts. Inspect changes with `cargo insta review`; accept them only when an intentional implementation change produces deterministic output. CI runs the normal test suite without snapshot updates enabled, so missing or mismatched snapshots fail the tests. Never auto-accept snapshots in CI.
 
 ### Inferential (LLM-based — use for direction)
 
