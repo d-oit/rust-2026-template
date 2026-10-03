@@ -1,0 +1,8 @@
+---
+source: crates/workspace-tests/tests/behaviour_harness.rs
+expression: dispatch_results
+---
+- - echo
+  - hello world
+- - reverse
+  - dlrow olleh

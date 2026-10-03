@@ -1,7 +1,7 @@
 # VERSION is the single source of truth for the project version
 VERSION := $(shell cat VERSION 2>/dev/null || echo "0.0.0")
 
-.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools harness insta-review version version-check version-propagate
+.PHONY: all docs docs-check ci fmt clippy test build install-doc-tools harness insta-test insta-review version version-check version-propagate
 
 all: ci
 
@@ -51,7 +51,10 @@ docs-check: docs ## Fail if generated docs differ from committed versions
 harness:  ## Run all harness sensors with agent-optimised output
 	bash scripts/harness-check.sh all
 
-insta-review:  ## Review and approve insta snapshot changes
+insta-test:  ## Run the behavioural snapshot tests
+	cargo test --package workspace-tests --test behaviour_harness
+
+insta-review:  ## Review pending Insta snapshot changes
 	cargo insta review
 
 # Include monitoring targets (opt-in observability stack)

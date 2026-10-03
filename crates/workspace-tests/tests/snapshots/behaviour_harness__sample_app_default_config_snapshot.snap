@@ -1,0 +1,7 @@
+---
+source: crates/workspace-tests/tests/behaviour_harness.rs
+expression: config
+---
+app_name: sample-app
+log_level: info
+max_items: 100

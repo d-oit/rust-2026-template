@@ -50,8 +50,12 @@ When a computational sensor fires:
 | nextest | `cargo nextest run` | `Cargo.toml` | CI |
 | mutants | `cargo mutants` | `[workspace.metadata.cargo-mutants]` in `Cargo.toml` | CI weekly |
 | arch_fitness | `cargo test --test arch_fitness` | `tests/arch_fitness.rs` | CI |
-| insta snapshots | `cargo insta review` | `tests/behaviour_harness.rs` | CI |
+| insta snapshots | `make insta-test` / `cargo insta review` | `crates/workspace-tests/tests/behaviour_harness.rs` | CI |
 | gitleaks | `gitleaks detect` | `.gitleaks.toml` | CI |
+
+## Snapshot Contract
+
+Treat snapshot changes as behavior changes. Inspect them with `cargo insta review`; accept only intentional, deterministic output changes. Never update snapshots solely to make a failing test pass. CI runs the normal test suite without snapshot updates enabled, so pending snapshots fail rather than being accepted automatically.
 
 ## Steering Loop
 

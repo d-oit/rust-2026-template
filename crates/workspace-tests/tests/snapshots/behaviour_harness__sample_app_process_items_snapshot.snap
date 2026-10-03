@@ -1,0 +1,9 @@
+---
+source: crates/workspace-tests/tests/behaviour_harness.rs
+expression: items
+---
+- item-0001
+- item-0002
+- item-0003
+- item-0004
+- item-0005

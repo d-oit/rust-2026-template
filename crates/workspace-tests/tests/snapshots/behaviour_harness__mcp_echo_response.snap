@@ -1,0 +1,7 @@
+---
+source: crates/workspace-tests/tests/behaviour_harness.rs
+expression: response
+---
+result:
+  message: hello snapshot harness
+success: true

@@ -1,0 +1,6 @@
+---
+source: crates/workspace-tests/tests/behaviour_harness.rs
+expression: config
+---
+max_checkpoint_size: 10485760
+max_app_name_len: 256
