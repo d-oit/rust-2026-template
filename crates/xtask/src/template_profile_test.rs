@@ -96,6 +96,15 @@ fn test_is_safe_relative_rejects_component_attacks() {
     assert!(!is_safe_relative("a/../b"));
     assert!(!is_safe_relative("a\\b"));
     assert!(!is_safe_relative("a\u{0}b"));
+
+    // Bidi controls, line/paragraph separators, and zero-width spaces must be rejected
+    assert!(!is_safe_relative("a\u{200b}b"));
+    assert!(!is_safe_relative("a\u{2028}b"));
+    assert!(!is_safe_relative("a\u{2029}b"));
+    assert!(!is_safe_relative("a\u{202a}b"));
+    assert!(!is_safe_relative("a\u{202e}b"));
+    assert!(!is_safe_relative("a\u{2066}b"));
+    assert!(!is_safe_relative("a\u{2069}b"));
 }
 
 #[test]

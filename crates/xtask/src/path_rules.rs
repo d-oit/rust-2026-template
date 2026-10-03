@@ -37,12 +37,23 @@ pub(crate) fn is_crate_dir_name(name: &str) -> bool {
 }
 
 /// True when `p` is a normalized relative path: no `..`, `.`, absolute root,
-/// platform prefix, backslash, control characters, or excessive length.
+/// platform prefix, backslash, control/Bidi characters, or excessive length.
 pub(crate) fn is_safe_relative(p: &str) -> bool {
     if p.is_empty()
         || p.len() > MAX_PATH_ENTRY_LEN
         || p.contains('\\')
-        || p.chars().any(char::is_control)
+        || p.chars().any(|c| {
+            c.is_control()
+                || matches!(
+                    c,
+                    '\u{200b}'..='\u{200f}'
+                        | '\u{2028}'
+                        | '\u{2029}'
+                        | '\u{202a}'..='\u{202e}'
+                        | '\u{2060}'..='\u{2064}'
+                        | '\u{2066}'..='\u{2069}'
+                )
+        })
     {
         return false;
     }
