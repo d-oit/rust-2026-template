@@ -1,5 +1,5 @@
 # Library profile — reusable library with a strict public API surface.
-# Keeps: the renamed example lib + xtask + workspace tests + local app example for doc tests.
+# Keeps: the renamed example lib and xtask; tests stay with the retained crate.
 [metadata]
 id = "library"
 display_name = "Rust Library"
@@ -9,7 +9,6 @@ description = "Reusable library with strict public API and package checks."
 include_crates = [
   "crates/example-crate",
   "crates/xtask",
-  "crates/workspace-tests",
 ]
 exclude_paths = [
   "benchmarks",

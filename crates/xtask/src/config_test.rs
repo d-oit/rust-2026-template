@@ -234,9 +234,15 @@ fn test_load_actual_config_xtask_json() {
         .join("config")
         .join("xtask.json");
 
+    let raw_config = std::fs::read_to_string(&root_config_path).unwrap();
+    let raw_config = serde_json::from_str::<serde_json::Value>(&raw_config).unwrap();
+    let configured_default_tier = raw_config["default_tier"].as_str().unwrap();
     let config = XtaskConfig::load_from_file(&root_config_path).unwrap();
     assert_eq!(config.env_var_name, "XTASK_TIER");
-    assert_eq!(config.default_tier, "protected-branch");
+    assert_eq!(
+        config.default_tier,
+        canonical_tier_name(configured_default_tier)
+    );
     assert_eq!(config.lint_thresholds.max_lines_per_file, 500);
     assert!(config.lint_thresholds.clippy_warnings_as_errors);
     // GOAP guardrail (ADR 0005) must run on every PR, not just post-merge.

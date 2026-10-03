@@ -10,7 +10,6 @@ include_crates = [
   "crates/example-crate",
   "crates/sample-app",
   "crates/xtask",
-  "crates/workspace-tests",
 ]
 exclude_paths = [
   "benchmarks",

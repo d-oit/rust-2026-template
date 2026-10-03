@@ -1,5 +1,5 @@
 # Minimal profile — the smallest buildable workspace.
-# Keeps: one app crate (sample-app) + the renamed example lib (example-crate) + xtask + tests.
+# Keeps: one app crate (sample-app), the renamed example lib (example-crate), and xtask.
 # Removes: optional pattern crates, benchmarks, fuzz, and heavy CI workflows.
 [metadata]
 id = "minimal"
@@ -11,7 +11,6 @@ include_crates = [
   "crates/example-crate",
   "crates/sample-app",
   "crates/xtask",
-  "crates/workspace-tests",
 ]
 exclude_paths = [
   "benchmarks",
