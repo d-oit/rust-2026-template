@@ -70,11 +70,6 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
 
-      - name: Cache Cargo registry
-        uses: Swatinem/rust-cache@258712b0b7b1ddf8bddc9fc3b0faca682b2736c3  # v2
-        with:
-          cache-on-failure: true
-
       - name: Checkout PR head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -87,11 +82,11 @@ jobs:
 
       - name: Dry-run the patch bump against the PR head
         working-directory: pr-head
-        run: $GITHUB_WORKSPACE/target/debug/xtask release bump-patch --dry-run
+        run: '"$GITHUB_WORKSPACE/target/debug/xtask" release bump-patch --dry-run'
 
       - name: Bump patch version on the PR head (no push)
         working-directory: pr-head
-        run: $GITHUB_WORKSPACE/target/debug/xtask release bump-patch
+        run: '"$GITHUB_WORKSPACE/target/debug/xtask" release bump-patch'
 
       - name: Upload bumped manifest as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
