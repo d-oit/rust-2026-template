@@ -134,7 +134,7 @@ pub fn validate_repo_slug(repo: &str) -> Result<(), String> {
 }
 
 /// Validates a single-line text field: trimmed non-empty, bounded, no control
-/// characters (which could corrupt generated manifests).
+/// or Bidi/line-separator characters (which could corrupt generated manifests).
 ///
 /// # Errors
 /// Returns a human-readable reason when the value is unsafe.
@@ -146,8 +146,21 @@ fn validate_single_line(value: &str, max_len: usize) -> Result<(), String> {
     if trimmed.len() > max_len {
         return Err(format!("'{value}' must be at most {max_len} bytes"));
     }
-    if trimmed.chars().any(char::is_control) {
-        return Err(format!("'{value}' must not contain control characters"));
+    if trimmed.chars().any(|c| {
+        c.is_control()
+            || matches!(
+                c,
+                '\u{200b}'..='\u{200f}'
+                    | '\u{2028}'
+                    | '\u{2029}'
+                    | '\u{202a}'..='\u{202e}'
+                    | '\u{2060}'..='\u{2064}'
+                    | '\u{2066}'..='\u{2069}'
+            )
+    }) {
+        return Err(format!(
+            "'{value}' must not contain control or Bidi/line-separator characters"
+        ));
     }
     Ok(())
 }
@@ -254,6 +267,13 @@ mod tests {
         assert!(ProjectIdentity::new(None, None, Some("  "), None).is_err());
         let long = "x".repeat(300);
         assert!(ProjectIdentity::new(None, Some(&long), None, None).is_err());
+
+        // Bidi controls, line/paragraph separators, and zero-width spaces must be rejected
+        assert!(ProjectIdentity::new(None, Some("desc\u{200b}space"), None, None).is_err());
+        assert!(ProjectIdentity::new(None, Some("desc\u{2028}line"), None, None).is_err());
+        assert!(ProjectIdentity::new(None, Some("desc\u{2029}para"), None, None).is_err());
+        assert!(ProjectIdentity::new(None, Some("desc\u{202e}bidi"), None, None).is_err());
+        assert!(ProjectIdentity::new(None, None, Some("author\u{2066}bidi"), None).is_err());
     }
 
     #[test]
