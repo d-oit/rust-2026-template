@@ -1,14 +1,14 @@
 {
   "evaluation_window": {
-    "now_iso": "2026-09-28T07:43:42Z",
+    "now_iso": "2026-10-05T03:07:26Z",
     "period_days": 30,
-    "start_iso": "2026-08-29T07:43:42Z"
+    "start_iso": "2026-09-05T03:07:26Z"
   },
   "input_hashes": {
     "agent_metrics": "b2cf678485e07dc2f9dac6913091d7d77879cb904ba14ee89f958e77b21a03d6",
     "dora_metrics": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "policy": "89bd8289b3e0ecb05dc3d6dfe607e129217523a0d0be62417348b068fb8d0ec9",
-    "prs": "525d6c786360675492f256bbbb25790608880efe06f24b696c071ae5b4bbce45",
+    "prs": "7e79fe4bbbd83cb2d3985df0be8288ed139684d53e39934484d96e9b8d0fdb82",
     "releases": "8f4b0af6a8d5bda9c97f8adf4dcc3fdfd20c1ddae6bebca6f54b5763807218b2"
   },
   "metrics": {
@@ -25,7 +25,7 @@
       "total": 0
     },
     "change_lead_time": {
-      "avg_hours": 21.35,
+      "avg_hours": 13.57,
       "tier": "High"
     },
     "deployment_frequency": {
@@ -53,7 +53,7 @@
   "scanned_counts": {
     "agent_metrics": 2,
     "dora_metrics": 0,
-    "prs": 243,
+    "prs": 251,
     "releases": 1
   },
   "schema_version": "1.0"
