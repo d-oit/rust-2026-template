@@ -142,6 +142,7 @@ fn sanitize_log_payload(work: &str) -> String {
     let mut used = i;
 
     let mut safe_start: Option<usize> = None;
+    let mut safe_char_count = 0usize;
 
     for (idx, ch) in work[i..].char_indices() {
         let mut esc_buf = ['\0'; 12];
@@ -157,11 +158,11 @@ fn sanitize_log_payload(work: &str) -> String {
             if safe_start.is_none() {
                 safe_start = Some(idx);
             }
+            safe_char_count += 1;
         } else {
             if let Some(start) = safe_start.take() {
                 let safe_slice = &work[i + start..i + idx];
-                let safe_len = safe_slice.chars().count();
-                if used + safe_len > MAX_LOGGED_LEN {
+                if used + safe_char_count > MAX_LOGGED_LEN {
                     let take_len = MAX_LOGGED_LEN - used;
                     for c in safe_slice.chars().take(take_len) {
                         out.push(c);
@@ -170,7 +171,8 @@ fn sanitize_log_payload(work: &str) -> String {
                     return out;
                 }
                 out.push_str(safe_slice);
-                used += safe_len;
+                used += safe_char_count;
+                safe_char_count = 0;
             }
 
             if used + esc_len > MAX_LOGGED_LEN {
@@ -185,8 +187,7 @@ fn sanitize_log_payload(work: &str) -> String {
 
     if let Some(start) = safe_start {
         let safe_slice = &work[i + start..];
-        let safe_len = safe_slice.chars().count();
-        if used + safe_len > MAX_LOGGED_LEN {
+        if used + safe_char_count > MAX_LOGGED_LEN {
             let take_len = MAX_LOGGED_LEN - used;
             for c in safe_slice.chars().take(take_len) {
                 out.push(c);
@@ -461,7 +462,10 @@ mod tests {
         let input = format!("\n{safe_prefix}bcdefghij");
         let out = sanitize_log_payload(&input);
         assert!(out.ends_with("... [truncated]"));
-        assert_eq!(out.chars().count(), MAX_LOGGED_LEN + "... [truncated]".len());
+        assert_eq!(
+            out.chars().count(),
+            MAX_LOGGED_LEN + "... [truncated]".len()
+        );
     }
 
     #[tokio::test]
