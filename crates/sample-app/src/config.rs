@@ -212,22 +212,25 @@ pub fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
 
         // Security: serde_json has a default recursion limit of 128 which
         // provides protection against stack overflow DoS.
-        let mut config: Config = serde_json::from_reader(reader)?;
+        let config: Config = serde_json::from_reader(reader)?;
 
-        // Security: Sanitize app_name and check length to prevent log injection and resource exhaustion.
-        // We check length during sanitization to avoid unnecessary allocations.
-        let mut sanitized_name = String::with_capacity(config.app_name.len().min(MAX_APP_NAME_LEN));
-        for c in config.app_name.chars().filter(|c| is_safe_char(*c)) {
-            // Security: Check if adding the next character would exceed the byte limit.
-            // Strings are UTF-8, so characters can be up to 4 bytes.
-            if sanitized_name.len() + c.len_utf8() > MAX_APP_NAME_LEN {
-                return Err(AppError::Config(format!(
-                    "app_name too long: exceeds maximum of {MAX_APP_NAME_LEN} bytes"
-                )));
-            }
-            sanitized_name.push(c);
+        // Security: Validate app_name length, non-emptiness, and character safety
+        // to prevent log injection, silent configuration mutation, and resource exhaustion.
+        if config.app_name.len() > MAX_APP_NAME_LEN {
+            return Err(AppError::Config(format!(
+                "app_name too long: exceeds maximum of {MAX_APP_NAME_LEN} bytes"
+            )));
         }
-        config.app_name = sanitized_name;
+
+        if config.app_name.trim().is_empty() {
+            return Err(AppError::Config("app_name cannot be empty".to_string()));
+        }
+
+        if config.app_name.chars().any(|c| !is_safe_char(c)) {
+            return Err(AppError::Config(
+                "app_name contains control or Bidi characters".to_string(),
+            ));
+        }
 
         // Security: Validate max_items to prevent OOM
         if config.max_items > MAX_ALLOWED_ITEMS {
