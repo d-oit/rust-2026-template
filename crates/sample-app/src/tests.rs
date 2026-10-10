@@ -196,6 +196,69 @@ fn test_load_config_app_name_too_long() {
 }
 
 #[test]
+fn test_load_config_app_name_control_chars() {
+    let dir = tempfile::tempdir().unwrap();
+    let file_path = dir.path().join("control_chars_config.json");
+    let json = r#"{
+        "app_name": "sample\napp",
+        "log_level": "info",
+        "max_items": 100
+    }"#;
+    std::fs::write(&file_path, json).unwrap();
+
+    let result = load_config(Some(file_path));
+    assert!(result.is_err());
+    assert!(
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("app_name contains control or Bidi characters")
+    );
+}
+
+#[test]
+fn test_load_config_app_name_bidi_chars() {
+    let dir = tempfile::tempdir().unwrap();
+    let file_path = dir.path().join("bidi_chars_config.json");
+    let json = r#"{
+        "app_name": "sample\u202aapp",
+        "log_level": "info",
+        "max_items": 100
+    }"#;
+    std::fs::write(&file_path, json).unwrap();
+
+    let result = load_config(Some(file_path));
+    assert!(result.is_err());
+    assert!(
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("app_name contains control or Bidi characters")
+    );
+}
+
+#[test]
+fn test_load_config_app_name_empty() {
+    let dir = tempfile::tempdir().unwrap();
+    let file_path = dir.path().join("empty_app_name_config.json");
+    let json = r#"{
+        "app_name": "   ",
+        "log_level": "info",
+        "max_items": 100
+    }"#;
+    std::fs::write(&file_path, json).unwrap();
+
+    let result = load_config(Some(file_path));
+    assert!(result.is_err());
+    assert!(
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("app_name cannot be empty")
+    );
+}
+
+#[test]
 fn test_load_config_app_name_multibyte_too_long() {
     let dir = tempfile::tempdir().unwrap();
     let file_path = dir.path().join("multibyte_too_long_config.json");
