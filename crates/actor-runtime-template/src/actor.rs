@@ -135,12 +135,16 @@ fn sanitize_log_payload(work: &str) -> String {
     }
 
     // Slow path: some characters need escaping before MAX_LOGGED_LEN.
-    // Cache `escape_debug()` into a stack buffer to avoid double-iteration over escape sequences.
+    // Batch contiguous safe character segments with `push_str` to minimize allocation and copying overhead,
+    // while caching `escape_debug()` for unsafe characters in a stack buffer.
     let mut out = String::with_capacity(work.len().min(MAX_LOGGED_LEN) + 16);
     out.push_str(&work[..i]);
     let mut used = i;
 
-    for ch in work[i..].chars() {
+    let mut safe_start: Option<usize> = None;
+    let mut safe_char_count = 0usize;
+
+    for (idx, ch) in work[i..].char_indices() {
         let mut esc_buf = ['\0'; 12];
         let mut esc_len = 0;
         for esc_ch in ch.escape_debug() {
@@ -148,13 +152,50 @@ fn sanitize_log_payload(work: &str) -> String {
             esc_len += 1;
         }
 
-        if used + esc_len > MAX_LOGGED_LEN {
+        let is_safe = esc_len == 1 && esc_buf[0] == ch;
+
+        if is_safe {
+            if safe_start.is_none() {
+                safe_start = Some(idx);
+            }
+            safe_char_count += 1;
+        } else {
+            if let Some(start) = safe_start.take() {
+                let safe_slice = &work[i + start..i + idx];
+                if used + safe_char_count > MAX_LOGGED_LEN {
+                    let take_len = MAX_LOGGED_LEN - used;
+                    for c in safe_slice.chars().take(take_len) {
+                        out.push(c);
+                    }
+                    out.push_str("... [truncated]");
+                    return out;
+                }
+                out.push_str(safe_slice);
+                used += safe_char_count;
+                safe_char_count = 0;
+            }
+
+            if used + esc_len > MAX_LOGGED_LEN {
+                out.push_str("... [truncated]");
+                return out;
+            }
+
+            out.extend(&esc_buf[..esc_len]);
+            used += esc_len;
+        }
+    }
+
+    if let Some(start) = safe_start {
+        let safe_slice = &work[i + start..];
+        if used + safe_char_count > MAX_LOGGED_LEN {
+            let take_len = MAX_LOGGED_LEN - used;
+            for c in safe_slice.chars().take(take_len) {
+                out.push(c);
+            }
             out.push_str("... [truncated]");
             return out;
         }
-
-        out.extend(&esc_buf[..esc_len]);
-        used += esc_len;
+        out.push_str(safe_slice);
     }
 
     out
@@ -405,6 +446,26 @@ mod tests {
         let out = sanitize_log_payload(&input);
         assert!(out.ends_with("... [truncated]"));
         assert!(out.starts_with(&"a".repeat(250)));
+    }
+
+    #[test]
+    fn test_sanitize_payload_interspersed_safe_and_escaped() {
+        let input = "hello\nworld\tthis\\is\"a'test\u{202a}suffix";
+        let expected = "hello\\nworld\\tthis\\\\is\\\"a\\'test\\u{202a}suffix";
+        assert_eq!(sanitize_log_payload(input), expected);
+    }
+
+    #[test]
+    fn test_sanitize_payload_batching_truncation_boundary() {
+        // Safe slice near limit requires partial char truncation when exceeding limit.
+        let safe_prefix = "a".repeat(250);
+        let input = format!("\n{safe_prefix}bcdefghij");
+        let out = sanitize_log_payload(&input);
+        assert!(out.ends_with("... [truncated]"));
+        assert_eq!(
+            out.chars().count(),
+            MAX_LOGGED_LEN + "... [truncated]".len()
+        );
     }
 
     #[tokio::test]
