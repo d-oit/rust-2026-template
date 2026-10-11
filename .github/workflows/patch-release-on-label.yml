@@ -89,7 +89,7 @@ jobs:
         run: '"$GITHUB_WORKSPACE/target/debug/xtask" release bump-patch'
 
       - name: Upload bumped manifest as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: bumped-manifest
           path: |
@@ -98,7 +98,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload trusted xtask binary for the write job
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: xtask-binary
           path: target/debug/xtask
@@ -118,7 +118,7 @@ jobs:
           persist-credentials: false
 
       - name: Download trusted xtask binary
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v4
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v4
         with:
           name: xtask-binary
           path: xtask-bin
