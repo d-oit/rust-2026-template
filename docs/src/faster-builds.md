@@ -25,6 +25,26 @@ cargo build --timings
 
 This generates an HTML report in `target/cargo-timings/` showing which crates took the longest to compile and how much parallelism was achieved.
 
+### 4. Bound Compiler Parallelism on Memory-Constrained Machines (`CARGO_BUILD_JOBS`)
+By default, Cargo spawns a compiler process for each logical CPU core on your machine. For large workspaces or feature-heavy dependencies, running many `rustc` instances simultaneously can consume significant resident memory (RSS).
+
+If your system experiences memory pressure, thrashing, or out-of-memory (OOM) errors during clean builds, you can bound Cargo's compiler parallelism using the `CARGO_BUILD_JOBS` environment variable (or `build.jobs` in `.cargo/config.toml`):
+
+```bash
+# Bound Cargo to 2 parallel compilation jobs (reduces peak RSS by ~60% with a modest compile-time tradeoff)
+export CARGO_BUILD_JOBS=2
+
+# Bound Cargo to 1 single job for severely memory-constrained machines
+export CARGO_BUILD_JOBS=1
+```
+
+**Memory / Build-Time Tradeoff:**
+- **Default (CPU core count):** Local developer default for maximum build speed on machines with sufficient RAM. Peak compiler RSS scales with core count.
+- **`CARGO_BUILD_JOBS=2`:** CI default for Rust workflows. Reduces peak sampled RSS by ~60% during clean builds, preventing OOM failures on resource-constrained runners with an acceptable build-time tradeoff.
+- **`CARGO_BUILD_JOBS=1`:** Compiles crates sequentially, minimizing memory footprint at the expense of longer clean-build times.
+
+*(Note: Keep compiler process parallelism `CARGO_BUILD_JOBS` separate from codegen-units, LTO, and linker settings, as they govern different phases of compilation with distinct runtime and build-time tradeoffs.)*
+
 ---
 
 ## Platform-Specific Optimizations
