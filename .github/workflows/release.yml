@@ -14,6 +14,8 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_BUILD_JOBS: "2"
+  CARGO_INCREMENTAL: "0"
 
 jobs:
   # Cheap, read-only preflight: ensure tag matches tree VERSION and release does not already exist

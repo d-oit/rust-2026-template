@@ -24,6 +24,10 @@ on:
 permissions:
   contents: read
 
+env:
+  CARGO_BUILD_JOBS: "2"
+  CARGO_INCREMENTAL: "0"
+
 concurrency:
   group: patch-release-${{ inputs.pr_number }}
   cancel-in-progress: true
