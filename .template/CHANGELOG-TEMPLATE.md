@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- for new features.
+
+### Changed
+
+- for changes in existing functionality.
+
+### Deprecated
+
+- for soon-to-be removed features.
+
+### Removed
+
+- for now removed features.
+
+### Fixed
+
+- for any bug fixes.
+
+### Security
+
+- in case of vulnerabilities.
+
+---
+
+## [0.3.10] - 2026-09-26
+
+### Added
+
 - `reviewing-pull-requests` skill: impact-based PR triage (blast radius over diff size), a `What NOT to Flag` false-positive list, draft-post separation with a human gate, and `references/gh-recipes.md` covering `gh` list/view/comment/close plus the permissions matrix.
 
 ### Changed
@@ -484,7 +512,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/b0755ce...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.10...HEAD
+[0.3.10]: https://github.com/d-oit/rust-2026-template/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/d-oit/rust-2026-template/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/d-oit/rust-2026-template/commit/b0755ce
 [0.3.7]: https://github.com/d-oit/rust-2026-template/commit/12667b4
