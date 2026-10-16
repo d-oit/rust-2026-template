@@ -85,3 +85,10 @@ impl Tool for MyTool {
 - **`Tool`** trait — `name()`, `description()`, `validate()`, `handle()`, `init()`
 - **`ToolRequest`** / **`ToolResponse`** — JSON-based I/O with optional metadata
 - **`ToolError`** — Typed errors: `InvalidInput`, `Execution`, `Validation`
+
+## Security Guidance
+
+When tools perform HTTP egress or filesystem operations on user-supplied paths, enforce strict security boundary validation:
+- Re-validate HTTP redirects and normalize IP address representations (`IPv4`, `IPv4-mapped IPv6`, `loopback`, `link-local`) before policy checks.
+- Reject parent-directory traversal (`..`) and control characters in untrusted file paths before filesystem operations.
+- See the runnable example in [`examples/security_egress_and_path_validation`](../../examples/security_egress_and_path_validation) for complete patterns and test boundary cases. Note that string/URL validation alone does not prevent DNS rebinding; connection-time address validation is required for complete SSRF defense.

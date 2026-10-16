@@ -23,3 +23,10 @@ application crate and delete the rest (`./scripts/init-template.sh --minimal`).
 3. **Do not** treat `SqliteBackend` as production code — it is a fail-closed stub under the optional `sqlite` feature.
 
 See also: [trait-only-storage.md](./trait-only-storage.md), [registry-dispatch.md](./registry-dispatch.md), [cli-dry-run.md](./cli-dry-run.md), [secret-detection-corpus.md](./secret-detection-corpus.md).
+
+## Security boundary guidance
+
+For services and tools implementing network egress or file handling, refer to the opt-in example in `examples/security_egress_and_path_validation/`:
+- **Safe egress:** Refuses or revalidates redirects, normalizes IPv4/IPv6 representations, and enforces non-routable IP restrictions.
+- **Untrusted paths:** Rejects parent directory traversal (`..`), absolute path components, and control/Bidi characters.
+- **SSRF defense notice:** URL string parsing and static IP checks do not replace connection-time socket address validation (DNS rebinding / TOCTOU protection).
