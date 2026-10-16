@@ -94,11 +94,10 @@ impl McpServer {
 
     /// List all registered tool names.
     pub async fn list_tools(&self) -> Vec<String> {
-        let registry = {
-            let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
-            Arc::clone(&*guard)
-        };
-        registry.keys().map(|s| (*s).to_string()).collect()
+        // Performance: Iterate over keys directly within the read lock guard
+        // to avoid cloning the outer Arc<ToolRegistry>.
+        let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
+        guard.keys().map(|s| (*s).to_string()).collect()
     }
 
     /// Execute a tool by name with the provided request.
