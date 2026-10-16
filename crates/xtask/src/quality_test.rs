@@ -105,3 +105,20 @@ fn test_plan_checks_detailed_unreadable_git_fallback() {
             .all(|d| d.selected && d.reason.contains("fail-closed fallback active"))
     );
 }
+
+#[test]
+fn test_has_executed_tests_detection() {
+    let output_with_tests = "\
+running 2 tests
+test tests::test_one ... ok
+test tests::test_two ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s";
+    assert!(has_executed_tests(output_with_tests));
+
+    let output_zero_tests = "\
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s";
+    assert!(!has_executed_tests(output_zero_tests));
+}

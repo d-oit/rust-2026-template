@@ -35,6 +35,18 @@ if [[ ! -d "$WORKFLOWS_DIR" ]]; then
   exit 1
 fi
 
+FOUND_WORKFLOWS=0
+for f in "$WORKFLOWS_DIR"/*.yml "$WORKFLOWS_DIR"/*.yaml; do
+  if [[ -f "$f" ]]; then
+    FOUND_WORKFLOWS=$((FOUND_WORKFLOWS + 1))
+  fi
+done
+
+if [[ $FOUND_WORKFLOWS -eq 0 ]]; then
+  echo -e "${RED}[ERROR]${NC} No workflow files (.yml/.yaml) found in $WORKFLOWS_DIR"
+  exit 1
+fi
+
 info "Validating GitHub Actions workflows..."
 echo ""
 

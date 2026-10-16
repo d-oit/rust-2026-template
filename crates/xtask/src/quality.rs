@@ -271,8 +271,8 @@ pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskE
     println!("--- Running Check: {} ---", check.name());
     match check {
         QualityCheck::LocLimits => run_loc_limits_check(config)?,
-        QualityCheck::SkillValidation => run_skill_validation()?,
-        QualityCheck::AdrCompliance => run_adr_compliance()?,
+        QualityCheck::SkillValidation => quality_helpers::run_skill_validation()?,
+        QualityCheck::AdrCompliance => quality_helpers::run_adr_compliance()?,
         QualityCheck::Fmt => run_fmt_check()?,
         QualityCheck::Clippy => run_clippy_check(config)?,
         QualityCheck::Build => run_build_check()?,
@@ -287,10 +287,10 @@ pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskE
         QualityCheck::PrivacyCheck => quality_helpers::run_privacy_check()?,
         QualityCheck::SecretScan => quality_helpers::run_secret_scan()?,
         QualityCheck::WorkflowValidation => run_workflow_validation(config)?,
-        QualityCheck::SkillEvals => run_skill_evals()?,
+        QualityCheck::SkillEvals => quality_helpers::run_skill_evals()?,
         QualityCheck::LlmContext => run_llm_context_check()?,
         QualityCheck::CiStatusArtifact => run_ci_status_check()?,
-        QualityCheck::RoastScorer => run_roast_scorer()?,
+        QualityCheck::RoastScorer => quality_helpers::run_roast_scorer()?,
     }
     Ok(())
 }
@@ -299,6 +299,11 @@ fn run_loc_limits_check(config: &XtaskConfig) -> Result<(), XtaskError> {
     let max_lines = config.lint_thresholds.max_lines_per_file;
     let mut rs_files = Vec::new();
     quality_helpers::find_files(Path::new("."), "rs", &mut rs_files);
+    if rs_files.is_empty() {
+        return Err(XtaskError::InvalidConfig {
+            message: "LOC check failed: no Rust source files (.rs) found in workspace".to_string(),
+        });
+    }
     let mut violations = 0;
     for file in rs_files {
         let lines = quality_helpers::count_lines(&file)?;
@@ -313,24 +318,6 @@ fn run_loc_limits_check(config: &XtaskConfig) -> Result<(), XtaskError> {
         });
     }
     println!("  ✓ All source files within line limits");
-    Ok(())
-}
-
-fn run_skill_validation() -> Result<(), XtaskError> {
-    if Path::new("scripts/validate-skills.sh").exists() {
-        commands::execute("bash", &["scripts/validate-skills.sh"])?;
-    } else {
-        println!("  ! scripts/validate-skills.sh not found, skipping");
-    }
-    Ok(())
-}
-
-fn run_adr_compliance() -> Result<(), XtaskError> {
-    if Path::new("scripts/check-adr-compliance.sh").exists() {
-        commands::execute("bash", &["scripts/check-adr-compliance.sh"])?;
-    } else {
-        println!("  ! scripts/check-adr-compliance.sh not found, skipping");
-    }
     Ok(())
 }
 
@@ -350,15 +337,48 @@ fn run_build_check() -> Result<(), XtaskError> {
     commands::execute("cargo", &["build", "--workspace", "--all-targets"])
 }
 
+pub(super) fn has_executed_tests(output: &str) -> bool {
+    for line in output.lines() {
+        if let Some(idx) = line.find("running ") {
+            let rest = &line[idx + "running ".len()..];
+            let num_str = rest.split_whitespace().next().unwrap_or("");
+            if let Ok(count) = num_str.parse::<usize>() {
+                if count > 0 {
+                    return true;
+                }
+            }
+        }
+        if line.contains("passed") && !line.contains("0 passed") {
+            return true;
+        }
+    }
+    false
+}
+
 fn run_test_check() -> Result<(), XtaskError> {
     let has_nextest = commands::execute_captured("cargo", &["nextest", "--version"]).is_ok();
     if has_nextest {
         commands::execute(
             "cargo",
-            &["nextest", "run", "--all-features", "--workspace"],
+            &[
+                "nextest",
+                "run",
+                "--all-features",
+                "--workspace",
+                "--no-tests=fail",
+            ],
         )
     } else {
-        commands::execute("cargo", &["test", "--all-features", "--workspace"])
+        let output =
+            commands::execute_captured("cargo", &["test", "--all-features", "--workspace"])?;
+        if !has_executed_tests(&output) {
+            return Err(XtaskError::CommandFailure {
+                command: "cargo test (zero tests found in workspace)".to_string(),
+                exit_code: Some(1),
+            });
+        }
+        println!("{output}");
+        Ok(())
     }
 }
 
@@ -422,15 +442,6 @@ fn run_workflow_validation(config: &XtaskConfig) -> Result<(), XtaskError> {
     })
 }
 
-fn run_skill_evals() -> Result<(), XtaskError> {
-    if Path::new("scripts/run-evals.sh").exists() {
-        commands::execute("bash", &["scripts/run-evals.sh"])
-    } else {
-        println!("  ! scripts/run-evals.sh not found, skipping");
-        Ok(())
-    }
-}
-
 fn run_llm_context_check() -> Result<(), XtaskError> {
     let files = &["llms.txt", "llms-full.txt"];
     for f in files {
@@ -442,7 +453,8 @@ fn run_llm_context_check() -> Result<(), XtaskError> {
             });
         }
     }
-    println!("  ✓ llms.txt and llms-full.txt are present");
+    commands::execute("bash", &["scripts/generate-llms-txt.sh", "--check"])?;
+    println!("  ✓ llms.txt and llms-full.txt are present and up to date");
     Ok(())
 }
 
@@ -466,15 +478,6 @@ fn run_ci_status_check() -> Result<(), XtaskError> {
         println!("  ! CI status artifact .agents/ci/ci-status.json not found, skipping check");
     }
     Ok(())
-}
-
-fn run_roast_scorer() -> Result<(), XtaskError> {
-    if Path::new("scripts/roast-scorer.sh").exists() {
-        commands::execute("bash", &["scripts/roast-scorer.sh"])
-    } else {
-        println!("  ! scripts/roast-scorer.sh not found, skipping");
-        Ok(())
-    }
 }
 
 #[cfg(test)]
