@@ -111,7 +111,8 @@ jobs:
           else
             echo "lockfile_tracked=false" >> "$GITHUB_OUTPUT"
             echo "audited_graph=Resolved latest-compatible graph" >> "$GITHUB_OUTPUT"
-            echo "No committed Cargo.lock found (library profile); generating temporary lockfile in isolated step for audit."
+            echo "No committed Cargo.lock found (library profile);"
+            echo "generating temporary lockfile in isolated step for audit."
           fi
 
       - id: generate-lockfile
@@ -213,7 +214,8 @@ jobs:
           else
             echo "lockfile_tracked=false" >> "$GITHUB_OUTPUT"
             echo "audited_graph=Resolved latest-compatible graph" >> "$GITHUB_OUTPUT"
-            echo "No committed Cargo.lock found (library profile); generating temporary lockfile in isolated step for check."
+            echo "No committed Cargo.lock found (library profile);"
+            echo "generating temporary lockfile in isolated step for check."
           fi
 
       - id: generate-lockfile
@@ -328,15 +330,18 @@ jobs:
             AUDIT_GRAPH_NOTE=" (Graph: ${AUDIT_GRAPH})"
           fi
           if [ "$AUDIT_RES" = "success" ]; then
-            echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No vulnerability advisories detected.${AUDIT_GRAPH_NOTE} |" \
-              >> "$GITHUB_STEP_SUMMARY"
+            MSG="| Vulnerability Audit (cargo-audit) | ✅ PASSED | None |"
+            MSG="${MSG} No vulnerability advisories detected.${AUDIT_GRAPH_NOTE} |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           elif [ "$AUDIT_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
-            echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo audit failed.${AUDIT_GRAPH_NOTE} |" \
-              >> "$GITHUB_STEP_SUMMARY"
+            MSG="| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE |"
+            MSG="${MSG} Tool Setup | Cargo audit failed.${AUDIT_GRAPH_NOTE} |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           else
             FAILED=1
-            MSG="| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Advisory found.${AUDIT_GRAPH_NOTE} |"
+            MSG="| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING |"
+            MSG="${MSG} Vulnerable Dependency | Advisory found.${AUDIT_GRAPH_NOTE} |"
             echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           fi
 
@@ -346,15 +351,18 @@ jobs:
             DENY_GRAPH_NOTE=" (Graph: ${DENY_GRAPH})"
           fi
           if [ "$DENY_RES" = "success" ]; then
-            echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with policy.${DENY_GRAPH_NOTE} |" \
-              >> "$GITHUB_STEP_SUMMARY"
+            MSG="| Dependency Policy (cargo-deny) | ✅ PASSED | None |"
+            MSG="${MSG} All dependencies comply with policy.${DENY_GRAPH_NOTE} |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           elif [ "$DENY_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
-            echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo deny failed.${DENY_GRAPH_NOTE} |" \
-              >> "$GITHUB_STEP_SUMMARY"
+            MSG="| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE |"
+            MSG="${MSG} Tool Setup | Cargo deny failed.${DENY_GRAPH_NOTE} |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           else
             FAILED=1
-            MSG="| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate/license.${DENY_GRAPH_NOTE} |"
+            MSG="| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING |"
+            MSG="${MSG} Policy Violation | Banned crate/license.${DENY_GRAPH_NOTE} |"
             echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           fi
 
