@@ -22,13 +22,20 @@ They complete in under 2 minutes on the default `ubuntu-latest` runner.
 - **fmt** — `cargo fmt --all -- --check`
 - **clippy** — `cargo clippy --workspace --all-targets --all-features -- -D warnings`
 - **test** — `cargo nextest run` + `cargo test --doc` (with coverage via `cargo-llvm-cov`)
-- **security** — `cargo audit`
-- **deny** — `cargo deny check`
+- **security** — `cargo audit` (Dedicated vulnerability advisory scanner targeting `Cargo.lock` via RustSec SecDB / `.cargo/audit.toml`)
+- **deny** — `cargo deny check` (Supply chain policy engine enforcing licenses, bans, sources, and advisories via `deny.toml`)
 - **lint** — YAML lint, Markdown lint, commitlint, agent metrics schema validation
 - **shellcheck** — static analysis of all shell scripts in `scripts/`
 - **gitleaks** — secret scanning on full git history
 - **version-check** — `VERSION` file matches `Cargo.toml`; `llms.txt` is current
 - **validate-agents** — agent entrypoint consistency check
+
+### Lockfile Security Scanning Policy
+
+Security scanning in `.github/workflows/security-scan.yml` automatically adapts to template initialization profiles:
+
+- **Application profiles (committed `Cargo.lock`):** Audits and validates the exact committed lockfile without regenerating or mutating it. Enforces lockfile preservation post-scan (`git diff --exit-code Cargo.lock`).
+- **Library profiles (untracked `Cargo.lock`):** Dynamically resolves a temporary lockfile in an isolated step to scan the latest compatible dependency graph against advisories and policies.
 
 ### Path scoping
 

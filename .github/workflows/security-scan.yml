@@ -74,12 +74,16 @@ jobs:
             echo "scan_outcome=success" >> "$GITHUB_OUTPUT"
           fi
 
+  # cargo-audit: Dedicated Security Advisory Scanner
+  # Responsibility: Audits Cargo.lock against the RustSec Advisory Database (.cargo/audit.toml)
+  # for known vulnerability advisories (CVEs) and advisory ignores.
   cargo-audit:
     name: Vulnerability Audit (cargo-audit)
     runs-on: ubuntu-latest
     outputs:
       scan_outcome: ${{ steps.record-result.outputs.scan_outcome }}
       failure_type: ${{ steps.record-result.outputs.failure_type }}
+      audited_graph: ${{ steps.check-lockfile.outputs.audited_graph }}
     steps:
       - id: checkout
         name: Checkout code
@@ -97,8 +101,22 @@ jobs:
         with:
           tool: cargo-audit
 
+      - id: check-lockfile
+        name: Determine Lockfile Strategy
+        run: |
+          if git ls-files --error-unmatch Cargo.lock >/dev/null 2>&1 || [ -f Cargo.lock ]; then
+            echo "lockfile_tracked=true" >> "$GITHUB_OUTPUT"
+            echo "audited_graph=Committed Cargo.lock" >> "$GITHUB_OUTPUT"
+            echo "Auditing committed Cargo.lock without regeneration."
+          else
+            echo "lockfile_tracked=false" >> "$GITHUB_OUTPUT"
+            echo "audited_graph=Resolved latest-compatible graph" >> "$GITHUB_OUTPUT"
+            echo "No committed Cargo.lock found (library profile); generating temporary lockfile in isolated step for audit."
+          fi
+
       - id: generate-lockfile
-        name: Generate lockfile
+        name: Generate temporary lockfile for untracked profiles
+        if: steps.check-lockfile.outputs.lockfile_tracked == 'false'
         run: cargo generate-lockfile
 
       - id: scan
@@ -115,9 +133,18 @@ jobs:
             exit $AUDIT_EXIT
           fi
 
+      - id: verify-lockfile-unchanged
+        name: Verify committed lockfile was unchanged
+        if: steps.check-lockfile.outputs.lockfile_tracked == 'true'
+        run: |
+          if ! git diff --exit-code Cargo.lock; then
+            echo "::error::Committed Cargo.lock was unexpectedly modified during cargo-audit!"
+            exit 1
+          fi
+
       - id: upload-artifact
         name: Upload Audit Artifacts
-        if: failure() || steps.scan.outcome == 'failure'
+        if: failure() || steps.scan.outcome == 'failure' || steps.verify-lockfile-unchanged.outcome == 'failure'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: cargo-audit-report
@@ -135,7 +162,9 @@ jobs:
           if [ "${{ steps.checkout.outcome }}" = "failure" ] || \
              [ "${{ steps.setup-rust.outcome }}" = "failure" ] || \
              [ "${{ steps.install-audit.outcome }}" = "failure" ] || \
-             [ "${{ steps.generate-lockfile.outcome }}" = "failure" ]; then
+             [ "${{ steps.check-lockfile.outcome }}" = "failure" ] || \
+             [ "${{ steps.generate-lockfile.outcome }}" = "failure" ] || \
+             [ "${{ steps.verify-lockfile-unchanged.outcome }}" = "failure" ]; then
             echo "failure_type=infrastructure_failure" >> "$GITHUB_OUTPUT"
             echo "scan_outcome=failure" >> "$GITHUB_OUTPUT"
           elif [ "${{ steps.scan.outcome }}" = "failure" ]; then
@@ -146,22 +175,51 @@ jobs:
             echo "scan_outcome=success" >> "$GITHUB_OUTPUT"
           fi
 
+  # cargo-deny: Multi-check Supply Chain Policy Engine
+  # Responsibility: Enforces supply chain policies defined in deny.toml across 4 distinct areas:
+  # advisories (vulnerabilities), licenses (acceptable SPDX licenses), bans (duplication & banned crates),
+  # and sources (allowed registries and repositories).
   cargo-deny:
     name: Dependency Policy (cargo-deny)
     runs-on: ubuntu-latest
     outputs:
       scan_outcome: ${{ steps.record-result.outputs.scan_outcome }}
       failure_type: ${{ steps.record-result.outputs.failure_type }}
+      audited_graph: ${{ steps.check-lockfile.outputs.audited_graph }}
     steps:
       - id: checkout
         name: Checkout code
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - id: setup-rust
+        name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
+        with:
+          toolchain: stable
 
       - id: install-deny
         name: Install cargo-deny
         uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad
         with:
           tool: cargo-deny
+
+      - id: check-lockfile
+        name: Determine Lockfile Strategy
+        run: |
+          if git ls-files --error-unmatch Cargo.lock >/dev/null 2>&1 || [ -f Cargo.lock ]; then
+            echo "lockfile_tracked=true" >> "$GITHUB_OUTPUT"
+            echo "audited_graph=Committed Cargo.lock" >> "$GITHUB_OUTPUT"
+            echo "Auditing committed Cargo.lock without regeneration."
+          else
+            echo "lockfile_tracked=false" >> "$GITHUB_OUTPUT"
+            echo "audited_graph=Resolved latest-compatible graph" >> "$GITHUB_OUTPUT"
+            echo "No committed Cargo.lock found (library profile); generating temporary lockfile in isolated step for check."
+          fi
+
+      - id: generate-lockfile
+        name: Generate temporary lockfile for untracked profiles
+        if: steps.check-lockfile.outputs.lockfile_tracked == 'false'
+        run: cargo generate-lockfile
 
       - id: scan
         name: Run cargo deny check
@@ -175,9 +233,18 @@ jobs:
             exit $DENY_EXIT
           fi
 
+      - id: verify-lockfile-unchanged
+        name: Verify committed lockfile was unchanged
+        if: steps.check-lockfile.outputs.lockfile_tracked == 'true'
+        run: |
+          if ! git diff --exit-code Cargo.lock; then
+            echo "::error::Committed Cargo.lock was unexpectedly modified during cargo-deny!"
+            exit 1
+          fi
+
       - id: upload-artifact
         name: Upload Deny Artifacts
-        if: failure() || steps.scan.outcome == 'failure'
+        if: failure() || steps.scan.outcome == 'failure' || steps.verify-lockfile-unchanged.outcome == 'failure'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: cargo-deny-report
@@ -193,7 +260,11 @@ jobs:
         if: always()
         run: |
           if [ "${{ steps.checkout.outcome }}" = "failure" ] || \
-             [ "${{ steps.install-deny.outcome }}" = "failure" ]; then
+             [ "${{ steps.setup-rust.outcome }}" = "failure" ] || \
+             [ "${{ steps.install-deny.outcome }}" = "failure" ] || \
+             [ "${{ steps.check-lockfile.outcome }}" = "failure" ] || \
+             [ "${{ steps.generate-lockfile.outcome }}" = "failure" ] || \
+             [ "${{ steps.verify-lockfile-unchanged.outcome }}" = "failure" ]; then
             echo "failure_type=infrastructure_failure" >> "$GITHUB_OUTPUT"
             echo "scan_outcome=failure" >> "$GITHUB_OUTPUT"
           elif [ "${{ steps.scan.outcome }}" = "failure" ]; then
@@ -225,8 +296,10 @@ jobs:
           GITLEAKS_TYPE="${{ needs.gitleaks.outputs.failure_type }}"
           AUDIT_RES="${{ needs.cargo-audit.result }}"
           AUDIT_TYPE="${{ needs.cargo-audit.outputs.failure_type }}"
+          AUDIT_GRAPH="${{ needs.cargo-audit.outputs.audited_graph }}"
           DENY_RES="${{ needs.cargo-deny.result }}"
           DENY_TYPE="${{ needs.cargo-deny.outputs.failure_type }}"
+          DENY_GRAPH="${{ needs.cargo-deny.outputs.audited_graph }}"
 
           FAILED=0
 
@@ -250,30 +323,38 @@ jobs:
           fi
 
           # 2. Cargo Audit
+          AUDIT_GRAPH_NOTE=""
+          if [ -n "$AUDIT_GRAPH" ]; then
+            AUDIT_GRAPH_NOTE=" (Graph: ${AUDIT_GRAPH})"
+          fi
           if [ "$AUDIT_RES" = "success" ]; then
-            echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No vulnerability advisories detected. |" \
+            echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No vulnerability advisories detected.${AUDIT_GRAPH_NOTE} |" \
               >> "$GITHUB_STEP_SUMMARY"
           elif [ "$AUDIT_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
-            echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo audit failed. |" \
+            echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo audit failed.${AUDIT_GRAPH_NOTE} |" \
               >> "$GITHUB_STEP_SUMMARY"
           else
             FAILED=1
-            MSG="| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Advisory found. |"
+            MSG="| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Advisory found.${AUDIT_GRAPH_NOTE} |"
             echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           fi
 
           # 3. Cargo Deny
+          DENY_GRAPH_NOTE=""
+          if [ -n "$DENY_GRAPH" ]; then
+            DENY_GRAPH_NOTE=" (Graph: ${DENY_GRAPH})"
+          fi
           if [ "$DENY_RES" = "success" ]; then
-            echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with policy. |" \
+            echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with policy.${DENY_GRAPH_NOTE} |" \
               >> "$GITHUB_STEP_SUMMARY"
           elif [ "$DENY_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
-            echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo deny failed. |" \
+            echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo deny failed.${DENY_GRAPH_NOTE} |" \
               >> "$GITHUB_STEP_SUMMARY"
           else
             FAILED=1
-            MSG="| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate/license. |"
+            MSG="| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate/license.${DENY_GRAPH_NOTE} |"
             echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           fi
 
