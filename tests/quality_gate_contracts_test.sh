@@ -239,7 +239,7 @@ EOF
 
   # Deliberate failure case 1: Staged file with API key secret
   cat > "src/secret.rs" << 'EOF'
-pub const API_KEY: &str = "api_key = 'sk_live_12345678901234567890'";
+pub const API_KEY: &str = "api_key = 'secret_token_val_1234567890123456'";
 EOF
   git add src/secret.rs
 
