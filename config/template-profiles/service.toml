@@ -45,4 +45,5 @@ checklist = [
   "configure-license-policy",
   "configure-branch-protection",
   "configure-health-check-endpoint",
+  "review-security-egress-and-path-validation-guidance",
 ]

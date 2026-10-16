@@ -1,0 +1,10 @@
+[package]
+name = "security-egress-and-path-validation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
