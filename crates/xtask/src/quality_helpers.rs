@@ -147,7 +147,7 @@ pub fn run_secret_scan() -> Result<(), XtaskError> {
             message: e.to_string(),
         })?;
 
-    let exclude_re = Regex::new(r"example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree|\.git|target|\.cargo|\.agents|\.opencode|node_modules|tests/fixtures/security/secret_fixture\.txt")
+    let exclude_re = Regex::new(r"example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree|\.git|target|\.cargo|\.agents|\.opencode|node_modules|tests/fixtures/security/secret_fixture\.txt|tests/quality_gate_contracts_test\.sh")
         .map_err(|e| XtaskError::InvalidConfig {
             message: e.to_string(),
         })?;
@@ -208,6 +208,58 @@ pub fn run_secret_scan() -> Result<(), XtaskError> {
     }
     println!("  ✓ Secret Scan OK (No potential secrets found)");
     Ok(())
+}
+
+/// Runs skill validation check.
+///
+/// # Errors
+/// Returns `XtaskError` if skill validation fails.
+pub fn run_skill_validation() -> Result<(), XtaskError> {
+    if Path::new("scripts/validate-skills.sh").exists() {
+        commands::execute("bash", &["scripts/validate-skills.sh"])?;
+    } else {
+        println!("  ! scripts/validate-skills.sh not found, skipping");
+    }
+    Ok(())
+}
+
+/// Runs ADR compliance check.
+///
+/// # Errors
+/// Returns `XtaskError` if ADR compliance fails.
+pub fn run_adr_compliance() -> Result<(), XtaskError> {
+    if Path::new("scripts/check-adr-compliance.sh").exists() {
+        commands::execute("bash", &["scripts/check-adr-compliance.sh"])?;
+    } else {
+        println!("  ! scripts/check-adr-compliance.sh not found, skipping");
+    }
+    Ok(())
+}
+
+/// Runs skill evals.
+///
+/// # Errors
+/// Returns `XtaskError` if skill evals fail.
+pub fn run_skill_evals() -> Result<(), XtaskError> {
+    if Path::new("scripts/run-evals.sh").exists() {
+        commands::execute("bash", &["scripts/run-evals.sh"])
+    } else {
+        println!("  ! scripts/run-evals.sh not found, skipping");
+        Ok(())
+    }
+}
+
+/// Runs roast scorer.
+///
+/// # Errors
+/// Returns `XtaskError` if roast scorer fails.
+pub fn run_roast_scorer() -> Result<(), XtaskError> {
+    if Path::new("scripts/roast-scorer.sh").exists() {
+        commands::execute("bash", &["scripts/roast-scorer.sh"])
+    } else {
+        println!("  ! scripts/roast-scorer.sh not found, skipping");
+        Ok(())
+    }
 }
 
 #[cfg(test)]

@@ -6,8 +6,21 @@ set -euo pipefail
 
 # Get the repository root directory
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LLMS_FILE="${REPO_ROOT}/llms.txt"
-FULL_FILE="${REPO_ROOT}/llms-full.txt"
+
+CHECK_MODE=0
+if [[ "${1:-}" == "--check" ]]; then
+  CHECK_MODE=1
+fi
+
+if [[ $CHECK_MODE -eq 1 ]]; then
+  TMP_DIR=$(mktemp -d)
+  trap 'rm -rf "$TMP_DIR"' EXIT
+  LLMS_FILE="${TMP_DIR}/llms.txt"
+  FULL_FILE="${TMP_DIR}/llms-full.txt"
+else
+  LLMS_FILE="${REPO_ROOT}/llms.txt"
+  FULL_FILE="${REPO_ROOT}/llms-full.txt"
+fi
 
 echo "Generating llms.txt and llms-full.txt..."
 echo "Repository root: ${REPO_ROOT}"
@@ -144,6 +157,23 @@ cat >> "${FULL_FILE}" << 'EOF'
 ================================================================================
 EOF
 
-echo "✓ Successfully generated: ${LLMS_FILE}"
-echo "✓ Successfully generated: ${FULL_FILE}"
-echo "Full context size: $(wc -c < "${FULL_FILE}") bytes"
+if [[ $CHECK_MODE -eq 1 ]]; then
+  DRIFT=0
+  if [[ ! -f "${REPO_ROOT}/llms.txt" ]] || ! cmp -s "${LLMS_FILE}" "${REPO_ROOT}/llms.txt"; then
+    echo "ERROR: llms.txt is missing or out of date." >&2
+    DRIFT=1
+  fi
+  if [[ ! -f "${REPO_ROOT}/llms-full.txt" ]] || ! cmp -s "${FULL_FILE}" "${REPO_ROOT}/llms-full.txt"; then
+    echo "ERROR: llms-full.txt is missing or out of date." >&2
+    DRIFT=1
+  fi
+  if [[ $DRIFT -ne 0 ]]; then
+    echo "Run scripts/generate-llms-txt.sh to regenerate LLM context files." >&2
+    exit 1
+  fi
+  echo "✓ llms.txt and llms-full.txt are up to date."
+else
+  echo "✓ Successfully generated: ${LLMS_FILE}"
+  echo "✓ Successfully generated: ${FULL_FILE}"
+  echo "Full context size: $(wc -c < "${FULL_FILE}") bytes"
+fi
