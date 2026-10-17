@@ -10,7 +10,7 @@ fn main() {
     let sample_text = "\
 # Application configuration
 API_KEY = \"sec_1234567890123456\"
-DATABASE_URL = \"postgres://user:sk_live_abcdef1234567890@db.internal:5432/app\"
+DATABASE_URL = \"postgres://user:sk_live_abcdef1234567890@example.com:5432/app\"
 # Note: token_count = 100 is not a secret
 ";
 

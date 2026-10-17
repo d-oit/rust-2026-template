@@ -15,7 +15,7 @@
   },
   {
     "id": "embedded-prefix-url",
-    "input": "DATABASE_URL = \"postgres://user:sk_live_abcdef1234567890@db.internal:5432/app\"",
+    "input": "DATABASE_URL = \"postgres://user:sk_live_abcdef1234567890@example.com:5432/app\"",
     "expected_matches": [
       {
         "rule_id": "prefix-sk_live",
