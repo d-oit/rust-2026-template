@@ -85,7 +85,12 @@ pub struct Record {
 
 impl Record {
     /// Create a new record with initial values.
-    pub fn new(id: impl Into<String>, data: impl Into<String>, version: u64, updated_at: u64) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        data: impl Into<String>,
+        version: u64,
+        updated_at: u64,
+    ) -> Self {
         Self {
             id: id.into(),
             data: data.into(),
@@ -241,11 +246,12 @@ impl HybridStorage {
             None => return Ok(None),
         };
 
-        let record: Record = serde_json::from_str(&raw).map_err(|e| StorageError::CorruptRecord {
-            id: id.to_string(),
-            field: "payload".to_string(),
-            reason: format!("malformed json payload: {e}"),
-        })?;
+        let record: Record =
+            serde_json::from_str(&raw).map_err(|e| StorageError::CorruptRecord {
+                id: id.to_string(),
+                field: "payload".to_string(),
+                reason: format!("malformed json payload: {e}"),
+            })?;
 
         record.validate()?;
         Ok(Some(record))
@@ -258,11 +264,13 @@ impl HybridStorage {
             None => return Ok(None),
         };
 
-        let watermark = raw.parse::<u64>().map_err(|_| StorageError::CorruptRecord {
-            id: "sys:watermark".to_string(),
-            field: "watermark".to_string(),
-            reason: "invalid non-numeric watermark format".to_string(),
-        })?;
+        let watermark = raw
+            .parse::<u64>()
+            .map_err(|_| StorageError::CorruptRecord {
+                id: "sys:watermark".to_string(),
+                field: "watermark".to_string(),
+                reason: "invalid non-numeric watermark format".to_string(),
+            })?;
 
         Ok(Some(watermark))
     }
@@ -312,8 +320,7 @@ impl HybridStorage {
             all_records
                 .into_iter()
                 .filter(|r| {
-                    r.updated_at > c.updated_at
-                        || (r.updated_at == c.updated_at && r.id > c.id)
+                    r.updated_at > c.updated_at || (r.updated_at == c.updated_at && r.id > c.id)
                 })
                 .collect()
         } else {
@@ -356,7 +363,8 @@ impl SyncEngine {
         target: &HybridStorage,
         page_size: usize,
     ) -> Result<usize, StorageError> {
-        Self::sync_incremental_with_hook(source, target, page_size, |_page_num, _cursor| Ok(())).await
+        Self::sync_incremental_with_hook(source, target, page_size, |_page_num, _cursor| Ok(()))
+            .await
     }
 
     /// Synchronize records incrementally with a hook called after each page commit.
@@ -490,19 +498,14 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(
-            storage.get_record("rec1").await.unwrap(),
-            Some(initial_rec)
-        );
+        assert_eq!(storage.get_record("rec1").await.unwrap(), Some(initial_rec));
         assert_eq!(storage.get_watermark().await.unwrap(), Some(100));
 
         // Inject transaction failure
         memory.set_fail_transactions(true);
 
         let mutated_rec = Record::new("rec2", "uncommitted data", 2, 200);
-        let result = storage
-            .commit_record_and_watermark(&mutated_rec, 200)
-            .await;
+        let result = storage.commit_record_and_watermark(&mutated_rec, 200).await;
 
         assert!(matches!(result, Err(StorageError::TransactionFailed(_))));
 
@@ -578,10 +581,7 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(synced, 3);
-        assert_eq!(
-            target.get_record("r1").await.unwrap().unwrap().data,
-            "v1"
-        );
+        assert_eq!(target.get_record("r1").await.unwrap().unwrap().data, "v1");
 
         // Edit older record r1 with a newer modification watermark
         let r1_updated = Record::new("r1", "v2-edited", 2, 40);
@@ -615,7 +615,9 @@ mod tests {
 
         // 2. Record validation fails for empty data
         let invalid_data = Record::new("r1", "   ", 1, 100);
-        let err2 = storage.commit_record_and_watermark(&invalid_data, 100).await;
+        let err2 = storage
+            .commit_record_and_watermark(&invalid_data, 100)
+            .await;
         assert!(matches!(
             err2,
             Err(StorageError::CorruptRecord { ref field, .. }) if field == "data"
@@ -634,10 +636,7 @@ mod tests {
         ));
 
         // 4. Stored non-numeric watermark returns explicit CorruptRecord
-        storage
-            .set("sys:watermark", "not_a_number")
-            .await
-            .unwrap();
+        storage.set("sys:watermark", "not_a_number").await.unwrap();
         let err4 = storage.get_watermark().await;
         assert!(matches!(
             err4,
@@ -693,23 +692,27 @@ mod tests {
         // Add 2 more items (total 7 records, page_size 2 -> 4 pages)
         let rec_f = Record::new("f", "data_f", 1, 1001);
         let rec_g = Record::new("g", "data_g", 1, 1002);
-        source.commit_record_and_watermark(&rec_f, 1001).await.unwrap();
-        source.commit_record_and_watermark(&rec_g, 1002).await.unwrap();
+        source
+            .commit_record_and_watermark(&rec_f, 1001)
+            .await
+            .unwrap();
+        source
+            .commit_record_and_watermark(&rec_g, 1002)
+            .await
+            .unwrap();
 
         // Simulate network crash / interruption on page 2
-        let sync_err = SyncEngine::sync_incremental_with_hook(
-            &source,
-            &target,
-            2,
-            |page_num, _cursor| {
+        let sync_err =
+            SyncEngine::sync_incremental_with_hook(&source, &target, 2, |page_num, _cursor| {
                 if page_num == 2 {
-                    Err(StorageError::Connection("simulated network drop".to_string()))
+                    Err(StorageError::Connection(
+                        "simulated network drop".to_string(),
+                    ))
                 } else {
                     Ok(())
                 }
-            },
-        )
-        .await;
+            })
+            .await;
 
         assert!(matches!(sync_err, Err(StorageError::Connection(_))));
 
