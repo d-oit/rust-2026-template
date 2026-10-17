@@ -1,0 +1,22 @@
+[
+  {
+    "id": "plain-prose-doc",
+    "input": "This documentation describes how to generate an API key and secret token for service accounts."
+  },
+  {
+    "id": "numeric-variable-assignment",
+    "input": "let secret_count = 42;"
+  },
+  {
+    "id": "sub-threshold-short-token",
+    "input": "api_key = \"short_key\""
+  },
+  {
+    "id": "ordinary-url-no-credentials",
+    "input": "https://api.example.com/v1/health?token_type=bearer"
+  },
+  {
+    "id": "boolean-assignment",
+    "input": "require_token = true"
+  }
+]

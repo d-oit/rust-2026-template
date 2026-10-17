@@ -1,0 +1,31 @@
+[
+  {
+    "id": "length-15-rejected",
+    "input": "secret_val = \"a12345678901234\"",
+    "should_match": false
+  },
+  {
+    "id": "length-16-accepted",
+    "input": "secret_val = \"a123456789012345\"",
+    "should_match": true,
+    "expected_span": [14, 30]
+  },
+  {
+    "id": "suffix-semicolon-and-quotes",
+    "input": "AUTH_TOKEN=\"sec_9876543210987654\";",
+    "should_match": true,
+    "expected_span": [12, 32]
+  },
+  {
+    "id": "suffix-comma-unquoted",
+    "input": "secret_key = sec_1122334455667788,",
+    "should_match": true,
+    "expected_span": [13, 33]
+  },
+  {
+    "id": "suffix-parenthesis",
+    "input": "config(token = \"sec_aabbccddeeff0011\")",
+    "should_match": true,
+    "expected_span": [16, 36]
+  }
+]
