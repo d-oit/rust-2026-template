@@ -54,11 +54,25 @@ hybrid-storage-template = { path = "crates/hybrid-storage-template" }
 
 ## Architecture
 
-- **`Backend`** — Async trait: `get`, `set`, `delete`, `list_keys`
+- **`Backend`** — Async trait: `get`, `set`, `delete`, `list_keys`, `apply_transaction`
 - **`HybridStorage`** — Wraps a primary `Arc<dyn Backend>`
-- **`MemoryBackend`** — In-memory HashMap for testing (working reference)
+- **`MemoryBackend`** — In-memory HashMap with atomic transaction support (working reference)
 - **`SqliteBackend`** — Scaffold only; construction and ops return errors
-- **`KvBackend`** — redb persistent key-value store (requires `kv` feature)
+- **`SyncEngine`** — Incremental synchronization engine between storage instances with cursor persistence
+
+## Consistency & Synchronization Guarantees
+
+- **Atomic Writes**: Record mutations and system modification watermarks are committed atomically in transaction batches (`apply_transaction`). Data and revision watermarks cannot diverge if a write fails.
+- **Bounded Keyset Pagination**: Queries are deterministically ordered by `(updated_at, id)`. Using `id` as a stable tie-breaker prevents duplicate or skipped records across page boundaries, even when multiple records share identical timestamps.
+- **Monotonic Modification Watermarks**: Updates to existing/older records update the modification watermark so incremental sync always captures edited records.
+- **Fail-Closed Contextual Field Validation**: Records with missing or corrupt required fields (`id`, `data`) return explicit, contextual `StorageError::CorruptRecord` rather than fabricating default values.
+- **Resumable Sync**: `SyncEngine` persists target high-watermark cursors after each page, allowing interrupted synchronization to resume without missing or re-processing records.
+
+## Limitations
+
+- **In-Memory Concurrency Scope**: `MemoryBackend` locks are single-process only and do not synchronize state across multiple processes or distributed nodes.
+- **Fail-Closed SQLite Stub**: `SqliteBackend` is an explicit template stub that fails closed; production usage requires implementing native libSQL transactions.
+- **Watermark Monotonicity**: Assumes client/system timestamps or sequence counters increase monotonically on writes.
 
 ## Testing
 
