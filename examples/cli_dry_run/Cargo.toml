@@ -1,0 +1,17 @@
+[package]
+name = "cli_dry_run"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+license.workspace = true
+
+[lints.clippy]
+unnecessary_wraps = "allow"
+
+[dependencies]
+clap = { workspace = true, features = ["derive"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+thiserror.workspace = true
+anyhow = "1.0"
