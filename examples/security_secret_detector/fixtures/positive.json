@@ -1,0 +1,30 @@
+[
+  {
+    "id": "quoted-double-assignment",
+    "input": "API_KEY = \"sec_1234567890123456\"",
+    "expected_matches": [
+      {
+        "rule_id": "assignment-api_key",
+        "start_byte": 11,
+        "end_byte": 31,
+        "line": 1,
+        "column": 12,
+        "masked_value": "sec_****3456"
+      }
+    ]
+  },
+  {
+    "id": "embedded-prefix-url",
+    "input": "DATABASE_URL = \"postgres://user:sk_live_abcdef1234567890@db.internal:5432/app\"",
+    "expected_matches": [
+      {
+        "rule_id": "prefix-sk_live",
+        "start_byte": 32,
+        "end_byte": 56,
+        "line": 1,
+        "column": 33,
+        "masked_value": "sk_l****7890"
+      }
+    ]
+  }
+]
