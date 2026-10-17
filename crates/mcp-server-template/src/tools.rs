@@ -57,19 +57,32 @@ impl Tool for CalcTool {
         match op {
             "add" | "sub" | "mul" | "div" => {}
             _ => {
+                let safe_op = if op.len() > 32 || op.chars().any(|c| c.is_control()) {
+                    "invalid".to_string()
+                } else {
+                    op.to_string()
+                };
                 return Err(ToolError::InvalidInput(format!(
-                    "Unsupported operation: {op}"
+                    "Unsupported operation: {safe_op}"
                 )));
             }
         }
 
-        if !obj.get("a").is_some_and(|v| v.is_number()) {
+        if !obj
+            .get("a")
+            .and_then(|v| v.as_f64())
+            .is_some_and(|n| n.is_finite())
+        {
             return Err(ToolError::InvalidInput(
                 "Missing or invalid 'a' field".to_string(),
             ));
         }
 
-        if !obj.get("b").is_some_and(|v| v.is_number()) {
+        if !obj
+            .get("b")
+            .and_then(|v| v.as_f64())
+            .is_some_and(|n| n.is_finite())
+        {
             return Err(ToolError::InvalidInput(
                 "Missing or invalid 'b' field".to_string(),
             ));
@@ -213,5 +226,63 @@ mod tests {
         let res = tool.handle(request).await;
         assert!(res.is_err());
         assert!(res.unwrap_err().to_string().contains("Division by zero"));
+    }
+
+    #[tokio::test]
+    async fn test_calc_validate_unsupported_op_sanitization() {
+        let tool = CalcTool;
+
+        // Untrusted op with control characters
+        let res = tool.validate(&serde_json::json!({"op": "add\n[INJECTED]", "a": 1, "b": 2}));
+        assert!(res.is_err());
+        let err_msg = res.unwrap_err().to_string();
+        assert!(err_msg.contains("Unsupported operation: invalid"));
+        assert!(!err_msg.contains('\n'));
+
+        // Oversized op string (> 32 chars)
+        let long_op = "a".repeat(33);
+        let res = tool.validate(&serde_json::json!({"op": long_op, "a": 1, "b": 2}));
+        assert!(res.is_err());
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Unsupported operation: invalid")
+        );
+
+        // Valid short unsupported op name
+        let res = tool.validate(&serde_json::json!({"op": "power", "a": 1, "b": 2}));
+        assert!(res.is_err());
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Unsupported operation: power")
+        );
+    }
+
+    #[tokio::test]
+    async fn test_calc_validate_numeric_fields() {
+        let tool = CalcTool;
+
+        // Non-numeric string in 'a'
+        let res = tool.validate(&serde_json::json!({"op": "add", "a": "10", "b": 1}));
+        assert!(res.is_err());
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Missing or invalid 'a'")
+        );
+
+        // Non-numeric boolean in 'b'
+        let res = tool.validate(&serde_json::json!({"op": "add", "a": 1, "b": true}));
+        assert!(res.is_err());
+        assert!(
+            res.unwrap_err()
+                .to_string()
+                .contains("Missing or invalid 'b'")
+        );
+
+        // Valid finite numbers pass validation
+        let res = tool.validate(&serde_json::json!({"op": "add", "a": 1.5, "b": -2.5}));
+        assert!(res.is_ok());
     }
 }
