@@ -289,10 +289,17 @@ impl SecretDetector {
             return None;
         }
 
-        // Unquoted value: stop at whitespace, comment (`#`, `//`), or trailing punctuation (`;`, `,`, `)`, `]`)
+        // Unquoted value: stop at whitespace, comment (`#`, `//`), or trailing punctuation (`;`, `,`, `)`, `]`, `"`, `'`)
         let token_end_len = trimmed_leading
             .find(|c: char| {
-                c.is_whitespace() || c == ';' || c == ',' || c == ')' || c == ']' || c == '#'
+                c.is_whitespace()
+                    || c == ';'
+                    || c == ','
+                    || c == ')'
+                    || c == ']'
+                    || c == '#'
+                    || c == '"'
+                    || c == '\''
             })
             .unwrap_or(trimmed_leading.len());
 
