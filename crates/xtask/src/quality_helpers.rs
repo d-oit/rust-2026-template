@@ -73,7 +73,7 @@ pub fn run_privacy_check() -> Result<(), XtaskError> {
     })?;
 
     let exclude_re = Regex::new(
-        r"example\.com|example\.org|test\.com|\.git|target|\.opencode|\.cargo|node_modules",
+        r"example\.com|example\.org|test\.com|\.git|target|\.opencode|\.cargo|node_modules|examples/security_secret_detector",
     )
     .map_err(|e| XtaskError::InvalidConfig {
         message: e.to_string(),
@@ -147,7 +147,7 @@ pub fn run_secret_scan() -> Result<(), XtaskError> {
             message: e.to_string(),
         })?;
 
-    let exclude_re = Regex::new(r"example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree|\.git|target|\.cargo|\.agents|\.opencode|node_modules|tests/fixtures/security/secret_fixture\.txt|tests/quality_gate_contracts_test\.sh")
+    let exclude_re = Regex::new(r"example\.com|example\.org|test\.com|GITHUB_TOKEN|CARGO_REGISTRY_TOKEN|worktree|\.git|target|\.cargo|\.agents|\.opencode|node_modules|tests/fixtures/security/secret_fixture\.txt|tests/quality_gate_contracts_test\.sh|examples/security_secret_detector|docs/patterns/secret-detection-corpus\.md")
         .map_err(|e| XtaskError::InvalidConfig {
             message: e.to_string(),
         })?;
