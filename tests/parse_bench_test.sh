@@ -32,15 +32,23 @@ python3 - "${TMP_DIR}/rows.jsonl" <<'PY'
 import json
 import sys
 
-rows = {
-    json.loads(line)["benchmark"]: json.loads(line)["ns_per_iter"]
-    for line in open(sys.argv[1])
-    if line.strip()
-}
+parsed = [json.loads(line) for line in open(sys.argv[1]) if line.strip()]
+rows = {r["benchmark"]: r["ns_per_iter"] for r in parsed}
+
 assert rows.get("tokio_cpu/single_unit_direct/p50") == 40790, "harness percentile row missing"
 assert rows.get("tokio_fanout/bounded_semaphore_64") == 12096, "criterion estimate row missing"
 assert rows.get("tokio_cpu/single_unit_direct") == 99999, "bencher row must win a name collision"
-print(f"✓ merged {len(rows)} rows from both sources")
+
+# Verify environment and statistical metadata fields exist
+for r in parsed:
+    assert "runner" in r and r["runner"], "missing runner metadata"
+    assert "cpu" in r and r["cpu"], "missing cpu metadata"
+    assert "toolchain" in r and r["toolchain"], "missing toolchain metadata"
+    assert "os" in r and r["os"], "missing os metadata"
+    assert "median_ns" in r, "missing median_ns metadata"
+    assert "confidence_interval" in r, "missing confidence_interval metadata"
+
+print(f"✓ merged {len(rows)} rows with complete environment and statistical metadata")
 PY
 
 # A missing criterion tree must degrade to the bencher rows instead of failing.
