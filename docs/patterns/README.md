@@ -14,6 +14,7 @@ application crate and delete the rest (`./scripts/init-template.sh --minimal`).
 | Checkpoints / migrations | `checkpoint-template` | Serializable state + version migrations |
 | MCP tool registry | `mcp-server-template` | Tool trait + registry dispatch |
 | Safe CLI `--dry-run` | `examples/cli_dry_run` | CLI triggers paid APIs or costly/irreversible remote operations |
+| **Secret detection corpus** | `examples/security_secret_detector` | You need exact-span secret scanning and an adversarial regression corpus |
 
 ## Storage specifically
 
@@ -21,4 +22,4 @@ application crate and delete the rest (`./scripts/init-template.sh --minimal`).
 2. **In-memory multi-backend demo:** use `hybrid-storage-template` with `MemoryBackend`.
 3. **Do not** treat `SqliteBackend` as production code — it is a fail-closed stub under the optional `sqlite` feature.
 
-See also: [trait-only-storage.md](./trait-only-storage.md), [registry-dispatch.md](./registry-dispatch.md), [cli-dry-run.md](./cli-dry-run.md).
+See also: [trait-only-storage.md](./trait-only-storage.md), [registry-dispatch.md](./registry-dispatch.md), [cli-dry-run.md](./cli-dry-run.md), [secret-detection-corpus.md](./secret-detection-corpus.md).
