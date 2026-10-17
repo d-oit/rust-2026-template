@@ -24,6 +24,7 @@ pub const SHIPPED_PROFILES: &[&str] = &[
     "service",
     "workspace",
     "ai-agent",
+    "performance-sensitive",
 ];
 
 /// Profile metadata.
