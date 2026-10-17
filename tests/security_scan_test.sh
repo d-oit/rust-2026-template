@@ -35,6 +35,8 @@ parse_summary() {
   local audit_type="$4"
   local deny_res="$5"
   local deny_type="$6"
+  local audit_graph="${7:-Committed Cargo.lock}"
+  local deny_graph="${8:-Committed Cargo.lock}"
 
   local summary_out
   summary_out=$(mktemp)
@@ -60,27 +62,35 @@ EOF
       >> "${summary_out}"
   fi
 
+  AUDIT_NOTE=""
+  if [ -n "$audit_graph" ]; then
+    AUDIT_NOTE=" (Graph: ${audit_graph})"
+  fi
   if [ "$audit_res" = "success" ]; then
-    echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No advisories detected. |" >> "${summary_out}"
+    echo "| Vulnerability Audit (cargo-audit) | ✅ PASSED | None | No advisories detected.${AUDIT_NOTE} |" >> "${summary_out}"
   elif [ "$audit_type" = "infrastructure_failure" ]; then
     FAILED=1
-    echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo audit failed. |" \
+    echo "| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo audit failed.${AUDIT_NOTE} |" \
       >> "${summary_out}"
   else
     FAILED=1
-    echo "| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Advisory found. |" \
+    echo "| Vulnerability Audit (cargo-audit) | ❌ SECURITY FINDING | Vulnerable Dependency | Advisory found.${AUDIT_NOTE} |" \
       >> "${summary_out}"
   fi
 
+  DENY_NOTE=""
+  if [ -n "$deny_graph" ]; then
+    DENY_NOTE=" (Graph: ${deny_graph})"
+  fi
   if [ "$deny_res" = "success" ]; then
-    echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with policy. |" >> "${summary_out}"
+    echo "| Dependency Policy (cargo-deny) | ✅ PASSED | None | All dependencies comply with policy.${DENY_NOTE} |" >> "${summary_out}"
   elif [ "$deny_type" = "infrastructure_failure" ]; then
     FAILED=1
-    echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo deny failed. |" \
+    echo "| Dependency Policy (cargo-deny) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Cargo deny failed.${DENY_NOTE} |" \
       >> "${summary_out}"
   else
     FAILED=1
-    echo "| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate/license. |" \
+    echo "| Dependency Policy (cargo-deny) | ❌ SECURITY FINDING | Policy Violation | Banned crate/license.${DENY_NOTE} |" \
       >> "${summary_out}"
   fi
 
@@ -122,5 +132,90 @@ echo "[PASS] Scenario D (Infrastructure failure) distinguished from security fin
 SCENARIO_E=$(parse_summary "success" "none" "success" "none" "success" "none")
 echo "$SCENARIO_E" | grep -q "PASSED" || (echo "Scenario E failed status" && exit 1)
 echo "[PASS] Scenario E (All checks passed) verified."
+
+# Test Scenario F: Audited Graph Reporting
+SCENARIO_F=$(parse_summary "success" "none" "success" "none" "success" "none" "Committed Cargo.lock" "Resolved latest-compatible graph")
+echo "$SCENARIO_F" | grep -q "Graph: Committed Cargo.lock" || (echo "Scenario F audit graph missing" && exit 1)
+echo "$SCENARIO_F" | grep -q "Graph: Resolved latest-compatible graph" || (echo "Scenario F deny graph missing" && exit 1)
+echo "[PASS] Scenario F (Audited graph identification in summary) verified."
+
+# 3. Test Lockfile Strategy Logic (Application vs Library Profile)
+echo "[TEST] Validating lockfile strategy and integrity check logic..."
+
+# Scenario 3A: Committed Cargo.lock (Application Profile)
+TEST_DIR_APP=$(mktemp -d)
+(
+  cd "${TEST_DIR_APP}"
+  git init -q
+  git config user.name "Test"
+  git config user.email "test@example.com"
+  cat > Cargo.toml << 'EOF'
+[package]
+name = "dummy-app"
+version = "0.1.0"
+edition = "2021"
+EOF
+  cat > Cargo.lock << 'EOF'
+# Dummy committed Cargo.lock
+version = 3
+EOF
+  git add Cargo.toml Cargo.lock
+  git commit -m "initial commit" -q
+
+  # Execute lockfile strategy logic from workflow
+  if git ls-files --error-unmatch Cargo.lock >/dev/null 2>&1 || [ -f Cargo.lock ]; then
+    LOCKFILE_TRACKED=true
+    AUDITED_GRAPH="Committed Cargo.lock"
+  else
+    LOCKFILE_TRACKED=false
+    AUDITED_GRAPH="Resolved latest-compatible graph"
+  fi
+
+  if [ "$LOCKFILE_TRACKED" != "true" ] || [ "$AUDITED_GRAPH" != "Committed Cargo.lock" ]; then
+    echo "ERROR: Failed to identify committed lockfile as tracked application profile!"
+    exit 1
+  fi
+
+  # Simulate post-audit lockfile integrity check
+  if ! git diff --exit-code Cargo.lock >/dev/null; then
+    echo "ERROR: Lockfile integrity check failed on unchanged committed lockfile!"
+    exit 1
+  fi
+)
+rm -rf "${TEST_DIR_APP}"
+echo "[PASS] Application profile lockfile strategy & preservation verified."
+
+# Scenario 3B: Untracked Cargo.lock (Library Profile)
+TEST_DIR_LIB=$(mktemp -d)
+(
+  cd "${TEST_DIR_LIB}"
+  git init -q
+  git config user.name "Test"
+  git config user.email "test@example.com"
+  cat > Cargo.toml << 'EOF'
+[package]
+name = "dummy-lib"
+version = "0.1.0"
+edition = "2021"
+EOF
+  git add Cargo.toml
+  git commit -m "initial commit" -q
+
+  # Execute lockfile strategy logic from workflow
+  if git ls-files --error-unmatch Cargo.lock >/dev/null 2>&1 || [ -f Cargo.lock ]; then
+    LOCKFILE_TRACKED=true
+    AUDITED_GRAPH="Committed Cargo.lock"
+  else
+    LOCKFILE_TRACKED=false
+    AUDITED_GRAPH="Resolved latest-compatible graph"
+  fi
+
+  if [ "$LOCKFILE_TRACKED" != "false" ] || [ "$AUDITED_GRAPH" != "Resolved latest-compatible graph" ]; then
+    echo "ERROR: Failed to identify untracked lockfile as library profile!"
+    exit 1
+  fi
+)
+rm -rf "${TEST_DIR_LIB}"
+echo "[PASS] Library profile untracked lockfile strategy verified."
 
 echo "=== All Security Integration Tests Passed Successfully ==="
