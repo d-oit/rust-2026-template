@@ -25,6 +25,8 @@ unused_async = "allow"
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 libsql = "0.10"
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

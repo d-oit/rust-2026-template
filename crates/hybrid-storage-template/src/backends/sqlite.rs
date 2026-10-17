@@ -6,7 +6,7 @@
 //! calls before enabling the `sqlite` feature in application code.
 //! See: https://docs.rs/libsql
 
-use crate::StorageError;
+use crate::{StorageError, StorageOp};
 use std::future::Future;
 use std::pin::Pin;
 
@@ -66,6 +66,13 @@ impl crate::Backend for SqliteBackend {
         &self,
         _prefix: &str,
     ) -> Pin<Box<dyn Future<Output = Result<Vec<String>, StorageError>> + Send + '_>> {
+        Box::pin(async { Err(Self::not_implemented()) })
+    }
+
+    fn apply_transaction(
+        &self,
+        _operations: &[StorageOp],
+    ) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + '_>> {
         Box::pin(async { Err(Self::not_implemented()) })
     }
 }

@@ -3,13 +3,15 @@
 #[cfg(feature = "sqlite")]
 pub mod sqlite;
 
-use crate::StorageError;
+use crate::{StorageError, StorageOp};
 use std::future::Future;
 use std::pin::Pin;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// Memory backend for testing.
 pub struct MemoryBackend {
     data: std::sync::Mutex<std::collections::HashMap<String, String>>,
+    fail_transactions: AtomicBool,
 }
 
 impl Default for MemoryBackend {
@@ -23,7 +25,13 @@ impl MemoryBackend {
     pub fn new() -> Self {
         Self {
             data: std::sync::Mutex::new(std::collections::HashMap::new()),
+            fail_transactions: AtomicBool::new(false),
         }
+    }
+
+    /// Set simulated transaction failure flag for testing atomicity.
+    pub fn set_fail_transactions(&self, fail: bool) {
+        self.fail_transactions.store(fail, Ordering::SeqCst);
     }
 }
 
@@ -88,6 +96,32 @@ impl crate::Backend for MemoryBackend {
                 .filter(|k| k.starts_with(&prefix))
                 .cloned()
                 .collect())
+        })
+    }
+
+    fn apply_transaction(
+        &self,
+        operations: &[StorageOp],
+    ) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + '_>> {
+        let operations = operations.to_vec();
+        Box::pin(async move {
+            if self.fail_transactions.load(Ordering::SeqCst) {
+                return Err(StorageError::TransactionFailed(
+                    "simulated atomic commit transaction failure".to_string(),
+                ));
+            }
+            let mut data = self.data.lock().map_err(|_| StorageError::Poisoned)?;
+            for op in operations {
+                match op {
+                    StorageOp::Set { key, value } => {
+                        data.insert(key, value);
+                    }
+                    StorageOp::Delete { key } => {
+                        data.remove(&key);
+                    }
+                }
+            }
+            Ok(())
         })
     }
 }
