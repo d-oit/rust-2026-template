@@ -23,6 +23,7 @@ Profiles live in `config/template-profiles/*.toml` and are structurally validate
 | `service` | Long-running service | actor/storage/registry patterns + `xtask` | `protected-branch` | Committed (`Cargo.lock` tracked) |
 | `workspace` | Full reference | every crate, benchmark, and workflow | `protected-branch` | Committed (`Cargo.lock` tracked) |
 | `ai-agent` | Agent-centric dev | `sample-app` + lib + `xtask` + agent tooling | `pull-request` | Committed (`Cargo.lock` tracked) |
+| `performance-sensitive` | Performance-critical | benchmark harness + lib + `xtask` + reference runner checklist | `protected-branch` | Committed (`Cargo.lock` tracked) |
 
 ## Commands
 

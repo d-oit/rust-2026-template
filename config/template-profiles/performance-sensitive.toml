@@ -1,0 +1,49 @@
+# Performance-Sensitive profile — performance-critical workspace with reference-runner benchmark evidence.
+[metadata]
+id = "performance-sensitive"
+display_name = "Performance-Sensitive Workspace"
+description = "Performance-critical workspace with reference-runner regression evidence, statistical confidence intervals, and advisory local evaluation."
+
+[workspace]
+include_crates = [
+  "crates/sample-app",
+  "crates/example-crate",
+  "crates/mcp-server-template",
+  "crates/xtask",
+]
+exclude_paths = [
+  "fuzz",
+  ".template",
+  "docs/patterns",
+]
+exclude_workflows = [
+  "cleanup-ci-status.yml",
+  "deploy-docs.yml",
+  "dora-fdrt.yml",
+  "dora-report.yml",
+  "eval.yml",
+  "fuzz.yml",
+  "labeler.yml",
+  "mutants.yml",
+  "patch-release-on-label.yml",
+  "skills-evaluation.yml",
+  "sync-labels.yml",
+  "update-architecture-diagram.yml",
+]
+
+[ci]
+default_tier = "protected-branch"
+
+[policy]
+lockfile = "committed"
+publish_packages = []
+
+[post_init]
+checklist = [
+  "set-package-metadata",
+  "commit-cargo-lock",
+  "configure-license-policy",
+  "configure-branch-protection",
+  "configure-reference-runner",
+  "establish-initial-benchmark-baseline",
+]

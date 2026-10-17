@@ -21,9 +21,8 @@ locally with no privileges, no external services, and no network.
 > renames them, adapt the corresponding workload or drop that target; the shared pieces for
 > the Tokio harness live in `benches/tokio_common/`.
 
-The Benchmarks job also appends an informational `scripts/compare-benchmarks.sh` run
-(previous event-bearing run vs. the current commit) to the GitHub step summary. It never
-fails a build: no CI gate compares machine-dependent timings.
+The Benchmarks job appends a `scripts/compare-benchmarks.sh` run (previous event-bearing run
+vs. the current commit) to the GitHub step summary.
 
 ## Running
 
@@ -45,18 +44,69 @@ CI runs the full suite in the `Benchmarks` job and publishes the parsed results 
   `p50/p95/p99/max` per workload. Percentiles are printed in bencher format, so each one
   becomes its own row in the event stream (`…/p99`, `…/max`) with no schema change.
 
-`scripts/parse_bench.py` merges two sources by benchmark name: those harness-emitted
-percentile rows, and criterion's own `target/criterion/**/new/estimates.json` medians
-(criterion's bencher output carries no benchmark id, so its rows can only come from the
-JSON artifacts it always writes). The Benchmarks job fails if the merged run records zero
-rows, so a silent telemetry outage cannot pass as a green job again.
+`scripts/parse_bench.py` merges two sources by benchmark name: harness-emitted percentile rows,
+and criterion's own `target/criterion/**/new/estimates.json` medians and 95% confidence intervals.
+The Benchmarks job fails if the merged run records zero rows, so a silent telemetry outage
+cannot pass as a green job again.
+
+## Reference Runner Regression Evidence
+
+For performance-critical code, timing measurements on uncontrolled developer laptops or
+shared public CI runners are noisy. The workspace supports **optional reference-runner regression gating** using statistical confidence intervals.
+
+### Environment & Statistical Metadata
+
+`scripts/parse_bench.py` records environment and statistical metadata into each event record:
+- **Commit SHA**: git commit hash.
+- **Runner**: named reference runner or environment (`BENCH_RUNNER_NAME` or `BENCH_REFERENCE_RUNNER`).
+- **Toolchain**: `rustc` compiler version (`RUSTC_VERSION`).
+- **CPU**: CPU model / architecture (`BENCH_CPU_INFO`).
+- **OS**: operating system kernel & architecture (`BENCH_OS_INFO`).
+- **Statistical bounds**: median nanoseconds and 95% confidence interval `[lower_bound_ns, upper_bound_ns]`.
+
+### Comparison Modes & Tolerance Boundaries
+
+`scripts/compare-benchmarks.sh` evaluates candidate runs against reference baselines:
+
+```bash
+# Advisory mode (developer laptops / uncontrolled machines — always exits 0)
+./scripts/compare-benchmarks.sh --mode advisory
+
+# Strict mode (enforces regression gating on reference hardware — exits 1 on true regression)
+./scripts/compare-benchmarks.sh --mode strict --tolerance-pct 5.0 --reference-runner perf-runner-1
+
+# Compare explicit baseline and current candidate event files
+./scripts/compare-benchmarks.sh --baseline path/to/baseline.jsonl --current path/to/current.jsonl --mode strict
+
+# Save current run as reference baseline
+./scripts/compare-benchmarks.sh --update-baseline benchmarks/reference_baseline.jsonl
+```
+
+### Regression Decision Logic
+
+A change is classified as a **strict regression failure** only when:
+1. The candidate median exceeds the baseline median by more than the tolerance percentage (`--tolerance-pct`, default `5.0%`).
+2. The candidate 95% confidence interval lower bound $L_B$ strictly exceeds the baseline tolerance threshold ($U_A \times (1 + \text{tolerance}/100)$).
+
+If confidence intervals overlap or sample variance is high, the change is classified as **statistically inconclusive / measurement noise** and does NOT cause false build failures.
+
+On local developer hardware or uncontrolled runners, `--mode advisory` prints informational deltas and explicitly disclaims hard performance guarantees.
+
+## Performance-Sensitive Template Profile
+
+Projects with strict performance requirements can initialize using the opt-in profile:
+
+```bash
+./scripts/init-template.sh --profile performance-sensitive --name my-perf-service
+```
+
+This keeps benchmark harnesses, registers the reference runner checklist, and enables baseline evidence artifact retention.
 
 ## Interpreting Results
 
 - Compare percentiles, not averages: tail movement outside run-to-run noise is the signal.
 - Compare like with like — same machine class, toolchain, and workload size. Laptop and
   shared-runner numbers contextualise a change, they do not decide it.
-- The event stream is a time series, not a threshold. No CI gate fails on a timing delta.
 - Justify an architectural change with a measured symptom: degraded `p99` as fan-out grows
   justifies `spawn_blocking`; a starved peer in the behavior test justifies `yield_now()`
   or batching at that loop; growing queue depth justifies a bounded channel.
