@@ -15,14 +15,14 @@
   },
   {
     "id": "embedded-prefix-url",
-    "input": "DATABASE_URL = \"postgres://user:sk_live_abcdef1234567890@example.com:5432/app\"",
+    "input": "DATABASE_URL = \"postgres://example.com/app?token=sk_live_abcdef1234567890\"",
     "expected_matches": [
       {
-        "rule_id": "prefix-sk_live",
-        "start_byte": 32,
-        "end_byte": 56,
+        "rule_id": "assignment-token",
+        "start_byte": 49,
+        "end_byte": 73,
         "line": 1,
-        "column": 33,
+        "column": 50,
         "masked_value": "sk_l****7890"
       }
     ]
