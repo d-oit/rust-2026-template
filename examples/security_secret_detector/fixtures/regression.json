@@ -1,0 +1,17 @@
+[
+  {
+    "id": "regression-v1-single-quote-multi-space-semicolon",
+    "description": "Demonstrates regression fix: v1 parser missed single-quoted assignments with multi-space padding before quotes and trailing semicolons.",
+    "input": "SECRET_KEY =   'sec_regression_token_9999';",
+    "expected_matches": [
+      {
+        "rule_id": "assignment-secret",
+        "start_byte": 16,
+        "end_byte": 41,
+        "line": 1,
+        "column": 17,
+        "masked_value": "sec_****9999"
+      }
+    ]
+  }
+]
