@@ -33,6 +33,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.11] - 2026-10-18
+
+### Added
+
+- `hybrid-storage-template`: record, page-cursor, and incremental synchronization APIs, including persisted cursors for resumable sync.
+- Optional `performance-sensitive` profile and reference-runner benchmark regression evidence with environment metadata, 95% confidence intervals, and advisory/strict comparison modes.
+- Runnable `examples/cli_dry_run` pattern for planning costly external effects with shared validation and zero-side-effect dry runs.
+- `examples/security_secret_detector` with a fixture-backed boundary/regression corpus and redacted diagnostics; `examples/security_egress_and_path_validation` with HTTP egress and untrusted-path checks.
+
+### Changed
+
+- `hybrid-storage-template`: record/watermark writes and synchronization pages now commit atomically; keyset pagination is ordered by `(updated_at, id)`, and corrupt records return contextual errors.
+- Updated `libsql` to 0.10 and refreshed `taiki-e/install-action` pins across workflows.
+- `mcp-server-template`: removed a redundant registry snapshot clone from tool listing.
+
+### Fixed
+
+- `xtask quality` now rejects workspaces with no Rust sources or no executed tests and verifies generated LLM context is current, preventing skipped checks from passing.
+
+### Security
+
+- `mcp-server-template` sanitizes oversized or control-character tool-operation names and rejects non-finite numeric operands before evaluation.
+- Security scans audit committed lockfiles without regeneration, use temporary lockfiles when none are tracked, and verify committed lockfiles remain unchanged.
+
+---
+
 ## [0.3.10] - 2026-09-26
 
 ### Added
@@ -512,7 +538,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.10...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...HEAD
+[0.3.11]: https://github.com/d-oit/rust-2026-template/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/d-oit/rust-2026-template/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/d-oit/rust-2026-template/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/d-oit/rust-2026-template/commit/b0755ce
