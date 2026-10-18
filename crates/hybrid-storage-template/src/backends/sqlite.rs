@@ -93,4 +93,15 @@ mod tests {
             "unexpected error: {msg}"
         );
     }
+
+    #[tokio::test]
+    async fn sqlite_backend_methods_fail_closed() {
+        use crate::Backend;
+        let backend = SqliteBackend { _inner: None };
+        assert!(backend.get("k").await.is_err());
+        assert!(backend.set("k", "v").await.is_err());
+        assert!(backend.delete("k").await.is_err());
+        assert!(backend.list_keys("").await.is_err());
+        assert!(backend.apply_transaction(&[]).await.is_err());
+    }
 }
