@@ -117,7 +117,9 @@ fi
 # If requested, update baseline artifact file
 if [[ -n "$UPDATE_BASELINE_FILE" ]]; then
   mkdir -p "$(dirname "$UPDATE_BASELINE_FILE")"
-  cat $EVENTS_B > "$UPDATE_BASELINE_FILE"
+  while IFS= read -r event_file; do
+    [[ -n "$event_file" && -f "$event_file" ]] && cat "$event_file"
+  done <<< "$EVENTS_B" > "$UPDATE_BASELINE_FILE"
   echo -e "${GREEN}[BASELINE UPDATED]${NC} Saved current run to $UPDATE_BASELINE_FILE"
 fi
 

@@ -1,28 +1,28 @@
 # Quality Gate Run Summary
 
-**Timestamp:** 2026-10-17T14:07:55Z
-**Commit:** 10cccd918062e4593b0486d9f9508cb7c4a60a3a
-**Branch:** jules-9691265984351109438-3066c80c
+**Timestamp:** 2026-10-18T07:40:46Z
+**Commit:** 4398fb4d4093b0397a0846407fc3d34bb5b722c7
+**Branch:** feat/reference-runner-benchmark-evidence-6767911309925364624
 
 | Check | Status | Details |
 |---|---|---|
-| LOC Limits | ✅ success | Passed in 32.699412ms |
-| Rust Format | ✅ success | Passed in 1.049284026s |
-| Rust Clippy | ✅ success | Passed in 3.891018347s |
-| Rust Build | ✅ success | Passed in 5.335274946s |
-| Rust Tests | ✅ success | Passed in 5.617040578s |
-| Rust Doc Tests | ✅ success | Passed in 478.464793ms |
-| Rust Security Audit | ❌ failed | Missing tool: 'cargo-audit'. Guidance: install with `cargo install cargo-audit --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping) |
-| Rust Dependency Policy (Deny) | ❌ failed | Missing tool: 'cargo-deny'. Guidance: install with `cargo install cargo-deny --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping) |
-| Rust Unused Dependencies (Machete) | ❌ failed | Missing tool: 'cargo-machete'. Guidance: install with `cargo install cargo-machete --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping) |
-| Rust MSRV Audit | ✅ success | Passed in 2.248386s |
-| Shell Script Lint (ShellCheck) | ❌ failed | Missing tool: 'shellcheck'. Guidance: install shellcheck (e.g. `apt-get install shellcheck` or `brew install shellcheck`) (required by tier 'protected-branch'; the gate fails closed instead of skipping) |
-| Markdown Lint (markdownlint-cli2) | ❌ failed | Missing tool: 'markdownlint-cli2'. Guidance: install with `npm install -g markdownlint-cli2` (required by tier 'protected-branch'; the gate fails closed instead of skipping) |
-| Skill Validation | ✅ success | Passed in 1.281180675s |
-| Skill Evaluations | ✅ success | Passed in 11.006897606s |
-| Privacy Check (No emails) | ✅ success | Passed in 70.678312ms |
-| Secret Scan | ✅ success | Passed in 138.183484ms |
-| GitHub Actions Workflow Validation | ✅ success | Passed in 6.782052752s |
-| CI Status Artifact Check | ✅ success | Passed in 223.326µs |
+| LOC Limits | ✅ success | Passed in 7.947898ms |
+| Rust Format | ✅ success | Passed in 161.005736ms |
+| Rust Clippy | ✅ success | Passed in 1.730444651s |
+| Rust Build | ✅ success | Passed in 3.391457611s |
+| Rust Tests | ✅ success | Passed in 3.314385323s |
+| Rust Doc Tests | ✅ success | Passed in 142.791348ms |
+| Rust Security Audit | ✅ success | Passed in 1.60356895s |
+| Rust Dependency Policy (Deny) | ✅ success | Passed in 704.418573ms |
+| Rust Unused Dependencies (Machete) | ✅ success | Passed in 56.59035ms |
+| Rust MSRV Audit | ✅ success | Passed in 661.406583ms |
+| Shell Script Lint (ShellCheck) | ✅ success | Passed in 1.768325147s |
+| Markdown Lint (markdownlint-cli2) | ✅ success | Passed in 1.199106713s |
+| Skill Validation | ✅ success | Passed in 442.370888ms |
+| Skill Evaluations | ✅ success | Passed in 1.609255033s |
+| Privacy Check (No emails) | ✅ success | Passed in 29.602901ms |
+| Secret Scan | ✅ success | Passed in 74.345233ms |
+| GitHub Actions Workflow Validation | ✅ success | Passed in 1.561888915s |
+| CI Status Artifact Check | ✅ success | Passed in 226.772µs |
 
-## Overall: **FAILURE**
+## Overall: **SUCCESS**
