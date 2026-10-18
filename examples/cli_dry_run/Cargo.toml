@@ -12,6 +12,5 @@ unnecessary_wraps = "allow"
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
 serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
 thiserror.workspace = true
 anyhow = "1.0"

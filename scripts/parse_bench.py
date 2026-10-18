@@ -19,7 +19,6 @@ import sys
 import json
 import re
 import platform
-import subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -40,31 +39,44 @@ def get_env_metadata(runner_arg=None):
             runner = "github-runner"
         else:
             runner = "local-dev"
-
     toolchain = os.environ.get("RUSTC_VERSION")
     if not toolchain:
-        try:
-            toolchain = (
-                subprocess.check_output(
-                    ["rustc", "--version"], stderr=subprocess.DEVNULL
-                )
-                .decode()
-                .strip()
-            )
-        except Exception:
-            toolchain = "unknown"
+        for toolchain_candidate in (
+            Path("rust-toolchain.toml"),
+            Path("rust-toolchain"),
+            Path(__file__).resolve().parent.parent / "rust-toolchain.toml",
+        ):
+            if toolchain_candidate.is_file():
+                try:
+                    for line in toolchain_candidate.read_text(
+                        encoding="utf-8", errors="replace"
+                    ).splitlines():
+                        line = line.strip()
+                        if line.startswith("channel"):
+                            parts = line.split("=", 1)
+                            if len(parts) == 2:
+                                toolchain = parts[1].strip().strip('"').strip("'")
+                                break
+                except OSError:
+                    toolchain = None
+                if toolchain:
+                    break
+    if not toolchain:
+        toolchain = "unknown"
 
     cpu = os.environ.get("BENCH_CPU_INFO")
     if not cpu:
-        try:
-            cpu_path = Path("/proc/cpuinfo")
-            if cpu_path.exists():
-                for line in cpu_path.read_text(encoding="utf-8").splitlines():
+        cpu_path = Path("/proc/cpuinfo")
+        if cpu_path.is_file():
+            try:
+                for line in cpu_path.read_text(
+                    encoding="utf-8", errors="replace"
+                ).splitlines():
                     if "model name" in line:
                         cpu = line.split(":", 1)[1].strip()
                         break
-        except Exception:
-            pass
+            except OSError:
+                cpu = None
     if not cpu:
         cpu = platform.processor() or platform.machine() or "unknown"
 

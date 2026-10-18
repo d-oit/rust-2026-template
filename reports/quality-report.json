@@ -1,98 +1,98 @@
 {
-  "timestamp": "2026-10-17T14:07:55Z",
-  "commit": "10cccd918062e4593b0486d9f9508cb7c4a60a3a",
-  "branch": "jules-9691265984351109438-3066c80c",
+  "timestamp": "2026-10-18T07:40:46Z",
+  "commit": "4398fb4d4093b0397a0846407fc3d34bb5b722c7",
+  "branch": "feat/reference-runner-benchmark-evidence-6767911309925364624",
   "checks": [
     {
       "name": "LOC Limits",
       "status": "success",
-      "message": "Passed in 32.699412ms"
+      "message": "Passed in 7.947898ms"
     },
     {
       "name": "Rust Format",
       "status": "success",
-      "message": "Passed in 1.049284026s"
+      "message": "Passed in 161.005736ms"
     },
     {
       "name": "Rust Clippy",
       "status": "success",
-      "message": "Passed in 3.891018347s"
+      "message": "Passed in 1.730444651s"
     },
     {
       "name": "Rust Build",
       "status": "success",
-      "message": "Passed in 5.335274946s"
+      "message": "Passed in 3.391457611s"
     },
     {
       "name": "Rust Tests",
       "status": "success",
-      "message": "Passed in 5.617040578s"
+      "message": "Passed in 3.314385323s"
     },
     {
       "name": "Rust Doc Tests",
       "status": "success",
-      "message": "Passed in 478.464793ms"
+      "message": "Passed in 142.791348ms"
     },
     {
       "name": "Rust Security Audit",
-      "status": "failed",
-      "message": "Missing tool: 'cargo-audit'. Guidance: install with `cargo install cargo-audit --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+      "status": "success",
+      "message": "Passed in 1.60356895s"
     },
     {
       "name": "Rust Dependency Policy (Deny)",
-      "status": "failed",
-      "message": "Missing tool: 'cargo-deny'. Guidance: install with `cargo install cargo-deny --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+      "status": "success",
+      "message": "Passed in 704.418573ms"
     },
     {
       "name": "Rust Unused Dependencies (Machete)",
-      "status": "failed",
-      "message": "Missing tool: 'cargo-machete'. Guidance: install with `cargo install cargo-machete --locked` (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+      "status": "success",
+      "message": "Passed in 56.59035ms"
     },
     {
       "name": "Rust MSRV Audit",
       "status": "success",
-      "message": "Passed in 2.248386s"
+      "message": "Passed in 661.406583ms"
     },
     {
       "name": "Shell Script Lint (ShellCheck)",
-      "status": "failed",
-      "message": "Missing tool: 'shellcheck'. Guidance: install shellcheck (e.g. `apt-get install shellcheck` or `brew install shellcheck`) (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+      "status": "success",
+      "message": "Passed in 1.768325147s"
     },
     {
       "name": "Markdown Lint (markdownlint-cli2)",
-      "status": "failed",
-      "message": "Missing tool: 'markdownlint-cli2'. Guidance: install with `npm install -g markdownlint-cli2` (required by tier 'protected-branch'; the gate fails closed instead of skipping)"
+      "status": "success",
+      "message": "Passed in 1.199106713s"
     },
     {
       "name": "Skill Validation",
       "status": "success",
-      "message": "Passed in 1.281180675s"
+      "message": "Passed in 442.370888ms"
     },
     {
       "name": "Skill Evaluations",
       "status": "success",
-      "message": "Passed in 11.006897606s"
+      "message": "Passed in 1.609255033s"
     },
     {
       "name": "Privacy Check (No emails)",
       "status": "success",
-      "message": "Passed in 70.678312ms"
+      "message": "Passed in 29.602901ms"
     },
     {
       "name": "Secret Scan",
       "status": "success",
-      "message": "Passed in 138.183484ms"
+      "message": "Passed in 74.345233ms"
     },
     {
       "name": "GitHub Actions Workflow Validation",
       "status": "success",
-      "message": "Passed in 6.782052752s"
+      "message": "Passed in 1.561888915s"
     },
     {
       "name": "CI Status Artifact Check",
       "status": "success",
-      "message": "Passed in 223.326µs"
+      "message": "Passed in 226.772µs"
     }
   ],
-  "overall": "failure"
+  "overall": "success"
 }
