@@ -73,16 +73,7 @@ pub enum RedirectPolicy {
 /// into their canonical `IpAddr::V4` representation.
 #[must_use]
 pub fn normalize_ip(ip: IpAddr) -> IpAddr {
-    match ip {
-        IpAddr::V4(v4) => IpAddr::V4(v4),
-        IpAddr::V6(v6) => {
-            if let Some(v4) = v6.to_ipv4_mapped() {
-                IpAddr::V4(v4)
-            } else {
-                IpAddr::V6(v6)
-            }
-        }
-    }
+    ip.to_canonical()
 }
 
 /// Checks if a normalized `IpAddr` is considered non-routable, loopback, unspecified, or link-local.
@@ -96,13 +87,17 @@ pub fn is_restricted_ip(ip: IpAddr) -> bool {
             || v4.is_link_local()        // 169.254.0.0/16
             || v4.is_private()           // 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
             || v4.is_broadcast()         // 255.255.255.255
-            || v4.is_documentation() // 192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24
+            || v4.is_documentation()     // 192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24
+            || v4.is_multicast()         // 224.0.0.0/4
+            || is_v4_shared(&v4) // 100.64.0.0/10 Carrier-Grade NAT (RFC 6598)
         }
         IpAddr::V6(v6) => {
             v6.is_loopback()            // ::1
             || v6.is_unspecified()      // ::
+            || v6.is_multicast()        // ff00::/8
             || is_v6_link_local(&v6)     // fe80::/10
-            || is_v6_unique_local(&v6) // fc00::/7
+            || is_v6_unique_local(&v6)   // fc00::/7
+            || is_v6_documentation(&v6) // 2001:db8::/32 (RFC 3849)
         }
     }
 }
@@ -117,6 +112,18 @@ fn is_v6_link_local(v6: &Ipv6Addr) -> bool {
 fn is_v6_unique_local(v6: &Ipv6Addr) -> bool {
     let segments = v6.segments();
     (segments[0] & 0xfe00) == 0xfc00
+}
+
+/// Helper checking if an IPv4 address is in the shared/CGNAT address space (`100.64.0.0/10`).
+fn is_v4_shared(v4: &std::net::Ipv4Addr) -> bool {
+    let octets = v4.octets();
+    octets[0] == 100 && (octets[1] & 0xc0) == 64
+}
+
+/// Helper checking if an IPv6 address is in the documentation range (`2001:db8::/32`).
+fn is_v6_documentation(v6: &Ipv6Addr) -> bool {
+    let segments = v6.segments();
+    segments[0] == 0x2001 && segments[1] == 0x0db8
 }
 
 /// Evaluates whether an IP address is permitted under safe egress rules.
