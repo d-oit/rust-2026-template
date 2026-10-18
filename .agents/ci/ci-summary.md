@@ -1,28 +1,28 @@
 # Quality Gate Run Summary
 
-**Timestamp:** 2026-10-18T07:40:46Z
-**Commit:** 4398fb4d4093b0397a0846407fc3d34bb5b722c7
-**Branch:** feat/reference-runner-benchmark-evidence-6767911309925364624
+**Timestamp:** 2026-10-18T07:50:51Z
+**Commit:** a5638a5e599946d408fb6335e82040ee80dcd01f
+**Branch:** feat/security-egress-path-validation-8636173102447491525
 
 | Check | Status | Details |
 |---|---|---|
-| LOC Limits | ✅ success | Passed in 7.947898ms |
-| Rust Format | ✅ success | Passed in 161.005736ms |
-| Rust Clippy | ✅ success | Passed in 1.730444651s |
-| Rust Build | ✅ success | Passed in 3.391457611s |
-| Rust Tests | ✅ success | Passed in 3.314385323s |
-| Rust Doc Tests | ✅ success | Passed in 142.791348ms |
-| Rust Security Audit | ✅ success | Passed in 1.60356895s |
-| Rust Dependency Policy (Deny) | ✅ success | Passed in 704.418573ms |
-| Rust Unused Dependencies (Machete) | ✅ success | Passed in 56.59035ms |
-| Rust MSRV Audit | ✅ success | Passed in 661.406583ms |
-| Shell Script Lint (ShellCheck) | ✅ success | Passed in 1.768325147s |
-| Markdown Lint (markdownlint-cli2) | ✅ success | Passed in 1.199106713s |
-| Skill Validation | ✅ success | Passed in 442.370888ms |
-| Skill Evaluations | ✅ success | Passed in 1.609255033s |
-| Privacy Check (No emails) | ✅ success | Passed in 29.602901ms |
-| Secret Scan | ✅ success | Passed in 74.345233ms |
-| GitHub Actions Workflow Validation | ✅ success | Passed in 1.561888915s |
-| CI Status Artifact Check | ✅ success | Passed in 226.772µs |
+| LOC Limits | ✅ success | Passed in 9.034787ms |
+| Rust Format | ✅ success | Passed in 186.340783ms |
+| Rust Clippy | ✅ success | Passed in 432.243526ms |
+| Rust Build | ✅ success | Passed in 852.274763ms |
+| Rust Tests | ✅ success | Passed in 1.366148219s |
+| Rust Doc Tests | ✅ success | Passed in 134.285587ms |
+| Rust Security Audit | ✅ success | Passed in 1.507975766s |
+| Rust Dependency Policy (Deny) | ✅ success | Passed in 816.256797ms |
+| Rust Unused Dependencies (Machete) | ✅ success | Passed in 80.94114ms |
+| Rust MSRV Audit | ✅ success | Passed in 333.149837ms |
+| Shell Script Lint (ShellCheck) | ✅ success | Passed in 1.814198282s |
+| Markdown Lint (markdownlint-cli2) | ✅ success | Passed in 1.112253764s |
+| Skill Validation | ✅ success | Passed in 513.271097ms |
+| Skill Evaluations | ✅ success | Passed in 1.632814943s |
+| Privacy Check (No emails) | ✅ success | Passed in 31.5518ms |
+| Secret Scan | ✅ success | Passed in 77.318209ms |
+| GitHub Actions Workflow Validation | ✅ success | Passed in 1.752656134s |
+| CI Status Artifact Check | ✅ success | Passed in 139.287µs |
 
 ## Overall: **SUCCESS**
