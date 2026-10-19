@@ -63,6 +63,12 @@ if command -v gh &>/dev/null; then
 else
   warn "gh CLI: not installed (optional, needed for PR workflows and stacked PRs)"
 fi
+
+if command -v do-harness &>/dev/null; then
+  pass "do-harness: $(command -v do-harness)"
+else
+  warn "do-harness: not installed (optional agent harness workflow tool: run ./scripts/setup-harness.sh)"
+fi
 echo ""
 
 # --- Linker check ---

@@ -62,6 +62,8 @@ jobs:
               - 'deny.toml'
               - 'rustfmt.toml'
               - '.clippy.toml'
+              - 'do-harness.toml'
+              - 'HARNESS.md'
               - 'Makefile'
               - 'Makefile.monitoring'
               - '.config/nextest.toml'
@@ -447,6 +449,8 @@ jobs:
           fi
       - name: Validate quality gate fail-closed contracts
         run: bash tests/quality_gate_contracts_test.sh
+      - name: Validate do-harness integration
+        run: bash tests/do_harness_integration_test.sh
       - name: Validate CI regression matrix
         run: bash tests/ci_regression_matrix_test.sh
       - name: Validate release provenance regression fixture
