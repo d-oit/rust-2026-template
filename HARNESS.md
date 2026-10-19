@@ -13,6 +13,23 @@ And two modes:
 - **Computational:** Deterministic (clippy, tests, deny) — always trust the output
 - **Inferential:** LLM-based (skill docs, agent context) — direction, not commands
 
+## Tool Ownership & `do-harness` Integration Boundary
+
+To avoid duplicating quality checks or running duplicate compiler pipelines, responsibility is split cleanly between `xtask` and `do-harness`:
+
+| System | Role & Ownership | Canonical Commands |
+|---|---|---|
+| **`xtask`** | **Project Quality Engine (Single Source of Truth):** Owns lifecycle verification tiers (`pull-request`, `protected-branch`, `scheduled`, `release`), Rust compilation, Clippy, nextest, security audits (`cargo audit`/`deny`), MSRV, ShellCheck, MarkdownLint, and quality telemetry (`.agents/ci/quality-run.json`). | `./scripts/quality-gates.sh`<br>`cargo run -p xtask -- quality run` |
+| **`do-harness`** | **Agent Workflow & PR Diagnostics (Optional):** Owns agent environment diagnostics (`do-harness doctor`), PR readiness/review (`do-harness pr review`, `do-harness pr ready`), and harness evidence recording. Delegated via `do-harness.toml` (`language = "generic"`). | `do-harness doctor`<br>`do-harness pr ready <PR>`<br>`do-harness verify` (delegates to xtask) |
+
+### Non-Duplication Principle
+`do-harness.toml` is configured so that `do-harness verify` delegates directly to `./scripts/quality-gates.sh` rather than running a second duplicate Cargo test/clippy pass. Never treat a green result from one tool as proof that the other tool's checks ran if they were not executed.
+
+### Missing Tools & Evidence Behavior
+- **Binary absent:** If `do-harness` is not installed locally, standard workflow scripts (`./scripts/doctor.sh`, `./scripts/quality-gates.sh`) remain fully functional.
+- **Missing PR context:** Commands like `do-harness pr review` or `do-harness pr ready` require `gh` CLI and open PR context. When executed locally on a branch without a PR, they report missing PR context gracefully.
+- **Stale/missing evidence:** Missing or stale evidence is explicitly reported as `stale` or `missing`, never as a successful quality verification.
+
 ## Feedforward Guides
 
 ### Inferential (read before coding)

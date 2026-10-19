@@ -1,0 +1,27 @@
+# do-harness.toml
+# Configuration for do-harness in rust-2026-template.
+# Uses language = "generic" to delegate quality check execution to xtask
+# (via scripts/quality-gates.sh), preventing duplicate Cargo/clippy/test passes.
+
+language = "generic"
+
+[signal-sets]
+feedback = ["quality-gates"]
+verification = ["quality-gates"]
+release = ["quality-gates"]
+
+[[sensors]]
+name = "quality-gates"
+argv = ["bash", "scripts/quality-gates.sh"]
+when-changed = [
+  "crates/**/*.rs",
+  "src/**/*.rs",
+  "examples/**/*.rs",
+  "tests/**/*.rs",
+  "benchmarks/**/*.rs",
+  "fuzz/**/*.rs",
+  "Cargo.toml",
+  "Cargo.lock",
+  "config/xtask.json",
+  "scripts/quality-gates.sh"
+]

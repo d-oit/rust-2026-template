@@ -295,6 +295,19 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# CONTRACT 7: do-harness Integration Regression Verification
+# Behavior: do-harness setup, profile isolation, and non-duplication contracts pass.
+# -----------------------------------------------------------------------------
+echo ""
+echo "[Contract 7] Testing do-harness integration regression contracts..."
+
+if bash tests/do_harness_integration_test.sh >/dev/null 2>&1; then
+  pass "do-harness integration regression suite passed (Contract 7 verified)"
+else
+  fail "do-harness integration regression suite failed"
+fi
+
+# -----------------------------------------------------------------------------
 # TEST SUMMARY
 # -----------------------------------------------------------------------------
 echo ""
