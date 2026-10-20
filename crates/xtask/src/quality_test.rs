@@ -107,6 +107,68 @@ fn test_plan_checks_detailed_unreadable_git_fallback() {
 }
 
 #[test]
+fn test_when_changed_selection_manifest_edits() {
+    let config = XtaskConfig::default();
+
+    // 1. Member manifest inside crates/ without Cargo.lock change
+    let cp = ChangedPaths::classify(&["crates/sample-app/Cargo.toml"]);
+    let expected_checks = [
+        QualityCheck::Fmt,
+        QualityCheck::Clippy,
+        QualityCheck::Build,
+        QualityCheck::Test,
+        QualityCheck::DocTest,
+        QualityCheck::Audit,
+        QualityCheck::Deny,
+        QualityCheck::Machete,
+        QualityCheck::Msrv,
+    ];
+    for check in expected_checks {
+        let (selected, reason) = check_matches_when_changed(check, &config, &cp);
+        assert!(
+            selected,
+            "Check {} should be selected for crates/sample-app/Cargo.toml edit. Reason: {reason}",
+            check.name()
+        );
+    }
+
+    // 2. Member manifest outside crates/ (e.g. examples/hello_world/Cargo.toml)
+    let cp_outside = ChangedPaths::classify(&["examples/hello_world/Cargo.toml"]);
+    for check in expected_checks {
+        let (selected, reason) = check_matches_when_changed(check, &config, &cp_outside);
+        assert!(
+            selected,
+            "Check {} should be selected for examples/hello_world/Cargo.toml edit. Reason: {reason}",
+            check.name()
+        );
+    }
+
+    // 3. Deletion of a Rust source file or manifest
+    let cp_deleted = ChangedPaths::classify(&["crates/sample-app/src/old.rs"]);
+    let (selected_fmt, _) = check_matches_when_changed(QualityCheck::Fmt, &config, &cp_deleted);
+    let (selected_test, _) = check_matches_when_changed(QualityCheck::Test, &config, &cp_deleted);
+    assert!(selected_fmt);
+    assert!(selected_test);
+
+    let cp_deleted_manifest = ChangedPaths::classify(&["crates/old-crate/Cargo.toml"]);
+    for check in expected_checks {
+        let (selected, reason) = check_matches_when_changed(check, &config, &cp_deleted_manifest);
+        assert!(
+            selected,
+            "Check {} should be selected for deleted manifest. Reason: {reason}",
+            check.name()
+        );
+    }
+
+    // 4. Docs-only edit should NOT select Rust compilation/test checks
+    let cp_docs = ChangedPaths::classify(&["README.md"]);
+    let (selected_test_docs, _) = check_matches_when_changed(QualityCheck::Test, &config, &cp_docs);
+    let (selected_md, _) = check_matches_when_changed(QualityCheck::MarkdownLint, &config, &cp_docs);
+    assert!(!selected_test_docs);
+    assert!(selected_md);
+}
+
+#[test]
 fn test_has_executed_tests_detection() {
     let output_with_tests = "\
 running 2 tests

@@ -71,7 +71,8 @@ fi
 CLEAN_WS="${TMP_DIR}/clean_ws"
 mkdir -p "${CLEAN_WS}"
 cp -r "${REPO_ROOT}/Cargo.toml" "${REPO_ROOT}/Cargo.lock" "${REPO_ROOT}/AGENTS.md" \
-      "${REPO_ROOT}/config" "${REPO_ROOT}/crates" "${REPO_ROOT}/scripts" \
+      "${REPO_ROOT}/config" "${REPO_ROOT}/crates" "${REPO_ROOT}/examples" \
+      "${REPO_ROOT}/benchmarks" "${REPO_ROOT}/scripts" \
       "${REPO_ROOT}/.gitignore" "${CLEAN_WS}/" 2>/dev/null || true
 
 (
@@ -120,7 +121,45 @@ mkdir -p "${EMPTY_EVID_DIR}"
   fi
 )
 
-# 3B. Test that deliberate failure in a fixture workspace is caught closed
+# 3B. Test member-manifest-only edit selection and failure (direct xtask and adapter agreement)
+MANIFEST_EDIT_WS="${TMP_DIR}/manifest_edit_ws"
+mkdir -p "${MANIFEST_EDIT_WS}"
+cp -r "${REPO_ROOT}/Cargo.toml" "${REPO_ROOT}/Cargo.lock" \
+      "${REPO_ROOT}/config" "${REPO_ROOT}/crates" "${REPO_ROOT}/examples" \
+      "${REPO_ROOT}/benchmarks" "${REPO_ROOT}/scripts" \
+      "${REPO_ROOT}/do-harness.toml" "${MANIFEST_EDIT_WS}/" 2>/dev/null || true
+
+(
+  cd "${MANIFEST_EDIT_WS}"
+  git init -q
+  git config user.name "Test User"
+  git config user.email "test@example.com"
+  git add .
+  git commit -m "initial commit" -q
+
+  BASE_SHA=$(git rev-parse HEAD)
+
+  # Break a member manifest (crates/sample-app/Cargo.toml) with invalid syntax
+  cat >> "crates/sample-app/Cargo.toml" << 'EOF'
+[invalid_syntax
+EOF
+
+  # 1) Direct xtask selection with --changed-from must select Rust checks and fail closed on broken manifest
+  if ! "${XTASK_BIN}" quality run --tier pull-request --changed-from "${BASE_SHA}" >/dev/null 2>&1; then
+    pass "Direct xtask quality run selects member-manifest edit and fails on invalid manifest"
+  else
+    fail "Direct xtask quality run should have failed on invalid member manifest edit"
+  fi
+
+  # 2) Adapter script (quality-gates.sh) must also execute and fail on invalid member manifest edit
+  if ! bash scripts/quality-gates.sh >/dev/null 2>&1; then
+    pass "Adapter script (quality-gates.sh) executes and fails on invalid member manifest edit"
+  else
+    fail "Adapter script (quality-gates.sh) should have failed on invalid member manifest edit"
+  fi
+)
+
+# 3C. Test that deliberate failure in a fixture workspace is caught closed
 FAIL_WS="${TMP_DIR}/failing_workspace"
 mkdir -p "${FAIL_WS}/src" "${FAIL_WS}/crates/xtask/src" "${FAIL_WS}/config"
 cp -r "${REPO_ROOT}/crates/xtask" "${FAIL_WS}/crates/"
@@ -172,7 +211,8 @@ for prof in "${PROFILES[@]}"; do
   mkdir -p "${PROF_WS}"
   # Copy template files into isolated profile workspace directory
   cp -r "${REPO_ROOT}/Cargo.toml" "${REPO_ROOT}/Cargo.lock" "${REPO_ROOT}/AGENTS.md" \
-        "${REPO_ROOT}/config" "${REPO_ROOT}/crates" "${REPO_ROOT}/scripts" \
+        "${REPO_ROOT}/config" "${REPO_ROOT}/crates" "${REPO_ROOT}/examples" \
+        "${REPO_ROOT}/benchmarks" "${REPO_ROOT}/scripts" \
         "${REPO_ROOT}/.gitignore" "${PROF_WS}/" 2>/dev/null || true
 
   # Run template init inside isolated profile workspace
@@ -207,9 +247,13 @@ for prof in "${PROFILES[@]}"; do
     fi
   fi
 
-  # Verify config/xtask.json was generated and valid
+  # Verify config/xtask.json was generated and valid, preserving **/Cargo.toml mapping
   if [[ -f "${PROF_WS}/config/xtask.json" ]]; then
-    pass "Profile '${prof}' preserves config/xtask.json"
+    if grep -q '"\*\*/Cargo.toml"' "${PROF_WS}/config/xtask.json"; then
+      pass "Profile '${prof}' preserves config/xtask.json with **/Cargo.toml mapping"
+    else
+      fail "Profile '${prof}' config/xtask.json missing **/Cargo.toml mapping"
+    fi
   else
     fail "Profile '${prof}' missing config/xtask.json"
   fi
