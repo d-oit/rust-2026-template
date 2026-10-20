@@ -1,97 +1,62 @@
 {
-  "timestamp": "2026-10-18T08:00:18Z",
-  "commit": "908091add670080cf1f5c00b149b76c72b6bffec",
-  "branch": "test/storage-sync-invariants-14086840885743080200",
+  "timestamp": "2026-10-20T09:40:30Z",
+  "commit": "6bda9b0cb009b57ebb44dffcd93a9e5ce54a179e",
+  "branch": "jules-12996464053437871733-e9e43510",
   "checks": [
     {
       "name": "LOC Limits",
       "status": "success",
-      "message": "Passed in 10.873975ms"
+      "message": "Passed in 23.221483ms"
     },
     {
       "name": "Rust Format",
       "status": "success",
-      "message": "Passed in 197.563405ms"
+      "message": "Passed in 566.1764ms"
     },
     {
       "name": "Rust Clippy",
       "status": "success",
-      "message": "Passed in 2.354533829s"
+      "message": "Passed in 15.777166802s"
     },
     {
       "name": "Rust Build",
       "status": "success",
-      "message": "Passed in 1.956633771s"
+      "message": "Passed in 19.628620486s"
     },
     {
       "name": "Rust Tests",
       "status": "success",
-      "message": "Passed in 3.118051575s"
+      "message": "Passed in 16.68712521s"
     },
     {
       "name": "Rust Doc Tests",
       "status": "success",
-      "message": "Passed in 439.013402ms"
-    },
-    {
-      "name": "Rust Security Audit",
-      "status": "success",
-      "message": "Passed in 1.699431227s"
-    },
-    {
-      "name": "Rust Dependency Policy (Deny)",
-      "status": "success",
-      "message": "Passed in 739.470767ms"
-    },
-    {
-      "name": "Rust Unused Dependencies (Machete)",
-      "status": "success",
-      "message": "Passed in 67.712936ms"
-    },
-    {
-      "name": "Rust MSRV Audit",
-      "status": "success",
-      "message": "Passed in 550.984273ms"
-    },
-    {
-      "name": "Shell Script Lint (ShellCheck)",
-      "status": "success",
-      "message": "Passed in 1.697357864s"
-    },
-    {
-      "name": "Markdown Lint (markdownlint-cli2)",
-      "status": "success",
-      "message": "Passed in 1.102002127s"
+      "message": "Passed in 328.792228ms"
     },
     {
       "name": "Skill Validation",
       "status": "success",
-      "message": "Passed in 502.374329ms"
+      "message": "Passed in 1.028098903s"
     },
     {
       "name": "Skill Evaluations",
       "status": "success",
-      "message": "Passed in 1.605701841s"
+      "message": "Passed in 9.049389813s"
     },
     {
       "name": "Privacy Check (No emails)",
       "status": "success",
-      "message": "Passed in 31.051297ms"
+      "message": "Passed in 100.874682ms"
     },
     {
       "name": "Secret Scan",
       "status": "success",
-      "message": "Passed in 75.760919ms"
+      "message": "Passed in 131.313569ms"
     },
     {
       "name": "GitHub Actions Workflow Validation",
       "status": "success",
-      "message": "Passed in 1.560972511s"
-    },
-    {
-      "name": "CI Status Artifact Check",
-      "status": "success",
-      "message": "Passed in 171.856µs"
+      "message": "Passed in 5.468958044s"
     }
   ],
   "overall": "success"
