@@ -277,7 +277,7 @@ impl XtaskConfig {
             "tests/**/*.rs".to_string(),
             "benchmarks/**/*.rs".to_string(),
             "fuzz/**/*.rs".to_string(),
-            "Cargo.toml".to_string(),
+            "**/Cargo.toml".to_string(),
             "Cargo.lock".to_string(),
             "rust-toolchain.toml".to_string(),
         ];
@@ -290,7 +290,7 @@ impl XtaskConfig {
         map.insert(
             Q::Audit,
             vec![
-                "Cargo.toml".to_string(),
+                "**/Cargo.toml".to_string(),
                 "Cargo.lock".to_string(),
                 "deny.toml".to_string(),
                 ".cargo/audit.toml".to_string(),
@@ -299,7 +299,7 @@ impl XtaskConfig {
         map.insert(
             Q::Deny,
             vec![
-                "Cargo.toml".to_string(),
+                "**/Cargo.toml".to_string(),
                 "Cargo.lock".to_string(),
                 "deny.toml".to_string(),
             ],
@@ -311,7 +311,7 @@ impl XtaskConfig {
                 "src/**/*.rs".to_string(),
                 "examples/**/*.rs".to_string(),
                 "tests/**/*.rs".to_string(),
-                "Cargo.toml".to_string(),
+                "**/Cargo.toml".to_string(),
                 "Cargo.lock".to_string(),
             ],
         );
@@ -320,7 +320,7 @@ impl XtaskConfig {
             vec![
                 "crates/**/*.rs".to_string(),
                 "src/**/*.rs".to_string(),
-                "Cargo.toml".to_string(),
+                "**/Cargo.toml".to_string(),
                 "Cargo.lock".to_string(),
                 "rust-toolchain.toml".to_string(),
                 "scripts/audit-msrv.sh".to_string(),

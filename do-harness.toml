@@ -13,15 +13,3 @@ release = ["quality-gates"]
 [[sensors]]
 name = "quality-gates"
 argv = ["bash", "scripts/quality-gates.sh"]
-when-changed = [
-  "crates/**/*.rs",
-  "src/**/*.rs",
-  "examples/**/*.rs",
-  "tests/**/*.rs",
-  "benchmarks/**/*.rs",
-  "fuzz/**/*.rs",
-  "Cargo.toml",
-  "Cargo.lock",
-  "config/xtask.json",
-  "scripts/quality-gates.sh"
-]
