@@ -33,6 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.12] - 2026-10-20
+
+### Changed
+
+- Updated DORA delivery performance report and metrics history.
+
+---
+
 ## [0.3.11] - 2026-10-18
 
 ### Added
@@ -538,7 +546,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.12...HEAD
+[0.3.12]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...v0.3.12
 [0.3.11]: https://github.com/d-oit/rust-2026-template/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/d-oit/rust-2026-template/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/d-oit/rust-2026-template/compare/v0.3.8...v0.3.9
