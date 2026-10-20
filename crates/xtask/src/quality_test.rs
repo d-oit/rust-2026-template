@@ -163,7 +163,8 @@ fn test_when_changed_selection_manifest_edits() {
     // 4. Docs-only edit should NOT select Rust compilation/test checks
     let cp_docs = ChangedPaths::classify(&["README.md"]);
     let (selected_test_docs, _) = check_matches_when_changed(QualityCheck::Test, &config, &cp_docs);
-    let (selected_md, _) = check_matches_when_changed(QualityCheck::MarkdownLint, &config, &cp_docs);
+    let (selected_md, _) =
+        check_matches_when_changed(QualityCheck::MarkdownLint, &config, &cp_docs);
     assert!(!selected_test_docs);
     assert!(selected_md);
 }
