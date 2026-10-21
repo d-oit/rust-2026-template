@@ -13,3 +13,28 @@ release = ["quality-gates"]
 [[sensors]]
 name = "quality-gates"
 argv = ["bash", "scripts/quality-gates.sh"]
+# Applicability globs for `do-harness verify --changed`.
+# "Cargo.toml" covers the workspace root manifest; "**/Cargo.toml" covers
+# workspace member manifests (inside and outside `crates/`). Both are declared
+# because "Cargo.toml" alone never matches a nested member manifest, while
+# "**/Cargo.toml" alone relies on the glob engine treating a leading "**/" as
+# optional at the repository root. Declaring both makes the intent explicit
+# and keeps the selection stable across glob dialects.
+# Avoid bare wildcards such as "**" — they select the sensor on Markdown-only
+# edits and defeat the documentation-only fast path.
+when-changed = [
+  "crates/**/*.rs",
+  "src/**/*.rs",
+  "examples/**/*.rs",
+  "tests/**/*.rs",
+  "benchmarks/**/*.rs",
+  "fuzz/**/*.rs",
+  "Cargo.toml",
+  "**/Cargo.toml",
+  "Cargo.lock",
+  "rust-toolchain.toml",
+  "deny.toml",
+  ".cargo/audit.toml",
+  "config/xtask.json",
+  "scripts/**/*.sh"
+]

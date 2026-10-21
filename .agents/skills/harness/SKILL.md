@@ -33,6 +33,7 @@ The harness has two modes:
 - **Canonical Project Quality Command:** `./scripts/quality-gates.sh` (or `cargo run -p xtask -- quality run`). `xtask` is the single source of truth for project quality tiers (`pull-request`, `protected-branch`, `scheduled`, `release`) and quality telemetry (`.agents/ci/quality-run.json`).
 - **Optional Agent Harness Tooling:** `do-harness` (`scripts/setup-harness.sh`) provides agent diagnostics (`do-harness doctor`) and PR readiness checks (`do-harness pr review`, `do-harness pr ready`). `do-harness.toml` delegates quality checks to `./scripts/quality-gates.sh` to prevent running redundant duplicate Cargo passes.
 - **Non-Interference Rule:** Never assume a green status from `do-harness` means `xtask` checks ran, or vice versa. If `do-harness` is absent or PR context is unavailable, fall back directly to `./scripts/quality-gates.sh` and `./scripts/doctor.sh`.
+- **Sensor Applicability Rule:** The `quality-gates` sensor's `when-changed` globs in `do-harness.toml` decide whether `do-harness verify --changed` runs it. Manifest edits need **both** `"Cargo.toml"` (workspace root manifest) and `"**/Cargo.toml"` (workspace member manifests, inside and outside `crates/`). `"Cargo.toml"` alone skips member manifests, and bare wildcards like `"**"` fire on Markdown-only edits. Keep the same rule in `config/xtask.json` `when_changed`.
 
 ## Sensor Response Protocol
 

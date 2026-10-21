@@ -139,6 +139,25 @@
         "fetch origin main"
       ],
       "remediation_hint": "Retry workflow or ensure retry loop in update-architecture-diagram.yml fetches and resets against origin/main."
+    },
+    {
+      "id": "sec-scan-cargo-audit-deny-20261021",
+      "date": "2026-10-21",
+      "workflow": "Security Scan",
+      "commit": "6ec4c0b4b35bd2f579466ba1cdea10094918053c",
+      "run_id": "39555291598",
+      "failure_category": "cargo-audit + cargo-deny",
+      "failure_type": "content",
+      "subsystem": "libsql dependency graph (rustls / rustls-webpki / h2 advisories)",
+      "summary": "Transitive security advisories RUSTSEC-2026-0049/0098/0099/0104/0258/0346/0349/0382 flagged by cargo-audit and cargo-deny, pulled by libsql 0.10 default `tls` feature (hyper-rustls 0.25 -> rustls 0.22 -> rustls-webpki 0.102.8, unpatchable on the 0.102 line).",
+      "reproducible_locally": true,
+      "reproduction_command": "cargo generate-lockfile && cargo audit && cargo deny check",
+      "detection_signatures": [
+        "RUSTSEC-2026-0382",
+        "Certificate verification may accept distrusted intermediates",
+        "rustls-webpki 0.102.8"
+      ],
+      "remediation_hint": "Drop libsql default features and depend on `features = [\"core\"]` so the unpatchable hyper-rustls 0.25 / rustls 0.22 / rustls-webpki 0.102.8 edge disappears from the graph. Do not re-add advisory suppressions. Tracking: https://github.com/tursodatabase/libsql/issues/2266"
     }
   ]
 }

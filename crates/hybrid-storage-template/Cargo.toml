@@ -24,7 +24,15 @@ unused_async = "allow"
 [dependencies]
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
-libsql = "0.10"
+# `default-features = false` + `core` drops libsql's default `tls` feature.
+# `tls` pins `hyper-rustls 0.25` → `rustls 0.22` → `rustls-webpki 0.102.8`,
+# whose advisories (RUSTSEC-2026-0049/0098/0099/0104/0382) have no patch
+# release on the 0.102 line. This crate only needs local SQLite access
+# (`libsql::Database`), so the remote TLS stack is dead weight.
+# Re-enable `tls` only together with a libsql release built against
+# `hyper-rustls 0.27`+ / `rustls 0.23`+.
+# https://github.com/tursodatabase/libsql/issues/2266
+libsql = { version = "0.10", default-features = false, features = ["core"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 
