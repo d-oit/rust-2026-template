@@ -1,0 +1,11 @@
+{
+  "event_id": "1792583645-omp",
+  "task_id": "bump-do-harness-version",
+  "skill": "harness",
+  "status": "success",
+  "started_at": "2026-10-21T11:30:00Z",
+  "finished_at": "2026-10-21T11:54:05Z",
+  "success": true,
+  "human_interventions": 1,
+  "git_sha": "c05fb91"
+}
