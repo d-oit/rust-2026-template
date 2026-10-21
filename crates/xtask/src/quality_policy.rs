@@ -29,13 +29,14 @@ use std::path::Path;
 const DEFAULT_REQUIRED_TIERS: [&str; 2] = ["protected-branch", "release"];
 
 /// Checks that must never be silently skipped on the default-required tiers.
-const DEFAULT_REQUIRED_CHECKS: [QualityCheck; 9] = [
+const DEFAULT_REQUIRED_CHECKS: [QualityCheck; 10] = [
     QualityCheck::Audit,
     QualityCheck::Deny,
     QualityCheck::Machete,
     QualityCheck::Msrv,
     QualityCheck::ShellCheck,
     QualityCheck::MarkdownLint,
+    QualityCheck::YamlLint,
     QualityCheck::WorkflowValidation,
     QualityCheck::ActionLint,
     QualityCheck::SecretScan,
@@ -131,6 +132,14 @@ const fn check_tool(check: QualityCheck) -> Option<CheckTool> {
                 version_args: &["--version"],
             },
             "install with `npm install -g markdownlint-cli2`",
+        ),
+        QualityCheck::YamlLint => (
+            "yamllint",
+            ToolRequirement::Binary {
+                tool: "yamllint",
+                version_args: &["--version"],
+            },
+            "install with `pip install yamllint` (or `apt-get install yamllint`)",
         ),
         QualityCheck::WorkflowValidation => (
             "scripts/validate-workflows.sh",

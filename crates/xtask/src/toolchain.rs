@@ -76,6 +76,13 @@ const TOOLS: &[Tool] = &[
         guidance: "Install via npm: npm install -g markdownlint-cli2",
     },
     Tool {
+        name: "yamllint",
+        command: "yamllint",
+        args: &["--version"],
+        required: false,
+        guidance: "Install via pip: pip install yamllint (or apt-get install yamllint)",
+    },
+    Tool {
         name: "actionlint",
         command: "actionlint",
         args: &["--version"],

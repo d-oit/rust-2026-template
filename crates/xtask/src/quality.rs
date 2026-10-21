@@ -43,6 +43,8 @@ pub enum QualityCheck {
     ShellCheck,
     /// markdownlint cli formatting.
     MarkdownLint,
+    /// yamllint formatting for YAML files.
+    YamlLint,
     /// scan for accidental email leaks.
     PrivacyCheck,
     /// scan for accidental secret/token leaks.
@@ -80,6 +82,7 @@ impl QualityCheck {
             Self::Msrv => "Rust MSRV Audit",
             Self::ShellCheck => "Shell Script Lint (ShellCheck)",
             Self::MarkdownLint => "Markdown Lint (markdownlint-cli2)",
+            Self::YamlLint => "YAML Lint (yamllint)",
             Self::PrivacyCheck => "Privacy Check (No emails)",
             Self::SecretScan => "Secret Scan",
             Self::WorkflowValidation => "GitHub Actions Workflow Validation",
@@ -134,6 +137,7 @@ fn matches_only_filter(check: QualityCheck, o_list: &[&str]) -> bool {
                 QualityCheck::Machete => o_lower == "machete" || o_lower == "deps",
                 QualityCheck::ShellCheck => o_lower == "shell" || o_lower == "shellcheck",
                 QualityCheck::MarkdownLint => o_lower == "markdown" || o_lower == "md",
+                QualityCheck::YamlLint => o_lower == "yaml" || o_lower == "yamllint",
                 QualityCheck::PrivacyCheck => o_lower == "privacy",
                 QualityCheck::SecretScan => o_lower == "secret",
                 QualityCheck::ActionLint => o_lower == "actionlint",
@@ -286,6 +290,7 @@ pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskE
         QualityCheck::Msrv => quality_checks::run_msrv_check(config)?,
         QualityCheck::ShellCheck => quality_checks::run_shellcheck_check(config)?,
         QualityCheck::MarkdownLint => quality_checks::run_markdownlint_check(config)?,
+        QualityCheck::YamlLint => quality_checks::run_yamllint_check(config)?,
         QualityCheck::PrivacyCheck => quality_helpers::run_privacy_check()?,
         QualityCheck::SecretScan => quality_helpers::run_secret_scan()?,
         QualityCheck::WorkflowValidation => quality_checks::run_workflow_validation(config)?,

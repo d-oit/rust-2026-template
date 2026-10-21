@@ -10,7 +10,7 @@ use crate::quality::{QualityCheck as Q, plan_checks};
 use std::collections::BTreeSet;
 
 /// Every check variant, used to build fully-populated tier definitions.
-const ALL_CHECKS: [Q; 22] = [
+const ALL_CHECKS: [Q; 23] = [
     Q::LocLimits,
     Q::SkillValidation,
     Q::AdrCompliance,
@@ -25,6 +25,7 @@ const ALL_CHECKS: [Q; 22] = [
     Q::Msrv,
     Q::ShellCheck,
     Q::MarkdownLint,
+    Q::YamlLint,
     Q::PrivacyCheck,
     Q::SecretScan,
     Q::WorkflowValidation,
@@ -205,6 +206,14 @@ fn probe_arguments_match_the_documented_tool_invocations() {
             "markdownlint-cli2",
             ToolRequirement::Binary {
                 tool: "markdownlint-cli2",
+                version_args: &["--version"],
+            },
+        ),
+        (
+            Q::YamlLint,
+            "yamllint",
+            ToolRequirement::Binary {
+                tool: "yamllint",
                 version_args: &["--version"],
             },
         ),

@@ -202,6 +202,28 @@ fn test_when_changed_selection_actionlint_workflow_edits() {
 }
 
 #[test]
+fn test_when_changed_selection_yamllint_yaml_edits() {
+    let config = XtaskConfig::default();
+
+    // A workflow YAML change must select the yamllint check.
+    let cp_workflow = ChangedPaths::classify(&[".github/workflows/ci.yml"]);
+    let (selected, reason) =
+        check_matches_when_changed(QualityCheck::YamlLint, &config, &cp_workflow);
+    assert!(
+        selected,
+        "YamlLint should be selected for a workflow YAML edit. Reason: {reason}"
+    );
+
+    // An unrelated source edit must not select it.
+    let cp_rust = ChangedPaths::classify(&["crates/sample-app/src/lib.rs"]);
+    let (selected, reason) = check_matches_when_changed(QualityCheck::YamlLint, &config, &cp_rust);
+    assert!(
+        !selected,
+        "YamlLint should not be selected for a Rust source edit. Reason: {reason}"
+    );
+}
+
+#[test]
 fn test_has_executed_tests_detection() {
     let output_with_tests = "\
 running 2 tests

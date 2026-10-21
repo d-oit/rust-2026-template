@@ -163,6 +163,7 @@ The configuration file structure is validated against `schema/xtask-config.schem
         "Msrv",
         "ShellCheck",
         "MarkdownLint",
+        "YamlLint",
         "PrivacyCheck",
         "SecretScan",
         "WorkflowValidation",

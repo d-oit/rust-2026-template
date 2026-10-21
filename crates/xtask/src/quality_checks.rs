@@ -154,6 +154,17 @@ pub(super) fn run_markdownlint_check(config: &XtaskConfig) -> Result<(), XtaskEr
     })
 }
 
+/// Lint YAML files with `yamllint`.
+///
+/// The repository's CI runs `yamllint .`; this mirrors it locally so a YAML
+/// style violation is caught by `./scripts/quality-gates.sh` instead of
+/// only in CI.
+pub(super) fn run_yamllint_check(config: &XtaskConfig) -> Result<(), XtaskError> {
+    quality_policy::run_with_tool_policy(config, QualityCheck::YamlLint, || {
+        commands::execute("yamllint", &["."])
+    })
+}
+
 pub(super) fn run_workflow_validation(config: &XtaskConfig) -> Result<(), XtaskError> {
     quality_policy::run_with_tool_policy(config, QualityCheck::WorkflowValidation, || {
         commands::execute("bash", &["scripts/validate-workflows.sh"])

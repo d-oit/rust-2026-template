@@ -217,6 +217,7 @@ impl XtaskConfig {
                     Q::Msrv,
                     Q::ShellCheck,
                     Q::MarkdownLint,
+                    Q::YamlLint,
                     Q::PrivacyCheck,
                     Q::SecretScan,
                     Q::WorkflowValidation,
@@ -261,6 +262,7 @@ impl XtaskConfig {
                     Q::Msrv,
                     Q::WorkflowValidation,
                     Q::ActionLint,
+                    Q::YamlLint,
                     Q::PrivacyCheck,
                     Q::SecretScan,
                 ],
@@ -334,6 +336,10 @@ impl XtaskConfig {
             vec!["scripts/**/*.sh".to_string(), "**/*.sh".to_string()],
         );
         map.insert(Q::MarkdownLint, vec!["**/*.md".to_string()]);
+        map.insert(
+            Q::YamlLint,
+            vec!["**/*.yml".to_string(), "**/*.yaml".to_string()],
+        );
         map.insert(
             Q::WorkflowValidation,
             vec![

@@ -271,6 +271,13 @@ fn test_load_actual_config_xtask_json() {
             .get(&QualityCheck::ActionLint),
         "shipped ActionLint when_changed globs must match the built-in defaults"
     );
+    assert_eq!(
+        config.when_changed.get(&QualityCheck::YamlLint),
+        XtaskConfig::default()
+            .when_changed
+            .get(&QualityCheck::YamlLint),
+        "shipped YamlLint when_changed globs must match the built-in defaults"
+    );
 
     for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
         assert!(

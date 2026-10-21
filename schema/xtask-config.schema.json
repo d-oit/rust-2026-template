@@ -46,6 +46,7 @@
                 "Msrv",
                 "ShellCheck",
                 "MarkdownLint",
+                "YamlLint",
                 "PrivacyCheck",
                 "SecretScan",
                 "WorkflowValidation",
