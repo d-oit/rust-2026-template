@@ -166,6 +166,7 @@ The configuration file structure is validated against `schema/xtask-config.schem
         "PrivacyCheck",
         "SecretScan",
         "WorkflowValidation",
+        "ActionLint",
         "CiStatusArtifact"
       ]
     }

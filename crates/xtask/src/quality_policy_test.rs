@@ -10,7 +10,7 @@ use crate::quality::{QualityCheck as Q, plan_checks};
 use std::collections::BTreeSet;
 
 /// Every check variant, used to build fully-populated tier definitions.
-const ALL_CHECKS: [Q; 21] = [
+const ALL_CHECKS: [Q; 22] = [
     Q::LocLimits,
     Q::SkillValidation,
     Q::AdrCompliance,
@@ -28,6 +28,7 @@ const ALL_CHECKS: [Q; 21] = [
     Q::PrivacyCheck,
     Q::SecretScan,
     Q::WorkflowValidation,
+    Q::ActionLint,
     Q::SkillEvals,
     Q::LlmContext,
     Q::CiStatusArtifact,
@@ -219,6 +220,14 @@ fn probe_arguments_match_the_documented_tool_invocations() {
             "scripts/validate-workflows.sh",
             ToolRequirement::Script {
                 path: "scripts/validate-workflows.sh",
+            },
+        ),
+        (
+            Q::ActionLint,
+            "actionlint",
+            ToolRequirement::Binary {
+                tool: "actionlint",
+                version_args: &["--version"],
             },
         ),
     ];

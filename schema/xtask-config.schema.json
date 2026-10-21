@@ -49,6 +49,7 @@
                 "PrivacyCheck",
                 "SecretScan",
                 "WorkflowValidation",
+                "ActionLint",
                 "SkillEvals",
                 "LlmContext",
                 "CiStatusArtifact",

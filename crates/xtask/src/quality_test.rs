@@ -170,6 +170,38 @@ fn test_when_changed_selection_manifest_edits() {
 }
 
 #[test]
+fn test_when_changed_selection_actionlint_workflow_edits() {
+    let config = XtaskConfig::default();
+
+    // A workflow change must select the actionlint check.
+    let cp_workflow = ChangedPaths::classify(&[".github/workflows/ci.yml"]);
+    let (selected, reason) =
+        check_matches_when_changed(QualityCheck::ActionLint, &config, &cp_workflow);
+    assert!(
+        selected,
+        "ActionLint should be selected for a workflow edit. Reason: {reason}"
+    );
+
+    // A composite action change must select it too.
+    let cp_action = ChangedPaths::classify(&[".github/actions/setup-rust/action.yml"]);
+    let (selected, reason) =
+        check_matches_when_changed(QualityCheck::ActionLint, &config, &cp_action);
+    assert!(
+        selected,
+        "ActionLint should be selected for a composite action edit. Reason: {reason}"
+    );
+
+    // An unrelated source edit must not select it.
+    let cp_rust = ChangedPaths::classify(&["crates/sample-app/src/lib.rs"]);
+    let (selected, reason) =
+        check_matches_when_changed(QualityCheck::ActionLint, &config, &cp_rust);
+    assert!(
+        !selected,
+        "ActionLint should not be selected for a Rust source edit. Reason: {reason}"
+    );
+}
+
+#[test]
 fn test_has_executed_tests_detection() {
     let output_with_tests = "\
 running 2 tests

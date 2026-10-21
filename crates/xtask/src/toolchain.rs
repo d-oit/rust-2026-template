@@ -75,6 +75,13 @@ const TOOLS: &[Tool] = &[
         required: false,
         guidance: "Install via npm: npm install -g markdownlint-cli2",
     },
+    Tool {
+        name: "actionlint",
+        command: "actionlint",
+        args: &["--version"],
+        required: false,
+        guidance: "Install via: go install github.com/rhysd/actionlint/cmd/actionlint@latest (or download a release binary)",
+    },
 ];
 
 /// Run all doctor/environment checks and print diagnostic results.
