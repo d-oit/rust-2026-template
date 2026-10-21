@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Promoted `pedantic` and `nursery` clippy lint groups from `allow` to `warn` at workspace level. Individual crates use local `[lints.clippy]` overrides where needed (Cargo 1.88 limitation).
 - Expanded `tokio` features in `checkpoint-template` to include `rt-multi-thread`, `macros`, and `sync` (needed for `#[tokio::test]`).
+- Bumped the pinned `do-harness` release in `scripts/setup-harness.sh` from `v0.2.1` to `v0.3.4`. The `do-harness.toml` sensor configuration format is unchanged between these versions.
 
 ### Deprecated
 
