@@ -278,6 +278,26 @@ fn test_load_actual_config_xtask_json() {
             .get(&QualityCheck::YamlLint),
         "shipped YamlLint when_changed globs must match the built-in defaults"
     );
+    // The compile/test checks follow the same paths in both places; a mismatch
+    // would mean a missing config/xtask.json selects different checks.
+    for check in [
+        QualityCheck::Fmt,
+        QualityCheck::Clippy,
+        QualityCheck::Build,
+        QualityCheck::Test,
+        QualityCheck::DocTest,
+        QualityCheck::Audit,
+        QualityCheck::Deny,
+        QualityCheck::Machete,
+        QualityCheck::Msrv,
+    ] {
+        assert_eq!(
+            config.when_changed.get(&check),
+            XtaskConfig::default().when_changed.get(&check),
+            "shipped {} when_changed globs must match the built-in defaults",
+            check.name()
+        );
+    }
 
     for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
         assert!(
