@@ -398,8 +398,17 @@ jobs:
   # config/xtask.json — not by magic values in this YAML. PRs run the fast `pull-request`
   # tier; pushes to protected branches run the deep `protected-branch` tier. The GHA job
   # summary also prints the resolved plan for every configured tier.
+  #
+  # The job name MUST stay a static literal. A `name:` containing a `${{ }}`
+  # expression is only evaluated when the job RUNS; when the job is skipped,
+  # GitHub reports the raw unevaluated expression as the check name (e.g.
+  # "Quality Gate (${{ github.event_name == ... }})"). A branch ruleset that
+  # requires the context "Quality Gate (pull-request)" then never matches a
+  # skipped job, and the PR is blocked from merging with no failing check to
+  # explain why. Keep this name in sync with the required_status_checks
+  # contexts in the repository ruleset.
   quality-gate:
-    name: Quality Gate (${{ github.event_name == 'pull_request' && 'pull-request' || 'protected-branch' }})
+    name: Quality Gate (pull-request)
     needs: [changes]
     if: >
       github.event_name != 'pull_request' ||
@@ -410,6 +419,15 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
+      - name: Report resolved tier
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TIER=pull-request
+          else
+            TIER=protected-branch
+          fi
+          echo "Resolved quality tier: $TIER"
+          echo "### Resolved quality tier: \`$TIER\`" >> "$GITHUB_STEP_SUMMARY"
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: ./.github/actions/setup-rust
       - name: Install verification tooling

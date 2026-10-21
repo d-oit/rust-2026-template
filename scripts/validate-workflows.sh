@@ -134,6 +134,49 @@ if $STRUCTURE_OK; then
 fi
 echo ""
 
+# 3b. Static job names for required status checks
+# A job `name:` that contains a `${{ }}` expression is only evaluated when the
+# job RUNS. When the job is skipped, GitHub reports the raw unevaluated
+# expression as the check name, so a branch ruleset requiring the literal
+# context never matches and the PR is blocked from merging with no failing
+# check to explain why. Any job whose name is a required status check context
+# must therefore use a static literal.
+info "Checking required status check job names are static..."
+REQUIRED_CONTEXT_JOB="${REQUIRED_CONTEXT_JOB:-ci.yml:quality-gate}"
+STATIC_NAME_ISSUES=0
+IFS=':' read -r REQ_WORKFLOW REQ_JOB <<<"${REQUIRED_CONTEXT_JOB}"
+REQ_WORKFLOW_FILE="${WORKFLOWS_DIR}/${REQ_WORKFLOW}"
+if [[ -f "${REQ_WORKFLOW_FILE}" ]] && command -v python3 &>/dev/null; then
+  STATIC_NAME_ISSUES=$(python3 - "${REQ_WORKFLOW_FILE}" "${REQ_JOB}" <<'PY' 2>/dev/null || echo 0
+import sys
+import yaml
+
+workflow_path, job_key = sys.argv[1], sys.argv[2]
+with open(workflow_path, 'r', encoding='utf-8') as fh:
+    workflow = yaml.safe_load(fh)
+
+job = (workflow.get('jobs') or {}).get(job_key)
+if not isinstance(job, dict):
+    print(0)
+    sys.exit(0)
+
+name = job.get('name')
+if not isinstance(name, str) or '${{' in name:
+    print(1)
+    sys.exit(0)
+print(0)
+PY
+)
+  if [[ "${STATIC_NAME_ISSUES}" -ne 0 ]]; then
+    fail "${REQ_WORKFLOW}: job '${REQ_JOB}' must use a static name (no \${{ }} expression) so skipped runs still report the required status check context"
+  else
+    pass "Required status check job names are static: ${REQUIRED_CONTEXT_JOB}"
+  fi
+else
+  warn "Static job name check skipped (workflow or python3 unavailable)"
+fi
+echo ""
+
 # 4. Permissions check
 info "Checking permissions declarations..."
 PERM_ISSUES=0
