@@ -195,6 +195,7 @@ impl XtaskConfig {
                     Q::PrivacyCheck,
                     Q::SecretScan,
                     Q::WorkflowValidation,
+                    Q::ActionLint,
                 ],
                 required_checks: None,
             },
@@ -216,9 +217,11 @@ impl XtaskConfig {
                     Q::Msrv,
                     Q::ShellCheck,
                     Q::MarkdownLint,
+                    Q::YamlLint,
                     Q::PrivacyCheck,
                     Q::SecretScan,
                     Q::WorkflowValidation,
+                    Q::ActionLint,
                     Q::CiStatusArtifact,
                 ],
                 required_checks: None,
@@ -258,6 +261,8 @@ impl XtaskConfig {
                     Q::Machete,
                     Q::Msrv,
                     Q::WorkflowValidation,
+                    Q::ActionLint,
+                    Q::YamlLint,
                     Q::PrivacyCheck,
                     Q::SecretScan,
                 ],
@@ -332,10 +337,21 @@ impl XtaskConfig {
         );
         map.insert(Q::MarkdownLint, vec!["**/*.md".to_string()]);
         map.insert(
+            Q::YamlLint,
+            vec!["**/*.yml".to_string(), "**/*.yaml".to_string()],
+        );
+        map.insert(
             Q::WorkflowValidation,
             vec![
                 ".github/workflows/*.yml".to_string(),
                 "scripts/validate-workflows.sh".to_string(),
+            ],
+        );
+        map.insert(
+            Q::ActionLint,
+            vec![
+                ".github/workflows/*.yml".to_string(),
+                ".github/actions/**".to_string(),
             ],
         );
         map

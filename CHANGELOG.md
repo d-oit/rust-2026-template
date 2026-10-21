@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- for new features.
+- Added an `actionlint` quality check (`GitHub Actions Semantic Check`) that validates GitHub Actions workflows semantically: undefined expressions, `needs` references to non-existent jobs, invalid contexts, and cron syntax. It runs on the `pull-request`, `protected-branch`, and `release` tiers, is required on the protected tiers, and installs `actionlint` v1.7.12 in CI. Only actionlint's own checks run — its bundled shellcheck and pyflakes passes are disabled because the repository lints shell separately and several workflow `run:` blocks rely on intentional word splitting.
+- Added a `yamllint` quality check (`YAML Lint`) that mirrors the `yamllint .` run the CI lint job already performed, so YAML style violations are caught by `./scripts/quality-gates.sh` instead of only in CI. It is required on the `protected-branch` and `release` tiers.
 
 ### Changed
 

@@ -14,7 +14,8 @@
         "SkillEvals",
         "PrivacyCheck",
         "SecretScan",
-        "WorkflowValidation"
+        "WorkflowValidation",
+        "ActionLint"
       ]
     },
     "protected-branch": {
@@ -31,11 +32,13 @@
         "Msrv",
         "ShellCheck",
         "MarkdownLint",
+        "YamlLint",
         "SkillValidation",
         "SkillEvals",
         "PrivacyCheck",
         "SecretScan",
         "WorkflowValidation",
+        "ActionLint",
         "CiStatusArtifact"
       ],
       "required_checks": [
@@ -45,7 +48,9 @@
         "Msrv",
         "ShellCheck",
         "MarkdownLint",
+        "YamlLint",
         "WorkflowValidation",
+        "ActionLint",
         "SecretScan"
       ]
     },
@@ -75,6 +80,8 @@
         "Machete",
         "Msrv",
         "WorkflowValidation",
+        "ActionLint",
+        "YamlLint",
         "PrivacyCheck",
         "SecretScan"
       ],
@@ -84,6 +91,8 @@
         "Machete",
         "Msrv",
         "WorkflowValidation",
+        "ActionLint",
+        "YamlLint",
         "SecretScan"
       ]
     }
@@ -100,7 +109,9 @@
     "Msrv": ["crates/**/*.rs", "src/**/*.rs", "**/Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "scripts/audit-msrv.sh"],
     "ShellCheck": ["scripts/**/*.sh", "**/*.sh"],
     "MarkdownLint": ["**/*.md"],
+    "YamlLint": ["**/*.yml", "**/*.yaml"],
     "WorkflowValidation": [".github/workflows/*.yml", "scripts/validate-workflows.sh"],
+    "ActionLint": [".github/workflows/*.yml", ".github/actions/**"],
     "SkillValidation": [".agents/skills/**", ".agents/SKILLS.md", "scripts/validate-skills.sh", ".claude/skills", ".qwen/skills"],
     "SkillEvals": [".agents/skills/**", "scripts/run-evals.sh"]
   },

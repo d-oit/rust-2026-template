@@ -2,15 +2,13 @@
 #![allow(clippy::unwrap_used)]
 
 use crate::changed_paths::ChangedPaths;
-use crate::commands;
 use crate::config::{XtaskConfig, XtaskError};
+use crate::quality_checks;
 use crate::quality_helpers;
-use std::fs::File;
-use std::io::Read;
-use std::path::Path;
+use crate::quality_policy;
 
-#[path = "quality_policy.rs"]
-mod quality_policy;
+#[cfg(test)]
+pub(crate) use quality_checks::has_executed_tests;
 
 /// Enum representing the individual quality gate checks.
 #[derive(
@@ -45,12 +43,16 @@ pub enum QualityCheck {
     ShellCheck,
     /// markdownlint cli formatting.
     MarkdownLint,
+    /// yamllint formatting for YAML files.
+    YamlLint,
     /// scan for accidental email leaks.
     PrivacyCheck,
     /// scan for accidental secret/token leaks.
     SecretScan,
     /// GitHub actions workflows verification.
     WorkflowValidation,
+    /// GitHub Actions semantic lint (actionlint).
+    ActionLint,
     /// skill evaluations verification.
     SkillEvals,
     /// LLM context files check.
@@ -80,9 +82,11 @@ impl QualityCheck {
             Self::Msrv => "Rust MSRV Audit",
             Self::ShellCheck => "Shell Script Lint (ShellCheck)",
             Self::MarkdownLint => "Markdown Lint (markdownlint-cli2)",
+            Self::YamlLint => "YAML Lint (yamllint)",
             Self::PrivacyCheck => "Privacy Check (No emails)",
             Self::SecretScan => "Secret Scan",
             Self::WorkflowValidation => "GitHub Actions Workflow Validation",
+            Self::ActionLint => "GitHub Actions Semantic Check (actionlint)",
             Self::SkillEvals => "Skill Evaluations",
             Self::LlmContext => "LLM Context Files Check",
             Self::CiStatusArtifact => "CI Status Artifact Check",
@@ -133,8 +137,10 @@ fn matches_only_filter(check: QualityCheck, o_list: &[&str]) -> bool {
                 QualityCheck::Machete => o_lower == "machete" || o_lower == "deps",
                 QualityCheck::ShellCheck => o_lower == "shell" || o_lower == "shellcheck",
                 QualityCheck::MarkdownLint => o_lower == "markdown" || o_lower == "md",
+                QualityCheck::YamlLint => o_lower == "yaml" || o_lower == "yamllint",
                 QualityCheck::PrivacyCheck => o_lower == "privacy",
                 QualityCheck::SecretScan => o_lower == "secret",
+                QualityCheck::ActionLint => o_lower == "actionlint",
                 _ => false,
             }
     })
@@ -270,212 +276,29 @@ pub fn plan_checks(
 pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskError> {
     println!("--- Running Check: {} ---", check.name());
     match check {
-        QualityCheck::LocLimits => run_loc_limits_check(config)?,
+        QualityCheck::LocLimits => quality_checks::run_loc_limits_check(config)?,
         QualityCheck::SkillValidation => quality_helpers::run_skill_validation()?,
         QualityCheck::AdrCompliance => quality_helpers::run_adr_compliance()?,
-        QualityCheck::Fmt => run_fmt_check()?,
-        QualityCheck::Clippy => run_clippy_check(config)?,
-        QualityCheck::Build => run_build_check()?,
-        QualityCheck::Test => run_test_check()?,
-        QualityCheck::DocTest => run_doc_test()?,
-        QualityCheck::Audit => run_audit_check(config)?,
-        QualityCheck::Deny => run_deny_check(config)?,
-        QualityCheck::Machete => run_machete_check(config)?,
-        QualityCheck::Msrv => run_msrv_check(config)?,
-        QualityCheck::ShellCheck => run_shellcheck_check(config)?,
-        QualityCheck::MarkdownLint => run_markdownlint_check(config)?,
+        QualityCheck::Fmt => quality_checks::run_fmt_check()?,
+        QualityCheck::Clippy => quality_checks::run_clippy_check(config)?,
+        QualityCheck::Build => quality_checks::run_build_check()?,
+        QualityCheck::Test => quality_checks::run_test_check()?,
+        QualityCheck::DocTest => quality_checks::run_doc_test()?,
+        QualityCheck::Audit => quality_checks::run_audit_check(config)?,
+        QualityCheck::Deny => quality_checks::run_deny_check(config)?,
+        QualityCheck::Machete => quality_checks::run_machete_check(config)?,
+        QualityCheck::Msrv => quality_checks::run_msrv_check(config)?,
+        QualityCheck::ShellCheck => quality_checks::run_shellcheck_check(config)?,
+        QualityCheck::MarkdownLint => quality_checks::run_markdownlint_check(config)?,
+        QualityCheck::YamlLint => quality_checks::run_yamllint_check(config)?,
         QualityCheck::PrivacyCheck => quality_helpers::run_privacy_check()?,
         QualityCheck::SecretScan => quality_helpers::run_secret_scan()?,
-        QualityCheck::WorkflowValidation => run_workflow_validation(config)?,
+        QualityCheck::WorkflowValidation => quality_checks::run_workflow_validation(config)?,
+        QualityCheck::ActionLint => quality_checks::run_actionlint_check(config)?,
         QualityCheck::SkillEvals => quality_helpers::run_skill_evals()?,
-        QualityCheck::LlmContext => run_llm_context_check()?,
-        QualityCheck::CiStatusArtifact => run_ci_status_check()?,
+        QualityCheck::LlmContext => quality_checks::run_llm_context_check()?,
+        QualityCheck::CiStatusArtifact => quality_checks::run_ci_status_check()?,
         QualityCheck::RoastScorer => quality_helpers::run_roast_scorer()?,
-    }
-    Ok(())
-}
-
-fn run_loc_limits_check(config: &XtaskConfig) -> Result<(), XtaskError> {
-    let max_lines = config.lint_thresholds.max_lines_per_file;
-    let mut rs_files = Vec::new();
-    quality_helpers::find_files(Path::new("."), "rs", &mut rs_files);
-    if rs_files.is_empty() {
-        return Err(XtaskError::InvalidConfig {
-            message: "LOC check failed: no Rust source files (.rs) found in workspace".to_string(),
-        });
-    }
-    let mut violations = 0;
-    for file in rs_files {
-        let lines = quality_helpers::count_lines(&file)?;
-        if lines > max_lines {
-            println!("  ! {}: {lines} lines (max {max_lines})", file.display());
-            violations += 1;
-        }
-    }
-    if violations > 0 {
-        return Err(XtaskError::InvalidConfig {
-            message: format!("LOC: {violations} file(s) exceed maximum of {max_lines} lines"),
-        });
-    }
-    println!("  ✓ All source files within line limits");
-    Ok(())
-}
-
-fn run_fmt_check() -> Result<(), XtaskError> {
-    commands::execute("cargo", &["fmt", "--all", "--", "--check"])
-}
-
-fn run_clippy_check(config: &XtaskConfig) -> Result<(), XtaskError> {
-    let mut clippy_args = vec!["clippy", "--workspace", "--all-targets", "--all-features"];
-    if config.lint_thresholds.clippy_warnings_as_errors {
-        clippy_args.extend(&["--", "-D", "warnings"]);
-    }
-    commands::execute("cargo", &clippy_args)
-}
-
-fn run_build_check() -> Result<(), XtaskError> {
-    commands::execute("cargo", &["build", "--workspace", "--all-targets"])
-}
-
-pub(super) fn has_executed_tests(output: &str) -> bool {
-    for line in output.lines() {
-        if let Some(idx) = line.find("running ") {
-            let rest = &line[idx + "running ".len()..];
-            let num_str = rest.split_whitespace().next().unwrap_or("");
-            if let Ok(count) = num_str.parse::<usize>() {
-                if count > 0 {
-                    return true;
-                }
-            }
-        }
-        if line.contains("passed") && !line.contains("0 passed") {
-            return true;
-        }
-    }
-    false
-}
-
-fn run_test_check() -> Result<(), XtaskError> {
-    let has_nextest = commands::execute_captured("cargo", &["nextest", "--version"]).is_ok();
-    if has_nextest {
-        commands::execute(
-            "cargo",
-            &[
-                "nextest",
-                "run",
-                "--all-features",
-                "--workspace",
-                "--no-tests=fail",
-            ],
-        )
-    } else {
-        let output =
-            commands::execute_captured("cargo", &["test", "--all-features", "--workspace"])?;
-        if !has_executed_tests(&output) {
-            return Err(XtaskError::CommandFailure {
-                command: "cargo test (zero tests found in workspace)".to_string(),
-                exit_code: Some(1),
-            });
-        }
-        println!("{output}");
-        Ok(())
-    }
-}
-
-fn run_doc_test() -> Result<(), XtaskError> {
-    commands::execute("cargo", &["test", "--doc", "--all-features"])
-}
-
-fn run_audit_check(config: &XtaskConfig) -> Result<(), XtaskError> {
-    quality_policy::run_with_tool_policy(config, QualityCheck::Audit, || {
-        commands::execute("cargo", &["audit"])
-    })
-}
-
-fn run_deny_check(config: &XtaskConfig) -> Result<(), XtaskError> {
-    quality_policy::run_with_tool_policy(config, QualityCheck::Deny, || {
-        commands::execute("cargo", &["deny", "check"])
-    })
-}
-
-fn run_machete_check(config: &XtaskConfig) -> Result<(), XtaskError> {
-    quality_policy::run_with_tool_policy(config, QualityCheck::Machete, || {
-        commands::execute("cargo-machete", &[])
-    })
-}
-
-fn run_msrv_check(config: &XtaskConfig) -> Result<(), XtaskError> {
-    quality_policy::run_with_tool_policy(config, QualityCheck::Msrv, || {
-        commands::execute("bash", &["scripts/audit-msrv.sh"])
-    })
-}
-
-fn run_shellcheck_check(config: &XtaskConfig) -> Result<(), XtaskError> {
-    quality_policy::run_with_tool_policy(config, QualityCheck::ShellCheck, || {
-        let mut sh_files = Vec::new();
-        quality_helpers::find_files(Path::new("."), "sh", &mut sh_files);
-        if sh_files.is_empty() {
-            println!("  ✓ No shell scripts detected");
-            return Ok(());
-        }
-        let mut args = vec!["--severity=error"];
-        let sh_strs: Vec<String> = sh_files
-            .iter()
-            .map(|p| p.to_string_lossy().into_owned())
-            .collect();
-        for s in &sh_strs {
-            args.push(s);
-        }
-        commands::execute("shellcheck", &args)
-    })
-}
-
-fn run_markdownlint_check(config: &XtaskConfig) -> Result<(), XtaskError> {
-    quality_policy::run_with_tool_policy(config, QualityCheck::MarkdownLint, || {
-        commands::execute("markdownlint-cli2", &["**/*.md"])
-    })
-}
-
-fn run_workflow_validation(config: &XtaskConfig) -> Result<(), XtaskError> {
-    quality_policy::run_with_tool_policy(config, QualityCheck::WorkflowValidation, || {
-        commands::execute("bash", &["scripts/validate-workflows.sh"])
-    })
-}
-
-fn run_llm_context_check() -> Result<(), XtaskError> {
-    let files = &["llms.txt", "llms-full.txt"];
-    for f in files {
-        if !Path::new(f).exists() {
-            return Err(XtaskError::InvalidConfig {
-                message: format!(
-                    "LLM context file '{f}' missing. Run scripts/generate-llms-txt.sh"
-                ),
-            });
-        }
-    }
-    commands::execute("bash", &["scripts/generate-llms-txt.sh", "--check"])?;
-    println!("  ✓ llms.txt and llms-full.txt are present and up to date");
-    Ok(())
-}
-
-fn run_ci_status_check() -> Result<(), XtaskError> {
-    let path = Path::new(".agents/ci/ci-status.json");
-    if path.exists() {
-        let mut file = File::open(path).map_err(|e| XtaskError::InvalidConfig {
-            message: e.to_string(),
-        })?;
-        let mut content = String::new();
-        file.read_to_string(&mut content)
-            .map_err(|e| XtaskError::InvalidConfig {
-                message: e.to_string(),
-            })?;
-        let _v: serde_json::Value =
-            serde_json::from_str(&content).map_err(|e| XtaskError::InvalidConfig {
-                message: format!("CI status artifact is invalid JSON: {e}"),
-            })?;
-        println!("  ✓ CI status artifact exists and is valid JSON");
-    } else {
-        println!("  ! CI status artifact .agents/ci/ci-status.json not found, skipping check");
     }
     Ok(())
 }

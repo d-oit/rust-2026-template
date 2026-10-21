@@ -75,6 +75,20 @@ const TOOLS: &[Tool] = &[
         required: false,
         guidance: "Install via npm: npm install -g markdownlint-cli2",
     },
+    Tool {
+        name: "yamllint",
+        command: "yamllint",
+        args: &["--version"],
+        required: false,
+        guidance: "Install via pip: pip install yamllint (or apt-get install yamllint)",
+    },
+    Tool {
+        name: "actionlint",
+        command: "actionlint",
+        args: &["--version"],
+        required: false,
+        guidance: "Install via: go install github.com/rhysd/actionlint/cmd/actionlint@latest (or download a release binary)",
+    },
 ];
 
 /// Run all doctor/environment checks and print diagnostic results.

@@ -42,7 +42,7 @@ echo ""
 
 # --- Optional quality tools ---
 echo "Optional quality tools:"
-for cmd in cargo-nextest cargo-audit cargo-deny cargo-machete shellcheck markdownlint-cli2; do
+for cmd in cargo-nextest cargo-audit cargo-deny cargo-machete shellcheck markdownlint-cli2 yamllint actionlint; do
   if command -v "$cmd" &>/dev/null; then
     pass "$cmd: installed"
   else

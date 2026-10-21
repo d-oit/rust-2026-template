@@ -252,6 +252,32 @@ fn test_load_actual_config_xtask_json() {
             .contains(&QualityCheck::WorkflowValidation),
         "shipped pull-request tier must include WorkflowValidation"
     );
+    // Semantic workflow linting runs wherever workflow validation does.
+    for tier in ["pull-request", "protected-branch", "release"] {
+        assert!(
+            config.tiers[tier]
+                .checks
+                .contains(&QualityCheck::ActionLint),
+            "shipped {tier} tier must include ActionLint"
+        );
+    }
+    // The shipped `when_changed` mapping must agree with the built-in default,
+    // otherwise a missing config/xtask.json would silently change which
+    // workflow edits are linted.
+    assert_eq!(
+        config.when_changed.get(&QualityCheck::ActionLint),
+        XtaskConfig::default()
+            .when_changed
+            .get(&QualityCheck::ActionLint),
+        "shipped ActionLint when_changed globs must match the built-in defaults"
+    );
+    assert_eq!(
+        config.when_changed.get(&QualityCheck::YamlLint),
+        XtaskConfig::default()
+            .when_changed
+            .get(&QualityCheck::YamlLint),
+        "shipped YamlLint when_changed globs must match the built-in defaults"
+    );
 
     for tier in ["pull-request", "protected-branch", "scheduled", "release"] {
         assert!(

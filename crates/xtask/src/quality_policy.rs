@@ -29,14 +29,16 @@ use std::path::Path;
 const DEFAULT_REQUIRED_TIERS: [&str; 2] = ["protected-branch", "release"];
 
 /// Checks that must never be silently skipped on the default-required tiers.
-const DEFAULT_REQUIRED_CHECKS: [QualityCheck; 8] = [
+const DEFAULT_REQUIRED_CHECKS: [QualityCheck; 10] = [
     QualityCheck::Audit,
     QualityCheck::Deny,
     QualityCheck::Machete,
     QualityCheck::Msrv,
     QualityCheck::ShellCheck,
     QualityCheck::MarkdownLint,
+    QualityCheck::YamlLint,
     QualityCheck::WorkflowValidation,
+    QualityCheck::ActionLint,
     QualityCheck::SecretScan,
 ];
 
@@ -49,7 +51,7 @@ thread_local! {
 
 /// Publishes the canonical tier resolved during planning (called by the parent
 /// `quality` module when `plan_checks` resolves a tier).
-pub(super) fn set_active_tier(canonical_tier: &str) {
+pub(crate) fn set_active_tier(canonical_tier: &str) {
     ACTIVE_TIER.with(|slot| *slot.borrow_mut() = Some(canonical_tier.to_string()));
 }
 
@@ -131,12 +133,28 @@ const fn check_tool(check: QualityCheck) -> Option<CheckTool> {
             },
             "install with `npm install -g markdownlint-cli2`",
         ),
+        QualityCheck::YamlLint => (
+            "yamllint",
+            ToolRequirement::Binary {
+                tool: "yamllint",
+                version_args: &["--version"],
+            },
+            "install with `pip install yamllint` (or `apt-get install yamllint`)",
+        ),
         QualityCheck::WorkflowValidation => (
             "scripts/validate-workflows.sh",
             ToolRequirement::Script {
                 path: "scripts/validate-workflows.sh",
             },
             "restore the script from version control (it ships with the template)",
+        ),
+        QualityCheck::ActionLint => (
+            "actionlint",
+            ToolRequirement::Binary {
+                tool: "actionlint",
+                version_args: &["--version"],
+            },
+            "install actionlint (e.g. `go install github.com/rhysd/actionlint/cmd/actionlint@latest` or download a release binary)",
         ),
         _ => return None,
     };
@@ -236,7 +254,7 @@ fn is_required(config: &XtaskConfig, check: QualityCheck) -> bool {
 /// Probes the check's tool/script and either runs the check, or applies the
 /// required-tool policy for the active tier (called by the parent `quality`
 /// module when executing a check with an external tool/script dependency).
-pub(super) fn run_with_tool_policy<F>(
+pub(crate) fn run_with_tool_policy<F>(
     config: &XtaskConfig,
     check: QualityCheck,
     run: F,
