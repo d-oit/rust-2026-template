@@ -4,22 +4,18 @@
 # runs `cargo audit` (no flags) so it consults this config. cargo-deny has its
 # own `[advisories]` table in `deny.toml`; keep both in sync.
 #
-## Why we ignore these advisories:
-# `rustls-webpki 0.102.8` is pulled transitively by:
-#   rustls 0.22.4 ← hyper-rustls 0.25.0 ← libsql 0.9.30 ← hybrid-storage-template
-# The 0.103.x webpki upgrade is blocked because rustls 0.22 caps at ^0.102
-# (rustls 0.23 is the first release supporting webpki 0.103.x and our upstream
-# `libsql` 0.9 does not depend on it). We ignore these advisory IDs and track
-# the unblock separately via bumping libsql once they release a build against
-# rustls 0.23+. Remove each ID here after bumping.
+## Why `ignore` is empty:
+# The rustls / rustls-webpki / h2 advisories (RUSTSEC-2026-0049, -0098,
+# -0099, -0104, -0258, -0346, -0349, -0382) were previously suppressed here.
+# They are no longer needed: `hybrid-storage-template` depends on libsql with
+# `default-features = false, features = ["core"]`, which drops libsql's
+# default `tls` feature and with it the whole
+#   hyper-rustls 0.25 → rustls 0.22 → rustls-webpki 0.102.8
+# stack. Those crate versions are unpatchable on their own release lines
+# (rustls-webpki 0.102.x has no fixed release; fixes landed in 0.103.16+),
+# so removing the dependency edge is the only durable remedy.
+# Do not re-add suppressions here — fix the dependency edge instead.
+# Tracking: https://github.com/tursodatabase/libsql/issues/2266
 
 [advisories]
-ignore = [
-    "RUSTSEC-2026-0049",
-    "RUSTSEC-2026-0099",
-    "RUSTSEC-2026-0104",
-    "RUSTSEC-2026-0098",
-    "RUSTSEC-2026-0258",
-    "RUSTSEC-2026-0346",
-    "RUSTSEC-2026-0349",
-]
+ignore = []

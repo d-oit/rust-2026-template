@@ -39,6 +39,54 @@ fail() {
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
+# Reads the quality-gates sensor `when-changed` globs from a do-harness.toml and
+# reports, for each path given as an argument, whether any glob matches it. The
+# glob semantics mirror do-harness: '**' spans path segments, '*' does not.
+glob_matches() {
+  local config_path="$1"
+  shift
+  python3 - "${config_path}" "$@" <<'PY'
+import re
+import sys
+import tomllib
+
+config_path = sys.argv[1]
+with open(config_path, 'rb') as fh:
+    config = tomllib.load(fh)
+
+patterns = []
+for sensor in config.get('sensors', []):
+    if sensor.get('name') == 'quality-gates':
+        patterns.extend(sensor.get('when-changed', []))
+
+
+def to_regex(pattern: str) -> str:
+    parts = []
+    i = 0
+    while i < len(pattern):
+        if pattern.startswith('**/', i):
+            parts.append('(?:.*/)?')
+            i += 3
+        elif pattern.startswith('**', i):
+            parts.append('.*')
+            i += 2
+        elif pattern[i] == '*':
+            parts.append('[^/]*')
+            i += 1
+        else:
+            parts.append(re.escape(pattern[i]))
+            i += 1
+    return ''.join(parts)
+
+
+for path in sys.argv[2:]:
+    if not path:
+        continue
+    hits = [p for p in patterns if re.fullmatch(to_regex(p), path)]
+    print(f"{path}\t{'MATCH' if hits else 'NO_MATCH'}\t{','.join(hits)}")
+PY
+}
+
 echo "=== Running do-harness Integration & Regression Tests ==="
 echo ""
 
@@ -52,11 +100,15 @@ XTASK_BIN="${REPO_ROOT}/target/debug/xtask"
 echo "[Test 1] Testing optional do-harness tool absence and setup script..."
 
 # 1A. Doctor script check
+# The contract is that doctor.sh reports the optional do-harness binary status
+# gracefully. Whether the binary is installed depends on the environment
+# (CI does not install it), so both states are valid and must be reported
+# without failing the script.
 DOCTOR_OUT=$(bash scripts/doctor.sh 2>&1 || true)
-if echo "${DOCTOR_OUT}" | grep -q "do-harness: not installed"; then
-  pass "scripts/doctor.sh gracefully reports missing optional do-harness binary"
+if echo "${DOCTOR_OUT}" | grep -qE 'do-harness: (not installed|/|[A-Za-z]:)'; then
+  pass "scripts/doctor.sh gracefully reports the optional do-harness binary status"
 else
-  fail "scripts/doctor.sh should report missing optional do-harness binary: ${DOCTOR_OUT}"
+  fail "scripts/doctor.sh should report the do-harness binary status: ${DOCTOR_OUT}"
 fi
 
 # 1B. Setup script dry-run check
@@ -98,6 +150,44 @@ if [[ -f "do-harness.toml" ]]; then
     pass "do-harness.toml configures generic language delegating quality checks to scripts/quality-gates.sh"
   else
     fail "do-harness.toml must use generic language and delegate to scripts/quality-gates.sh"
+  fi
+
+  # The quality-gates sensor must declare `when-changed` applicability globs that
+  # cover BOTH the workspace root manifest and nested workspace member manifests.
+  SENSOR_WHEN_CHANGED=$(python3 -c "
+import tomllib
+with open('do-harness.toml', 'rb') as fh:
+    config = tomllib.load(fh)
+for sensor in config.get('sensors', []):
+    if sensor.get('name') == 'quality-gates':
+        for pattern in sensor.get('when-changed', []):
+            print(pattern)
+" 2>/dev/null || true)
+
+  if grep -qxF 'Cargo.toml' <<<"${SENSOR_WHEN_CHANGED}" \
+     && grep -qxF '**/Cargo.toml' <<<"${SENSOR_WHEN_CHANGED}"; then
+    pass "do-harness.toml quality-gates sensor declares when-changed globs for root and member manifests"
+  else
+    fail "do-harness.toml quality-gates sensor must declare when-changed globs 'Cargo.toml' and '**/Cargo.toml' (found: ${SENSOR_WHEN_CHANGED:-none})"
+  fi
+
+  # A bare wildcard would select the sensor on documentation-only edits and
+  # defeat the Markdown-only fast path.
+  if grep -qxF '**' <<<"${SENSOR_WHEN_CHANGED}"; then
+    fail "do-harness.toml quality-gates sensor must not use a bare '**' when-changed glob"
+  else
+    pass "do-harness.toml quality-gates sensor avoids bare wildcard when-changed globs"
+  fi
+
+  # Root manifest and nested member manifests must both select the sensor.
+  SELECTION=$(glob_matches "do-harness.toml" \
+    "Cargo.toml" "crates/sample-app/Cargo.toml" "README.md")
+  if grep -qE '^Cargo\.toml[[:space:]]+MATCH' <<<"${SELECTION}" \
+     && grep -qE '^crates/sample-app/Cargo\.toml[[:space:]]+MATCH' <<<"${SELECTION}" \
+     && grep -qE '^README\.md[[:space:]]+NO_MATCH' <<<"${SELECTION}"; then
+    pass "do-harness.toml when-changed selects root and member manifests but not Markdown-only edits"
+  else
+    fail "do-harness.toml when-changed selection is wrong: ${SELECTION}"
   fi
 else
   fail "do-harness.toml is missing from repository root"
@@ -156,6 +246,48 @@ EOF
     pass "Adapter script (quality-gates.sh) executes and fails on invalid member manifest edit"
   else
     fail "Adapter script (quality-gates.sh) should have failed on invalid member manifest edit"
+  fi
+)
+
+# 3B-2. A member manifest OUTSIDE crates/ (examples/, benchmarks/) must also be
+# selected by the quality-gates sensor's `when-changed` globs. The root manifest
+# glob "Cargo.toml" alone does not cover nested member manifests.
+OUTSIDE_MANIFEST_WS="${TMP_DIR}/outside_manifest_ws"
+mkdir -p "${OUTSIDE_MANIFEST_WS}"
+cp -r "${REPO_ROOT}/Cargo.toml" "${REPO_ROOT}/Cargo.lock" \
+      "${REPO_ROOT}/config" "${REPO_ROOT}/crates" "${REPO_ROOT}/examples" \
+      "${REPO_ROOT}/benchmarks" "${REPO_ROOT}/scripts" \
+      "${REPO_ROOT}/do-harness.toml" "${OUTSIDE_MANIFEST_WS}/" 2>/dev/null || true
+
+(
+  cd "${OUTSIDE_MANIFEST_WS}"
+  git init -q
+  git config user.name "Test User"
+  git config user.email "test@example.com"
+  git add .
+  git commit -m "initial commit" -q
+
+  # Member manifests outside crates/ must be selected by the declared globs.
+  for member_manifest in "examples/hello_world/Cargo.toml" "benchmarks/Cargo.toml"; do
+    if [[ ! -f "${member_manifest}" ]]; then
+      fail "Fixture member manifest missing for selection check: ${member_manifest}"
+      continue
+    fi
+
+    SELECTION=$(glob_matches "do-harness.toml" "${member_manifest}")
+    if grep -qE "^${member_manifest//./\\.}[[:space:]]+MATCH" <<<"${SELECTION}"; then
+      pass "quality-gates when-changed globs select member manifest outside crates/: ${member_manifest}"
+    else
+      fail "quality-gates when-changed globs must select member manifest outside crates/: ${member_manifest} (${SELECTION})"
+    fi
+  done
+
+  # A documentation-only edit must NOT match any declared quality-gates glob.
+  DOC_SELECTION=$(glob_matches "do-harness.toml" "README.md")
+  if grep -qE '^README\.md[[:space:]]+NO_MATCH' <<<"${DOC_SELECTION}"; then
+    pass "quality-gates when-changed globs do not match documentation-only edits (README.md)"
+  else
+    fail "quality-gates when-changed globs must not match documentation-only edits (${DOC_SELECTION})"
   fi
 )
 

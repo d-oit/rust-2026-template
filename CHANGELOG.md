@@ -27,7 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added `.cargo/audit.toml` to ignore unfixable `rustls-webpki 0.102.8` transitive advisories (RUSTSEC-2026-0049/0099/0104/0098), blocked upstream by `libsql 0.9` → `rustls 0.22`.
+- Removed the unpatchable `rustls-webpki 0.102.8` dependency edge instead of suppressing its advisories. `hybrid-storage-template` now depends on `libsql` with `default-features = false, features = ["core"]`, which drops libsql's default `tls` feature and with it the whole `hyper-rustls 0.25` → `rustls 0.22` → `rustls-webpki 0.102.8` stack. `cargo audit` and `cargo deny check` now pass with an empty advisory ignore list.
+- Restored the `when-changed` applicability globs for the `quality-gates` sensor in `do-harness.toml`. `"Cargo.toml"` covers the workspace root manifest and `"**/Cargo.toml"` covers workspace member manifests (inside and outside `crates/`); bare wildcards are avoided so Markdown-only edits do not trigger verification.
 
 ### Security
 

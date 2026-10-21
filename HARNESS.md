@@ -25,6 +25,18 @@ To avoid duplicating quality checks or running duplicate compiler pipelines, res
 ### Non-Duplication Principle
 `do-harness.toml` is configured so that `do-harness verify` delegates directly to `./scripts/quality-gates.sh` rather than running a second duplicate Cargo test/clippy pass. Never treat a green result from one tool as proof that the other tool's checks ran if they were not executed.
 
+### Sensor Applicability (`when-changed`) & Manifest Selection
+The `quality-gates` sensor declares `when-changed` globs that decide whether `do-harness verify --changed` runs it. Manifest edits are covered by **two** globs, and both are required:
+
+| Glob | Covers |
+|---|---|
+| `"Cargo.toml"` | The workspace **root** manifest |
+| `"**/Cargo.toml"` | **Workspace member** manifests, inside and outside `crates/` (`crates/*/Cargo.toml`, `examples/*/Cargo.toml`, `benchmarks/Cargo.toml`) |
+
+`"Cargo.toml"` alone does **not** select member manifests, so a member-manifest-only edit would silently skip verification. `"**/Cargo.toml"` alone relies on the glob engine treating a leading `**/` as optional at the repository root, so declaring both keeps the selection stable across glob dialects. Never replace these with bare wildcards such as `"**"` or `"**/*.toml"`: those match Markdown-only edits and defeat the documentation-only fast path.
+
+`xtask` applies the same rule in `config/xtask.json` under `when_changed`; keep the two in sync.
+
 ### Missing Tools & Evidence Behavior
 - **Binary absent:** If `do-harness` is not installed locally, standard workflow scripts (`./scripts/doctor.sh`, `./scripts/quality-gates.sh`) remain fully functional.
 - **Missing PR context:** Commands like `do-harness pr review` or `do-harness pr ready` require `gh` CLI and open PR context. When executed locally on a branch without a PR, they report missing PR context gracefully.

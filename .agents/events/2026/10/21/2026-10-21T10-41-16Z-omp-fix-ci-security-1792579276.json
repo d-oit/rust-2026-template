@@ -1,0 +1,11 @@
+{
+  "event_id": "1792579276-omp",
+  "task_id": "fix-ci-security-main",
+  "skill": "harness",
+  "status": "success",
+  "started_at": "2026-10-21T10:00:00Z",
+  "finished_at": "2026-10-21T10:41:16Z",
+  "success": true,
+  "human_interventions": 1,
+  "git_sha": "5e6cef1"
+}

@@ -218,4 +218,77 @@ EOF
 rm -rf "${TEST_DIR_LIB}"
 echo "[PASS] Library profile untracked lockfile strategy verified."
 
+# 4. Test Unpatchable Dependency Edge Guard
+# `libsql`'s default `tls` feature pins hyper-rustls 0.25 -> rustls 0.22 ->
+# rustls-webpki 0.102.8. That stack carries advisories (RUSTSEC-2026-0049,
+# -0098, -0099, -0104, -0258, -0346, -0349, -0382) with no patch release on the
+# 0.102/0.22 lines, so the dependency edge itself must stay out of the graph.
+echo "[TEST] Validating unpatchable rustls dependency edge is absent..."
+
+VULN_PACKAGES="rustls-webpki rustls h2 hyper-rustls"
+
+# The manifests must not re-enable libsql's default `tls` feature.
+if grep -RqE '^[[:space:]]*libsql[[:space:]]*=[[:space:]]*(\{[^}]*)?[[:space:]]*"[^"]*"' \
+     crates/*/Cargo.toml 2>/dev/null; then
+  LIBSQL_DEP=$(grep -RhE '^[[:space:]]*libsql[[:space:]]*=' crates/*/Cargo.toml 2>/dev/null | head -1)
+  if [[ -z "${LIBSQL_DEP}" ]]; then
+    echo "ERROR: Could not determine libsql dependency declaration."
+    exit 1
+  fi
+  if ! grep -q 'default-features[[:space:]]*=[[:space:]]*false' <<<"${LIBSQL_DEP}"; then
+    echo "ERROR: libsql dependency re-enables default features (pulls the unpatchable rustls 0.22 stack): ${LIBSQL_DEP}"
+    exit 1
+  fi
+  if grep -qE 'features[[:space:]]*=[[:space:]]*\[[^]]*"tls"' <<<"${LIBSQL_DEP}"; then
+    echo "ERROR: libsql dependency explicitly enables the 'tls' feature: ${LIBSQL_DEP}"
+    exit 1
+  fi
+  echo "[PASS] libsql dependency keeps default features disabled."
+else
+  echo "[PASS] No libsql dependency declaration found; nothing to guard."
+fi
+
+# No advisory suppressions may hide the unpatchable stack: the ignore lists must
+# not reference any of the rustls/rustls-webpki/h2 advisories. Only the ignore
+# list is inspected — explanatory comments may still name the advisories.
+for CONFIG_FILE in "${REPO_ROOT}/.cargo/audit.toml" "${REPO_ROOT}/deny.toml"; do
+  if [[ ! -f "${CONFIG_FILE}" ]]; then
+    echo "ERROR: Missing advisory configuration: ${CONFIG_FILE}"
+    exit 1
+  fi
+  IGNORED_IDS=$(python3 - "${CONFIG_FILE}" <<'PY'
+import re
+import sys
+
+with open(sys.argv[1], 'r', encoding='utf-8') as fh:
+    text = fh.read()
+
+# Collect every advisory ID that appears inside an `ignore = [...]` array.
+ids = []
+for match in re.finditer(r'ignore\s*=\s*\[(.*?)\]', text, re.DOTALL):
+    ids.extend(re.findall(r'RUSTSEC-\d{4}-\d{4}', match.group(1)))
+print(' '.join(ids))
+PY
+)
+  if grep -qE 'RUSTSEC-2026-(0049|0098|0099|0104|0258|0346|0349|0382)' <<<"${IGNORED_IDS}"; then
+    echo "ERROR: ${CONFIG_FILE} suppresses an advisory for the unpatchable rustls stack; fix the dependency edge instead."
+    exit 1
+  fi
+done
+echo "[PASS] Advisory configuration does not suppress unpatchable rustls advisories."
+
+# The resolved graph itself must not contain the vulnerable crates.
+LOCKFILE="${REPO_ROOT}/Cargo.lock"
+if [[ -f "${LOCKFILE}" ]]; then
+  for pkg in ${VULN_PACKAGES}; do
+    if grep -qE "^name = \"${pkg}\"" "${LOCKFILE}"; then
+      echo "ERROR: '${pkg}' is present in Cargo.lock; the unpatchable rustls stack must not be in the dependency graph."
+      exit 1
+    fi
+  done
+  echo "[PASS] Resolved lockfile contains no unpatchable rustls stack packages."
+else
+  echo "[SKIP] No Cargo.lock present (library profile); graph check deferred to cargo audit."
+fi
+
 echo "=== All Security Integration Tests Passed Successfully ==="
