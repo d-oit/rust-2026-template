@@ -13,3 +13,17 @@ release = ["quality-gates"]
 [[sensors]]
 name = "quality-gates"
 argv = ["bash", "scripts/quality-gates.sh"]
+files = [
+  "**/*.rs",
+  "**/Cargo.toml",
+  "**/Cargo.lock",
+  "rust-toolchain.toml",
+  "deny.toml",
+  ".cargo/audit.toml",
+  "scripts/**/*.sh",
+  "**/*.sh",
+  "**/*.md",
+  ".github/workflows/*.yml",
+  ".agents/**",
+  "config/**/*.json"
+]

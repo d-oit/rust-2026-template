@@ -271,14 +271,9 @@ impl XtaskConfig {
     fn builtin_when_changed() -> BTreeMap<QualityCheck, Vec<String>> {
         use QualityCheck as Q;
         let rust_globs = vec![
-            "crates/**/*.rs".to_string(),
-            "src/**/*.rs".to_string(),
-            "examples/**/*.rs".to_string(),
-            "tests/**/*.rs".to_string(),
-            "benchmarks/**/*.rs".to_string(),
-            "fuzz/**/*.rs".to_string(),
+            "**/*.rs".to_string(),
             "**/Cargo.toml".to_string(),
-            "Cargo.lock".to_string(),
+            "**/Cargo.lock".to_string(),
             "rust-toolchain.toml".to_string(),
         ];
         let mut map = BTreeMap::new();
@@ -291,7 +286,7 @@ impl XtaskConfig {
             Q::Audit,
             vec![
                 "**/Cargo.toml".to_string(),
-                "Cargo.lock".to_string(),
+                "**/Cargo.lock".to_string(),
                 "deny.toml".to_string(),
                 ".cargo/audit.toml".to_string(),
             ],
@@ -300,28 +295,24 @@ impl XtaskConfig {
             Q::Deny,
             vec![
                 "**/Cargo.toml".to_string(),
-                "Cargo.lock".to_string(),
+                "**/Cargo.lock".to_string(),
                 "deny.toml".to_string(),
             ],
         );
         map.insert(
             Q::Machete,
             vec![
-                "crates/**/*.rs".to_string(),
-                "src/**/*.rs".to_string(),
-                "examples/**/*.rs".to_string(),
-                "tests/**/*.rs".to_string(),
+                "**/*.rs".to_string(),
                 "**/Cargo.toml".to_string(),
-                "Cargo.lock".to_string(),
+                "**/Cargo.lock".to_string(),
             ],
         );
         map.insert(
             Q::Msrv,
             vec![
-                "crates/**/*.rs".to_string(),
-                "src/**/*.rs".to_string(),
+                "**/*.rs".to_string(),
                 "**/Cargo.toml".to_string(),
-                "Cargo.lock".to_string(),
+                "**/Cargo.lock".to_string(),
                 "rust-toolchain.toml".to_string(),
                 "scripts/audit-msrv.sh".to_string(),
             ],

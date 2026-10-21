@@ -25,6 +25,9 @@ To avoid duplicating quality checks or running duplicate compiler pipelines, res
 ### Non-Duplication Principle
 `do-harness.toml` is configured so that `do-harness verify` delegates directly to `./scripts/quality-gates.sh` rather than running a second duplicate Cargo test/clippy pass. Never treat a green result from one tool as proof that the other tool's checks ran if they were not executed.
 
+### Changed-Only Selection Contract
+Both `xtask quality run --changed-from <ref>` (via `when_changed` in `config/xtask.json`) and `do-harness verify --changed` (via `files` in `do-harness.toml`) explicitly classify root `Cargo.toml` and all workspace member manifests (`**/Cargo.toml`, `**/Cargo.lock`) as code verification inputs. Edits to dependencies, features, lints, or package settings in nested member manifests (under `crates/` or any other workspace directory) trigger compilation, Clippy, security audits, and test execution.
+
 ### Missing Tools & Evidence Behavior
 - **Binary absent:** If `do-harness` is not installed locally, standard workflow scripts (`./scripts/doctor.sh`, `./scripts/quality-gates.sh`) remain fully functional.
 - **Missing PR context:** Commands like `do-harness pr review` or `do-harness pr ready` require `gh` CLI and open PR context. When executed locally on a branch without a PR, they report missing PR context gracefully.

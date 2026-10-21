@@ -132,13 +132,42 @@ fn test_when_changed_selection_manifest_edits() {
         );
     }
 
-    // 2. Member manifest outside crates/ (e.g. examples/hello_world/Cargo.toml)
+    // 2. Member manifest outside crates/ (e.g. examples/hello_world/Cargo.toml and packages/custom-crate/Cargo.toml)
     let cp_outside = ChangedPaths::classify(&["examples/hello_world/Cargo.toml"]);
     for check in expected_checks {
         let (selected, reason) = check_matches_when_changed(check, &config, &cp_outside);
         assert!(
             selected,
             "Check {} should be selected for examples/hello_world/Cargo.toml edit. Reason: {reason}",
+            check.name()
+        );
+    }
+
+    let cp_packages = ChangedPaths::classify(&["packages/custom-crate/Cargo.toml"]);
+    for check in expected_checks {
+        let (selected, reason) = check_matches_when_changed(check, &config, &cp_packages);
+        assert!(
+            selected,
+            "Check {} should be selected for packages/custom-crate/Cargo.toml edit. Reason: {reason}",
+            check.name()
+        );
+    }
+
+    let cp_packages_src = ChangedPaths::classify(&["packages/custom-crate/src/lib.rs"]);
+    let expected_code_checks = [
+        QualityCheck::Fmt,
+        QualityCheck::Clippy,
+        QualityCheck::Build,
+        QualityCheck::Test,
+        QualityCheck::DocTest,
+        QualityCheck::Machete,
+        QualityCheck::Msrv,
+    ];
+    for check in expected_code_checks {
+        let (selected, reason) = check_matches_when_changed(check, &config, &cp_packages_src);
+        assert!(
+            selected,
+            "Check {} should be selected for packages/custom-crate/src/lib.rs edit. Reason: {reason}",
             check.name()
         );
     }

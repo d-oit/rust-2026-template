@@ -95,33 +95,31 @@ impl ChangedPaths {
             }
 
             // Code and Heavy
-            if path.starts_with("crates/")
+            let file_name = std::path::Path::new(path)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("");
+            let is_rust_source = std::path::Path::new(path)
+                .extension()
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"));
+            // Any manifest (root or subcrate) can change the dependency graph and
+            // therefore the compiled artifact set — count it as a code change so
+            // `--changed-from` keeps the compile/test chain for manifest-only PRs.
+            let is_manifest = file_name == "Cargo.toml"
+                || file_name == "Cargo.lock"
+                || file_name == "rust-toolchain.toml";
+
+            if is_rust_source || is_manifest {
+                has_code_changes = true;
+                has_heavy_changes = true;
+            } else if path.starts_with("crates/")
                 || path.starts_with("src/")
                 || path.starts_with("examples/")
                 || path.starts_with("tests/")
                 || path.starts_with("benchmarks/")
                 || path.starts_with("fuzz/")
-                || path == "Cargo.toml"
-                || path == "Cargo.lock"
-                || path == "rust-toolchain.toml"
             {
                 has_heavy_changes = true;
-                let file_name = std::path::Path::new(path)
-                    .file_name()
-                    .and_then(|n| n.to_str())
-                    .unwrap_or("");
-                let is_rust_source = std::path::Path::new(path)
-                    .extension()
-                    .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"));
-                // Any manifest (root or subcrate) can change the dependency graph and
-                // therefore the compiled artifact set — count it as a code change so
-                // `--changed-from` keeps the compile/test chain for manifest-only PRs.
-                let is_manifest = file_name == "Cargo.toml"
-                    || file_name == "Cargo.lock"
-                    || path == "rust-toolchain.toml";
-                if is_rust_source || is_manifest {
-                    has_code_changes = true;
-                }
             }
         }
 
@@ -221,6 +219,18 @@ mod tests {
         let cp = ChangedPaths::classify(&files);
         assert!(cp.has_code_changes);
         assert!(cp.has_heavy_changes);
+
+        // Member manifest in another workspace directory (e.g. packages/custom-crate/Cargo.toml)
+        let files_outside = vec!["packages/custom-crate/Cargo.toml"];
+        let cp_outside = ChangedPaths::classify(&files_outside);
+        assert!(cp_outside.has_code_changes);
+        assert!(cp_outside.has_heavy_changes);
+
+        // Member source in another workspace directory (e.g. packages/custom-crate/src/lib.rs)
+        let files_src = vec!["packages/custom-crate/src/lib.rs"];
+        let cp_src = ChangedPaths::classify(&files_src);
+        assert!(cp_src.has_code_changes);
+        assert!(cp_src.has_heavy_changes);
     }
 
     #[test]

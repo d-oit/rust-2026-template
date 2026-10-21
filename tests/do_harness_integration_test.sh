@@ -94,10 +94,10 @@ echo ""
 echo "[Test 2] Validating non-duplicating do-harness.toml configuration..."
 
 if [[ -f "do-harness.toml" ]]; then
-  if grep -q 'language = "generic"' do-harness.toml && grep -q 'scripts/quality-gates.sh' do-harness.toml; then
-    pass "do-harness.toml configures generic language delegating quality checks to scripts/quality-gates.sh"
+  if grep -q 'language = "generic"' do-harness.toml && grep -q 'scripts/quality-gates.sh' do-harness.toml && grep -q '"\*\*/Cargo.toml"' do-harness.toml; then
+    pass "do-harness.toml configures generic language delegating quality checks to scripts/quality-gates.sh and includes **/Cargo.toml in sensor files"
   else
-    fail "do-harness.toml must use generic language and delegate to scripts/quality-gates.sh"
+    fail "do-harness.toml must use generic language, delegate to scripts/quality-gates.sh, and include **/Cargo.toml in files"
   fi
 else
   fail "do-harness.toml is missing from repository root"
@@ -159,7 +159,111 @@ EOF
   fi
 )
 
-# 3C. Test that deliberate failure in a fixture workspace is caught closed
+# 3C. Test member manifest edit outside crates/ (e.g. packages/my-crate/Cargo.toml) with real CLI
+OUTSIDE_WS="${TMP_DIR}/outside_member_ws"
+mkdir -p "${OUTSIDE_WS}/packages/my-crate/src" "${OUTSIDE_WS}/config" "${OUTSIDE_WS}/scripts"
+cp -r "${REPO_ROOT}/Cargo.lock" "${OUTSIDE_WS}/"
+cp -r "${REPO_ROOT}/config" "${OUTSIDE_WS}/"
+cp -r "${REPO_ROOT}/scripts" "${OUTSIDE_WS}/"
+
+cat > "${OUTSIDE_WS}/Cargo.toml" << 'EOF'
+[workspace]
+members = ["packages/my-crate"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+EOF
+
+cat > "${OUTSIDE_WS}/packages/my-crate/Cargo.toml" << 'EOF'
+[package]
+name = "my-crate"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+EOF
+
+cat > "${OUTSIDE_WS}/packages/my-crate/src/lib.rs" << 'EOF'
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        assert_eq!(add(2, 2), 4);
+    }
+}
+EOF
+
+(
+  cd "${OUTSIDE_WS}"
+  git init -q
+  git config user.name "Test User"
+  git config user.email "test@example.com"
+  git add .
+  git commit -m "initial commit" -q
+
+  OUTSIDE_BASE_SHA=$(git rev-parse HEAD)
+
+  # Edit member manifest outside crates/
+  cat >> "packages/my-crate/Cargo.toml" << 'EOF'
+# modified manifest
+EOF
+
+  # Explain check selection for packages/my-crate/Cargo.toml
+  EXPLAIN_OUT=$("${XTASK_BIN}" quality explain --tier pull-request --changed-from "${OUTSIDE_BASE_SHA}" 2>&1)
+  if echo "${EXPLAIN_OUT}" | grep -q "Rust Build" && echo "${EXPLAIN_OUT}" | grep -q "matched glob pattern '\*\*/Cargo.toml'"; then
+    pass "xtask quality explain selects Build check for packages/my-crate/Cargo.toml edit"
+  else
+    fail "xtask quality explain should select Build check for packages/my-crate/Cargo.toml edit: ${EXPLAIN_OUT}"
+  fi
+
+  # Run real CLI quality run on packages/my-crate/Cargo.toml edit
+  if "${XTASK_BIN}" quality run --tier pull-request --changed-from "${OUTSIDE_BASE_SHA}" >/dev/null 2>&1; then
+    pass "Real CLI quality run succeeds on member manifest edit outside crates/"
+  else
+    fail "Real CLI quality run failed on valid member manifest edit outside crates/"
+  fi
+
+  # Markdown-only edit test: should skip Rust build/test checks
+  git add .
+  git commit -m "update manifest" -q
+  OUTSIDE_BASE_SHA_2=$(git rev-parse HEAD)
+
+  cat > "README.md" << 'EOF'
+# Title
+EOF
+
+  EXPLAIN_MD=$("${XTASK_BIN}" quality explain --tier pull-request --changed-from "${OUTSIDE_BASE_SHA_2}" 2>&1)
+  if echo "${EXPLAIN_MD}" | grep -q "Rust Build" && echo "${EXPLAIN_MD}" | grep -q "no changed files matched patterns"; then
+    pass "xtask quality explain skips Rust Build for Markdown-only edit"
+  else
+    fail "xtask quality explain should skip Rust Build for Markdown-only edit: ${EXPLAIN_MD}"
+  fi
+
+  # Malformed member manifest outside crates/ should fail non-zero
+  git add .
+  git commit -m "add readme" -q
+  OUTSIDE_BASE_SHA_3=$(git rev-parse HEAD)
+
+  cat >> "packages/my-crate/Cargo.toml" << 'EOF'
+[invalid_syntax_syntax
+EOF
+
+  if ! "${XTASK_BIN}" quality run --tier pull-request --changed-from "${OUTSIDE_BASE_SHA_3}" >/dev/null 2>&1; then
+    pass "Real CLI quality run fails non-zero on malformed member manifest outside crates/"
+  else
+    fail "Real CLI quality run should have failed on malformed member manifest outside crates/"
+  fi
+)
+
+# 3D. Test that deliberate failure in a fixture workspace is caught closed
 FAIL_WS="${TMP_DIR}/failing_workspace"
 mkdir -p "${FAIL_WS}/src" "${FAIL_WS}/crates/xtask/src" "${FAIL_WS}/config"
 cp -r "${REPO_ROOT}/crates/xtask" "${FAIL_WS}/crates/"
@@ -264,6 +368,8 @@ done
 # -----------------------------------------------------------------------------
 echo ""
 echo "[Test 5] Validating telemetry artifact preservation..."
+
+"${XTASK_BIN}" quality run --only build >/dev/null 2>&1 || true
 
 if [[ -f ".agents/ci/quality-run.json" ]]; then
   if grep -q '"schema_version": 2' .agents/ci/quality-run.json; then
