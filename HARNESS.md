@@ -33,6 +33,8 @@ The `quality-gates` sensor declares `when-changed` globs that decide whether `do
 | `"Cargo.toml"` | The workspace **root** manifest |
 | `"**/Cargo.toml"` | **Workspace member** manifests, inside and outside `crates/` (`crates/*/Cargo.toml`, `examples/*/Cargo.toml`, `benchmarks/Cargo.toml`) |
 
+Rust sources match on the file shape (`"**/*.rs"`) rather than a fixed directory list, so a source file in a directory the repository does not know about still selects the sensor. Lockfiles are covered the same way (`"Cargo.lock"` plus `"**/Cargo.lock"`).
+
 `"Cargo.toml"` alone does **not** select member manifests, so a member-manifest-only edit would silently skip verification. `"**/Cargo.toml"` alone relies on the glob engine treating a leading `**/` as optional at the repository root, so declaring both keeps the selection stable across glob dialects. Never replace these with bare wildcards such as `"**"` or `"**/*.toml"`: those match Markdown-only edits and defeat the documentation-only fast path.
 
 `xtask` applies the same rule in `config/xtask.json` under `when_changed`; keep the two in sync.

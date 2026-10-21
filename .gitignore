@@ -48,6 +48,9 @@ dist/
 .agents/ci/quality-run.json
 .agents/ci/quality-summary.md
 
+# Local do-harness state (agent database; upstream gitignores this too)
+.do-harness/
+
 # cargo-fuzz artifacts
 fuzz/corpus/
 fuzz/artifacts/

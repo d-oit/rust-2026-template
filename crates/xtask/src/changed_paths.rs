@@ -95,33 +95,33 @@ impl ChangedPaths {
             }
 
             // Code and Heavy
-            if path.starts_with("crates/")
+            let file_name = std::path::Path::new(path)
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("");
+            let is_rust_source = std::path::Path::new(path)
+                .extension()
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"));
+            // Any manifest (root, workspace member, or nested) can change the
+            // dependency graph and therefore the compiled artifact set — count it
+            // as a code change so `--changed-from` keeps the compile/test chain
+            // for manifest-only PRs. Matched on the file name, not the full path,
+            // so a manifest outside the well-known directories (for example
+            // `tools/tool/Cargo.toml`) is still recognised.
+            let is_manifest = file_name == "Cargo.toml"
+                || file_name == "Cargo.lock"
+                || file_name == "rust-toolchain.toml";
+            if is_rust_source || is_manifest {
+                has_code_changes = true;
+                has_heavy_changes = true;
+            } else if path.starts_with("crates/")
                 || path.starts_with("src/")
                 || path.starts_with("examples/")
                 || path.starts_with("tests/")
                 || path.starts_with("benchmarks/")
                 || path.starts_with("fuzz/")
-                || path == "Cargo.toml"
-                || path == "Cargo.lock"
-                || path == "rust-toolchain.toml"
             {
                 has_heavy_changes = true;
-                let file_name = std::path::Path::new(path)
-                    .file_name()
-                    .and_then(|n| n.to_str())
-                    .unwrap_or("");
-                let is_rust_source = std::path::Path::new(path)
-                    .extension()
-                    .is_some_and(|ext| ext.eq_ignore_ascii_case("rs"));
-                // Any manifest (root or subcrate) can change the dependency graph and
-                // therefore the compiled artifact set — count it as a code change so
-                // `--changed-from` keeps the compile/test chain for manifest-only PRs.
-                let is_manifest = file_name == "Cargo.toml"
-                    || file_name == "Cargo.lock"
-                    || path == "rust-toolchain.toml";
-                if is_rust_source || is_manifest {
-                    has_code_changes = true;
-                }
             }
         }
 
@@ -221,6 +221,30 @@ mod tests {
         let cp = ChangedPaths::classify(&files);
         assert!(cp.has_code_changes);
         assert!(cp.has_heavy_changes);
+    }
+
+    #[test]
+    fn test_classify_manifest_outside_well_known_directories() {
+        // A manifest outside crates/, src/, examples/, tests/, benchmarks/ and
+        // fuzz/ still changes the dependency graph, so it must count as a code
+        // change. Matching on the full path instead of the file name silently
+        // dropped the compile/test chain for such a manifest-only change.
+        for path in [
+            "tools/tool/Cargo.toml",
+            "nested/deep/Cargo.toml",
+            "tools/tool/Cargo.lock",
+            "tools/tool/rust-toolchain.toml",
+        ] {
+            let cp = ChangedPaths::classify(&[path]);
+            assert!(
+                cp.has_code_changes,
+                "manifest '{path}' must count as a code change"
+            );
+            assert!(
+                cp.has_heavy_changes,
+                "manifest '{path}' must count as a heavy change"
+            );
+        }
     }
 
     #[test]

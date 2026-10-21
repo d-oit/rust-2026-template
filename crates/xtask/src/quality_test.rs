@@ -170,6 +170,66 @@ fn test_when_changed_selection_manifest_edits() {
 }
 
 #[test]
+fn test_when_changed_selection_outside_well_known_directories() {
+    let config = XtaskConfig::default();
+    // Compile/test checks follow Rust sources and manifests.
+    let source_checks = [
+        QualityCheck::Fmt,
+        QualityCheck::Clippy,
+        QualityCheck::Build,
+        QualityCheck::Test,
+        QualityCheck::DocTest,
+        QualityCheck::Machete,
+        QualityCheck::Msrv,
+    ];
+    // Dependency-policy checks follow manifests and lockfiles only.
+    let manifest_checks = [
+        QualityCheck::Audit,
+        QualityCheck::Deny,
+        QualityCheck::Machete,
+        QualityCheck::Msrv,
+    ];
+
+    // A manifest or Rust source outside crates/, src/, examples/, tests/,
+    // benchmarks/ and fuzz/ still changes the compiled artifact set. Directory
+    // prefix lists silently skipped these, dropping the compile/test chain.
+    for path in ["tools/tool/Cargo.toml", "crates/sample-app/Cargo.lock"] {
+        let cp = ChangedPaths::classify(&[path]);
+        for check in source_checks {
+            let (selected, reason) = check_matches_when_changed(check, &config, &cp);
+            assert!(
+                selected,
+                "Check {} should be selected for {path} edit. Reason: {reason}",
+                check.name()
+            );
+        }
+    }
+
+    // A Rust source outside the well-known directories still selects the
+    // compile/test checks.
+    let cp_source = ChangedPaths::classify(&["tools/tool/src/main.rs"]);
+    for check in source_checks {
+        let (selected, reason) = check_matches_when_changed(check, &config, &cp_source);
+        assert!(
+            selected,
+            "Check {} should be selected for tools/tool/src/main.rs edit. Reason: {reason}",
+            check.name()
+        );
+    }
+
+    // A manifest also selects the dependency-policy checks.
+    let cp_manifest = ChangedPaths::classify(&["tools/tool/Cargo.toml"]);
+    for check in manifest_checks {
+        let (selected, reason) = check_matches_when_changed(check, &config, &cp_manifest);
+        assert!(
+            selected,
+            "Check {} should be selected for tools/tool/Cargo.toml edit. Reason: {reason}",
+            check.name()
+        );
+    }
+}
+
+#[test]
 fn test_when_changed_selection_actionlint_workflow_edits() {
     let config = XtaskConfig::default();
 
