@@ -440,7 +440,9 @@ jobs:
           npm install -g markdownlint-cli2
       - name: Install actionlint
         run: |
-          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) 1.7.12 /usr/local/bin
+          ACTIONLINT_VERSION=1.7.12
+          SCRIPT=https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash
+          bash <(curl -fsSL "${SCRIPT}") "${ACTIONLINT_VERSION}" /usr/local/bin
           actionlint --version
       - name: Publish configured verification tiers
         run: |
