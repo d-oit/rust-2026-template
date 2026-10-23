@@ -192,9 +192,8 @@ impl SecretDetector {
                 line
             };
 
-            let lower_line = line_clean.to_lowercase();
             for kw in &self.config.keywords {
-                if let Some(kw_pos) = lower_line.find(kw) {
+                if let Some(kw_pos) = find_ascii_case_insensitive(line_clean, kw) {
                     // Look for assignment operator (`=` or `:`) after keyword
                     let after_kw = &line_clean[kw_pos + kw.len()..];
                     if let Some(sep_rel) = after_kw.find(['=', ':']) {
@@ -205,7 +204,12 @@ impl SecretDetector {
                             if self.is_valid_secret_token(token_str) {
                                 let abs_start = line_start_byte + start_in_line;
                                 let abs_end = line_start_byte + end_in_line;
-                                let column = line_clean[..start_in_line].chars().count() + 1;
+                                let prefix_in_line = &line_clean[..start_in_line];
+                                let column = if prefix_in_line.is_ascii() {
+                                    prefix_in_line.len() + 1
+                                } else {
+                                    prefix_in_line.chars().count() + 1
+                                };
 
                                 matches.push(SecretMatch {
                                     rule_id: format!("assignment-{kw}"),
@@ -316,13 +320,23 @@ impl SecretDetector {
 
     /// Validates token length constraints and rejects non-secret values (e.g., pure integers, booleans).
     fn is_valid_secret_token(&self, token: &str) -> bool {
-        let char_len = token.chars().count();
-        if char_len < self.config.min_token_len || char_len > self.config.max_token_len {
+        // Fast path: byte length is a lower bound for UTF-8 character length.
+        if token.len() < self.config.min_token_len {
+            return false;
+        }
+
+        let char_len = if token.is_ascii() {
+            token.len()
+        } else {
+            token.chars().count()
+        };
+
+        if char_len > self.config.max_token_len {
             return false;
         }
 
         // Reject plain numeric values (e.g. `secret_count = 12345678901234567`)
-        if token.chars().all(|c| c.is_ascii_digit()) {
+        if token.bytes().all(|b| b.is_ascii_digit()) {
             return false;
         }
 
@@ -335,23 +349,43 @@ impl SecretDetector {
     }
 }
 
+/// Helper function to search for an ASCII needle in a haystack ignoring ASCII case without allocations.
+#[must_use]
+pub fn find_ascii_case_insensitive(haystack: &str, needle: &str) -> Option<usize> {
+    if needle.is_empty() {
+        return Some(0);
+    }
+    let h_bytes = haystack.as_bytes();
+    let n_bytes = needle.as_bytes();
+    if n_bytes.len() > h_bytes.len() {
+        return None;
+    }
+    h_bytes
+        .windows(n_bytes.len())
+        .position(|w| w.eq_ignore_ascii_case(n_bytes))
+}
+
 /// Helper function to compute 1-based line and column for a given byte offset in text.
+///
+/// Fast-path algorithm:
+/// 1. Slice text up to `byte_offset`.
+/// 2. Count `\n` bytes across prefix for line number (vectorized byte scan).
+/// 3. Extract the last line segment after the final `\n` and compute column count.
 #[must_use]
 pub fn compute_line_col(text: &str, byte_offset: usize) -> (usize, usize) {
-    let mut line = 1;
-    let mut col = 1;
-
-    for (idx, ch) in text.char_indices() {
-        if idx >= byte_offset {
-            break;
-        }
-        if ch == '\n' {
-            line += 1;
-            col = 1;
-        } else {
-            col += 1;
-        }
+    let mut safe_offset = text.len().min(byte_offset);
+    while safe_offset > 0 && !text.is_char_boundary(safe_offset) {
+        safe_offset -= 1;
     }
+    let prefix = &text[..safe_offset];
+    let line = prefix.as_bytes().iter().filter(|&&b| b == b'\n').count() + 1;
+    let last_line_start = prefix.rfind('\n').map_or(0, |pos| pos + 1);
+    let segment = &prefix[last_line_start..];
+    let col = if segment.is_ascii() {
+        segment.len() + 1
+    } else {
+        segment.chars().count() + 1
+    };
 
     (line, col)
 }
@@ -391,4 +425,38 @@ pub fn redact_text(input: &str, matches: &[SecretMatch]) -> String {
     }
 
     result
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+
+    use super::*;
+
+    #[test]
+    fn test_compute_line_col_ascii_and_multibyte() {
+        assert_eq!(compute_line_col("", 0), (1, 1));
+        assert_eq!(compute_line_col("hello", 0), (1, 1));
+        assert_eq!(compute_line_col("hello", 3), (1, 4));
+        assert_eq!(compute_line_col("hello\nworld", 6), (2, 1));
+        assert_eq!(compute_line_col("hello\nworld", 8), (2, 3));
+        assert_eq!(compute_line_col("a\n\nb", 3), (3, 1));
+        assert_eq!(compute_line_col("🦀\nfoo", 6), (2, 2));
+        // Offset landing in the middle of a 4-byte emoji (non-char boundary) must not panic
+        assert_eq!(compute_line_col("🦀\nfoo", 2), (1, 1));
+    }
+
+    #[test]
+    fn test_find_ascii_case_insensitive() {
+        assert_eq!(
+            find_ascii_case_insensitive("API_KEY = 123", "api_key"),
+            Some(0)
+        );
+        assert_eq!(
+            find_ascii_case_insensitive("  Secret_Token =", "secret_token"),
+            Some(2)
+        );
+        assert_eq!(find_ascii_case_insensitive("hello", "missing"), None);
+        assert_eq!(find_ascii_case_insensitive("hello", ""), Some(0));
+    }
 }
