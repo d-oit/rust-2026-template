@@ -86,29 +86,39 @@ fn test_domain_allowlist_trailing_dot_normalization() {
     let public_ip: IpAddr = "93.184.216.34".parse().unwrap();
 
     // Exact match without trailing dot
-    assert!(filter
-        .validate_request("https", "example.com", Some(public_ip))
-        .is_ok());
+    assert!(
+        filter
+            .validate_request("https", "example.com", Some(public_ip))
+            .is_ok()
+    );
 
     // FQDN with trailing dot matching allowed domain with trailing dot
-    assert!(filter
-        .validate_request("https", "example.com.", Some(public_ip))
-        .is_ok());
+    assert!(
+        filter
+            .validate_request("https", "example.com.", Some(public_ip))
+            .is_ok()
+    );
 
     // Subdomain matching FQDN allowed domain
-    assert!(filter
-        .validate_request("https", "sub.example.com.", Some(public_ip))
-        .is_ok());
+    assert!(
+        filter
+            .validate_request("https", "sub.example.com.", Some(public_ip))
+            .is_ok()
+    );
 
     // FQDN with trailing dot matching allowed domain without trailing dot
-    assert!(filter
-        .validate_request("https", "api.service.org.", Some(public_ip))
-        .is_ok());
+    assert!(
+        filter
+            .validate_request("https", "api.service.org.", Some(public_ip))
+            .is_ok()
+    );
 
     // Subdomain with trailing dot matching allowed domain without trailing dot
-    assert!(filter
-        .validate_request("https", "v1.api.service.org.", Some(public_ip))
-        .is_ok());
+    assert!(
+        filter
+            .validate_request("https", "v1.api.service.org.", Some(public_ip))
+            .is_ok()
+    );
 }
 
 #[test]
