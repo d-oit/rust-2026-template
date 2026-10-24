@@ -76,6 +76,42 @@ fn test_redirect_policy_refuse() {
 }
 
 #[test]
+fn test_domain_allowlist_trailing_dot_normalization() {
+    let filter = EgressFilter {
+        allowed_domains: vec!["example.com.".to_string(), "api.service.org".to_string()],
+        redirect_policy: RedirectPolicy::Refuse,
+        require_https: true,
+    };
+
+    let public_ip: IpAddr = "93.184.216.34".parse().unwrap();
+
+    // Exact match without trailing dot
+    assert!(filter
+        .validate_request("https", "example.com", Some(public_ip))
+        .is_ok());
+
+    // FQDN with trailing dot matching allowed domain with trailing dot
+    assert!(filter
+        .validate_request("https", "example.com.", Some(public_ip))
+        .is_ok());
+
+    // Subdomain matching FQDN allowed domain
+    assert!(filter
+        .validate_request("https", "sub.example.com.", Some(public_ip))
+        .is_ok());
+
+    // FQDN with trailing dot matching allowed domain without trailing dot
+    assert!(filter
+        .validate_request("https", "api.service.org.", Some(public_ip))
+        .is_ok());
+
+    // Subdomain with trailing dot matching allowed domain without trailing dot
+    assert!(filter
+        .validate_request("https", "v1.api.service.org.", Some(public_ip))
+        .is_ok());
+}
+
+#[test]
 fn test_redirect_policy_revalidate() {
     let filter = EgressFilter {
         allowed_domains: vec!["example.com".to_string()],
