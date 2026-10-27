@@ -62,7 +62,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
       - uses: ./.github/actions/setup-rust
       - name: Install verification tooling
-        uses: taiki-e/install-action@1168f6810a3cb30a3514bf5756a3b7f0422c6df8  # v2
+        uses: taiki-e/install-action@a4d3f3f761dcd95cce1b72cb61cb6d1963438177  # v2
         with:
           tool: cargo-nextest,cargo-audit,cargo-deny,cargo-machete
       - name: Install shellcheck and markdownlint
@@ -160,7 +160,7 @@ jobs:
         run: |
           ${{ matrix.packages_install }}
       - name: Install cargo-cyclonedx
-        uses: taiki-e/install-action@1168f6810a3cb30a3514bf5756a3b7f0422c6df8  # v2
+        uses: taiki-e/install-action@a4d3f3f761dcd95cce1b72cb61cb6d1963438177  # v2
         with:
           tool: cargo-cyclonedx
       - name: Build artifacts
@@ -349,7 +349,7 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
-      - uses: Swatinem/rust-cache@258712b0b7b1ddf8bddc9fc3b0faca682b2736c3  # v2
+      - uses: Swatinem/rust-cache@c8037a86dde8214a8310e9f54a8fc61ab362aa31  # v2
 
       - name: Build release binary
         id: build

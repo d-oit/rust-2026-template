@@ -184,10 +184,11 @@ impl EgressFilter {
 
         // Domain allowlist check if configured
         if !self.allowed_domains.is_empty() {
-            let host_lower = host.to_lowercase();
+            // Strip optional trailing dot for canonical FQDN comparison
+            let host_norm = host.trim_end_matches('.').to_lowercase();
             let is_allowed = self.allowed_domains.iter().any(|domain| {
-                let domain_lower = domain.to_lowercase();
-                host_lower == domain_lower || host_lower.ends_with(&format!(".{domain_lower}"))
+                let domain_norm = domain.trim_end_matches('.').to_lowercase();
+                host_norm == domain_norm || host_norm.ends_with(&format!(".{domain_norm}"))
             });
             if !is_allowed {
                 return Err(EgressError::DomainNotAllowed(host.to_string()));
