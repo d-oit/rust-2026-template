@@ -188,7 +188,13 @@ impl EgressFilter {
             let host_norm = host.trim_end_matches('.').to_lowercase();
             let is_allowed = self.allowed_domains.iter().any(|domain| {
                 let domain_norm = domain.trim_end_matches('.').to_lowercase();
-                host_norm == domain_norm || host_norm.ends_with(&format!(".{domain_norm}"))
+                if host_norm == domain_norm {
+                    return true;
+                }
+                // Zero-allocation subdomain match replacing format!(".{domain_norm}")
+                host_norm
+                    .strip_suffix(&domain_norm)
+                    .is_some_and(|prefix| prefix.ends_with('.'))
             });
             if !is_allowed {
                 return Err(EgressError::DomainNotAllowed(host.to_string()));
@@ -270,17 +276,46 @@ impl UntrustedPathValidator {
             return Err(PathValidationError::EmptyPath);
         }
 
-        // Check for control, zero-width, and Bidi control characters
-        for ch in raw_path.chars() {
-            if ch.is_control()
-                || ('\u{200b}'..='\u{200f}').contains(&ch)
-                || ('\u{202a}'..='\u{202e}').contains(&ch)
-                || ('\u{2060}'..='\u{2064}').contains(&ch)
-                || ('\u{2066}'..='\u{2069}').contains(&ch)
-                || ch == '\u{2028}'
-                || ch == '\u{2029}'
-            {
-                return Err(PathValidationError::InvalidCharacters);
+        let bytes = raw_path.as_bytes();
+        let mut i = 0;
+
+        // SWAR (SIMD Within A Register) fast-path: check 8-byte chunks simultaneously for printable ASCII values (0x20..=0x7E).
+        // Printable ASCII contains no control, zero-width, or Bidi override characters.
+        while i + 8 <= bytes.len() {
+            let mut arr = [0u8; 8];
+            arr.copy_from_slice(&bytes[i..i + 8]);
+            let chunk = u64::from_ne_bytes(arr);
+            let has_low = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
+            let has_high = chunk & 0x8080808080808080;
+            let y = chunk ^ 0x7F7F7F7F7F7F7F7F;
+            let zero_check = (y.wrapping_sub(0x0101010101010101) & !y) & 0x8080808080808080;
+            if (has_low | has_high | zero_check) != 0 {
+                break;
+            }
+            i += 8;
+        }
+
+        while i < bytes.len() {
+            let b = bytes[i];
+            if !(0x20..=0x7E).contains(&b) {
+                break;
+            }
+            i += 1;
+        }
+
+        if i < bytes.len() {
+            // Slow path: Check for control, zero-width, and Bidi control characters across full Unicode
+            for ch in raw_path[i..].chars() {
+                if ch.is_control()
+                    || ('\u{200b}'..='\u{200f}').contains(&ch)
+                    || ('\u{202a}'..='\u{202e}').contains(&ch)
+                    || ('\u{2060}'..='\u{2064}').contains(&ch)
+                    || ('\u{2066}'..='\u{2069}').contains(&ch)
+                    || ch == '\u{2028}'
+                    || ch == '\u{2029}'
+                {
+                    return Err(PathValidationError::InvalidCharacters);
+                }
             }
         }
 
