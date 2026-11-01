@@ -139,25 +139,98 @@ for member in $MEMBERS; do
 done
 echo ""
 
-# --- Verify MSRV toolchain compiles workspace ---
-info "Verifying MSRV toolchain compiles workspace..."
+# --- Check resolved dependency graph MSRV ---
+info "Checking resolved dependency graph MSRV (all features)..."
 
-# Check if the MSRV toolchain is installed
-if command -v rustup &>/dev/null; then
-  if rustup toolchain list | grep -q "$MSRV"; then
-    if ! cargo +"$MSRV" check --workspace 2>/dev/null; then
-      fail "Workspace does not compile with MSRV toolchain $MSRV"
-    else
-      pass "Workspace compiles with MSRV toolchain $MSRV"
-    fi
-  else
-    warn "MSRV toolchain $MSRV not installed, skipping compilation check"
-  fi
+DEP_AUDIT_STATUS=0
+DEP_AUDIT_OUTPUT=$(python3 -c "
+import json, subprocess, sys
+
+def parse_version(v_str):
+    clean = v_str.strip().lstrip('v')
+    parts = clean.split('.')
+    if not parts or len(parts) > 3:
+        raise ValueError(f'Invalid version: {v_str}')
+    major = int(parts[0])
+    minor = int(parts[1]) if len(parts) > 1 else 0
+    patch = int(parts[2]) if len(parts) > 2 else 0
+    return (major, minor, patch)
+
+try:
+    ws_v = parse_version('$MSRV')
+except Exception as e:
+    print(f'ERROR: Invalid workspace MSRV: {e}')
+    sys.exit(2)
+
+res = subprocess.run(
+    ['cargo', 'metadata', '--format-version', '1', '--all-features'],
+    capture_output=True,
+    text=True
+)
+
+if res.returncode != 0:
+    print(f'ERROR: cargo metadata failed: {res.stderr}')
+    sys.exit(3)
+
+data = json.loads(res.stdout)
+violations = []
+for pkg in data.get('packages', []):
+    name = pkg.get('name', 'unknown')
+    version = pkg.get('version', 'unknown')
+    rv = pkg.get('rust_version')
+    if rv:
+        try:
+            pkg_v = parse_version(rv)
+            if pkg_v > ws_v:
+                violations.append(f\"VIOLATION: Package '{name}' v{version} requires rustc {rv}, which exceeds workspace MSRV $MSRV\")
+        except Exception:
+            violations.append(f\"VIOLATION: Package '{name}' v{version} declares unparseable rust-version '{rv}'\")
+
+for v in violations:
+    print(v)
+
+if violations:
+    sys.exit(1)
+" 2>&1) || DEP_AUDIT_STATUS=$?
+
+if [[ $DEP_AUDIT_STATUS -eq 0 ]]; then
+  pass "All resolved dependencies satisfy workspace MSRV ($MSRV)"
 else
-  warn "rustup not found, skipping MSRV compilation check"
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    if [[ "$line" =~ ^VIOLATION:\ (.*) ]]; then
+      fail "${BASH_REMATCH[1]}"
+    else
+      fail "$line"
+    fi
+  done <<< "$DEP_AUDIT_OUTPUT"
 fi
 echo ""
 
+# --- Verify MSRV toolchain compiles workspace ---
+info "Verifying MSRV toolchain compiles workspace (all targets, all features)..."
+
+CARGO_CMD=()
+CURRENT_RUSTC=$(rustc --version 2>/dev/null || echo "")
+
+if [[ "$CURRENT_RUSTC" =~ "$MSRV" ]]; then
+  CARGO_CMD=(cargo check --workspace --all-targets --all-features)
+elif command -v rustup &>/dev/null && rustup toolchain list 2>/dev/null | grep -q "$MSRV"; then
+  CARGO_CMD=(cargo +"$MSRV" check --workspace --all-targets --all-features)
+fi
+
+if [[ ${#CARGO_CMD[@]} -gt 0 ]]; then
+  COMPILE_OUTPUT=$("${CARGO_CMD[@]}" 2>&1) && COMPILE_STATUS=0 || COMPILE_STATUS=$?
+  if [[ $COMPILE_STATUS -eq 0 ]]; then
+    pass "Workspace compiles with MSRV toolchain $MSRV (--all-targets --all-features)"
+  else
+    fail "Workspace does not compile with MSRV toolchain $MSRV:"
+    echo "$COMPILE_OUTPUT"
+  fi
+else
+  warn "MSRV toolchain $MSRV not active or installed via rustup, skipping compilation check"
+fi
+echo ""
 # --- Summary ---
 if [[ $FAILED -ne 0 ]]; then
   echo -e "${RED}MSRV audit FAILED${NC}"

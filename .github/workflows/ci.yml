@@ -363,8 +363,8 @@ jobs:
         with:
           toolchain: "1.88"
       - uses: ./.github/actions/setup-rust
-      - name: Check MSRV
-        run: cargo check --workspace
+      - name: Check MSRV and dependency compatibility
+        run: ./scripts/audit-msrv.sh
 
   # ───────────────────────────────────────────────────
   roast:
@@ -631,7 +631,7 @@ jobs:
             ["test"]="Unit/integration test or doc test failed (run \`cargo test --workspace\`)"
             ["bench"]="Benchmark execution failed (run \`cargo bench --workspace\`)"
             ["version-check"]="VERSION, llms.txt, or SKILLS.md consistency check failed"
-            ["msrv"]="Minimum Supported Rust Version check failed (run \`cargo check\` under MSRV compiler)"
+            ["msrv"]="Minimum Supported Rust Version check failed (run \`./scripts/audit-msrv.sh\` under MSRV compiler)"
             ["roast"]="Roast scoring script failed (run \`./scripts/roast-scorer.sh\`)"
             ["quality-gate"]="Configured xtask quality gate failed (run \`cargo run -p xtask -- quality run\`)"
           )
