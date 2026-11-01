@@ -143,58 +143,82 @@ echo ""
 info "Checking resolved dependency graph MSRV (all features)..."
 
 DEP_AUDIT_STATUS=0
-DEP_AUDIT_OUTPUT=$(python3 -c "
-import json, subprocess, sys
+DEP_AUDIT_OUTPUT=""
 
-def parse_version(v_str):
-    clean = v_str.strip().lstrip('v')
-    parts = clean.split('.')
-    if not parts or len(parts) > 3:
-        raise ValueError(f'Invalid version: {v_str}')
-    major = int(parts[0])
-    minor = int(parts[1]) if len(parts) > 1 else 0
-    patch = int(parts[2]) if len(parts) > 2 else 0
-    return (major, minor, patch)
+if ! command -v python3 >/dev/null 2>&1; then
+  fail "python3 is required for the dependency graph MSRV audit but was not found"
+else
+  # Quoted heredoc: the MSRV is passed through the environment so the script
+  # never interpolates shell text into Python source.
+  DEP_AUDIT_OUTPUT=$(MSRV_TO_CHECK="$MSRV" python3 - <<'PY' 2>&1
+import json, os, subprocess, sys
+
+def parse_version(text):
+    parts = text.strip().lstrip('v').split('.')
+    if len(parts) > 3:
+        raise ValueError(f'Invalid version: {text}')
+    values = [int(part) for part in parts]
+    while len(values) < 3:
+        values.append(0)
+    return tuple(values)
 
 try:
-    ws_v = parse_version('$MSRV')
-except Exception as e:
-    print(f'ERROR: Invalid workspace MSRV: {e}')
+    workspace = parse_version(os.environ['MSRV_TO_CHECK'])
+except Exception as exc:
+    print(f'ERROR: invalid workspace MSRV: {exc}')
     sys.exit(2)
 
-res = subprocess.run(
+result = subprocess.run(
     ['cargo', 'metadata', '--format-version', '1', '--all-features'],
     capture_output=True,
-    text=True
+    text=True,
 )
 
-if res.returncode != 0:
-    print(f'ERROR: cargo metadata failed: {res.stderr}')
+if result.returncode != 0:
+    print(f'ERROR: cargo metadata failed: {result.stderr.strip()}')
     sys.exit(3)
 
-data = json.loads(res.stdout)
+try:
+    packages = json.loads(result.stdout).get('packages', [])
+except json.JSONDecodeError as exc:
+    print(f'ERROR: cargo metadata output is not valid JSON: {exc}')
+    sys.exit(3)
+
+if not packages:
+    print('ERROR: cargo metadata reported no packages')
+    sys.exit(3)
+
 violations = []
-for pkg in data.get('packages', []):
+for pkg in packages:
+    declared = pkg.get('rust_version')
+    if not declared:
+        continue
     name = pkg.get('name', 'unknown')
     version = pkg.get('version', 'unknown')
-    rv = pkg.get('rust_version')
-    if rv:
-        try:
-            pkg_v = parse_version(rv)
-            if pkg_v > ws_v:
-                violations.append(f\"VIOLATION: Package '{name}' v{version} requires rustc {rv}, which exceeds workspace MSRV $MSRV\")
-        except Exception:
-            violations.append(f\"VIOLATION: Package '{name}' v{version} declares unparseable rust-version '{rv}'\")
+    try:
+        if parse_version(declared) > workspace:
+            violations.append(
+                f"VIOLATION: package '{name}' v{version} requires rustc {declared}, "
+                f"which exceeds workspace MSRV {os.environ['MSRV_TO_CHECK']}"
+            )
+    except Exception:
+        violations.append(
+            f"VIOLATION: package '{name}' v{version} declares unparseable rust-version '{declared}'"
+        )
 
-for v in violations:
-    print(v)
+for violation in violations:
+    print(violation)
 
-if violations:
-    sys.exit(1)
-" 2>&1) || DEP_AUDIT_STATUS=$?
+sys.exit(1 if violations else 0)
+PY
+) || DEP_AUDIT_STATUS=$?
+fi
 
 if [[ $DEP_AUDIT_STATUS -eq 0 ]]; then
   pass "All resolved dependencies satisfy workspace MSRV ($MSRV)"
+elif [[ -z "$DEP_AUDIT_OUTPUT" ]]; then
+  # Fail closed: an audit that produced no verdict is not a pass.
+  fail "Dependency graph MSRV audit produced no output (exit $DEP_AUDIT_STATUS)"
 else
   while IFS= read -r line; do
     [[ -z "$line" ]] && continue
@@ -211,9 +235,11 @@ echo ""
 info "Verifying MSRV toolchain compiles workspace (all targets, all features)..."
 
 CARGO_CMD=()
-CURRENT_RUSTC=$(rustc --version 2>/dev/null || echo "")
+# Compare major.minor rather than substring-matching, so 1.8 does not match 1.88.
+MSRV_MAJOR_MINOR=$(echo "$MSRV" | cut -d. -f1-2)
+RUSTC_MAJOR_MINOR=$(rustc --version 2>/dev/null | awk '{print $2}' | cut -d. -f1-2)
 
-if [[ "$CURRENT_RUSTC" == *"$MSRV"* ]]; then
+if [[ -n "$MSRV_MAJOR_MINOR" && "$RUSTC_MAJOR_MINOR" == "$MSRV_MAJOR_MINOR" ]]; then
   CARGO_CMD=(cargo check --workspace --all-targets --all-features)
 elif command -v rustup &>/dev/null && rustup toolchain list 2>/dev/null | grep -q "$MSRV"; then
   CARGO_CMD=(cargo +"$MSRV" check --workspace --all-targets --all-features)
@@ -231,6 +257,7 @@ else
   warn "MSRV toolchain $MSRV not active or installed via rustup, skipping compilation check"
 fi
 echo ""
+
 # --- Summary ---
 if [[ $FAILED -ne 0 ]]; then
   echo -e "${RED}MSRV audit FAILED${NC}"
