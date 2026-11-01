@@ -213,7 +213,7 @@ info "Verifying MSRV toolchain compiles workspace (all targets, all features)...
 CARGO_CMD=()
 CURRENT_RUSTC=$(rustc --version 2>/dev/null || echo "")
 
-if [[ "$CURRENT_RUSTC" =~ "$MSRV" ]]; then
+if [[ "$CURRENT_RUSTC" == *"$MSRV"* ]]; then
   CARGO_CMD=(cargo check --workspace --all-targets --all-features)
 elif command -v rustup &>/dev/null && rustup toolchain list 2>/dev/null | grep -q "$MSRV"; then
   CARGO_CMD=(cargo +"$MSRV" check --workspace --all-targets --all-features)
