@@ -39,7 +39,8 @@ required_ids = [
     'ci-markdown-lint-20260828',
     'sec-scan-gitleaks-20260904',
     'dora-report-gen-20260914',
-    'update-diagram-push-20260917'
+    'update-diagram-push-20260917',
+    'ci-unexpected-skipped-job-20261104'
 ]
 
 found_ids = {c['id'] for c in cases}
@@ -114,6 +115,19 @@ case = next(c for c in matrix['cases'] if c['subsystem'] == 'architecture-diagra
 sig_matched = any(sig in '''$DIAGRAM_ERR_OUTPUT''' for sig in case['detection_signatures'])
 assert sig_matched, 'Architecture diagram signature failed to match test error output'
 print('✓ Architecture diagram error signature matching verified.')
+"
+
+# Test 6: CI aggregate unexpected skipped job signature
+SKIPPED_ERR_OUTPUT="::error::CI required job evaluation failed:\n  - Job 'clippy' was skipped unexpectedly on PR event. Changes detected: code=True, heavy=False, agents=False, workflows=False. This job was required by the path filter contract."
+python3 -c "
+import json, sys
+with open('$MATRIX_FILE') as mf:
+    matrix = json.load(mf)
+
+case = next(c for c in matrix['cases'] if c['id'] == 'ci-unexpected-skipped-job-20261104')
+sig_matched = any(sig in '''$SKIPPED_ERR_OUTPUT''' for sig in case['detection_signatures'])
+assert sig_matched, 'Unexpected skipped job signature failed to match test error output'
+print('✓ CI unexpected skipped job signature matching verified.')
 "
 
 echo "[3/3] Local tool capability check..."

@@ -1,0 +1,22 @@
+{
+  "event_name": "pull_request",
+  "changes_result": "success",
+  "changes": {
+    "code": "true",
+    "heavy": "false",
+    "agents": "false",
+    "workflows": "false"
+  },
+  "jobs": {
+    "validate-agents": "skipped",
+    "lint": "success",
+    "shellcheck": "success",
+    "fmt": "cancelled",
+    "clippy": "success",
+    "test": "success",
+    "bench": "skipped",
+    "version-check": "success",
+    "msrv": "skipped",
+    "roast": "success"
+  }
+}

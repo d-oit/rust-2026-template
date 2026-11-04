@@ -499,6 +499,7 @@ jobs:
   ci-success:
     name: CI Success
     needs:
+      - changes
       - validate-agents
       - lint
       - shellcheck
@@ -620,50 +621,30 @@ jobs:
           git push origin main
         continue-on-error: true
 
-      - name: Check all jobs passed
+      - name: Check all required jobs passed or legitimately skipped
         run: |
-          declare -A job_hints=(
-            ["validate-agents"]="Agent manifest validation failed (run \`cargo run -p xtask -- agents validate\`)"
-            ["lint"]="YAML, Markdown, or Agent metrics lint failed (run \`yamllint .\` and \`npx markdownlint-cli2\`)"
-            ["shellcheck"]="Shell script linting failed (run \`shellcheck scripts/*.sh\`)"
-            ["fmt"]="Code formatting check failed (run \`cargo fmt --all\`)"
-            ["clippy"]="Clippy lints failed (run \`cargo clippy --workspace --all-targets --all-features\`)"
-            ["test"]="Unit/integration test or doc test failed (run \`cargo test --workspace\`)"
-            ["bench"]="Benchmark execution failed (run \`cargo bench --workspace\`)"
-            ["version-check"]="VERSION, llms.txt, or SKILLS.md consistency check failed"
-            ["msrv"]="Minimum Supported Rust Version check failed (run \`./scripts/audit-msrv.sh\` under MSRV compiler)"
-            ["roast"]="Roast scoring script failed (run \`./scripts/roast-scorer.sh\`)"
-            ["quality-gate"]="Configured xtask quality gate failed (run \`cargo run -p xtask -- quality run\`)"
-          )
-
-          declare -A job_results=(
-            ["validate-agents"]="${{ needs.validate-agents.result }}"
-            ["lint"]="${{ needs.lint.result }}"
-            ["shellcheck"]="${{ needs.shellcheck.result }}"
-            ["fmt"]="${{ needs.fmt.result }}"
-            ["clippy"]="${{ needs.clippy.result }}"
-            ["test"]="${{ needs.test.result }}"
-            ["bench"]="${{ needs.bench.result }}"
-            ["version-check"]="${{ needs.version-check.result }}"
-            ["msrv"]="${{ needs.msrv.result }}"
-            ["roast"]="${{ needs.roast.result }}"
-            ["quality-gate"]="${{ needs.quality-gate.result }}"
-          )
-
-          failed_jobs=()
-          for job in "${!job_results[@]}"; do
-            res="${job_results[$job]}"
-            if [[ "$res" == "failure" || "$res" == "cancelled" ]]; then
-              hint="${job_hints[$job]:-No hint available}"
-              failed_jobs+=("Job '$job' ($res) -> $hint")
-            fi
-          done
-
-          if [ ${#failed_jobs[@]} -ne 0 ]; then
-            echo "::error::CI Success check failed because concrete job(s) failed:"
-            for failed in "${failed_jobs[@]}"; do
-              echo "  - $failed"
-            done
-            exit 1
-          fi
-          echo "All CI jobs passed or were correctly skipped!"
+          cat << 'EOF' | bash ./scripts/ci-required-evaluate.sh
+          {
+            "event_name": "${{ github.event_name }}",
+            "changes_result": "${{ needs.changes.result }}",
+            "changes": {
+              "code": "${{ needs.changes.outputs.code }}",
+              "heavy": "${{ needs.changes.outputs.heavy }}",
+              "agents": "${{ needs.changes.outputs.agents }}",
+              "workflows": "${{ needs.changes.outputs.workflows }}"
+            },
+            "jobs": {
+              "validate-agents": "${{ needs.validate-agents.result }}",
+              "lint": "${{ needs.lint.result }}",
+              "shellcheck": "${{ needs.shellcheck.result }}",
+              "fmt": "${{ needs.fmt.result }}",
+              "clippy": "${{ needs.clippy.result }}",
+              "test": "${{ needs.test.result }}",
+              "bench": "${{ needs.bench.result }}",
+              "version-check": "${{ needs.version-check.result }}",
+              "msrv": "${{ needs.msrv.result }}",
+              "roast": "${{ needs.roast.result }}",
+              "quality-gate": "${{ needs.quality-gate.result }}"
+            }
+          }
+          EOF

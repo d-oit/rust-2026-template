@@ -1,0 +1,23 @@
+{
+  "event_name": "pull_request",
+  "changes_result": "failure",
+  "changes": {
+    "code": "false",
+    "heavy": "false",
+    "agents": "false",
+    "workflows": "false"
+  },
+  "jobs": {
+    "validate-agents": "skipped",
+    "lint": "skipped",
+    "shellcheck": "skipped",
+    "fmt": "skipped",
+    "clippy": "skipped",
+    "test": "skipped",
+    "bench": "skipped",
+    "version-check": "skipped",
+    "msrv": "skipped",
+    "roast": "skipped",
+    "quality-gate": "skipped"
+  }
+}

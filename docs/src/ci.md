@@ -48,6 +48,28 @@ Rust build jobs). The `changes` job at the top of `ci.yml` uses
 - `agents` — AGENTS.md, agent-docs, scripts
 - `workflows` — `.github/workflows/**`
 
+### Expected-Skip Contract and Merge Gate Aggregation
+
+The `ci-success` job serves as the required merge-gate check context (`CI Success`).
+To prevent fail-open regressions where broken path filters or missing dependencies
+allow required jobs to be skipped silently, `ci-success` enforces an explicit
+fail-closed evaluation contract via `scripts/ci-required-evaluate.sh`:
+
+- **Success accepted**: Any job reporting `success` is accepted.
+- **Skipped accepted only when justified**: A job result of `skipped` is accepted
+  **only** during a `pull_request` event when the path-filter contract proves the
+  job was not required:
+  - `fmt`, `clippy`, `test`, `quality-gate`: skipped only if neither `code` nor `workflows` changed.
+  - `bench`, `msrv`: skipped only if neither `heavy` nor `workflows` changed.
+  - `validate-agents`: skipped only if neither `agents` nor `workflows` changed.
+  - `lint`, `shellcheck`, `version-check`: skipped only if none of `code`, `agents`, or `workflows` changed.
+- **Fail-closed on unexpected results**: If a job was required by the path-filter contract
+  and was skipped, or if any job reports `failure`, `cancelled`, `timed_out`, `action_required`,
+  missing results, or if the `changes` detection job itself did not succeed, the aggregate
+  fails immediately with actionable diagnostic output and remediation hints.
+- **Push and manual dispatch**: On non-PR events (`push`, `workflow_dispatch`), all jobs
+  must run; no skipped jobs are permitted.
+
 ## Tier 2 — Conditional
 
 These jobs run only when the affected paths match:
