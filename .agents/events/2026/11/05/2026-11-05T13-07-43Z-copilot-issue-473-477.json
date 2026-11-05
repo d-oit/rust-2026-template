@@ -1,0 +1,11 @@
+{
+  "event_id": "2026-11-05T13-07-43Z-copilot",
+  "task_id": "issue-473-475-476-477",
+  "skill": "metrics-reporter",
+  "status": "partial",
+  "started_at": "2026-11-05T13:07:43Z",
+  "finished_at": "2026-11-05T13:07:43Z",
+  "success": false,
+  "human_interventions": 0,
+  "git_sha": "26c32a1"
+}

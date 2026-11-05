@@ -1,0 +1,11 @@
+{
+  "event_id": "2026-11-05T13:06:14Z-copilot",
+  "task_id": "issue-479",
+  "skill": "fuzz-dependencies",
+  "status": "partial",
+  "started_at": "2026-11-05T12:34:44Z",
+  "finished_at": "2026-11-05T13:06:14Z",
+  "success": false,
+  "human_interventions": 0,
+  "git_sha": "26c32a1"
+}
