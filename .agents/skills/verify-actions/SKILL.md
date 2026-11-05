@@ -99,16 +99,58 @@ using — upstream may have released newer versions.
 
 | Action | Verified SHA | Version | Last Verified |
 |--------|-------------|---------|---------------|
-| `actions/checkout` | `de0fac2e4500dabe0009e67214ff5f5447ce83dd` | v6 | 2026-06-17 |
-| `actions/upload-artifact` | `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` | v7 | 2026-06-17 |
-| `actions/download-artifact` | `3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` | v4 | 2026-06-17 |
-| `actions/github-script` | `f28e40c7f34bde8b3046d885e986cb6290c5673b` | v7 | 2026-06-17 |
-| `dtolnay/rust-toolchain` | `29eef336d9b2848a0b548edc03f92a220660cdb8` | stable | 2026-06-17 |
-| `Swatinem/rust-cache` | `e18b497796c12c097a38f9edb9d0641fb99eee32` | v2 | 2026-06-17 |
-| `taiki-e/install-action` | `7a79fe8c3a13344501c80d99cae481c1c9085912` | v2 | 2026-06-17 |
+| `actions/checkout` | `3d3c42e5aac5ba805825da76410c181273ba90b1` | v7.0.1 | 2026-11-05 |
+| `actions/upload-artifact` | `cf430e030ddbb5b0abf93d22962f4752f3646cd9` | v7.0.2 | 2026-11-05 |
+| `actions/download-artifact` | `9000827ccba6bdab643e8b6fd33ac0654aef8333` | v8.0.2 | 2026-11-05 |
+| `actions/github-script` | `3a2844b7e9c422d3c10d287c895573f7108da1b3` | v9.0.0 | 2026-11-05 |
+| `actions/labeler` | `bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13` | v7.0.0 | 2026-11-05 |
+| `actions/setup-node` | `949feb2413d6458794dcd2491c4babbbce0c15c1` | v7.1.0 | 2026-11-05 |
+| `actions/setup-python` | `6d4fd22b20465ccc0f7354476588e8df7c9ca0e0` | v7.1.0 | 2026-11-05 |
+| `actions/attest-build-provenance` | `e8998f949152b193b063cb0ec769d69d929409be` | v2.4.0 | 2026-11-05 |
+| `codecov/codecov-action` | `303a32d7a59b442fa8d48b6a1cc6825c09c847a5` | v7.1.1 | 2026-11-05 |
+| `dependabot/fetch-metadata` | `25dd0e34f4fe68f24cc83900b1fe3fe149efef98` | v3.1.0 | 2026-11-05 |
+| `dorny/paths-filter` | `ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d` | v4.0.3 | 2026-11-05 |
+| `dtolnay/rust-toolchain` | `b725eda525362e7cf34af9a7243cac1e3f01a7ec` | stable | 2026-11-05 |
+| `mozilla-actions/sccache-action` | `9e7fa8a12102821edf02ca5dbea1acd0f89a2696` | v0.0.10 | 2026-11-05 |
+| `peter-evans/create-pull-request` | `5f6978faf089d4d20b00c7766989d076bb2fc7f1` | v8.1.1 | 2026-11-05 |
+| `Swatinem/rust-cache` | `d1527c8f67ef9af357290475d4af4b0fab8f12e0` | v2.9.3 | 2026-11-05 |
+| `taiki-e/install-action` | `86f7a0ffb25f40114606501a311ebcfaf882ea32` | v2.88.0 | 2026-11-05 |
+| `wagoid/commitlint-github-action` | `b948419dd99f3fd78a6548d48f94e3df7f6bf3ed` | v6.2.1 | 2026-11-05 |
 
 > **Rule:** Before using a SHA from this table, verify it still matches the
-> claimed version. Run `gh api` to confirm.
+> claimed version. Run `gh api` to confirm. This table drifts: the previous
+> revision listed `actions/checkout` v6, `actions/github-script` v7, and
+> `Swatinem/rust-cache` v2 SHAs that were two major versions behind, and every
+> one of them ran on the deprecated Node.js 20 runtime.
+
+### Checking for runtime deprecations
+
+An action major version can be pinned correctly and still be unusable because
+GitHub retired its Node runtime. Check the declared runtime directly:
+
+```bash
+gh api "repos/{owner}/{repo}/contents/action.yml?ref={tag}" \
+  --jq '.content' | base64 -d | grep -m1 'using:'
+```
+
+A `node20` result produces this warning in every job that uses it:
+
+```
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being
+forced to run on Node.js 24: ...
+```
+
+Fixing it requires a **major** version bump, because the Node 24 runtime landed
+in a new major line for nearly every action. Enumerate them all at once:
+
+```bash
+grep -rhoE "uses: [a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+@[a-f0-9]{40}" .github/ \
+  | sed 's/uses: //' | sort -u \
+  | while IFS=@ read -r repo sha; do
+      printf '%-45s %s\n' "$repo@${sha:0:7}" \
+        "$(gh api "repos/$repo/contents/action.yml?ref=$sha" --jq '.content' \
+            | base64 -d | grep -m1 'using:')"
+    done
 
 ## Red Flags
 
