@@ -292,6 +292,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y shellcheck yamllint
           npm install -g markdownlint-cli2
+          # PyYAML backs the workflow contract tests; do not rely on the
+          # runner image shipping it, or those tests degrade to no-ops.
+          python3 -m pip install --user pyyaml
       - name: Install actionlint
         run: |
           ACTIONLINT_VERSION=1.7.12
@@ -344,6 +347,10 @@ jobs:
         run: bash tests/ci_regression_matrix_test.sh
       - name: Validate release provenance regression fixture
         run: bash tests/release_provenance_test.sh
+      - name: Validate overview diagram is current
+        run: bash tests/overview_diagram_test.sh
+      - name: Validate workflow permissions
+        run: bash tests/workflow_permissions_test.sh
       - name: Validate quality-gate telemetry contract
         run: bash tests/ci_telemetry/telemetry_integration_test.sh --use-existing
       - name: Publish quality summary
