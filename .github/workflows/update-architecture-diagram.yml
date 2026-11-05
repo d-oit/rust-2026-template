@@ -6,7 +6,12 @@ on:
     paths:
       - "Cargo.toml"
       - "crates/**/Cargo.toml"
+      - "examples/**/Cargo.toml"
+      - "benchmarks/Cargo.toml"
       - ".agents/skills/*/SKILL.md"
+      - "scripts/*.sh"
+      - "config/xtask.json"
+      - ".github/workflows/*.yml"
     branches: [main]
   workflow_dispatch:
 
@@ -21,17 +26,17 @@ jobs:
   regenerate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
         with:
           python-version: "3.12"
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
-          node-version: "22"
+          node-version: "24"
           cache: "npm"
           cache-dependency-path: .agents/skills/architecture-diagram/package-lock.json
 
@@ -40,55 +45,55 @@ jobs:
         run: npm ci
 
       - name: Regenerate and push overview diagram
+        # gh needs an explicit token. Without GH_TOKEN it exits non-zero
+        # immediately, and the previous `|| echo ...` swallowed that failure so
+        # the job reported success having published nothing.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          MAX_RETRIES=5
-          count=0
-
-          while [ $count -lt $MAX_RETRIES ]; do
-            count=$((count + 1))
-            echo "Attempt $count of $MAX_RETRIES..."
-
-            git fetch origin main
-            git reset --hard origin/main
-
-            python .agents/skills/architecture-diagram/scripts/generate_overview.py \
-              --root . \
-              --out .template/overview.excalidraw \
-              --svg-out .template/overview.svg \
-              --png-out .template/overview.png
-
-            cp .template/overview.svg docs/src/overview.svg
-
-            if git diff --quiet .template/ docs/src/overview.svg; then
-              echo "No diagram changes detected against latest main."
-              exit 0
-            fi
-
-            git add .template/ docs/src/overview.svg
-            git commit -m "docs: regenerate overview diagram [skip ci]"
-
-            if git push origin main; then
-              echo "Successfully pushed architecture diagram update."
-              exit 0
-            fi
-
-            echo "Push failed due to concurrent update, retrying..."
-            sleep 2
-          done
-
-          echo "Direct push to main was declined (branch protection or repository rules). Falling back to PR..."
           BRANCH="docs/update-overview-diagram"
-          git checkout -B "$BRANCH"
-          if git push -u origin "$BRANCH" --force; then
-            gh pr create \
-              --title "docs: regenerate overview diagram [skip ci]" \
-              --body "Automated overview diagram update generated against main." \
-              --base main \
-              --head "$BRANCH" || echo "PR already exists or created"
+          TITLE="docs: regenerate overview diagram [skip ci]"
+          BODY="Automated overview diagram update generated against main."
+
+          git fetch origin main
+          git reset --hard origin/main
+
+          python .agents/skills/architecture-diagram/scripts/generate_overview.py \
+            --root . \
+            --out .template/overview.excalidraw \
+            --svg-out .template/overview.svg \
+            --png-out .template/overview.png
+
+          cp .template/overview.svg docs/src/overview.svg
+          cp .template/overview.png docs/src/overview.png
+
+          if git diff --quiet .template/ docs/src/overview.svg docs/src/overview.png; then
+            echo "No diagram changes detected against latest main."
             exit 0
           fi
-          echo "Failed to push architecture diagram or create fallback PR."
-          exit 1
+
+          git add .template/ docs/src/overview.svg docs/src/overview.png
+          git commit -m "${TITLE}"
+
+          # main is protected by required checks and the PR rule, so a direct
+          # push is always rejected. Try it once (covers forks and unprotected
+          # repositories) and fall back to a pull request.
+          if git push origin HEAD:main; then
+            echo "Successfully pushed architecture diagram update to main."
+            exit 0
+          fi
+
+          echo "Direct push to main was declined; opening a pull request instead."
+          git push --force origin "HEAD:refs/heads/${BRANCH}"
+
+          if gh pr view "${BRANCH}" --json number >/dev/null 2>&1; then
+            echo "Pull request for ${BRANCH} already exists; branch updated in place."
+            exit 0
+          fi
+
+          gh pr create --title "${TITLE}" --body "${BODY}" --base main --head "${BRANCH}"

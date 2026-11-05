@@ -25,19 +25,39 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
-      - name: Verify tag matches VERSION
+      - name: Verify tag matches a declared version
         run: |
-          TREE_VERSION="$(cat VERSION | tr -d '[:space:]')"
-          EXPECTED_TAG="v${TREE_VERSION}"
-          if [ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}" ]; then
-            echo "::error::Tag '${GITHUB_REF_NAME}' does not match VERSION '${TREE_VERSION}'"
-            echo "Expected: '${EXPECTED_TAG}'"
-            exit 1
+          # Two version sources exist by design:
+          #   * VERSION                          - the adopter application version
+          #   * .template/CHANGELOG-TEMPLATE.md  - the template's own meta-releases
+          # VERSION intentionally stays 0.0.0 in the template (see AGENTS.md), so
+          # checking VERSION alone rejected every template tag. Accept a tag that
+          # matches either source and fail closed when it matches neither.
+          TREE_VERSION="$(tr -d '[:space:]' < VERSION)"
+          CHANGELOG=".template/CHANGELOG-TEMPLATE.md"
+          TEMPLATE_VERSION=""
+          if [[ -f "$CHANGELOG" ]]; then
+            TEMPLATE_VERSION="$(grep -m1 -oE '^\[[0-9]+\.[0-9]+\.[0-9]+\]:' "$CHANGELOG" \
+              | tr -d '[]:')"
           fi
-          echo "✓ Tag '${GITHUB_REF_NAME}' matches VERSION '${TREE_VERSION}'"
+
+          TAG="${GITHUB_REF_NAME}"
+          if [[ -n "$TREE_VERSION" && "$TAG" == "v${TREE_VERSION}" ]]; then
+            echo "✓ Tag '${TAG}' matches VERSION '${TREE_VERSION}'"
+            exit 0
+          fi
+          if [[ -n "$TEMPLATE_VERSION" && "$TAG" == "v${TEMPLATE_VERSION}" ]]; then
+            echo "✓ Tag '${TAG}' matches template release '${TEMPLATE_VERSION}'"
+            exit 0
+          fi
+
+          echo "::error::Tag '${TAG}' matches no declared version."
+          echo "VERSION: '${TREE_VERSION:-<missing>}' (expected tag 'v${TREE_VERSION}')"
+          echo "Template changelog: '${TEMPLATE_VERSION:-<missing>}' (expected tag 'v${TEMPLATE_VERSION}')"
+          exit 1
       - name: Verify release does not already exist
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -56,10 +76,10 @@ jobs:
     needs: [preflight]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec  # stable
       - uses: ./.github/actions/setup-rust
       - name: Install verification tooling
         uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32  # v2
@@ -92,7 +112,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
           submodules: recursive
@@ -144,7 +164,7 @@ jobs:
       - name: enable windows longpaths
         run: |
           git config --global core.longpaths true
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
           submodules: recursive
@@ -200,7 +220,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       BUILD_MANIFEST_NAME: target/distrib/global-dist-manifest.json
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
           submodules: recursive
@@ -254,7 +274,7 @@ jobs:
       val: ${{ steps.host.outputs.manifest }}
       release_type: ${{ steps.release-type.outputs.type }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
           submodules: recursive
@@ -322,7 +342,7 @@ jobs:
             --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*
 
       - name: Record Release Metric
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         with:
           script: |
             const type = '${{ steps.release-type.outputs.type }}';
@@ -348,15 +368,19 @@ jobs:
     needs: [host]
     runs-on: ubuntu-latest
     permissions:
+      # actions/checkout needs repository read access. Declaring any permission
+      # sets every unlisted one to `none`, so `contents` must be explicit or the
+      # checkout step cannot authenticate.
+      contents: read
       issues: write
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           ref: ${{ github.ref }}
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
-      - uses: Swatinem/rust-cache@c8037a86dde8214a8310e9f54a8fc61ab362aa31  # v2
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec  # stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0  # v2.9.3
 
       - name: Build release binary
         id: build

@@ -23,13 +23,15 @@ else
   warn "$OVERVIEW_SCRIPT not found - skipping"
 fi
 
-# --- Sync SVGs to docs ---
+# --- Sync generated assets to docs ---
 mkdir -p docs/src
-src=".template/overview.svg"
-dst="docs/src/overview.svg"
-if [[ -f "$src" ]]; then
-  cp "$src" "$dst"
-  ok "Synced to $dst"
-fi
+for asset in overview.svg overview.png; do
+  src=".template/$asset"
+  dst="docs/src/$asset"
+  if [[ -f "$src" ]]; then
+    cp "$src" "$dst"
+    ok "Synced to $dst"
+  fi
+done
 
 log "Done"

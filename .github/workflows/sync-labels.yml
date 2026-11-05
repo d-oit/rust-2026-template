@@ -51,7 +51,7 @@ jobs:
     steps:
       # ── Checkout (needed for git log commit-message analysis) ───────────────
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # Fetch enough history for the lookback window.
           # 200 commits covers most monthly windows; increase if needed.

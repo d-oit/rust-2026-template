@@ -131,27 +131,50 @@ def _count_pipeline_stages(root: Path) -> int:
     return len(job_names) if job_names else 4
 
 def _count_quality_checks(root: Path) -> int:
-    qg = root / "scripts" / "quality-gates.sh"
-    if not qg.exists():
-        return 14
-    try:
-        text = qg.read_text(encoding="utf-8")
-        count = sum(
-            1 for line in text.splitlines()
-            if line.strip() and not line.strip().startswith("#")
-            and any(cmd in line for cmd in [
-                "cargo", "rustfmt", "clippy", "audit", "deny",
-                "nextest", "llvm-cov", "mutants", "machete",
-            ])
-        )
-        return count if count > 0 else 14
-    except OSError:
-        return 14
+    """Count distinct quality checks the project can run.
+
+    `scripts/quality-gates.sh` is only a thin wrapper around `cargo xtask`, so
+    scraping it for `cargo` invocations reported 1 regardless of the real
+    number of checks. The authoritative source is the union of the per-tier
+    `checks` lists in `config/xtask.json`; fall back to the `QualityCheck`
+    enum in `crates/xtask/src/quality.rs` when the config is unavailable.
+    """
+    config_path = root / "config" / "xtask.json"
+    if config_path.exists():
+        try:
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            checks: set[str] = set()
+            for tier in config.get("tiers", {}).values():
+                checks.update(tier.get("checks", []))
+            if checks:
+                return len(checks)
+        except (OSError, json.JSONDecodeError, AttributeError):
+            pass
+
+    enum_path = root / "crates" / "xtask" / "src" / "quality.rs"
+    if enum_path.exists():
+        try:
+            text = enum_path.read_text(encoding="utf-8")
+            block = re.search(r"pub enum QualityCheck\s*\{(.*?)\n\}", text, re.DOTALL)
+            if block:
+                variants = re.findall(r"^\s{4}([A-Z]\w*),", block.group(1), re.MULTILINE)
+                if variants:
+                    return len(variants)
+        except OSError:
+            pass
+
+    return 0
 
 def _discover_ecosystem_dirs(root: Path, crates, skills) -> list[tuple]:
     dirs = []
     if (root / "crates").exists():
-        dirs.append(("crates/", f"{len(crates)} workspace members", C["primary"]))
+        # `crates/` holds the library/application packages; the workspace also
+        # pulls in `examples/*` and `benchmarks`, so the two counts differ.
+        crate_dirs = sum(
+            1 for p in (root / "crates").iterdir()
+            if p.is_dir() and (p / "Cargo.toml").exists()
+        )
+        dirs.append(("crates/", f"{crate_dirs} crates · {len(crates)} workspace members", C["primary"]))
     if (root / ".agents" / "skills").exists():
         dirs.append((".agents/skills/", f"{len(skills)} reusable skills", C["teal"]))
     if (root / ".github" / "workflows").exists():
@@ -279,9 +302,9 @@ def generate(root: Path) -> dict:
     y += 18
 
     stats = [
-        (str(len(crates)),    "Crates",         C["primary"]),
+        (str(len(crates)),    "Workspace Members", C["primary"]),
         (str(len(skills)),    "AI Skills",      C["teal"]),
-        (str(pipeline_count), "Pipeline Jobs",  C["green"]),
+        (str(pipeline_count), "CI Jobs",        C["green"]),
         (str(quality_count),  "Quality Checks", C["accent"]),
     ]
 

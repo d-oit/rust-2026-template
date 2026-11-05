@@ -27,19 +27,26 @@ ls .agents/ Cargo.toml 2>/dev/null || echo "NOT_FOUND"
 python .agents/skills/architecture-diagram/scripts/generate_overview.py \
   --root . \
   --out .template/overview.excalidraw \
-  --svg-out .template/overview.svg
+  --svg-out .template/overview.svg \
+  --png-out .template/overview.png
 ```
 
 The script auto-discovers at runtime:
 - **Workspace crates** → `cargo metadata` (with Cargo.toml glob fallback)
 - **AI skills** → `.agents/skills/*/` directories
 - **Commands** → `.opencode/commands/*.md`
+- **Quality checks** → `config/xtask.json` tier check lists
+- **CI jobs** → job IDs across `.github/workflows/*.yml`
 
 ### Step 3 — Sync to Docs
 
 ```bash
 cp .template/overview.svg docs/src/overview.svg
+cp .template/overview.png docs/src/overview.png
 ```
+
+`scripts/sync-architecture.sh` performs steps 2 and 3 in one shot and is what
+the `Update Overview Diagram` workflow runs.
 
 ### Step 4 — Confirm and Report
 
@@ -52,10 +59,30 @@ After the script exits:
 
 - `.template/overview.excalidraw` — editable Excalidraw source
 - `.template/overview.svg` — generated SVG for docs embedding
+- `.template/overview.png` — raster copy, mirrored to `docs/src/overview.png`
+
+## What the stats mean
+
+The "BY THE NUMBERS" cards are derived, never hand-written. If a number looks
+wrong, fix the discovery logic rather than editing the generated files.
+
+| Stat | Source |
+|------|--------|
+| Workspace Members | `cargo metadata` workspace members (includes `examples/*` and `benchmarks`) |
+| Crates | directories under `crates/` that contain a `Cargo.toml` |
+| AI Skills | `.agents/skills/*/SKILL.md` |
+| CI Jobs | unique job IDs across `.github/workflows/*.yml` |
+| Quality Checks | union of the `checks` lists for every tier in `config/xtask.json` |
+| Shell scripts | `scripts/*.sh` |
+
+`Quality Checks` previously scraped `scripts/quality-gates.sh` for `cargo`
+invocations. That script is now a thin wrapper around `cargo xtask`, so the
+count collapsed to `1` while the real gate ran nineteen checks. Do not
+reintroduce command-scraping for this number.
 
 ## Optional Dependencies
 
-### Node.js (for SVG export)
+### Node.js (for SVG/PNG export)
 
 Required for SVG/PNG export from Excalidraw:
 
@@ -64,6 +91,13 @@ npm ci
 ```
 
 Without Node.js, use `--no-export` to generate only the `.excalidraw` source.
+Never commit a partially regenerated diagram: if export fails, the stale SVG
+stays in place and silently keeps advertising old counts. Check that the
+`EXPORTED:` lines appear before committing.
+
+`cargo` must be on `PATH` for accurate crate discovery. Without it the script
+falls back to parsing `Cargo.toml` globs and prints a warning — that path now
+reports the same totals, but the warning is a signal that the run is degraded.
 
 ## CLI Flags
 
