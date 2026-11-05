@@ -36,6 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
       heavy: ${{ steps.filter.outputs.heavy }}
       agents: ${{ steps.filter.outputs.agents }}
       workflows: ${{ steps.filter.outputs.workflows }}
@@ -67,6 +68,9 @@ jobs:
               - 'Makefile'
               - 'Makefile.monitoring'
               - '.config/nextest.toml'
+            docs:
+              - '*.md'
+              - '**/*.md'
             heavy:
               - 'crates/**'
               - 'src/**'
@@ -115,7 +119,7 @@ jobs:
 
   # ───────────────────────────────────────────────────
   lint:
-    name: Lint (YAML, Markdown, Commits)
+    name: Template Metadata Checks
     needs: [changes]
     if: >
       github.event_name != 'pull_request' ||
@@ -127,20 +131,12 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-      - name: Install yamllint
-        run: sudo apt-get update && sudo apt-get install -y yamllint
-      - name: YAML Lint
-        run: yamllint .
       - name: Check for placeholder values
         continue-on-error: true
         run: |
           if grep -rE 'your-org|Your Name|your-repo|your-crate' Cargo.toml; then
             echo "::warning::Placeholder values found in Cargo.toml. Run init-template.sh first."
           fi
-      - name: Markdown Lint
-        uses: davidanson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff  # v24
-        with:
-          globs: "**/*.md"
       - name: Validate agent metrics schema
         run: |
           if [ -f .agents/metrics.jsonl ]; then
@@ -164,108 +160,6 @@ jobs:
       # Commitlint is enforced via dedicated .github/workflows/commitlint.yml
 
   # ───────────────────────────────────────────────────
-  shellcheck:
-    name: ShellCheck
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.agents == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - name: ShellCheck
-        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca  # master
-        with:
-          scandir: './scripts'
-          severity: warning
-
-  # ───────────────────────────────────────────────────
-  fmt:
-    name: Format
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
-        with:
-          components: rustfmt
-      - name: Run rustfmt
-        run: cargo fmt --all -- --check
-
-  clippy:
-    name: Clippy
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
-        with:
-          components: clippy
-      - uses: ./.github/actions/setup-rust
-        # Clippy is the only job where a failed run can poison the cache
-        # with stale `.fingerprint/` metadata. Disable cache-on-failure
-        # only for this job; other jobs keep the safe `true` default.
-        with:
-          cache-on-failure: false
-      # `cargo clean -p` only removes compiled artifacts, NOT the
-      # `.fingerprint/` directory that Rust 1.66+ uses to cache and replay
-      # clippy diagnostics for example/test targets that have been removed.
-      # Wipe the root crate's fingerprint entries; cargo will rebuild just
-      # the root crate's metadata, leaving dependency caches intact.
-      - name: Clear stale root-crate fingerprint metadata
-        continue-on-error: true
-        run: |
-          set -x
-          find target/.fingerprint -maxdepth 1 -name 'rust-2026-template-*' -print -delete || true
-      - name: Clippy (all targets, all features)
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
-
-  # ───────────────────────────────────────────────────
-  test:
-    name: Test
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.code == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
-        with:
-          components: llvm-tools-preview
-      - uses: ./.github/actions/setup-rust
-      - name: Install cargo-nextest and llvm-cov
-        uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32  # v2
-        with:
-          tool: cargo-nextest,cargo-llvm-cov
-      - name: Build workspace
-        run: cargo build --workspace --all-features --profile ci
-      - name: Generate coverage report
-        run: cargo llvm-cov nextest --workspace --all-features --profile ci --lcov --output-path lcov.info
-      - name: Run doc tests
-        run: cargo test --workspace --doc
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./lcov.info
-          fail_ci_if_error: false
-
   # ───────────────────────────────────────────────────
   bench:
     name: Benchmarks
@@ -349,50 +243,6 @@ jobs:
             || (echo ".agents/SKILLS.md is stale, ${MSG}" && exit 1)
 
   # ───────────────────────────────────────────────────
-  msrv:
-    name: MSRV Check
-    needs: [changes]
-    if: >
-      github.event_name != 'pull_request' ||
-      needs.changes.outputs.heavy == 'true' ||
-      needs.changes.outputs.workflows == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
-        with:
-          toolchain: "1.88"
-      - uses: ./.github/actions/setup-rust
-      - name: Check MSRV and dependency compatibility
-        run: ./scripts/audit-msrv.sh
-
-  # ───────────────────────────────────────────────────
-  roast:
-    name: Roast Scorer
-    needs:
-      - validate-agents
-      - lint
-      - shellcheck
-      - fmt
-      - clippy
-      - test
-      - bench
-      - version-check
-      - msrv
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
-      - uses: ./.github/actions/setup-rust
-      - name: Run Roast Scorer
-        run: ./scripts/roast-scorer.sh
-      - name: Upload Roast Report
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
-        with:
-          name: roast-report
-          path: reports/roast-report.json
-
   # ───────────────────────────────────────────────────
   # Config-driven verification (issue #285): which checks run per trigger is decided by
   # config/xtask.json — not by magic values in this YAML. PRs run the fast `pull-request`
@@ -413,6 +263,7 @@ jobs:
     if: >
       github.event_name != 'pull_request' ||
       needs.changes.outputs.code == 'true' ||
+      needs.changes.outputs.docs == 'true' ||
       needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -429,14 +280,17 @@ jobs:
           echo "Resolved quality tier: $TIER"
           echo "### Resolved quality tier: \`$TIER\`" >> "$GITHUB_STEP_SUMMARY"
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
+        with:
+          components: llvm-tools-preview
       - uses: ./.github/actions/setup-rust
       - name: Install verification tooling
         uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32  # v2
         with:
-          tool: cargo-nextest,cargo-audit,cargo-deny,cargo-machete
-      - name: Install shellcheck and markdownlint
+          tool: cargo-nextest,cargo-llvm-cov,cargo-audit,cargo-deny,cargo-machete
+      - name: Install quality-check tooling
         run: |
-          sudo apt-get install -y shellcheck
+          sudo apt-get update
+          sudo apt-get install -y shellcheck yamllint
           npm install -g markdownlint-cli2
       - name: Install actionlint
         run: |
@@ -455,6 +309,8 @@ jobs:
             echo '```' >> "$GITHUB_STEP_SUMMARY"
           done
       - name: Run trigger tier
+        env:
+          XTASK_TEST_COVERAGE: "1"
         run: |
           TIER=pull-request
           if [ "${{ github.event_name }}" != "pull_request" ]; then
@@ -471,6 +327,15 @@ jobs:
           else
             cargo run --quiet -p xtask --bin xtask -- quality run --tier "$TIER"
           fi
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./lcov.info
+          fail_ci_if_error: false
+      - name: Validate CI quality ownership contract
+        run: bash tests/ci_quality_ownership_test.sh
       - name: Validate quality gate fail-closed contracts
         run: bash tests/quality_gate_contracts_test.sh
       - name: Validate do-harness integration
@@ -502,31 +367,16 @@ jobs:
       - changes
       - validate-agents
       - lint
-      - shellcheck
-      - fmt
-      - clippy
-      - test
       - bench
       - version-check
-      - msrv
-      - roast
       - quality-gate
     runs-on: ubuntu-latest
     if: always()
-    permissions:
-      contents: write  # needed to persist CI status files to main
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - name: Download benchmark events
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v4
-        with:
-          name: benchmark-events
-          path: benchmarks/events
-        continue-on-error: true
 
       - name: Write CI status summary
         run: |
-          mkdir -p .agents/aggregated
           cat > .agents/ci/ci-status.json << EOF
           {
             "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
@@ -535,14 +385,8 @@ jobs:
             "jobs": {
               "validate-agents": "${{ needs.validate-agents.result }}",
               "lint": "${{ needs.lint.result }}",
-              "shellcheck": "${{ needs.shellcheck.result }}",
-              "fmt": "${{ needs.fmt.result }}",
-              "clippy": "${{ needs.clippy.result }}",
-              "test": "${{ needs.test.result }}",
               "bench": "${{ needs.bench.result }}",
               "version-check": "${{ needs.version-check.result }}",
-              "msrv": "${{ needs.msrv.result }}",
-              "roast": "${{ needs.roast.result }}",
               "quality-gate": "${{ needs.quality-gate.result }}"
             },
             "overall": "${{ job.status }}"
@@ -563,14 +407,8 @@ jobs:
 
           STATUS_VALIDATE_AGENTS=$(status_symbol "${{ needs.validate-agents.result }}")
           STATUS_LINT=$(status_symbol "${{ needs.lint.result }}")
-          STATUS_SHELLCHECK=$(status_symbol "${{ needs.shellcheck.result }}")
-          STATUS_FMT=$(status_symbol "${{ needs.fmt.result }}")
-          STATUS_CLIPPY=$(status_symbol "${{ needs.clippy.result }}")
-          STATUS_TEST=$(status_symbol "${{ needs.test.result }}")
           STATUS_BENCH=$(status_symbol "${{ needs.bench.result }}")
           STATUS_VERSION_CHECK=$(status_symbol "${{ needs.version-check.result }}")
-          STATUS_MSRV=$(status_symbol "${{ needs.msrv.result }}")
-          STATUS_ROAST=$(status_symbol "${{ needs.roast.result }}")
           STATUS_QUALITY_GATE=$(status_symbol "${{ needs.quality-gate.result }}")
 
           cat > .agents/ci/ci-summary.md << EOF
@@ -586,14 +424,8 @@ jobs:
           |---|---|
           | validate-agents | $STATUS_VALIDATE_AGENTS |
           | lint | $STATUS_LINT |
-          | shellcheck | $STATUS_SHELLCHECK |
-          | fmt | $STATUS_FMT |
-          | clippy | $STATUS_CLIPPY |
-          | test | $STATUS_TEST |
           | bench | $STATUS_BENCH |
           | version-check | $STATUS_VERSION_CHECK |
-          | msrv | $STATUS_MSRV |
-          | roast | $STATUS_ROAST |
           | quality-gate | $STATUS_QUALITY_GATE |
 
           ## Known Issues
@@ -602,6 +434,7 @@ jobs:
           ## Flaky Tests
           - None detected in last 10 runs
           EOF
+          cat .agents/ci/ci-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload CI status as artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -611,16 +444,6 @@ jobs:
             .agents/ci/ci-status.json
             .agents/ci/ci-summary.md
 
-      - name: Persist CI data to main
-        if: github.ref == 'refs/heads/main' && always()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .agents/ci/ benchmarks/events/ benchmarks/history.jsonl
-          git commit -m "chore: update CI status and benchmark events [skip ci]" || true
-          git push origin main
-        continue-on-error: true
-
       - name: Check all required jobs passed or legitimately skipped
         run: |
           cat << 'EOF' | bash ./scripts/ci-required-evaluate.sh
@@ -629,6 +452,7 @@ jobs:
             "changes_result": "${{ needs.changes.result }}",
             "changes": {
               "code": "${{ needs.changes.outputs.code }}",
+              "docs": "${{ needs.changes.outputs.docs }}",
               "heavy": "${{ needs.changes.outputs.heavy }}",
               "agents": "${{ needs.changes.outputs.agents }}",
               "workflows": "${{ needs.changes.outputs.workflows }}"
@@ -636,14 +460,8 @@ jobs:
             "jobs": {
               "validate-agents": "${{ needs.validate-agents.result }}",
               "lint": "${{ needs.lint.result }}",
-              "shellcheck": "${{ needs.shellcheck.result }}",
-              "fmt": "${{ needs.fmt.result }}",
-              "clippy": "${{ needs.clippy.result }}",
-              "test": "${{ needs.test.result }}",
               "bench": "${{ needs.bench.result }}",
               "version-check": "${{ needs.version-check.result }}",
-              "msrv": "${{ needs.msrv.result }}",
-              "roast": "${{ needs.roast.result }}",
               "quality-gate": "${{ needs.quality-gate.result }}"
             }
           }

@@ -252,6 +252,31 @@ fn test_load_actual_config_xtask_json() {
             .contains(&QualityCheck::WorkflowValidation),
         "shipped pull-request tier must include WorkflowValidation"
     );
+    for check in [QualityCheck::Audit, QualityCheck::Deny] {
+        assert!(
+            config.tiers["pull-request"].checks.contains(&check),
+            "pull-request tier must include {check:?} for CI/local parity"
+        );
+    }
+    for check in [
+        QualityCheck::Audit,
+        QualityCheck::Deny,
+        QualityCheck::Msrv,
+        QualityCheck::ShellCheck,
+        QualityCheck::MarkdownLint,
+        QualityCheck::YamlLint,
+        QualityCheck::WorkflowValidation,
+        QualityCheck::ActionLint,
+        QualityCheck::SecretScan,
+    ] {
+        assert!(
+            config.tiers["pull-request"]
+                .required_checks
+                .as_ref()
+                .is_some_and(|required| required.contains(&check)),
+            "pull-request tier must require {check:?}"
+        );
+    }
     // Semantic workflow linting runs wherever workflow validation does.
     for tier in ["pull-request", "protected-branch", "release"] {
         assert!(

@@ -77,7 +77,7 @@ cargo nextest run --all-features
 ### 7. Doc tests
 
 ```bash
-cargo test --doc --all-features
+cargo test --workspace --doc --all-features
 ```
 
 ### 8. Report metrics

@@ -179,97 +179,122 @@ impl XtaskConfig {
     /// specific repository: adopters add or redefine tiers in `config/xtask.json` without
     /// touching workflow YAML.
     fn builtin_tiers() -> BTreeMap<String, TierDef> {
+        BTreeMap::from([
+            ("pull-request".to_string(), Self::pull_request_tier()),
+            (
+                "protected-branch".to_string(),
+                Self::protected_branch_tier(),
+            ),
+            ("scheduled".to_string(), Self::scheduled_tier()),
+            ("release".to_string(), Self::release_tier()),
+        ])
+    }
+
+    /// Required pull-request checks have their tools installed by CI; local
+    /// runs fail closed with `MissingTool` guidance when absent.
+    fn pull_request_tier() -> TierDef {
         use QualityCheck as Q;
-        let mut tiers = BTreeMap::new();
-        // Fast correctness gate for every pull request (no external security tooling required).
-        tiers.insert(
-            "pull-request".to_string(),
-            TierDef {
-                checks: vec![
-                    Q::LocLimits,
-                    Q::Fmt,
-                    Q::Clippy,
-                    Q::Build,
-                    Q::Test,
-                    Q::DocTest,
-                    Q::PrivacyCheck,
-                    Q::SecretScan,
-                    Q::WorkflowValidation,
-                    Q::ActionLint,
-                ],
-                required_checks: None,
-            },
-        );
-        // Deep merge gate for protected branches: security/dependency policy plus the PR tier.
-        tiers.insert(
-            "protected-branch".to_string(),
-            TierDef {
-                checks: vec![
-                    Q::LocLimits,
-                    Q::Fmt,
-                    Q::Clippy,
-                    Q::Build,
-                    Q::Test,
-                    Q::DocTest,
-                    Q::Audit,
-                    Q::Deny,
-                    Q::Machete,
-                    Q::Msrv,
-                    Q::ShellCheck,
-                    Q::MarkdownLint,
-                    Q::YamlLint,
-                    Q::PrivacyCheck,
-                    Q::SecretScan,
-                    Q::WorkflowValidation,
-                    Q::ActionLint,
-                    Q::CiStatusArtifact,
-                ],
-                required_checks: None,
-            },
-        );
-        // Expensive / repo-specific checks that only make sense on a schedule.
-        tiers.insert(
-            "scheduled".to_string(),
-            TierDef {
-                checks: vec![
-                    Q::SkillValidation,
-                    Q::AdrCompliance,
-                    Q::SkillEvals,
-                    Q::RoastScorer,
-                    Q::LlmContext,
-                    Q::Clippy,
-                    Q::Test,
-                    Q::Audit,
-                    Q::Deny,
-                    Q::Machete,
-                    Q::Msrv,
-                ],
-                required_checks: None,
-            },
-        );
-        // Pre-release gate.
-        tiers.insert(
-            "release".to_string(),
-            TierDef {
-                checks: vec![
-                    Q::Clippy,
-                    Q::Build,
-                    Q::Test,
-                    Q::DocTest,
-                    Q::Audit,
-                    Q::Deny,
-                    Q::Machete,
-                    Q::Msrv,
-                    Q::WorkflowValidation,
-                    Q::ActionLint,
-                    Q::YamlLint,
-                    Q::PrivacyCheck,
-                    Q::SecretScan,
-                ],
-                required_checks: None,
-            },
-        );
-        tiers
+        TierDef {
+            checks: vec![
+                Q::LocLimits,
+                Q::Fmt,
+                Q::Clippy,
+                Q::Build,
+                Q::Test,
+                Q::DocTest,
+                Q::Audit,
+                Q::Deny,
+                Q::Msrv,
+                Q::ShellCheck,
+                Q::MarkdownLint,
+                Q::YamlLint,
+                Q::PrivacyCheck,
+                Q::SecretScan,
+                Q::WorkflowValidation,
+                Q::ActionLint,
+            ],
+            required_checks: Some(vec![
+                Q::Audit,
+                Q::Deny,
+                Q::Msrv,
+                Q::ShellCheck,
+                Q::MarkdownLint,
+                Q::YamlLint,
+                Q::WorkflowValidation,
+                Q::ActionLint,
+                Q::SecretScan,
+            ]),
+        }
+    }
+
+    /// Deep merge gate for protected branches: security/dependency policy plus the PR tier.
+    fn protected_branch_tier() -> TierDef {
+        use QualityCheck as Q;
+        TierDef {
+            checks: vec![
+                Q::LocLimits,
+                Q::Fmt,
+                Q::Clippy,
+                Q::Build,
+                Q::Test,
+                Q::DocTest,
+                Q::Audit,
+                Q::Deny,
+                Q::Machete,
+                Q::Msrv,
+                Q::ShellCheck,
+                Q::MarkdownLint,
+                Q::YamlLint,
+                Q::PrivacyCheck,
+                Q::SecretScan,
+                Q::WorkflowValidation,
+                Q::ActionLint,
+            ],
+            required_checks: None,
+        }
+    }
+
+    /// Expensive / repo-specific checks that only make sense on a schedule.
+    fn scheduled_tier() -> TierDef {
+        use QualityCheck as Q;
+        TierDef {
+            checks: vec![
+                Q::SkillValidation,
+                Q::AdrCompliance,
+                Q::SkillEvals,
+                Q::LlmContext,
+                Q::Clippy,
+                Q::Test,
+                Q::Audit,
+                Q::Deny,
+                Q::Machete,
+                Q::Msrv,
+            ],
+            required_checks: None,
+        }
+    }
+
+    /// Pre-release gate.
+    fn release_tier() -> TierDef {
+        use QualityCheck as Q;
+        TierDef {
+            checks: vec![
+                Q::Clippy,
+                Q::Build,
+                Q::Test,
+                Q::DocTest,
+                Q::Audit,
+                Q::Deny,
+                Q::Machete,
+                Q::Msrv,
+                Q::WorkflowValidation,
+                Q::ActionLint,
+                Q::YamlLint,
+                Q::PrivacyCheck,
+                Q::SecretScan,
+            ],
+            required_checks: None,
+        }
     }
 
     /// Built-in default path->check glob mappings.

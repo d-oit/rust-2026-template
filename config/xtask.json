@@ -10,12 +10,29 @@
         "Build",
         "Test",
         "DocTest",
+        "Audit",
+        "Deny",
+        "Msrv",
+        "ShellCheck",
+        "MarkdownLint",
+        "YamlLint",
         "SkillValidation",
         "SkillEvals",
         "PrivacyCheck",
         "SecretScan",
         "WorkflowValidation",
         "ActionLint"
+      ],
+      "required_checks": [
+        "Audit",
+        "Deny",
+        "Msrv",
+        "ShellCheck",
+        "MarkdownLint",
+        "YamlLint",
+        "WorkflowValidation",
+        "ActionLint",
+        "SecretScan"
       ]
     },
     "protected-branch": {
@@ -38,8 +55,7 @@
         "PrivacyCheck",
         "SecretScan",
         "WorkflowValidation",
-        "ActionLint",
-        "CiStatusArtifact"
+        "ActionLint"
       ],
       "required_checks": [
         "Audit",
@@ -59,7 +75,6 @@
         "SkillValidation",
         "AdrCompliance",
         "SkillEvals",
-        "RoastScorer",
         "LlmContext",
         "Clippy",
         "Test",

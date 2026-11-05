@@ -1,0 +1,1 @@
+//! Default workspace member.

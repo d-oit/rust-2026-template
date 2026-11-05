@@ -35,11 +35,17 @@ cd YOUR_REPO
 ```
 
 Profiles are validated blueprints in `config/template-profiles/` (issue #286):
-`minimal`, `library`, `cli`, `service`, `workspace`, `ai-agent` choose which crates,
-workflows, and CI-tier default the generated project keeps. `--minimal` is shorthand
-for `--profile minimal` (keeps `sample-app` + your renamed lib crate + `xtask`; drops
-optional pattern crates and heavy workflows). See
-[docs/template-profiles.md](docs/template-profiles.md) for the selection table.
+`minimal`, `library`, `service`, `workspace`, `ai-agent`, and
+`performance-sensitive` choose which crates, workflows, and CI-tier default the
+generated project keeps. `--minimal` is shorthand for `--profile minimal`
+(keeps `sample-app` + your renamed lib crate + `xtask`; drops optional pattern
+crates and heavy workflows). Minimal and library profiles retain core Rust
+project skills; service and performance-sensitive profiles add advanced
+development skills, while `ai-agent` and `workspace` provide broader toolsets.
+The old `--profile cli` spelling remains a compatibility alias for `minimal`,
+preserving its former CI tier, lockfile, and manpage checklist. See
+[docs/template-profiles.md](docs/template-profiles.md) for the selection table
+and [docs/patterns/wasm.md](docs/patterns/wasm.md) for the optional WASM guide.
 
 **Versions:** leave `VERSION` / workspace version at `0.0.0` until you ship.
 Template release notes (`v0.3.x`) are only in `.template/CHANGELOG-TEMPLATE.md`.
@@ -84,6 +90,9 @@ cargo build --workspace
 
 # Run all tests
 cargo nextest run --workspace
+
+# Run documentation tests across every workspace member
+cargo test --workspace --doc --all-features
 
 # Run the sample app
 cargo run -p sample-app

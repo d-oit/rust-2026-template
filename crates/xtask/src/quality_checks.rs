@@ -9,8 +9,6 @@ use crate::config::{XtaskConfig, XtaskError};
 use crate::quality::QualityCheck;
 use crate::quality_helpers;
 use crate::quality_policy;
-use std::fs::File;
-use std::io::Read;
 use std::path::Path;
 
 pub(super) fn run_loc_limits_check(config: &XtaskConfig) -> Result<(), XtaskError> {
@@ -74,6 +72,23 @@ pub(super) fn has_executed_tests(output: &str) -> bool {
 }
 
 pub(super) fn run_test_check() -> Result<(), XtaskError> {
+    if std::env::var("XTASK_TEST_COVERAGE").is_ok_and(|value| value == "1") {
+        return commands::execute(
+            "cargo",
+            &[
+                "llvm-cov",
+                "nextest",
+                "--workspace",
+                "--all-features",
+                "--profile",
+                "ci",
+                "--lcov",
+                "--output-path",
+                "lcov.info",
+            ],
+        );
+    }
+
     let has_nextest = commands::execute_captured("cargo", &["nextest", "--version"]).is_ok();
     if has_nextest {
         commands::execute(
@@ -101,7 +116,7 @@ pub(super) fn run_test_check() -> Result<(), XtaskError> {
 }
 
 pub(super) fn run_doc_test() -> Result<(), XtaskError> {
-    commands::execute("cargo", &["test", "--doc", "--all-features"])
+    commands::execute("cargo", &["test", "--workspace", "--doc", "--all-features"])
 }
 
 pub(super) fn run_audit_check(config: &XtaskConfig) -> Result<(), XtaskError> {
@@ -116,6 +131,13 @@ pub(super) fn run_deny_check(config: &XtaskConfig) -> Result<(), XtaskError> {
     })
 }
 
+/// Detect unused dependencies with `cargo-machete`.
+///
+/// Fixture crates under `tests/fixtures/**` declare dependencies their `src`
+/// deliberately does not use (and some exist only to model a missing manifest,
+/// so they have no `src` at all). Those crates carry a
+/// `[package.metadata.cargo-machete]` `ignored` list so the walk still covers
+/// the real workspace without reporting intentional fixture dependencies.
 pub(super) fn run_machete_check(config: &XtaskConfig) -> Result<(), XtaskError> {
     quality_policy::run_with_tool_policy(config, QualityCheck::Machete, || {
         commands::execute("cargo-machete", &[])
@@ -211,27 +233,5 @@ pub(super) fn run_llm_context_check() -> Result<(), XtaskError> {
     }
     commands::execute("bash", &["scripts/generate-llms-txt.sh", "--check"])?;
     println!("  ✓ llms.txt and llms-full.txt are present and up to date");
-    Ok(())
-}
-
-pub(super) fn run_ci_status_check() -> Result<(), XtaskError> {
-    let path = Path::new(".agents/ci/ci-status.json");
-    if path.exists() {
-        let mut file = File::open(path).map_err(|e| XtaskError::InvalidConfig {
-            message: e.to_string(),
-        })?;
-        let mut content = String::new();
-        file.read_to_string(&mut content)
-            .map_err(|e| XtaskError::InvalidConfig {
-                message: e.to_string(),
-            })?;
-        let _v: serde_json::Value =
-            serde_json::from_str(&content).map_err(|e| XtaskError::InvalidConfig {
-                message: format!("CI status artifact is invalid JSON: {e}"),
-            })?;
-        println!("  ✓ CI status artifact exists and is valid JSON");
-    } else {
-        println!("  ! CI status artifact .agents/ci/ci-status.json not found, skipping check");
-    }
     Ok(())
 }
