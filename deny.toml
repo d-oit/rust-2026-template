@@ -49,11 +49,9 @@ allow = [
   "CDLA-Permissive-2.0",
 ]
 # Exceptions for specific crates with special licenses
-# Uncomment and fill in when needed:
-# [[licenses.exceptions]]
-# allow = ["LicenseRef-ring"]
-# name = "ring"
-# version = "*"
+[[licenses.exceptions]]
+allow = ["NCSA"]
+name = "libfuzzer-sys"
 
 # ============================================================
 # BANS - Block specific crates or versions

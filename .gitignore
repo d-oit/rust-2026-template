@@ -1,6 +1,13 @@
 # Rust build artifacts
 /target/
 
+# Temporary local Rust toolchain bootstrap artifacts
+/.cargo-home/
+/.rustup-home/
+/.rustup-tmp/
+/.rustup-init
+/rustup-init
+
 # Cargo.lock is intentionally excluded for this library/template repo.
 # If you adopt this template for a *binary* application, remove this line
 # and commit your Cargo.lock. See README.md#cargo-lock-policy for details.
@@ -56,7 +63,6 @@ fuzz/corpus/
 fuzz/artifacts/
 fuzz/coverage/
 fuzz/target/
-fuzz/Cargo.lock
 
 # Flamegraph output
 flamegraph.svg

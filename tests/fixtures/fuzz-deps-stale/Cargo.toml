@@ -1,0 +1,15 @@
+[package]
+name = "fuzz-lock-stale-fixture"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+
+# Fixture only: `local-fixture` is declared so `cargo metadata --locked`
+# resolves a path dependency, and is intentionally never imported. Marking it
+# ignored keeps cargo-machete focused on the real workspace crates.
+[package.metadata.cargo-machete]
+ignored = ["local-fixture"]
+
+[dependencies]
+local-fixture = { path = "local-fixture" }
