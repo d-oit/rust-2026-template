@@ -33,7 +33,10 @@ Always run before pushing:
 bash scripts/quality-gates.sh
 ```
 
-This runs: `cargo fmt --check`, `cargo clippy`, `cargo build`, `cargo nextest run`, `cargo test --doc`, `cargo audit`, `cargo deny check`, unused deps (cargo-machete), MSRV audit, shellcheck, markdownlint, privacy scan.
+This runs the configured `xtask` quality tier, including workspace-wide
+doctests (`cargo test --workspace --doc --all-features`) and dependency checks.
+CI uses the same `Test` check with coverage enabled; local runs use plain
+`cargo nextest` unless `XTASK_TEST_COVERAGE=1` is explicitly set.
 
 ## Making Changes
 
@@ -84,11 +87,8 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 
 ### PR Checklist
 
-- [ ] `cargo fmt --check` passes
-- [ ] `cargo clippy -- -D warnings` passes
-- [ ] `cargo nextest run` passes
-- [ ] `cargo audit` shows no vulnerabilities
-- [ ] `cargo deny check` passes
+- [ ] `bash scripts/quality-gates.sh` passes
+- [ ] `cargo test --workspace --doc --all-features` passes
 - [ ] Coverage targets met (as defined in `.codecov.yml`)
 - [ ] Documentation updated if API changed
 - [ ] `CHANGELOG.md` updated

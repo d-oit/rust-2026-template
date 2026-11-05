@@ -3,7 +3,7 @@
 # Fail-closed contract integration tests for quality gates, scripts, and pre-commit hooks.
 #
 # Behaviors Proved:
-# 1. Zero-test workspaces and removed test suites fail closed during test execution.
+# 1. Workspace tests and doctests, including non-default members, run and fail closed.
 # 2. Missing required tools on protected tiers fail closed with MissingTool errors.
 # 3. Unavailable or missing telemetry evidence causes 'quality status' to fail closed.
 # 4. Empty input sets for scanners and validators (workflows, source files) fail closed.
@@ -58,8 +58,8 @@ for tool in sh bash git cargo python3 wc grep sed cat cmp diff dirname mktemp he
 done
 
 # -----------------------------------------------------------------------------
-# CONTRACT 1: Zero-Test Workspaces and Removed Test Suites Fail Closed
-# Behavior: Running test gate on a workspace with zero tests must return an error.
+# CONTRACT 1: Workspace Tests and Doctests Fail Closed
+# Behavior: Test gates exercise the full workspace, including non-default members.
 # -----------------------------------------------------------------------------
 echo "[Contract 1] Testing zero-test workspace fail-closed behavior..."
 
@@ -111,6 +111,38 @@ cp -r "${REPO_ROOT}/scripts" "${ZERO_WS}/"
     fail "Zero-test workspace should fail test quality gate"
   fi
 )
+
+# Regression fixture: the non-default member contains the only doctest.
+# CARGO_TERM_COLOR is forced off: CI sets it to `always` globally, and ANSI
+# escapes between the words would make the assertions below match nothing.
+DOCTEST_FIXTURE="${REPO_ROOT}/tests/fixtures/doctest-workspace"
+if DOCTEST_OUTPUT=$(
+  cd "${DOCTEST_FIXTURE}"
+  CARGO_TERM_COLOR=never \
+    CARGO_TARGET_DIR="${REPO_ROOT}/target" \
+    "${XTASK_BIN}" quality run --only doctest 2>&1
+); then
+  if echo "${DOCTEST_OUTPUT}" | grep -q "Doc-tests non_default_docs" &&
+    echo "${DOCTEST_OUTPUT}" | grep -q "1 passed"; then
+    pass "Doctest quality gate executes the restricted-workspace non-default member"
+  else
+    fail "Doctest output must identify the non-default member and passing test: ${DOCTEST_OUTPUT}"
+  fi
+else
+  fail "Doctest quality gate must execute the non-default workspace member: ${DOCTEST_OUTPUT}"
+fi
+
+FAILING_DOCTEST_FIXTURE="${REPO_ROOT}/tests/fixtures/doctest-workspace-failing"
+if (
+  cd "${FAILING_DOCTEST_FIXTURE}"
+  CARGO_TERM_COLOR=never \
+    CARGO_TARGET_DIR="${REPO_ROOT}/target" \
+    "${XTASK_BIN}" quality run --only doctest >/dev/null 2>&1
+); then
+  fail "Failing doctest in a non-default member must fail the doctest quality gate"
+else
+  pass "Failing non-default-member doctest fails the doctest quality gate"
+fi
 
 # -----------------------------------------------------------------------------
 # CONTRACT 2: Missing Required Tools & Unavailable Evidence Fail Closed

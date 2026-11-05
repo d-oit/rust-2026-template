@@ -10,7 +10,7 @@ use crate::quality::{QualityCheck as Q, plan_checks};
 use std::collections::BTreeSet;
 
 /// Every check variant, used to build fully-populated tier definitions.
-const ALL_CHECKS: [Q; 23] = [
+const ALL_CHECKS: [Q; 21] = [
     Q::LocLimits,
     Q::SkillValidation,
     Q::AdrCompliance,
@@ -32,8 +32,6 @@ const ALL_CHECKS: [Q; 23] = [
     Q::ActionLint,
     Q::SkillEvals,
     Q::LlmContext,
-    Q::CiStatusArtifact,
-    Q::RoastScorer,
 ];
 
 fn tier_def(checks: &[Q]) -> TierDef {
@@ -254,8 +252,8 @@ fn requiredness_follows_the_published_tier_context() {
     assert!(is_required(&config, Q::Audit));
     assert!(is_required(&config, Q::ShellCheck));
     set_active_tier("pull-request");
-    assert!(!is_required(&config, Q::Audit));
-    assert!(!is_required(&config, Q::SecretScan));
+    assert!(is_required(&config, Q::Audit));
+    assert!(is_required(&config, Q::SecretScan));
 }
 
 #[test]
@@ -263,9 +261,10 @@ fn plan_checks_publishes_the_tier_context_for_run_time_policy() {
     let config = XtaskConfig::default();
     plan_checks(&config, Some("fast-pr"), None, None).unwrap();
     assert!(
-        !is_required(&config, Q::Audit),
-        "pull-request tier stays advisory"
+        is_required(&config, Q::Audit),
+        "pull-request tier requires dependency checks in the shipped config"
     );
+    assert!(is_required(&config, Q::SecretScan));
     plan_checks(&config, Some("full-gate"), None, None).unwrap();
     assert!(
         is_required(&config, Q::Audit),

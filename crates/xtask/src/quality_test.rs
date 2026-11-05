@@ -10,7 +10,7 @@ fn test_plan_checks_fast_pr() {
     assert!(checks.contains(&QualityCheck::LocLimits));
     assert!(checks.contains(&QualityCheck::Fmt));
     assert!(checks.contains(&QualityCheck::Test));
-    assert!(!checks.contains(&QualityCheck::ShellCheck));
+    assert!(checks.contains(&QualityCheck::ShellCheck));
 }
 
 #[test]
@@ -28,16 +28,18 @@ fn test_plan_checks_canonical_tiers() {
     // pull-request is the fast correctness tier.
     let pr = plan_checks(&config, Some("pull-request"), None, None).unwrap();
     assert!(pr.contains(&QualityCheck::Test));
-    assert!(!pr.contains(&QualityCheck::Deny));
+    assert!(pr.contains(&QualityCheck::Deny));
+    assert!(pr.contains(&QualityCheck::Audit));
+    assert!(pr.contains(&QualityCheck::Msrv));
     // GOAP guardrail (ADR 0005) must run on every PR, not just post-merge.
     assert!(pr.contains(&QualityCheck::WorkflowValidation));
     // protected-branch is the deep merge gate.
     let merge = plan_checks(&config, Some("protected-branch"), None, None).unwrap();
     assert!(merge.contains(&QualityCheck::Deny));
     assert!(merge.contains(&QualityCheck::Audit));
-    // scheduled carries the expensive eval/roast checks, not the PR-tier trivia.
+    // scheduled carries repository-level validation, not a blocking score.
     let scheduled = plan_checks(&config, Some("scheduled"), None, None).unwrap();
-    assert!(scheduled.contains(&QualityCheck::RoastScorer));
+    assert!(scheduled.contains(&QualityCheck::SkillValidation));
     // release is the pre-release security + build gate.
     let release = plan_checks(&config, Some("release"), None, None).unwrap();
     assert!(release.contains(&QualityCheck::Audit));

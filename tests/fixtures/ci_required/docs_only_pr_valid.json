@@ -1,0 +1,18 @@
+{
+  "event_name": "pull_request",
+  "changes_result": "success",
+  "changes": {
+    "code": "false",
+    "docs": "true",
+    "heavy": "false",
+    "agents": "false",
+    "workflows": "false"
+  },
+  "jobs": {
+    "validate-agents": "skipped",
+    "lint": "skipped",
+    "bench": "skipped",
+    "version-check": "skipped",
+    "quality-gate": "success"
+  }
+}

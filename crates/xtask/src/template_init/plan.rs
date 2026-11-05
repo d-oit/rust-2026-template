@@ -5,6 +5,7 @@
 //! each file replacement is atomic, but a later I/O failure can leave earlier
 //! removals or writes in place.
 
+use super::profile_skills::prune_skill_references;
 use super::validate::{self, ProjectIdentity};
 use crate::config::XtaskError;
 use crate::template_profile::{LockfilePolicy, TemplateProfile};
@@ -14,6 +15,10 @@ use toml_edit::{Array, DocumentMut, value};
 #[cfg(test)]
 #[path = "plan_test.rs"]
 mod plan_test;
+
+#[cfg(test)]
+#[path = "profile_integration_test.rs"]
+mod profile_integration_test;
 
 /// A file rewrite prepared ahead of execution (written atomically by apply).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -419,6 +424,9 @@ fn prose_rewrites(
             let mut updated = content.clone();
             for (from, to) in pairs {
                 updated = updated.replace(from, &to);
+            }
+            if rel == "AGENTS.md" {
+                updated = prune_skill_references(&updated, removed_paths);
             }
             if updated != content {
                 rewrites.push(FileRewrite {

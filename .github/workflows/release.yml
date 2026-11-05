@@ -65,10 +65,17 @@ jobs:
         uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32  # v2
         with:
           tool: cargo-nextest,cargo-audit,cargo-deny,cargo-machete
-      - name: Install shellcheck and markdownlint
+      - name: Install shellcheck, yamllint, and markdownlint
         run: |
-          sudo apt-get install -y shellcheck
+          sudo apt-get update
+          sudo apt-get install -y shellcheck yamllint
           npm install -g markdownlint-cli2
+      - name: Install actionlint
+        run: |
+          ACTIONLINT_VERSION=1.7.12
+          SCRIPT=https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash
+          bash <(curl -fsSL "${SCRIPT}") "${ACTIONLINT_VERSION}" /usr/local/bin
+          actionlint --version
       - name: Run release-tier quality gates
         run: ./scripts/quality-gates.sh --tier release
 

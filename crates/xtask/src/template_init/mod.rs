@@ -9,6 +9,7 @@
 
 pub(crate) mod apply;
 pub(crate) mod plan;
+mod profile_skills;
 pub(crate) mod validate;
 
 use crate::config::XtaskError;

@@ -36,7 +36,7 @@ cargo nextest run --all-features --workspace
 ### 2. Doc tests
 
 ```bash
-cargo test --doc --all-features
+cargo test --workspace --doc --all-features
 ```
 
 ### 3. With coverage
@@ -78,7 +78,7 @@ benches/            # Criterion benchmarks
 ## Red Flags
 
 - [ ] Running `cargo test` without `--all-features` (hides feature-gated test failures)
-- [ ] Skipping doc tests (`cargo test --doc`)
+- [ ] Skipping doc tests (`cargo test --workspace --doc --all-features`)
 - [ ] Not using `cargo-nextest` for parallel test execution
 
 ## References

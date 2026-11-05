@@ -1,0 +1,11 @@
+{
+  "event_id": "2026-11-05T16-30-00Z-opencode",
+  "task_id": "issues-473-482-batch",
+  "skill": "issue-triage",
+  "status": "success",
+  "started_at": "2026-11-05T15:40:00Z",
+  "finished_at": "2026-11-05T16:30:00Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "26c32a1"
+}

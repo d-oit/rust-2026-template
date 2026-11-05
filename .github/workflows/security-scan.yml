@@ -79,6 +79,7 @@ jobs:
   # for known vulnerability advisories (CVEs) and advisory ignores.
   cargo-audit:
     name: Vulnerability Audit (cargo-audit)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       scan_outcome: ${{ steps.record-result.outputs.scan_outcome }}
@@ -182,6 +183,7 @@ jobs:
   # and sources (allowed registries and repositories).
   cargo-deny:
     name: Dependency Policy (cargo-deny)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       scan_outcome: ${{ steps.record-result.outputs.scan_outcome }}
@@ -333,6 +335,10 @@ jobs:
             MSG="| Vulnerability Audit (cargo-audit) | ✅ PASSED | None |"
             MSG="${MSG} No vulnerability advisories detected.${AUDIT_GRAPH_NOTE} |"
             echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$AUDIT_RES" = "skipped" ]; then
+            MSG="| Vulnerability Audit (cargo-audit) | ⚪ DEFERRED | xtask quality gate |"
+            MSG="${MSG} Owned by xtask for this event. |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           elif [ "$AUDIT_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
             MSG="| Vulnerability Audit (cargo-audit) | ❌ INFRASTRUCTURE FAILURE |"
@@ -353,6 +359,10 @@ jobs:
           if [ "$DENY_RES" = "success" ]; then
             MSG="| Dependency Policy (cargo-deny) | ✅ PASSED | None |"
             MSG="${MSG} All dependencies comply with policy.${DENY_GRAPH_NOTE} |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$DENY_RES" = "skipped" ]; then
+            MSG="| Dependency Policy (cargo-deny) | ⚪ DEFERRED | xtask quality gate |"
+            MSG="${MSG} Owned by xtask for this event. |"
             echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           elif [ "$DENY_TYPE" = "infrastructure_failure" ]; then
             FAILED=1

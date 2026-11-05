@@ -10,7 +10,7 @@ use crate::config::XtaskError;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
-use std::process;
+use std::process::{self, Command};
 
 /// Executes the plan. All validation happened at plan time.
 ///
@@ -74,7 +74,37 @@ pub fn execute(plan: &InitPlan) -> Result<(), XtaskError> {
         );
     }
 
+    let skills_root = plan.root.join(".agents/skills");
+    if plan
+        .removals
+        .iter()
+        .any(|path| path.starts_with(&skills_root))
+    {
+        regenerate_skill_index(&plan.root)?;
+    }
+
     print_post_init(plan);
+    Ok(())
+}
+
+/// Rebuilds `.agents/SKILLS.md` using the template's canonical generator.
+fn regenerate_skill_index(root: &Path) -> Result<(), XtaskError> {
+    let output = Command::new("bash")
+        .arg("scripts/generate-skills-md.sh")
+        .current_dir(root)
+        .output()
+        .map_err(|e| XtaskError::CacheIssue {
+            message: format!("failed to run skill index generator: {e}"),
+        })?;
+    if !output.status.success() {
+        return Err(XtaskError::CacheIssue {
+            message: format!(
+                "skill index generator failed: {}",
+                String::from_utf8_lossy(&output.stderr).trim()
+            ),
+        });
+    }
+    println!("     Regenerated .agents/SKILLS.md after pruning skills");
     Ok(())
 }
 

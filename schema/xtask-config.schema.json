@@ -52,9 +52,7 @@
                 "WorkflowValidation",
                 "ActionLint",
                 "SkillEvals",
-                "LlmContext",
-                "CiStatusArtifact",
-                "RoastScorer"
+                "LlmContext"
               ]
             }
           },

@@ -145,10 +145,18 @@ workspace: which crates stay, which workflows run, the default CI tier, and lock
 |---|---|---|---|
 | `minimal` | Small app | `sample-app` + renamed lib crate + `xtask`; drops pattern crates, benchmarks, fuzz, heavy workflows | Committed (`Cargo.lock` tracked) |
 | `library` | Reusable library | renamed lib crate + `xtask` + workspace tests | Ignored (library standard) |
-| `cli` | Binary tool | `sample-app` + renamed lib crate + `xtask` + tests | Committed (`Cargo.lock` tracked) |
 | `service` | Long-running service | actor/storage/registry patterns + `xtask` | Committed (`Cargo.lock` tracked) |
 | `workspace` | Full reference | every crate, benchmark, and workflow | Committed (`Cargo.lock` tracked) |
 | `ai-agent` | Agent-centric dev | `sample-app` + lib crate + `xtask` + agent tooling | Committed (`Cargo.lock` tracked) |
+
+`sample-app` is the binary/CLI starter. The legacy `--profile cli` spelling
+aliases `minimal`'s workspace while retaining its historical
+`protected-branch` CI tier, committed lockfile, and optional CLI manpage
+checklist item. `minimal` and `library` retain core Rust build, test, lint,
+release, privacy/security, and basic PR-review skills; other profiles select
+additional agent-development capabilities as appropriate. In the
+agent-centric profile, skill authoring/evaluation is included; the `workspace`
+profile retains the full maintainer and metrics skill set.
 
 ```bash
 ./scripts/init-template.sh --profile library --name my-lib
@@ -187,7 +195,7 @@ See **[AGENTS.md](AGENTS.md)** for instructions on maintaining and using these c
 The project uses several directories for generated artifacts and documentation:
 
 - **`reports/`**: Standardized directory for generated HTML reports (coverage, audit, benchmarks). This directory is git-ignored by default.
-- **`.agents/ci/`**: CI health status artifacts (ci-status.json, ci-summary.md).
+- **`.agents/ci/`**: CI telemetry and generated summaries; workflow artifacts are downloadable and not committed to project branches.
 - **`target/`**: Rust build artifacts.
 
 ## VERSION File
@@ -207,7 +215,7 @@ The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to
 
 The template repository itself does **not** commit `Cargo.lock` by default because it acts as a template for library and application crates alike. Downstream lockfile handling is determined by template initialization profiles:
 
-- **Binary Application Profiles** (`cli`, `service`, `ai-agent`, `minimal`, `workspace`): `cargo xtask template init` automatically un-ignores and tracks `Cargo.lock` in `.gitignore` so generated binary projects commit `Cargo.lock` for reproducible builds by default.
+- **Binary Application Profiles** (`cli` compatibility alias, `service`, `ai-agent`, `minimal`, `workspace`): `cargo xtask template init` automatically un-ignores and tracks `Cargo.lock` in `.gitignore` so generated binary projects commit `Cargo.lock` for reproducible builds by default.
 - **Library Profile** (`library`): Keeps `Cargo.lock` ignored in `.gitignore`, adhering to Cargo recommendations for library crates so downstream consumers resolve exact dependency versions via `cargo update`.
 
 See the [Cargo docs on Cargo.lock](https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html) for full rationale.

@@ -231,10 +231,18 @@ workspace: which crates stay, which workflows run, the default CI tier, and lock
 |---|---|---|---|
 | `minimal` | Small app | `sample-app` + renamed lib crate + `xtask`; drops pattern crates, benchmarks, fuzz, heavy workflows | Committed (`Cargo.lock` tracked) |
 | `library` | Reusable library | renamed lib crate + `xtask` + workspace tests | Ignored (library standard) |
-| `cli` | Binary tool | `sample-app` + renamed lib crate + `xtask` + tests | Committed (`Cargo.lock` tracked) |
 | `service` | Long-running service | actor/storage/registry patterns + `xtask` | Committed (`Cargo.lock` tracked) |
 | `workspace` | Full reference | every crate, benchmark, and workflow | Committed (`Cargo.lock` tracked) |
 | `ai-agent` | Agent-centric dev | `sample-app` + lib crate + `xtask` + agent tooling | Committed (`Cargo.lock` tracked) |
+
+`sample-app` is the binary/CLI starter. The legacy `--profile cli` spelling
+aliases `minimal`'s workspace while retaining its historical
+`protected-branch` CI tier, committed lockfile, and optional CLI manpage
+checklist item. `minimal` and `library` retain core Rust build, test, lint,
+release, privacy/security, and basic PR-review skills; other profiles select
+additional agent-development capabilities as appropriate. In the
+agent-centric profile, skill authoring/evaluation is included; the `workspace`
+profile retains the full maintainer and metrics skill set.
 
 ```bash
 ./scripts/init-template.sh --profile library --name my-lib
@@ -273,7 +281,7 @@ See **[AGENTS.md](AGENTS.md)** for instructions on maintaining and using these c
 The project uses several directories for generated artifacts and documentation:
 
 - **`reports/`**: Standardized directory for generated HTML reports (coverage, audit, benchmarks). This directory is git-ignored by default.
-- **`.agents/ci/`**: CI health status artifacts (ci-status.json, ci-summary.md).
+- **`.agents/ci/`**: CI telemetry and generated summaries; workflow artifacts are downloadable and not committed to project branches.
 - **`target/`**: Rust build artifacts.
 
 ## VERSION File
@@ -293,7 +301,7 @@ The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to
 
 The template repository itself does **not** commit `Cargo.lock` by default because it acts as a template for library and application crates alike. Downstream lockfile handling is determined by template initialization profiles:
 
-- **Binary Application Profiles** (`cli`, `service`, `ai-agent`, `minimal`, `workspace`): `cargo xtask template init` automatically un-ignores and tracks `Cargo.lock` in `.gitignore` so generated binary projects commit `Cargo.lock` for reproducible builds by default.
+- **Binary Application Profiles** (`cli` compatibility alias, `service`, `ai-agent`, `minimal`, `workspace`): `cargo xtask template init` automatically un-ignores and tracks `Cargo.lock` in `.gitignore` so generated binary projects commit `Cargo.lock` for reproducible builds by default.
 - **Library Profile** (`library`): Keeps `Cargo.lock` ignored in `.gitignore`, adhering to Cargo recommendations for library crates so downstream consumers resolve exact dependency versions via `cargo update`.
 
 See the [Cargo docs on Cargo.lock](https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html) for full rationale.
@@ -404,6 +412,7 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 - **Diagnostics & PR Context Behavior:** When `do-harness` is absent, use `./scripts/doctor.sh` and `./scripts/quality-gates.sh`. If no PR context or `gh` CLI is available, `do-harness pr review` / `do-harness pr ready` report missing PR context gracefully. Uncommitted working tree changes or stale evidence require a fresh `./scripts/quality-gates.sh` run.
 - **Verification tiers:** Which checks run for each lifecycle trigger (pull request / protected branch / scheduled / release) is configured in `config/xtask.json` (`tiers` map: `pull-request`, `protected-branch`, `scheduled`, `release`) — not in workflow YAML. Override per run via `xtask quality run --tier <name>` or `$XTASK_TIER`. Legacy names `fast-pr` and `full-gate`/`all` are aliases for `pull-request` and `protected-branch`.
 - **When-changed check selection:** `xtask quality run --changed-from <ref>` uses declarative `when_changed` glob mappings in `config/xtask.json` (e.g. `crates/**/*.rs` -> Rust checks, `scripts/**/*.sh` -> ShellCheck). Use `xtask quality explain --changed-from <ref>` to inspect selected vs skipped checks and matched patterns. Unreadable git state fails closed by selecting all checks and recording `fallback_used: true`.
+- **Workspace documentation tests:** Run `cargo test --workspace --doc --all-features` so restricted Cargo `default-members` cannot hide doctests in other members.
 
 ### Security & Configuration
 - **Hardening:** Enforce `#[serde(deny_unknown_fields)]` on config structs.
@@ -492,7 +501,10 @@ Always run before pushing:
 bash scripts/quality-gates.sh
 ```
 
-This runs: `cargo fmt --check`, `cargo clippy`, `cargo build`, `cargo nextest run`, `cargo test --doc`, `cargo audit`, `cargo deny check`, unused deps (cargo-machete), MSRV audit, shellcheck, markdownlint, privacy scan.
+This runs the configured `xtask` quality tier, including workspace-wide
+doctests (`cargo test --workspace --doc --all-features`) and dependency checks.
+CI uses the same `Test` check with coverage enabled; local runs use plain
+`cargo nextest` unless `XTASK_TEST_COVERAGE=1` is explicitly set.
 
 ## Making Changes
 
@@ -543,11 +555,8 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 
 ### PR Checklist
 
-- [ ] `cargo fmt --check` passes
-- [ ] `cargo clippy -- -D warnings` passes
-- [ ] `cargo nextest run` passes
-- [ ] `cargo audit` shows no vulnerabilities
-- [ ] `cargo deny check` passes
+- [ ] `bash scripts/quality-gates.sh` passes
+- [ ] `cargo test --workspace --doc --all-features` passes
 - [ ] Coverage targets met (as defined in `.codecov.yml`)
 - [ ] Documentation updated if API changed
 - [ ] `CHANGELOG.md` updated
@@ -672,11 +681,17 @@ cd YOUR_REPO
 ```
 
 Profiles are validated blueprints in `config/template-profiles/` (issue #286):
-`minimal`, `library`, `cli`, `service`, `workspace`, `ai-agent` choose which crates,
-workflows, and CI-tier default the generated project keeps. `--minimal` is shorthand
-for `--profile minimal` (keeps `sample-app` + your renamed lib crate + `xtask`; drops
-optional pattern crates and heavy workflows). See
-[docs/template-profiles.md](docs/template-profiles.md) for the selection table.
+`minimal`, `library`, `service`, `workspace`, `ai-agent`, and
+`performance-sensitive` choose which crates, workflows, and CI-tier default the
+generated project keeps. `--minimal` is shorthand for `--profile minimal`
+(keeps `sample-app` + your renamed lib crate + `xtask`; drops optional pattern
+crates and heavy workflows). Minimal and library profiles retain core Rust
+project skills; service and performance-sensitive profiles add advanced
+development skills, while `ai-agent` and `workspace` provide broader toolsets.
+The old `--profile cli` spelling remains a compatibility alias for `minimal`,
+preserving its former CI tier, lockfile, and manpage checklist. See
+[docs/template-profiles.md](docs/template-profiles.md) for the selection table
+and [docs/patterns/wasm.md](docs/patterns/wasm.md) for the optional WASM guide.
 
 **Versions:** leave `VERSION` / workspace version at `0.0.0` until you ship.
 Template release notes (`v0.3.x`) are only in `.template/CHANGELOG-TEMPLATE.md`.
@@ -721,6 +736,9 @@ cargo build --workspace
 
 # Run all tests
 cargo nextest run --workspace
+
+# Run documentation tests across every workspace member
+cargo test --workspace --doc --all-features
 
 # Run the sample app
 cargo run -p sample-app

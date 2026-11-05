@@ -37,8 +37,10 @@ docs: ## Auto-generate docs/patterns/ from rustdoc comments (run install-doc-too
 	@if [ -f src/lib.rs ]; then cargo sync-readme; fi
 	cargo doc2readme -p example-storage-pattern --out docs/patterns/trait-only-storage.md
 	cargo doc2readme -p example-registry-pattern --out docs/patterns/registry-dispatch.md
-	@# Add AUTO-GENERATED header if not already present
-	@for f in docs/patterns/*.md; do \
+	@# Add AUTO-GENERATED header to files this target generated. Hand-written
+	@# guides in docs/patterns/ (e.g. wasm.md) are not generated from rustdoc,
+	@# so they must not claim to be.
+	@for f in docs/patterns/trait-only-storage.md docs/patterns/registry-dispatch.md; do \
 		if ! grep -q "AUTO-GENERATED" "$$f"; then \
 			sed -i '1i <!-- AUTO-GENERATED — edit src/lib.rs in the crate, not this file -->\n' "$$f"; \
 		fi \

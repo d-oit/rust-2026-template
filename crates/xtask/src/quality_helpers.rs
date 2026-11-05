@@ -249,19 +249,6 @@ pub fn run_skill_evals() -> Result<(), XtaskError> {
     }
 }
 
-/// Runs roast scorer.
-///
-/// # Errors
-/// Returns `XtaskError` if roast scorer fails.
-pub fn run_roast_scorer() -> Result<(), XtaskError> {
-    if Path::new("scripts/roast-scorer.sh").exists() {
-        commands::execute("bash", &["scripts/roast-scorer.sh"])
-    } else {
-        println!("  ! scripts/roast-scorer.sh not found, skipping");
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

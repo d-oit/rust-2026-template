@@ -1,0 +1,4 @@
+[workspace]
+members = ["crates/sample-app", "crates/non-default-docs"]
+default-members = ["crates/sample-app"]
+resolver = "2"

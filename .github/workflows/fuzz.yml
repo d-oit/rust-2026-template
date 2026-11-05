@@ -13,6 +13,20 @@ on:
       - 'fuzz/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
+      - 'deny.toml'
+      - '.cargo/audit.toml'
+      - 'scripts/check-fuzz-deps.sh'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'crates/**'
+      - 'src/**'
+      - 'fuzz/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'deny.toml'
+      - '.cargo/audit.toml'
+      - 'scripts/check-fuzz-deps.sh'
   schedule:
     - cron: "0 2 * * 0"  # Weekly Sunday 02:00 UTC
   workflow_dispatch:
@@ -33,8 +47,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  fuzz-dependencies:
+    name: Fuzz Dependency Policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
+      - uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32  # v2
+        with:
+          tool: cargo-audit,cargo-deny
+      - name: Validate the excluded fuzz workspace dependency graph
+        run: bash scripts/check-fuzz-deps.sh
+
   fuzz:
     runs-on: ubuntu-latest
+    needs: [fuzz-dependencies]
+    if: github.event_name != 'pull_request'
     env:
       RUSTUP_TOOLCHAIN: nightly
     steps:

@@ -158,6 +158,25 @@
         "rustls-webpki 0.102.8"
       ],
       "remediation_hint": "Drop libsql default features and depend on `features = [\"core\"]` so the unpatchable hyper-rustls 0.25 / rustls 0.22 / rustls-webpki 0.102.8 edge disappears from the graph. Do not re-add advisory suppressions. Tracking: https://github.com/tursodatabase/libsql/issues/2266"
+    },
+    {
+      "id": "ci-unexpected-skipped-job-20261104",
+      "date": "2026-11-04",
+      "workflow": "CI",
+      "commit": "7c2020b3a1d948e7b3cf2867ef08a8d0521e892c",
+      "run_id": "40129384721",
+      "failure_category": "CI aggregate unexpected skipped job",
+      "failure_type": "automation",
+      "subsystem": "ci-required-evaluator",
+      "summary": "Required CI job unexpectedly skipped due to misconfigured path-filter or upstream job condition, caught by fail-closed evaluator in ci-success.",
+      "reproducible_locally": true,
+      "reproduction_command": "bash tests/ci_required_evaluate_test.sh",
+      "detection_signatures": [
+        "CI required job evaluation failed",
+        "was skipped unexpectedly on PR event",
+        "This job was required by the path filter contract"
+      ],
+      "remediation_hint": "Inspect path-filter outputs in the changes job and verify workflow job 'if:' conditions match intended path filtering triggers."
     }
   ]
 }

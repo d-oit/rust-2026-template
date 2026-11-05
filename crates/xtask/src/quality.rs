@@ -57,10 +57,6 @@ pub enum QualityCheck {
     SkillEvals,
     /// LLM context files check.
     LlmContext,
-    /// CI status json schema and presence.
-    CiStatusArtifact,
-    /// roast scorer execution.
-    RoastScorer,
 }
 
 impl QualityCheck {
@@ -89,8 +85,6 @@ impl QualityCheck {
             Self::ActionLint => "GitHub Actions Semantic Check (actionlint)",
             Self::SkillEvals => "Skill Evaluations",
             Self::LlmContext => "LLM Context Files Check",
-            Self::CiStatusArtifact => "CI Status Artifact Check",
-            Self::RoastScorer => "Roast Scorer",
         }
     }
 }
@@ -132,6 +126,9 @@ fn matches_only_filter(check: QualityCheck, o_list: &[&str]) -> bool {
                 QualityCheck::Clippy => o_lower == "clippy" || o_lower == "lint",
                 QualityCheck::Build => o_lower == "build",
                 QualityCheck::Test => o_lower == "test" || o_lower == "tests",
+                QualityCheck::DocTest => {
+                    o_lower == "doctest" || o_lower == "doc-test" || o_lower == "docs"
+                }
                 QualityCheck::Audit => o_lower == "audit",
                 QualityCheck::Deny => o_lower == "deny",
                 QualityCheck::Machete => o_lower == "machete" || o_lower == "deps",
@@ -297,8 +294,6 @@ pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskE
         QualityCheck::ActionLint => quality_checks::run_actionlint_check(config)?,
         QualityCheck::SkillEvals => quality_helpers::run_skill_evals()?,
         QualityCheck::LlmContext => quality_checks::run_llm_context_check()?,
-        QualityCheck::CiStatusArtifact => quality_checks::run_ci_status_check()?,
-        QualityCheck::RoastScorer => quality_helpers::run_roast_scorer()?,
     }
     Ok(())
 }
