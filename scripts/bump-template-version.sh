@@ -141,9 +141,13 @@ if $EXECUTE; then
   #    lines starting with `-` (the `---` separator) that sed misinterprets as
   #    commands.  `awk` inserts the block once before `## [NEXT_VERSION]` and
   #    is portable across GNU and BSD.
-  UNRELEASED_BLOCK=$(printf '## [Unreleased]\n\n### Added\n\n- for new features.\n\n### Changed\n\n- for changes in existing functionality.\n\n### Deprecated\n\n- for soon-to-be removed features.\n\n### Removed\n\n- for now removed features.\n\n### Fixed\n\n- for any bug fixes.\n\n### Security\n\n- in case of vulnerabilities.\n\n---\n\n')
+  #    Command substitution strips ALL trailing newlines, so the block loses
+  #    the blank line after the closing `---` and would glue it to the next
+  #    heading. Re-add the newlines in the printf format instead of in the
+  #    captured string.
+  UNRELEASED_BLOCK=$(printf '## [Unreleased]\n\n### Added\n\n- for new features.\n\n### Changed\n\n- for changes in existing functionality.\n\n### Deprecated\n\n- for soon-to-be removed features.\n\n### Removed\n\n- for now removed features.\n\n### Fixed\n\n- for any bug fixes.\n\n### Security\n\n- in case of vulnerabilities.\n\n---')
   awk -v block="$UNRELEASED_BLOCK" -v ver="## [${NEXT_VERSION}]" '
-    index($0, ver) == 1 && !done { printf "%s", block; done=1 }
+    index($0, ver) == 1 && !done { printf "%s\n\n", block; done=1 }
     { print }
   ' "$CHANGELOG" > "${CHANGELOG}.tmp" && mv "${CHANGELOG}.tmp" "$CHANGELOG"
 
