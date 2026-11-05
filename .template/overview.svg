@@ -105,17 +105,17 @@
 <path d="M28.79 233.38 C123.89 232.14,216.67 230.21,301.27 233.29 M29.33 231.57 C122.93 233.01,215.54 232.19,299.34 232.54 M298.04 233.98 C299.93 258.55,299.91 283.05,300.97 298.59 M299.46 231.15 C300.44 249.13,300.94 265.09,299.06 297.12 M300.24 296.53 C233.37 298.53,167.57 297.86,29.89 296.72 M300.44 296.34 C208.99 296.47,119.54 295.84,29.84 296.44 M31.96 295.56 C31.50 282.29,30.50 265.55,30.53 231.87 M29.63 296.65 C29.88 279.52,30.08 262.64,30.10 231.77" stroke="#4263eb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="167.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#4263eb" text-anchor="middle"><tspan x="167.10" dy="0">12</tspan></text>
+<text x="167.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#4263eb" text-anchor="middle"><tspan x="167.10" dy="0">15</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="166.80" y="282.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="middle"><tspan x="166.80" dy="0">Crates</tspan></text>
+<text x="170.10" y="282.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="middle"><tspan x="170.10" dy="0">Workspace Members</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M312.83 233.51 L580.48 231.18 L580.25 296.49 L310.17 295.51" stroke="none" fill="#f8f9fa"/>
 <path d="M312.32 232.23 C372.24 232.77,433.33 233.57,583.11 233.45 M311.36 231.65 C405.96 230.47,501.30 230.62,581.92 231.39 M581.72 232.45 C583.56 254.12,582.44 276.79,582.51 297.70 M581.81 231.77 C582.12 257.60,581.73 281.08,581.17 296.26 M583.20 295.97 C500.02 295.60,417.83 295.05,311.75 296.59 M582.39 296.73 C494.18 295.55,406.89 294.63,312.21 297.06 M311.91 296.35 C313.56 279.87,312.52 263.10,313.53 230.41 M311.38 296.66 C312.65 274.67,313.42 254.11,311.41 231.05" stroke="#0c8599" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="449.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#0c8599" text-anchor="middle"><tspan x="449.10" dy="0">25</tspan></text>
+<text x="449.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#0c8599" text-anchor="middle"><tspan x="449.10" dy="0">26</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <text x="449.70" y="282.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="middle"><tspan x="449.70" dy="0">AI Skills</tspan></text>
@@ -125,17 +125,17 @@
 <path d="M595.28 232.27 C679.35 229.34,764.87 229.37,864.24 231.43 M593.63 232.71 C695.38 233.56,796.75 233.86,863.33 232.21 M864.44 233.96 C863.35 249.22,863.50 266.80,863.81 296.05 M863.18 231.12 C864.19 247.72,864.11 264.65,863.54 296.88 M865.03 297.88 C759.49 295.11,655.94 294.27,593.88 297.31 M864.08 297.57 C792.25 295.51,720.73 296.05,593.66 297.05 M594.26 296.79 C594.13 276.05,592.80 257.12,594.71 233.62 M594.83 296.43 C593.66 272.82,594.78 245.87,593.62 232.59" stroke="#2b8a3e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="731.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#2b8a3e" text-anchor="middle"><tspan x="731.10" dy="0">45</tspan></text>
+<text x="731.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#2b8a3e" text-anchor="middle"><tspan x="731.10" dy="0">40</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="732.90" y="282.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="middle"><tspan x="732.90" dy="0">Pipeline Jobs</tspan></text>
+<text x="731.10" y="282.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="middle"><tspan x="731.10" dy="0">CI Jobs</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M876.66 232.99 L1145.31 232.59 L1146.17 296.17 L877.94 295.06" stroke="none" fill="#f8f9fa"/>
 <path d="M877.24 230.57 C982.37 230.98,1089.77 230.05,1146.98 230.65 M875.37 231.26 C965.86 232.19,1053.78 231.80,1146.55 232.74 M1144.62 232.75 C1148.03 250.25,1147.70 272.62,1144.21 298.07 M1145.48 231.59 C1146.45 254.90,1145.56 276.61,1146.46 296.47 M1145.54 296.88 C1050.66 295.79,958.85 296.52,876.74 297.65 M1145.66 297.51 C1075.22 297.23,1004.73 297.57,875.44 296.75 M876.83 298.48 C876.58 275.29,876.24 256.83,874.65 231.61 M876.82 297.89 C875.81 271.49,877.05 248.01,875.43 232.14" stroke="#f76707" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="1012.05" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#f76707" text-anchor="middle"><tspan x="1012.05" dy="0">1</tspan></text>
+<text x="1013.10" y="262.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="22" fill="#f76707" text-anchor="middle"><tspan x="1013.10" dy="0">21</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <text x="1015.20" y="282.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#212529" text-anchor="middle"><tspan x="1015.20" dy="0">Quality Checks</tspan></text>
@@ -154,7 +154,7 @@
 <text x="60.00" y="343.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#4263eb" text-anchor="start"><tspan x="60.00" dy="0">crates/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="60.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="60.00" dy="0">12 workspace members</tspan></text>
+<text x="60.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="60.00" dy="0">10 crates · 15 workspace members</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M328.29 321.90 L589.17 322.84 L588.65 379.08 L330.89 377.50" stroke="none" fill="#f8f9fa"/>
@@ -164,7 +164,7 @@
 <text x="340.00" y="343.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#0c8599" text-anchor="start"><tspan x="340.00" dy="0">.agents/skills/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="340.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="340.00" dy="0">25 reusable skills</tspan></text>
+<text x="340.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="340.00" dy="0">26 reusable skills</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M611.15 321.18 L871.51 321.15 L868.39 376.92 L608.28 377.31" stroke="none" fill="#f8f9fa"/>
@@ -174,7 +174,7 @@
 <text x="620.00" y="343.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#2b8a3e" text-anchor="start"><tspan x="620.00" dy="0">.github/workflows/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="620.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="620.00" dy="0">22 workflow files</tspan></text>
+<text x="620.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="620.00" dy="0">21 workflow files</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M891.50 323.39 L1149.92 322.61 L1150.96 377.72 L889.65 376.23" stroke="none" fill="#f8f9fa"/>
@@ -184,7 +184,7 @@
 <text x="900.00" y="343.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="12" fill="#f76707" text-anchor="start"><tspan x="900.00" dy="0">scripts/</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
-<text x="900.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="900.00" dy="0">31 shell scripts</tspan></text>
+<text x="900.00" y="361.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="10" fill="#212529" text-anchor="start"><tspan x="900.00" dy="0">34 shell scripts</tspan></text>
 </g>
 <g transform="translate(40.00,40.00)">
 <path d="M311.80 348.47 C314.48 352.07,322.81 349.89,330.02 348.19 M310.07 350.10 C316.32 350.65,323.70 350.64,329.00 349.26" stroke="#adb5bd" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
