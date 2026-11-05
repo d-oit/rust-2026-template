@@ -16,6 +16,12 @@ exclude_paths = [
   "fuzz",
   ".template",
   "docs/patterns",
+  ".agents/skills/architecture-diagram",
+  ".agents/skills/codacy",
+  ".agents/skills/dora-report",
+  ".agents/skills/issue-triage",
+  ".agents/skills/metrics-reporter",
+  ".agents/skills/stacked-prs",
 ]
 exclude_workflows = [
   "cleanup-ci-status.yml",

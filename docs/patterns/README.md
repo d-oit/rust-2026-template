@@ -15,6 +15,7 @@ application crate and delete the rest (`./scripts/init-template.sh --minimal`).
 | MCP tool registry | `mcp-server-template` | Tool trait + registry dispatch |
 | Safe CLI `--dry-run` | `examples/cli_dry_run` | CLI triggers paid APIs or costly/irreversible remote operations |
 | **Secret detection corpus** | `examples/security_secret_detector` | You need exact-span secret scanning and an adversarial regression corpus |
+| Rust-to-WASM extension | [wasm.md](./wasm.md) | You need browser/JavaScript bindings or a WASI module |
 
 ## Storage specifically
 
@@ -23,6 +24,8 @@ application crate and delete the rest (`./scripts/init-template.sh --minimal`).
 3. **Do not** treat `SqliteBackend` as production code — it is a fail-closed stub under the optional `sqlite` feature.
 
 See also: [trait-only-storage.md](./trait-only-storage.md), [registry-dispatch.md](./registry-dispatch.md), [cli-dry-run.md](./cli-dry-run.md), [secret-detection-corpus.md](./secret-detection-corpus.md).
+
+The [Rust-to-WASM guide](./wasm.md) is documentation-only and opt-in; it does not change the default toolchain or CI.
 
 ## Security boundary guidance
 

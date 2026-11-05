@@ -16,16 +16,18 @@ use std::path::Path;
 /// Directory holding the shipped profile blueprints, relative to the repository root.
 pub const PROFILES_DIR: &str = "config/template-profiles";
 
-/// The ids of the shipped profiles, in display order.
+/// The ids with standalone manifests, in display order.
 pub const SHIPPED_PROFILES: &[&str] = &[
     "minimal",
     "library",
-    "cli",
     "service",
     "workspace",
     "ai-agent",
     "performance-sensitive",
 ];
+
+/// Legacy profile identifiers accepted by `template init`.
+pub const PROFILE_ALIASES: &[&str] = &["cli"];
 
 /// Profile metadata.
 #[derive(Debug, Clone, Deserialize)]
@@ -135,9 +137,10 @@ impl TemplateProfile {
 
     /// Loads a profile by id from `PROFILES_DIR`.
     ///
-    /// Only shipped profile ids are accepted: the id is validated as a safe
-    /// identifier *before* any path is constructed, preventing traversal
-    /// (e.g. `../evil`) from reaching the filesystem.
+    /// Shipped profile ids and documented compatibility aliases are accepted.
+    /// The id is validated as a safe identifier *before* any path is
+    /// constructed, preventing traversal (e.g. `../evil`) from reaching the
+    /// filesystem.
     ///
     /// # Errors
     /// Returns `XtaskError::InvalidConfig` when the profile is unknown or invalid.
@@ -145,14 +148,35 @@ impl TemplateProfile {
         if let Err(reason) = validate_profile_id_str(id) {
             return Err(XtaskError::InvalidConfig {
                 message: format!(
-                    "invalid profile id: {reason}; expected one of {SHIPPED_PROFILES:?}"
+                    "invalid profile id: {reason}; expected one of {SHIPPED_PROFILES:?} or compatibility aliases {PROFILE_ALIASES:?}"
                 ),
             });
+        }
+        if id == "cli" {
+            let relative_path = Path::new(PROFILES_DIR).join("minimal.toml");
+            let mut profile = if relative_path.is_file() {
+                Self::load_from_path(&relative_path.to_string_lossy())?
+            } else {
+                let template_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+                let fallback_path = template_root.join(&relative_path);
+                Self::load_from_path(&fallback_path.to_string_lossy())?
+            };
+            profile.metadata.id = "cli".to_string();
+            profile.metadata.display_name = "Rust CLI".to_string();
+            profile.metadata.description =
+                "CLI compatibility alias for the minimal app workspace, preserving protected-branch CI policy and the manpage checklist."
+                    .to_string();
+            profile.ci.default_tier = "protected-branch".to_string();
+            profile
+                .post_init
+                .checklist
+                .push("generate-cli-manpage".to_string());
+            return profile.validate();
         }
         if !SHIPPED_PROFILES.contains(&id) {
             return Err(XtaskError::InvalidConfig {
                 message: format!(
-                    "invalid profile id: '{id}' is not a shipped profile; expected one of {SHIPPED_PROFILES:?}"
+                    "invalid profile id: '{id}' is not a shipped profile or compatibility alias; expected one of {SHIPPED_PROFILES:?} or {PROFILE_ALIASES:?}"
                 ),
             });
         }

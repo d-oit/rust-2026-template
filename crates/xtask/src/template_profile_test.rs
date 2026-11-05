@@ -151,6 +151,137 @@ fn test_shipped_profiles_lockfile_policies() {
 }
 
 #[test]
+fn test_cli_is_a_compatibility_alias_with_its_original_policy() {
+    let cli = TemplateProfile::load("cli").unwrap();
+    let minimal_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .join(format!("{PROFILES_DIR}/minimal.toml"));
+    let minimal = TemplateProfile::load_from_path(&minimal_path.to_string_lossy()).unwrap();
+
+    assert!(!SHIPPED_PROFILES.contains(&"cli"));
+    assert_eq!(cli.metadata.id, "cli");
+    assert_eq!(
+        cli.workspace.include_crates,
+        minimal.workspace.include_crates
+    );
+    assert_eq!(cli.workspace.exclude_paths, minimal.workspace.exclude_paths);
+    assert_eq!(
+        cli.workspace.exclude_workflows,
+        minimal.workspace.exclude_workflows
+    );
+    assert_eq!(cli.ci.default_tier, "protected-branch");
+    assert_eq!(cli.policy.lockfile, LockfilePolicy::Committed);
+    assert!(
+        cli.post_init
+            .checklist
+            .contains(&"generate-cli-manpage".to_string())
+    );
+}
+
+#[test]
+fn test_minimal_and_library_exclude_non_core_skill_directories() {
+    const CORE_SKILLS: &[&str] = &[
+        "anti-ai-slop",
+        "build-rust",
+        "crates-io-name-check",
+        "harness",
+        "lint-rust",
+        "privacy-first",
+        "release-rust",
+        "reviewing-pull-requests",
+        "secret-lint",
+        "test-rust",
+        "verify-actions",
+    ];
+
+    let repo_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..");
+    let core_paths: HashSet<_> = CORE_SKILLS
+        .iter()
+        .map(|name| format!(".agents/skills/{name}"))
+        .collect();
+    let skill_root = repo_root.join(".agents/skills");
+    let skill_names: HashSet<_> = std::fs::read_dir(skill_root)
+        .unwrap()
+        .flatten()
+        .filter(|entry| entry.path().is_dir())
+        .map(|entry| entry.file_name().to_string_lossy().into_owned())
+        .collect();
+
+    for id in ["minimal", "library"] {
+        let profile = TemplateProfile::load_from_path(
+            &repo_root
+                .join(format!("{PROFILES_DIR}/{id}.toml"))
+                .to_string_lossy(),
+        )
+        .unwrap();
+        let excluded: HashSet<_> = profile.workspace.exclude_paths.iter().cloned().collect();
+        let retained: HashSet<_> = skill_names
+            .iter()
+            .filter(|name| !excluded.contains(&format!(".agents/skills/{name}")))
+            .map(|name| format!(".agents/skills/{name}"))
+            .collect();
+
+        assert_eq!(
+            retained, core_paths,
+            "{id} should keep exactly the declared core Rust skills"
+        );
+    }
+
+    let load_shipped = |id: &str| {
+        TemplateProfile::load_from_path(
+            &repo_root
+                .join(format!("{PROFILES_DIR}/{id}.toml"))
+                .to_string_lossy(),
+        )
+        .unwrap()
+    };
+    let retained_for = |id: &str| {
+        let excluded: HashSet<_> = load_shipped(id)
+            .workspace
+            .exclude_paths
+            .into_iter()
+            .collect();
+        skill_names
+            .iter()
+            .filter(|name| !excluded.contains(&format!(".agents/skills/{name}")))
+            .cloned()
+            .collect::<HashSet<_>>()
+    };
+    let maintainer_skills = [
+        "architecture-diagram",
+        "codacy",
+        "dora-report",
+        "issue-triage",
+        "metrics-reporter",
+        "stacked-prs",
+    ];
+    for id in ["service", "performance-sensitive"] {
+        let retained = retained_for(id);
+        for name in maintainer_skills {
+            assert!(!retained.contains(name), "{id} retained {name}");
+        }
+        for name in ["goap-agent", "tokio-performance", "triz-analysis"] {
+            assert!(
+                retained.contains(name),
+                "{id} omitted advanced skill {name}"
+            );
+        }
+    }
+
+    let agent_skills = retained_for("ai-agent");
+    for name in ["dora-report", "issue-triage", "metrics-reporter"] {
+        assert!(!agent_skills.contains(name), "ai-agent retained {name}");
+    }
+    for name in ["skill-creator", "skill-evaluator"] {
+        assert!(agent_skills.contains(name), "ai-agent omitted {name}");
+    }
+    assert_eq!(retained_for("workspace"), skill_names);
+}
+
+#[test]
 fn test_shipped_profiles_keep_local_path_dependencies() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("..")
