@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 
 def evaluate(data):
@@ -14,6 +13,7 @@ def evaluate(data):
         ]
 
     code_changed = str(changes.get("code", "")).lower() == "true"
+    docs_changed = str(changes.get("docs", "")).lower() == "true"
     heavy_changed = str(changes.get("heavy", "")).lower() == "true"
     agents_changed = str(changes.get("agents", "")).lower() == "true"
     workflows_changed = str(changes.get("workflows", "")).lower() == "true"
@@ -28,22 +28,6 @@ def evaluate(data):
             "required_in_pr": code_changed or agents_changed or workflows_changed,
             "hint": "Linting failed or skipped unexpectedly (run `yamllint .` and `npx markdownlint-cli2`).",
         },
-        "shellcheck": {
-            "required_in_pr": code_changed or agents_changed or workflows_changed,
-            "hint": "ShellCheck failed or skipped unexpectedly (run `shellcheck scripts/*.sh`).",
-        },
-        "fmt": {
-            "required_in_pr": code_changed or workflows_changed,
-            "hint": "Format check failed or skipped unexpectedly (run `cargo fmt --all`).",
-        },
-        "clippy": {
-            "required_in_pr": code_changed or workflows_changed,
-            "hint": "Clippy check failed or skipped unexpectedly (run `cargo clippy --workspace --all-targets --all-features`).",
-        },
-        "test": {
-            "required_in_pr": code_changed or workflows_changed,
-            "hint": "Test suite failed or skipped unexpectedly (run `cargo test --workspace`).",
-        },
         "bench": {
             "required_in_pr": heavy_changed or workflows_changed,
             "hint": "Benchmarks failed or skipped unexpectedly (run `cargo bench --workspace`).",
@@ -52,16 +36,8 @@ def evaluate(data):
             "required_in_pr": code_changed or agents_changed or workflows_changed,
             "hint": "VERSION, llms.txt, or SKILLS.md check failed or skipped unexpectedly.",
         },
-        "msrv": {
-            "required_in_pr": heavy_changed or workflows_changed,
-            "hint": "MSRV check failed or skipped unexpectedly (run `./scripts/audit-msrv.sh`).",
-        },
-        "roast": {
-            "required_in_pr": True,
-            "hint": "Roast Scorer failed or skipped unexpectedly (run `./scripts/roast-scorer.sh`).",
-        },
         "quality-gate": {
-            "required_in_pr": code_changed or workflows_changed,
+            "required_in_pr": code_changed or docs_changed or workflows_changed,
             "hint": "Quality gate failed or skipped unexpectedly (run `cargo run -p xtask -- quality run`).",
         },
     }

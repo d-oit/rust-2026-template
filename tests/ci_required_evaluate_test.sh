@@ -16,37 +16,37 @@ fi
 
 echo "=== Testing CI Required Job Evaluator ==="
 
-# Test 1: Docs-only PR with Rust jobs legitimately skipped -> PASS (0)
+# Test 1: Docs-only PR runs Markdown checks; unrelated jobs may skip -> PASS (0)
 echo "[1/8] Testing docs-only PR with legitimate skips..."
 if ! "$EVAL_SCRIPT" "${FIXTURES_DIR}/docs_only_pr_valid.json" >/dev/null 2>&1; then
   echo "FAIL: Docs-only PR fixture should have passed."
   exit 1
 fi
-echo "✓ Docs-only PR legitimately skipped Rust jobs: PASSED"
+echo "✓ Docs-only PR runs its quality gate and legitimately skips unrelated jobs: PASSED"
 
-# Test 2: Rust source change with Clippy skipped -> FAIL (non-zero)
-echo "[2/8] Testing Rust source change with Clippy skipped..."
+# Test 2: Rust source change with the canonical quality gate skipped -> FAIL
+echo "[2/8] Testing Rust source change with the quality gate skipped..."
 set +e
-output=$("$EVAL_SCRIPT" "${FIXTURES_DIR}/rust_code_clippy_skipped.json" 2>&1)
+output=$("$EVAL_SCRIPT" "${FIXTURES_DIR}/rust_code_quality_gate_skipped.json" 2>&1)
 exit_code=$?
 set -e
-if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "Job 'clippy' was skipped unexpectedly"; then
-  echo "FAIL: Expected clippy skipped error, got exit code $exit_code. Output: $output"
+if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "Job 'quality-gate' was skipped unexpectedly"; then
+  echo "FAIL: Expected quality gate skipped error, got exit code $exit_code. Output: $output"
   exit 1
 fi
-echo "✓ Rust code change with clippy skipped correctly rejected: PASSED"
+echo "✓ Rust code change with quality gate skipped correctly rejected: PASSED"
 
-# Test 3: Rust source change with tests skipped -> FAIL (non-zero)
-echo "[3/8] Testing Rust source change with tests skipped..."
+# Test 3: Rust source change with the quality gate failing -> FAIL
+echo "[3/8] Testing Rust source change with the quality gate failing..."
 set +e
-output=$("$EVAL_SCRIPT" "${FIXTURES_DIR}/rust_code_test_skipped.json" 2>&1)
+output=$("$EVAL_SCRIPT" "${FIXTURES_DIR}/rust_code_quality_gate_failed.json" 2>&1)
 exit_code=$?
 set -e
-if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "Job 'test' was skipped unexpectedly"; then
-  echo "FAIL: Expected test skipped error, got exit code $exit_code. Output: $output"
+if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "Job 'quality-gate' ended with status 'failure'"; then
+  echo "FAIL: Expected quality gate failure, got exit code $exit_code. Output: $output"
   exit 1
 fi
-echo "✓ Rust code change with test skipped correctly rejected: PASSED"
+echo "✓ Rust code change with quality gate failure correctly rejected: PASSED"
 
 # Test 4: Benchmark change with bench skipped -> FAIL (non-zero)
 echo "[4/8] Testing benchmark change with bench skipped..."
@@ -78,7 +78,7 @@ set +e
 output=$("$EVAL_SCRIPT" "${FIXTURES_DIR}/missing_and_cancelled_jobs.json" 2>&1)
 exit_code=$?
 set -e
-if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "Job 'quality-gate' result is missing" || ! echo "$output" | grep -q "Job 'fmt' ended with status 'cancelled'"; then
+if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "Job 'quality-gate' result is missing" || ! echo "$output" | grep -q "Job 'lint' ended with status 'cancelled'"; then
   echo "FAIL: Expected missing and cancelled errors, got exit code $exit_code. Output: $output"
   exit 1
 fi
@@ -112,14 +112,8 @@ output=$("$EVAL_SCRIPT" <<'EOF' 2>&1
   "jobs": {
     "validate-agents": "skipped",
     "lint": "success",
-    "shellcheck": "success",
-    "fmt": "success",
-    "clippy": "success",
-    "test": "success",
     "bench": "success",
     "version-check": "success",
-    "msrv": "success",
-    "roast": "success",
     "quality-gate": "success"
   }
 }

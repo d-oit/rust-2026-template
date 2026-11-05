@@ -3,6 +3,7 @@
   "changes_result": "success",
   "changes": {
     "code": "true",
+    "docs": "false",
     "heavy": "false",
     "agents": "false",
     "workflows": "false"
@@ -10,14 +11,8 @@
   "jobs": {
     "validate-agents": "skipped",
     "lint": "success",
-    "shellcheck": "success",
-    "fmt": "success",
-    "clippy": "skipped",
-    "test": "success",
     "bench": "skipped",
     "version-check": "success",
-    "msrv": "skipped",
-    "roast": "success",
-    "quality-gate": "success"
+    "quality-gate": "failure"
   }
 }

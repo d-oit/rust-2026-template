@@ -3,20 +3,15 @@
   "changes_result": "success",
   "changes": {
     "code": "true",
+    "docs": "false",
     "heavy": "false",
     "agents": "false",
     "workflows": "false"
   },
   "jobs": {
     "validate-agents": "skipped",
-    "lint": "success",
-    "shellcheck": "success",
-    "fmt": "cancelled",
-    "clippy": "success",
-    "test": "success",
+    "lint": "cancelled",
     "bench": "skipped",
-    "version-check": "success",
-    "msrv": "skipped",
-    "roast": "success"
+    "version-check": "success"
   }
 }
