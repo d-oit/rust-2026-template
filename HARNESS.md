@@ -41,6 +41,13 @@ Rust sources match on the file shape (`"**/*.rs"`) rather than a fixed directory
 
 ### Missing Tools & Evidence Behavior
 - **Binary absent:** If `do-harness` is not installed locally, standard workflow scripts (`./scripts/doctor.sh`, `./scripts/quality-gates.sh`) remain fully functional.
+- **Optional installation:** `bash scripts/setup-harness.sh` installs the pinned `v0.4.2`
+  release through the upstream installer, which verifies the downloaded asset against
+  that release's `checksums.txt`. The release and its published assets are listed at
+  [do-harness v0.4.2](https://github.com/d-o-hub/do-harness/releases/tag/v0.4.2).
+  To test the live installer path in an isolated test directory, run
+  `DO_HARNESS_RELEASE_INTEGRATION=1 bash tests/do_harness_integration_test.sh`; the
+  default integration test remains network-free.
 - **Missing PR context:** Commands like `do-harness pr review` or `do-harness pr ready` require `gh` CLI and open PR context. When executed locally on a branch without a PR, they report missing PR context gracefully.
 - **Stale/missing evidence:** Missing or stale evidence is explicitly reported as `stale` or `missing`, never as a successful quality verification.
 

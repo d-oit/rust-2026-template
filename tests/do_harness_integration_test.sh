@@ -99,6 +99,8 @@ XTASK_BIN="${REPO_ROOT}/target/debug/xtask"
 # -----------------------------------------------------------------------------
 echo "[Test 1] Testing optional do-harness tool absence and setup script..."
 
+EXPECTED_DEFAULT_VERSION="v0.4.2"
+
 # 1A. Doctor script check
 # The contract is that doctor.sh reports the optional do-harness binary status
 # gracefully. Whether the binary is installed depends on the environment
@@ -112,14 +114,41 @@ else
 fi
 
 # 1B. Setup script dry-run check
-SETUP_OUT=$(bash scripts/setup-harness.sh --dry-run 2>&1 || true)
-if echo "${SETUP_OUT}" | grep -q "Would download and verify do-harness"; then
-  pass "scripts/setup-harness.sh --dry-run operates reproducibly without network side-effects"
+if SETUP_OUT=$(env -u DO_HARNESS_VERSION bash scripts/setup-harness.sh --dry-run 2>&1) \
+   && grep -Fq "Setting up do-harness (${EXPECTED_DEFAULT_VERSION})" <<<"${SETUP_OUT}" \
+   && grep -Fq "[dry-run] Would download and verify do-harness ${EXPECTED_DEFAULT_VERSION}" <<<"${SETUP_OUT}"; then
+  pass "scripts/setup-harness.sh defaults to ${EXPECTED_DEFAULT_VERSION} in dry-run without network side-effects"
 else
-  fail "scripts/setup-harness.sh --dry-run failed: ${SETUP_OUT}"
+  fail "scripts/setup-harness.sh --dry-run should report default ${EXPECTED_DEFAULT_VERSION}: ${SETUP_OUT}"
 fi
 
-# 1C. Run quality gate in an isolated clean workspace to verify quality run and telemetry generation without mutating REPO_ROOT
+# 1C. Optional live release install. The upstream installer downloads the
+# published asset and checks its SHA-256 against that release's checksums.txt.
+if [[ "${DO_HARNESS_RELEASE_INTEGRATION:-0}" == "1" ]]; then
+  RELEASE_BIN_DIR="${TMP_DIR}/do-harness-bin"
+  mkdir -p "${RELEASE_BIN_DIR}"
+
+  if RELEASE_INSTALL_OUT=$(env -u DO_HARNESS_VERSION TMPDIR="${TMP_DIR}" \
+      DO_HARNESS_INSTALL_DIR="${RELEASE_BIN_DIR}" bash scripts/setup-harness.sh 2>&1); then
+    RELEASE_VERSION_OUT=$("${RELEASE_BIN_DIR}/do-harness" version 2>&1) || RELEASE_VERSION_OUT=""
+    RELEASE_EXPLAIN_OUT=$("${RELEASE_BIN_DIR}/do-harness" --root "${REPO_ROOT}" explain 2>&1) \
+      || RELEASE_EXPLAIN_OUT=""
+    if grep -Fq "Installed do-harness ${EXPECTED_DEFAULT_VERSION}" <<<"${RELEASE_INSTALL_OUT}" \
+       && grep -Fq "${EXPECTED_DEFAULT_VERSION#v}" <<<"${RELEASE_VERSION_OUT}" \
+       && grep -Fq "quality-gates" <<<"${RELEASE_EXPLAIN_OUT}" \
+       && "${RELEASE_BIN_DIR}/do-harness" --help >/dev/null 2>&1; then
+      pass "upstream checksum-verified ${EXPECTED_DEFAULT_VERSION} release installs and reads the generic sensor configuration"
+    else
+      fail "installed release did not report/run ${EXPECTED_DEFAULT_VERSION} or read quality-gates: ${RELEASE_INSTALL_OUT} ${RELEASE_VERSION_OUT} ${RELEASE_EXPLAIN_OUT}"
+    fi
+  else
+    fail "scripts/setup-harness.sh could not install ${EXPECTED_DEFAULT_VERSION}: ${RELEASE_INSTALL_OUT}"
+  fi
+else
+  echo "  SKIP: live ${EXPECTED_DEFAULT_VERSION} release install (set DO_HARNESS_RELEASE_INTEGRATION=1 to enable)"
+fi
+
+# 1D. Run quality gate in an isolated clean workspace to verify quality run and telemetry generation without mutating REPO_ROOT
 CLEAN_WS="${TMP_DIR}/clean_ws"
 mkdir -p "${CLEAN_WS}"
 cp -r "${REPO_ROOT}/Cargo.toml" "${REPO_ROOT}/Cargo.lock" "${REPO_ROOT}/AGENTS.md" \
