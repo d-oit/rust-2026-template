@@ -33,6 +33,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - 2026-11-05
+
+### Added
+
+- Opt-in Rust-to-WASM guide (`docs/patterns/wasm.md`): target choice, pinned `wasm-bindgen-cli`, WASM test runners, a non-zero-test guard, and release-only `wasm-opt` size budgets. No target, dependency, or CI job is added to the default template.
+- `scripts/check-fuzz-deps.sh` validates the excluded fuzz workspace with locked metadata, `cargo audit`, and `cargo deny`. `fuzz/Cargo.lock` is now tracked, and the Fuzz workflow runs the check when fuzz inputs or dependency policy change and on its schedule.
+- `tests/ci_quality_ownership_test.sh` fails if a blocking fmt/Clippy/test/MSRV/audit/deny command is reintroduced in a standalone job, if default CI regains repository write permission or a commit/push step, or if the removed `CiStatusArtifact`/`RoastScorer` checks return.
+
+### Changed
+
+- Consolidated each blocking quality check under one documented owner. `Quality Gate (pull-request)` runs the canonical `xtask` tier; the standalone `fmt`, `clippy`, `test`, `msrv`, and `shellcheck` jobs are removed. Coverage is produced once from that run via `XTASK_TEST_COVERAGE=1` and uploaded from the same job.
+- `xtask` doctests now run `cargo test --workspace --doc --all-features`, matching CI, so a restricted `default-members` list cannot hide a doctest failure in another member.
+- `minimal` is now the common application profile. `cli.toml` is removed; `--profile cli` remains a compatibility alias that preserves its historical `protected-branch` CI tier, committed lockfile, and `generate-cli-manpage` checklist item.
+- Generated projects inherit skill sets proportional to their workflow: `minimal`/`library` keep core Rust skills, `service`/`performance-sensitive` add advanced development skills, `ai-agent` keeps skill authoring, and `workspace` keeps all. Initialization regenerates `.agents/SKILLS.md` and prunes removed-skill references from `AGENTS.md`.
+- Bumped the pinned `do-harness` release in `scripts/setup-harness.sh` from `v0.3.4` to `v0.4.2`, a published release whose `checksums.txt` asset the upstream installer verifies. Generic delegation to `scripts/quality-gates.sh` is unchanged.
+- `scripts/bootstrap.sh` installs the quality tooling the `pull-request` tier requires, and failing checks now print their reason and install guidance instead of a bare `FAILED`.
+
+### Deprecated
+
+- The `--profile cli` spelling is a compatibility alias for `minimal`; use `--profile minimal` for new projects.
+
+### Removed
+
+- Removed the Roast Scorer entirely: its always-run CI job, `ci-success` dependency, `RoastScorer` quality check, `scripts/roast-scorer.sh`, `examples/roast-scorer.rs`, and the `cargo roast` alias. It re-ran Clippy, coverage, audit, deny, MSRV, builds, and benchmarks for a heuristic that never gated merges.
+- Removed the CI write-back to `main`: the default workflow no longer declares `contents: write` and no longer commits CI status or benchmark history. Summaries go to `$GITHUB_STEP_SUMMARY` and status files are uploaded as artifacts.
+- Removed the ineffective `CiStatusArtifact` quality check, which passed vacuously when the file was missing.
+
+### Fixed
+
+- The `ci-success` aggregate now fails closed: `success` is accepted, `skipped` is accepted only when the same path-filter contract proves the job was not required, and missing, `failure`, `cancelled`, `timed_out`, `action_required`, or unknown results fail the merge gate.
+- `make docs` no longer stamps the rustdoc `AUTO-GENERATED` header onto hand-written pattern guides, so a hand-written guide can satisfy the docs-sync check.
+- The doctest contract fixture asserts output with `CARGO_TERM_COLOR=never`, because CI forces color and ANSI escapes broke the member assertion while the doctest itself passed.
+
+### Security
+
+- The excluded fuzz workspace now has an explicit, reproducible lockfile policy, and its unique dependencies receive advisory, license, and source validation. A stale or missing fuzz lockfile fails with remediation guidance instead of being regenerated during the scan.
+
+---
+
 ## [0.3.11] - 2026-10-18
 
 ### Added
@@ -538,7 +577,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...v0.4.0
 [0.3.11]: https://github.com/d-oit/rust-2026-template/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/d-oit/rust-2026-template/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/d-oit/rust-2026-template/compare/v0.3.8...v0.3.9
