@@ -180,6 +180,63 @@ else
   warn "Skills validation reported issues - run ./scripts/doctor.sh for details"
 fi
 
+# --- quality tooling ---
+# The `pull-request` tier requires these, so a fresh clone fails the gate
+# with MissingTool until they exist. Install them here instead of leaving the
+# first `./scripts/quality-gates.sh` run to fail on each one in turn.
+log "Checking quality tooling"
+install_cargo_tool() {
+  local bin="$1" crate="$2"
+  command -v "$bin" >/dev/null 2>&1 && return 0
+  if [[ $DRY_RUN -eq 1 ]]; then
+    warn "Would install $crate (cargo install $crate --locked)"
+    return 0
+  fi
+  log "Installing $crate..."
+  cargo install "$crate" --locked
+}
+
+install_cargo_tool cargo-nextest cargo-nextest
+install_cargo_tool cargo-audit cargo-audit
+install_cargo_tool cargo-machete cargo-machete
+command -v cargo-deny >/dev/null 2>&1 || install_cargo_tool cargo-deny cargo-deny
+
+install_system_tool() {
+  local bin="$1" pkg="$2"
+  command -v "$bin" >/dev/null 2>&1 && return 0
+  if [[ $DRY_RUN -eq 1 ]]; then
+    warn "Would install $pkg ($pkg_install_cmd $pkg)"
+    return 0
+  fi
+  log "Installing $pkg..."
+  # shellcheck disable=SC2086  # the command string is intentionally split
+  $pkg_install_cmd "$pkg"
+}
+
+case "$PLATFORM" in
+  linux)   pkg_install_cmd="sudo apt-get install -y" ;;
+  macos)   pkg_install_cmd="brew install" ;;
+  *)       pkg_install_cmd="" ;;
+esac
+
+if [[ -n "$pkg_install_cmd" ]]; then
+  install_system_tool shellcheck shellcheck
+  install_system_tool yamllint yamllint
+fi
+
+if ! command -v markdownlint-cli2 >/dev/null 2>&1; then
+  if [[ $DRY_RUN -eq 1 ]]; then
+    warn "Would install markdownlint-cli2 (npm install -g markdownlint-cli2)"
+  elif command -v npm >/dev/null 2>&1; then
+    log "Installing markdownlint-cli2..."
+    npm install -g markdownlint-cli2
+  else
+    warn "npm not found — install markdownlint-cli2 manually: npm install -g markdownlint-cli2"
+  fi
+fi
+
+ok "Quality tooling checked"
+
 # --- quality gate ---
 log "Checking linker configuration"
 if [[ $DRY_RUN -eq 1 ]]; then

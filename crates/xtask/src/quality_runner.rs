@@ -86,6 +86,10 @@ pub fn handle_quality_run(
             Ok(()) => "success",
             Err(e) => {
                 overall_success = false;
+                // Surface the reason on the console: the JSON report is not
+                // what a contributor staring at a red gate reads first, and a
+                // bare "FAILED" hides install guidance and tool output.
+                println!("  ✗ {}: {e}", check.name());
                 results.push(CheckResult {
                     name: name.clone(),
                     status: "failed".to_string(),
