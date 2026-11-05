@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pinned every GitHub Action to a release that runs on the Node.js 24 runtime. `actions/checkout`, `actions/github-script`, `actions/labeler`, `actions/setup-node`, `actions/setup-python`, `dependabot/fetch-metadata`, `dorny/paths-filter`, and `peter-evans/create-pull-request` were several majors behind and logged a deprecation warning in every job.
 - Unified `Swatinem/rust-cache` on `v2.9.3` and `dtolnay/rust-toolchain` on the current `stable` head. Both were pinned to two different SHAs across workflows, so `setup-rust/action.yml` and five workflows cached under different keys.
 - The overview diagram is now derived from `config/xtask.json` and `cargo metadata`, and a CI contract test fails when the committed asset drifts from the repository.
+- The overview diagram no longer ships a PNG. PNG export rasterises through the local font stack, so CI and developer machines produced different bytes for an unchanged diagram, and the `Update Overview Diagram` workflow opened a spurious pull request on every run. The SVG and Excalidraw outputs are byte-identical everywhere, and both the README and docs embed the SVG.
 
 ### Fixed
 
@@ -19,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Release Preflight` could never accept a template tag. It compared the tag against `VERSION`, which intentionally stays `0.0.0`, so every `v0.4.x` tag was rejected. It now accepts a tag matching either `VERSION` or the changelog's latest release and still fails closed otherwise.
 - `post-release-check` declared `issues: write` without `contents: read`, so its `actions/checkout` step had no repository read access.
 - The overview diagram advertised numbers that had been wrong for months: 12 crates (actually 15 workspace members), 25 skills (26), 45 pipeline jobs (40), and "1 Quality Checks" (19 in the gate). The quality counter scraped `scripts/quality-gates.sh` for `cargo` invocations after that script became a thin `cargo xtask` wrapper, collapsing the count to 1.
-- `docs/src/overview.png` was a different, larger image than `.template/overview.png`; both are now the same generated file.
 - `secretlint` and `Update Overview Diagram` pinned Node 20, which reached end of life on 2026-04-30. Both now use Node 24.
 
 ### Security

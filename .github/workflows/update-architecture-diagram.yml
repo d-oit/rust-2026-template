@@ -63,21 +63,24 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
 
+          # PNG export rasterises with the local font stack, so the bytes
+          # differ between this runner and a developer machine even when the
+          # diagram is unchanged. Nothing embeds the PNG (README and docs use
+          # the SVG), so it stays out of the automated path to avoid a spurious
+          # commit on every run.
           python .agents/skills/architecture-diagram/scripts/generate_overview.py \
             --root . \
             --out .template/overview.excalidraw \
-            --svg-out .template/overview.svg \
-            --png-out .template/overview.png
+            --svg-out .template/overview.svg
 
           cp .template/overview.svg docs/src/overview.svg
-          cp .template/overview.png docs/src/overview.png
 
-          if git diff --quiet .template/ docs/src/overview.svg docs/src/overview.png; then
+          if git diff --quiet .template/ docs/src/overview.svg; then
             echo "No diagram changes detected against latest main."
             exit 0
           fi
 
-          git add .template/ docs/src/overview.svg docs/src/overview.png
+          git add .template/ docs/src/overview.svg
           git commit -m "${TITLE}"
 
           # main is protected by required checks and the PR rule, so a direct

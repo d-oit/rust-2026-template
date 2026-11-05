@@ -16,22 +16,19 @@ if [[ -f "$OVERVIEW_SCRIPT" ]]; then
   log "Generating overview infographic"
   python3 "$OVERVIEW_SCRIPT" --root . \
     --out .template/overview.excalidraw \
-    --svg-out .template/overview.svg \
-    --png-out .template/overview.png
-  ok "Generated overview.{excalidraw,svg,png}"
+    --svg-out .template/overview.svg
+  ok "Generated overview.{excalidraw,svg}"
 else
   warn "$OVERVIEW_SCRIPT not found - skipping"
 fi
 
 # --- Sync generated assets to docs ---
 mkdir -p docs/src
-for asset in overview.svg overview.png; do
-  src=".template/$asset"
-  dst="docs/src/$asset"
-  if [[ -f "$src" ]]; then
-    cp "$src" "$dst"
-    ok "Synced to $dst"
-  fi
-done
+src=".template/overview.svg"
+dst="docs/src/overview.svg"
+if [[ -f "$src" ]]; then
+  cp "$src" "$dst"
+  ok "Synced to $dst"
+fi
 
 log "Done"

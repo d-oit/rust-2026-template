@@ -27,8 +27,7 @@ ls .agents/ Cargo.toml 2>/dev/null || echo "NOT_FOUND"
 python .agents/skills/architecture-diagram/scripts/generate_overview.py \
   --root . \
   --out .template/overview.excalidraw \
-  --svg-out .template/overview.svg \
-  --png-out .template/overview.png
+  --svg-out .template/overview.svg
 ```
 
 The script auto-discovers at runtime:
@@ -42,7 +41,6 @@ The script auto-discovers at runtime:
 
 ```bash
 cp .template/overview.svg docs/src/overview.svg
-cp .template/overview.png docs/src/overview.png
 ```
 
 `scripts/sync-architecture.sh` performs steps 2 and 3 in one shot and is what
@@ -59,7 +57,6 @@ After the script exits:
 
 - `.template/overview.excalidraw` — editable Excalidraw source
 - `.template/overview.svg` — generated SVG for docs embedding
-- `.template/overview.png` — raster copy, mirrored to `docs/src/overview.png`
 
 ## What the stats mean
 
@@ -106,7 +103,7 @@ reports the same totals, but the warning is a signal that the run is degraded.
 | `--root PATH` | Workspace root (default: `.`) |
 | `--out PATH` | Excalidraw output path (default: `.template/overview.excalidraw`) |
 | `--svg-out PATH` | SVG export path (default: `.template/overview.svg`) |
-| `--png-out PATH` | PNG export path (optional) |
+| `--png-out PATH` | PNG export path (optional, not tracked) |
 | `--no-export` | Skip SVG/PNG export (Excalidraw only) |
 
 ## Rationalizations
@@ -121,3 +118,12 @@ reports the same totals, but the warning is a signal that the run is degraded.
 - [ ] Committing workspace changes without regenerating the overview.
 - [ ] Manually editing the SVG instead of using the generator script.
 - [ ] Direct push failures caused by missing retry loops or unhandled concurrent updates on main (see case `update-diagram-push-20260917` in `.agents/ci/regression-matrix.json`).
+
+## Why the PNG is not committed
+
+PNG export rasterises through the local font stack, so the same diagram yields
+different bytes on a CI runner than on a developer machine. The SVG and
+Excalidraw outputs are byte-identical everywhere. Because nothing embeds the
+PNG — the README and docs both use `overview.svg` — committing it produced a
+spurious "regenerate overview diagram" PR on every workflow run. Generate one
+ad hoc with `--png-out` when you need a raster preview; do not commit it.
