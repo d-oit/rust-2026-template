@@ -113,10 +113,13 @@ cp -r "${REPO_ROOT}/scripts" "${ZERO_WS}/"
 )
 
 # Regression fixture: the non-default member contains the only doctest.
+# CARGO_TERM_COLOR is forced off: CI sets it to `always` globally, and ANSI
+# escapes between the words would make the assertions below match nothing.
 DOCTEST_FIXTURE="${REPO_ROOT}/tests/fixtures/doctest-workspace"
 if DOCTEST_OUTPUT=$(
   cd "${DOCTEST_FIXTURE}"
-  CARGO_TARGET_DIR="${REPO_ROOT}/target" \
+  CARGO_TERM_COLOR=never \
+    CARGO_TARGET_DIR="${REPO_ROOT}/target" \
     "${XTASK_BIN}" quality run --only doctest 2>&1
 ); then
   if echo "${DOCTEST_OUTPUT}" | grep -q "Doc-tests non_default_docs" &&
@@ -132,7 +135,8 @@ fi
 FAILING_DOCTEST_FIXTURE="${REPO_ROOT}/tests/fixtures/doctest-workspace-failing"
 if (
   cd "${FAILING_DOCTEST_FIXTURE}"
-  CARGO_TARGET_DIR="${REPO_ROOT}/target" \
+  CARGO_TERM_COLOR=never \
+    CARGO_TARGET_DIR="${REPO_ROOT}/target" \
     "${XTASK_BIN}" quality run --only doctest >/dev/null 2>&1
 ); then
   fail "Failing doctest in a non-default member must fail the doctest quality gate"
