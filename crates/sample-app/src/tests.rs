@@ -316,6 +316,37 @@ fn test_process_items_too_many() {
     assert!(result.is_err());
 }
 
+/// Regression: `process_items` used to silently truncate at `10_000` items
+/// because the loop only iterated two digit-table groups and appended a single
+/// hard-coded `item-10000` for the boundary case. Any `count` above `10_000`
+/// therefore returned fewer labels than requested.
+#[test]
+fn test_process_items_returns_exactly_count_across_boundaries() {
+    for count in [1, 9, 10, 99, 100, 9_999, 10_000, 10_001, 10_002, 15_000] {
+        let result = process_items(count, 20_000).unwrap();
+        assert_eq!(
+            result.len(),
+            count,
+            "process_items({count}) must return exactly {count} items"
+        );
+        assert_eq!(
+            result.last().map(String::as_str),
+            Some(format!("item-{count:04}").as_str()),
+            "last label must be the {count}th item"
+        );
+        assert_eq!(result[0], "item-0001");
+    }
+}
+
+/// The labels must be unique and monotonically increasing so downstream
+/// consumers relying on ordering (benchmarks, exports) stay correct.
+#[test]
+fn test_process_items_labels_are_unique_and_ordered() {
+    let items = process_items(10_500, 20_000).unwrap();
+    let expected: Vec<String> = (1..=10_500).map(|i| format!("item-{i:04}")).collect();
+    assert_eq!(items, expected);
+}
+
 #[test]
 fn test_args_parsing() {
     let args = Args::parse_from(["sample-app", "--count", "5"]);
