@@ -85,10 +85,9 @@ hybrid-storage-template = { path = "crates/hybrid-storage-template" }
 
 | Crate | Feature | Description |
 |-------|---------|-------------|
-| `example-storage-pattern` | `sqlite` / `mock` | **Preferred** trait-only storage |
+| `example-storage-pattern` | `mock` | **Preferred** trait-only storage |
 | `hybrid-storage-template` | (default empty) | `MemoryBackend` always available |
 | `hybrid-storage-template` | `sqlite` | Fail-closed stub only |
-| `hybrid-storage-template` | `kv` | redb backend |
 
 See [docs/patterns/README.md](../patterns/README.md). Slim init: `./scripts/init-template.sh --minimal`.
 

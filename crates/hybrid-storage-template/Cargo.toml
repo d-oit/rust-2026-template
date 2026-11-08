@@ -24,13 +24,16 @@ tokio = { workspace = true, features = ["sync"] }
 # Re-enable `tls` only together with a libsql release built against
 # `hyper-rustls 0.27`+ / `rustls 0.23`+.
 # https://github.com/tursodatabase/libsql/issues/2266
-libsql = { version = "0.10", default-features = false, features = ["core"] }
+# Optional: only compiled when the `sqlite` feature is enabled. The backend is a
+# fail-closed stub today, so pulling ~47 transitive crates in by default is pure
+# cost for every workspace build.
+libsql = { version = "0.10", default-features = false, features = ["core"], optional = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
-tempfile = "3"
 
 [features]
-sqlite = []
+# `sqlite` gates the `SqliteBackend` stub module and its `libsql` dependency.
+sqlite = ["dep:libsql"]

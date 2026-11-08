@@ -1,0 +1,23 @@
+{
+  "event_id": "20261108T180000Z-opencode",
+  "task_id": "template-improvements-all-suggestions-2026-11-08",
+  "parent_task_id": null,
+  "workflow_id": null,
+  "agent_id": "opencode",
+  "agent_type": "automated",
+  "skill": "harness",
+  "skill_version": "1.0",
+  "status": "success",
+  "started_at": "2026-11-08T00:00:00Z",
+  "finished_at": "2026-11-08T18:00:00Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_branch": "main",
+  "git_sha": "uncommitted",
+  "artifacts": [
+    ".agents/ci/ci-status.json",
+    ".agents/ci/ci-summary.md",
+    "reports/quality-report.json"
+  ],
+  "notes": "Implemented the full improvement backlog. Correctness: added the missing clap `version` attribute (release smoke test ran `sample-app --version` and exit 2) and rewrote `process_items`, which silently truncated every count above 10_000. Guardrails that were previously no-ops: (1) all 15 workspace members now inherit `[lints] workspace = true`, surfacing ~71 real diagnostics that local `[lints.clippy]` allow-tables had been hiding, all fixed rather than suppressed; (2) `allow_attributes_without_reason` added because `allow_attributes` provably does not catch inner `#![allow(...)]`; (3) `cargo machete` now passes `--with-metadata`, without which workspace-inherited deps are silently assumed used — it immediately found 3 unused dev-deps; (4) `scripts/audit-msrv.sh` now fails closed and auto-installs the MSRV toolchain instead of warning-and-skipping; (5) new `Doc` check runs `cargo doc` with `RUSTDOCFLAGS=-D warnings`, catching a broken intra-doc link to a feature-gated type; (6) `arch_fitness.rs` matched zero crates (name-suffix rules matched none of them), so it now uses an explicit layer table and asserts it inspected real edges — verified it fails on an injected violation. Hygiene: removed dead `sqlite`/`rusqlite` feature, made `libsql` optional behind the `sqlite` feature, dropped unused workspace deps and the `release-full` profile, removed a dangling `readme` declaration, dropped the never-configured mold install, wired `Config.log_level` into `init_logging` (previously ignored), and excluded `target/` from markdownlint, which had been linting generated rustdoc output. Reverted my own mistaken separate `msrv` CI job after `ci_quality_ownership_test.sh` correctly rejected it: MSRV already runs inside `quality-gate` via xtask, and the audit confirms it now compiles with 1.88. Full gate green 20/20; all 11 fail-closed contract tests and all repo regression suites pass."
+}

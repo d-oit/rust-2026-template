@@ -2,6 +2,7 @@
 name = "example-storage-pattern"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
 description = "Template pattern: trait-only storage layer with swappable backends"
 publish = false
@@ -11,15 +12,10 @@ workspace = true
 
 [features]
 default = []
-sqlite = ["dep:rusqlite"]
 mock = []
 
 [dependencies]
-rusqlite = { version = "0.40", optional = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
-
-[package.metadata.cargo-machete]
-ignored = ["rusqlite"]
