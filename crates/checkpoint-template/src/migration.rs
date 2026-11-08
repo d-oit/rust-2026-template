@@ -32,6 +32,7 @@ impl Default for MigrationRegistry {
 
 impl MigrationRegistry {
     /// Create a new migration registry.
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             migrations: Vec::new(),
@@ -44,11 +45,17 @@ impl MigrationRegistry {
     }
 
     /// Check if migration is possible.
+    #[must_use]
     pub fn can_migrate(&self, from: u32, to: u32) -> bool {
         self.migrations.iter().any(|(f, t)| *f == from && *t == to)
     }
 
     /// Apply migration to data.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`MigrationError::UnsupportedVersion`] when no path from `from`
+    /// to `to` has been registered.
     pub fn migrate(&self, data: Value, from: u32, to: u32) -> Result<Value, MigrationError> {
         if !self.can_migrate(from, to) {
             return Err(MigrationError::UnsupportedVersion(from));
@@ -62,7 +69,13 @@ impl MigrationRegistry {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        missing_docs,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
 
     use super::*;
 

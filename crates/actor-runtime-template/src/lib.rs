@@ -96,9 +96,10 @@ pub enum RestartStrategy {
 
 impl RestartStrategy {
     /// Calculate next backoff duration.
+    #[must_use]
     pub fn next_backoff(&self, attempt: u32) -> Option<Duration> {
         match self {
-            RestartStrategy::Backoff {
+            Self::Backoff {
                 initial,
                 max,
                 max_retries,
@@ -117,9 +118,7 @@ impl RestartStrategy {
                 )]
                 Some(Duration::from_millis(capped as u64))
             }
-            RestartStrategy::Always | RestartStrategy::OnError { .. } | RestartStrategy::Never => {
-                None
-            }
+            Self::Always | Self::OnError { .. } | Self::Never => None,
         }
     }
 }
@@ -138,6 +137,10 @@ pub enum StateTransition<T> {
 /// Actor state trait.
 pub trait ActorState: Send + Sync + Clone + 'static {
     /// Validate state transitions.
+    ///
+    /// # Errors
+    ///
+    /// Implementations return [`ActorError`] when the state is not acceptable.
     fn validate(&self) -> Result<(), ActorError> {
         let _ = self;
         Ok(())
@@ -146,7 +149,13 @@ pub trait ActorState: Send + Sync + Clone + 'static {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        missing_docs,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
 
     use super::*;
 

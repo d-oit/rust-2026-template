@@ -309,7 +309,11 @@ pub fn shipped_profile_paths(root: &Path) -> Vec<std::path::PathBuf> {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::panic)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::panic,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
     use super::*;
     use std::path::PathBuf;
 

@@ -1,3 +1,14 @@
+//! Integration tests for the `cli_dry_run` example.
+
+#![forbid(unsafe_code)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    missing_docs,
+    reason = "integration tests assert on known-good fixtures, so panicking is the failure signal"
+)]
+
 use cli_dry_run::{ApiClient, CliArgs, CliError, Plan, run_plan};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -8,14 +19,14 @@ struct MockApiClient {
 }
 
 impl MockApiClient {
-    fn new_strict() -> Self {
+    const fn new_strict() -> Self {
         Self {
             call_count: AtomicUsize::new(0),
             should_panic: true,
         }
     }
 
-    fn new_permissive() -> Self {
+    const fn new_permissive() -> Self {
         Self {
             call_count: AtomicUsize::new(0),
             should_panic: false,
@@ -29,9 +40,10 @@ impl MockApiClient {
 
 impl ApiClient for MockApiClient {
     fn execute_remote(&self, step: usize, description: &str) -> Result<String, CliError> {
-        if self.should_panic {
-            panic!("OUTBOUND REQUEST TRIGGERED DURING DRY-RUN! Step: {step}, Desc: {description}");
-        }
+        assert!(
+            !self.should_panic,
+            "OUTBOUND REQUEST TRIGGERED DURING DRY-RUN! Step: {step}, Desc: {description}"
+        );
         self.call_count.fetch_add(1, Ordering::SeqCst);
         Ok(format!("Mock response for step {step}"))
     }

@@ -50,10 +50,11 @@ impl UntrustedPathValidator {
             let mut arr = [0u8; 8];
             arr.copy_from_slice(&bytes[i..i + 8]);
             let chunk = u64::from_ne_bytes(arr);
-            let has_low = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
-            let has_high = chunk & 0x8080808080808080;
-            let y = chunk ^ 0x7F7F7F7F7F7F7F7F;
-            let zero_check = (y.wrapping_sub(0x0101010101010101) & !y) & 0x8080808080808080;
+            let has_low =
+                (chunk.wrapping_sub(0x2020_2020_2020_2020) & !chunk) & 0x8080_8080_8080_8080;
+            let has_high = chunk & 0x8080_8080_8080_8080;
+            let y = chunk ^ 0x7F7F_7F7F_7F7F_7F7F;
+            let zero_check = (y.wrapping_sub(0x0101_0101_0101_0101) & !y) & 0x8080_8080_8080_8080;
             if (has_low | has_high | zero_check) != 0 {
                 break;
             }

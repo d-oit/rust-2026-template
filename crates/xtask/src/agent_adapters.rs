@@ -30,7 +30,10 @@ pub struct ContractConfig {
 /// Validation rules for adapter enforcement.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-#[expect(clippy::struct_excessive_bools)]
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "each bool is an independent, user-facing validation toggle"
+)]
 pub struct ValidationConfig {
     /// Each adapter must reference the canonical instructions file.
     pub require_canonical_reference: bool,

@@ -3,7 +3,8 @@
     clippy::unwrap_used,
     clippy::expect_used,
     clippy::panic,
-    missing_docs
+    missing_docs,
+    reason = "benchmark helpers are consumed by sibling bench targets, not by this module"
 )]
 
 //! Shared helpers for the Tokio runtime harness bench targets.

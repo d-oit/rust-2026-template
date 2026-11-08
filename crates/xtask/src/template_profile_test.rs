@@ -1,5 +1,9 @@
 //! Validation-focused tests for `template_profile` (kept out-of-line to respect the 500-LOC limit).
-#![allow(clippy::unwrap_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::panic,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 use super::*;
 use crate::path_rules::{is_crate_dir_name, is_safe_relative};
 use std::collections::HashSet;

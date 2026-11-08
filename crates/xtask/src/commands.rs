@@ -1,5 +1,4 @@
 //! Safe process execution wrapper.
-#![allow(clippy::unwrap_used)]
 
 use crate::config::XtaskError;
 use std::process::Command;
@@ -98,6 +97,11 @@ pub fn execute_captured(program: &str, args: &[&str]) -> Result<String, XtaskErr
 
 #[cfg(test)]
 mod tests {
+    #![allow(
+        clippy::unwrap_used,
+        reason = "unit tests assert on known-good fixtures, so panicking is the failure signal"
+    )]
+
     use super::*;
 
     #[test]

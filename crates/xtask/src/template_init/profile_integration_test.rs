@@ -1,5 +1,9 @@
 //! Profile pruning integration coverage for retained skills and generated indexes.
-#![allow(clippy::unwrap_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::panic,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 use super::*;
 use crate::template_init::apply;
 use crate::template_profile::TemplateProfile;

@@ -6,8 +6,8 @@ rust-version.workspace = true
 publish = false
 license.workspace = true
 
-[lints.clippy]
-unnecessary_wraps = "allow"
+[lints]
+workspace = true
 
 [dependencies]
 clap = { workspace = true, features = ["derive"] }

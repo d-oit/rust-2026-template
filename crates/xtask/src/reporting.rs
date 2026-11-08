@@ -182,7 +182,10 @@ impl QualityReport {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used)]
+    #![allow(
+        clippy::unwrap_used,
+        reason = "fixture/bootstrap code is allowed to panic because a failure is unrecoverable setup"
+    )]
     use super::*;
 
     #[test]

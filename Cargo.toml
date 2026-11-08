@@ -46,7 +46,15 @@ nursery = { level = "warn", priority = -1 }
 # ── Agent-safety: prevent silencing lints instead of fixing code ──────────────
 # allow_attributes = "deny" blocks any #[allow(clippy::...)] annotation from
 # being introduced by AI agents or contributors. Fixes must be real, not silenced.
+#
+# KNOWN LIMITATION: clippy's `allow_attributes` lint only inspects *outer*
+# attributes (`#[allow(...)]`). Inner attributes (`#![allow(...)]`, including
+# module-level ones such as `#![allow(clippy::unwrap_used)]`) are not reported,
+# so they remain a bypass. `allow_attributes_without_reason` is denied as a
+# second layer: it *does* fire on inner attributes and forces a machine-checked
+# `reason = "..."`, so an escape hatch must at least be deliberate.
 allow_attributes = "deny"
+allow_attributes_without_reason = "deny"
 
 # Correctness: warn on panic-inducing patterns in library code
 # Library targets must use proper error handling (deny), tests/examples may allow.

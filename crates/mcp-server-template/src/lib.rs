@@ -75,6 +75,7 @@ pub struct McpServer {
 
 impl McpServer {
     /// Create a new MCP server instance.
+    #[must_use]
     pub fn new() -> Self {
         Self {
             tools: RwLock::new(Arc::new(HashMap::new())),
@@ -82,25 +83,44 @@ impl McpServer {
     }
 
     /// Register a tool with the server.
-    pub async fn register<T: Tool + 'static>(&self, tool: T) -> Result<(), ServerError> {
+    ///
+    /// # Errors
+    ///
+    /// Currently infallible; the [`Result`] is kept so registration can gain
+    /// validation without a breaking signature change.
+    pub fn register<T: Tool + 'static>(&self, tool: T) -> Result<(), ServerError> {
         let name = tool.name();
         info!("Registering tool: {}", name);
-        let mut guard = self.tools.write().unwrap_or_else(|e| e.into_inner());
+        let mut guard = self
+            .tools
+            .write()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         let mut new_registry = (**guard).clone();
         new_registry.insert(name, Arc::new(tool));
         *guard = Arc::new(new_registry);
+        drop(guard);
         Ok(())
     }
 
     /// List all registered tool names.
-    pub async fn list_tools(&self) -> Vec<String> {
+    #[must_use]
+    pub fn list_tools(&self) -> Vec<String> {
         // Performance: Iterate over keys directly within the read lock guard
         // to avoid cloning the outer Arc<ToolRegistry>.
-        let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
+        let guard = self
+            .tools
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         guard.keys().map(|s| (*s).to_string()).collect()
     }
 
     /// Execute a tool by name with the provided request.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ServerError::ToolNotFound`] when `name` is unknown, too long,
+    /// or contains control/Bidi characters, and [`ServerError::Tool`] when the
+    /// tool fails validation or execution.
     pub async fn execute_tool(
         &self,
         name: &str,
@@ -123,10 +143,11 @@ impl McpServer {
             let mut arr = [0u8; 8];
             arr.copy_from_slice(&bytes[i..i + 8]);
             let chunk = u64::from_ne_bytes(arr);
-            let has_low = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
-            let has_high = chunk & 0x8080808080808080;
-            let y = chunk ^ 0x7F7F7F7F7F7F7F7F;
-            let zero_check = (y.wrapping_sub(0x0101010101010101) & !y) & 0x8080808080808080;
+            let has_low =
+                (chunk.wrapping_sub(0x2020_2020_2020_2020) & !chunk) & 0x8080_8080_8080_8080;
+            let has_high = chunk & 0x8080_8080_8080_8080;
+            let y = chunk ^ 0x7F7F_7F7F_7F7F_7F7F;
+            let zero_check = (y.wrapping_sub(0x0101_0101_0101_0101) & !y) & 0x8080_8080_8080_8080;
             if (has_low | has_high | zero_check) != 0 {
                 break;
             }
@@ -161,7 +182,10 @@ impl McpServer {
         }
 
         let tool = {
-            let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
+            let guard = self
+                .tools
+                .read()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
             guard
                 .get(name)
                 .ok_or_else(|| ServerError::ToolNotFound(name.to_string()))?
@@ -172,9 +196,16 @@ impl McpServer {
     }
 
     /// Initialize all registered tools.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ServerError::Tool`] with the first tool error encountered.
     pub async fn init(&self) -> Result<(), ServerError> {
         let registry = {
-            let guard = self.tools.read().unwrap_or_else(|e| e.into_inner());
+            let guard = self
+                .tools
+                .read()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
             Arc::clone(&*guard)
         };
         for tool in registry.values() {
@@ -192,7 +223,13 @@ impl Default for McpServer {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        missing_docs,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
 
     use super::*;
     use serde_json::Value;
@@ -200,17 +237,17 @@ mod tests {
     #[tokio::test]
     async fn test_server_creation() {
         let server = McpServer::new();
-        let tools = server.list_tools().await;
+        let tools = server.list_tools();
         assert!(tools.is_empty());
     }
 
     #[tokio::test]
     async fn test_register_and_list_tools() {
         let server = McpServer::new();
-        server.register(EchoTool).await.unwrap();
-        server.register(CalcTool).await.unwrap();
+        server.register(EchoTool).unwrap();
+        server.register(CalcTool).unwrap();
 
-        let tools = server.list_tools().await;
+        let tools = server.list_tools();
         assert_eq!(tools.len(), 2);
         assert!(tools.contains(&"echo".to_string()));
         assert!(tools.contains(&"calc".to_string()));
@@ -227,7 +264,7 @@ mod tests {
     #[tokio::test]
     async fn test_execute_echo_tool() {
         let server = McpServer::new();
-        server.register(EchoTool).await.unwrap();
+        server.register(EchoTool).unwrap();
 
         let request = ToolRequest::new(Value::String("hello world".to_string()));
         let response = server.execute_tool("echo", request).await.unwrap();
@@ -237,7 +274,7 @@ mod tests {
     #[tokio::test]
     async fn test_execute_calc_tool_add() {
         let server = McpServer::new();
-        server.register(CalcTool).await.unwrap();
+        server.register(CalcTool).unwrap();
 
         let request = ToolRequest::new(serde_json::json!({"op": "add", "a": 2.0, "b": 3.0}));
         let response = server.execute_tool("calc", request).await.unwrap();
@@ -251,8 +288,8 @@ mod tests {
     #[tokio::test]
     async fn test_tool_init() {
         let server = McpServer::new();
-        server.register(EchoTool).await.unwrap();
-        server.register(CalcTool).await.unwrap();
+        server.register(EchoTool).unwrap();
+        server.register(CalcTool).unwrap();
 
         server.init().await.unwrap();
     }

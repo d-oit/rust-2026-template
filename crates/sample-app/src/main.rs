@@ -11,13 +11,14 @@ fn main() -> sample_app::Result<()> {
     // Parse CLI arguments
     let args = Args::parse();
 
-    // Initialize logging
-    init_logging(args.verbose);
+    // Load configuration first so `log_level` can seed the subscriber; log
+    // output emitted before this point is discarded (no subscriber installed).
+    let config = load_config(args.config)?;
+
+    // Initialize logging from the configured level plus the `--verbose` override.
+    init_logging(config.log_level, args.verbose);
 
     info!("Starting sample-app");
-
-    // Load configuration
-    let config = load_config(args.config)?;
     info!("App name: {}", config.app_name);
 
     // Process items

@@ -29,7 +29,12 @@ pub fn greet(name: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
     use super::*;
 
     #[test]
@@ -45,7 +50,12 @@ mod tests {
 
 #[cfg(test)]
 mod prop_tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
     use super::*;
     use proptest::prelude::*;
 

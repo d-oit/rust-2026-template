@@ -40,6 +40,10 @@ impl<S: ActorState + 'static> Supervisor<S> {
     }
 
     /// Spawn and supervise an actor, returning a handle to communicate with it.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`SupervisorError`] when the actor task cannot be spawned.
     pub fn spawn(&self) -> Result<mpsc::Sender<ActorMessage<S>>, SupervisorError> {
         let (tx, rx) = mpsc::channel::<ActorMessage<S>>(64);
         let state = self.state.clone();
@@ -64,7 +68,12 @@ pub enum SupervisorCommand {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
     use super::*;
     use serde::{Deserialize, Serialize};
 
@@ -78,7 +87,7 @@ mod tests {
     #[tokio::test]
     async fn test_supervisor_creation() {
         let state = TestState { value: 42 };
-        let supervisor = Supervisor::new(Default::default(), state);
+        let supervisor = Supervisor::new(RestartStrategy::default(), state);
         assert_eq!(supervisor.state.value, 42);
     }
 

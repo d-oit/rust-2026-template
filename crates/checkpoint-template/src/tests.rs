@@ -1,4 +1,10 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    missing_docs,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 
 use super::*;
 use tempfile::TempDir;
@@ -240,9 +246,6 @@ async fn test_with_custom_config() {
 
 #[tokio::test]
 async fn test_save_too_large() {
-    let dir = TempDir::new().unwrap();
-    let path = dir.path().join("save_too_large.ckpt");
-
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     struct LargeState {
         data: Vec<u8>,
@@ -252,6 +255,9 @@ async fn test_save_too_large() {
             1
         }
     }
+
+    let dir = TempDir::new().unwrap();
+    let path = dir.path().join("save_too_large.ckpt");
 
     let config = CheckpointConfig {
         max_checkpoint_size: 10,
@@ -345,7 +351,7 @@ fn test_validate_app_name_bad_byte_at_swar_chunk_boundaries() {
     // A DEL (0x7F) byte must be rejected no matter which 8-byte SWAR lane it lands in.
     for offset in [0usize, 7, 8, 15, 16, 23] {
         let mut name = "a".repeat(31);
-        name.replace_range(offset..offset + 1, "\u{7f}");
+        name.replace_range(offset..=offset, "\u{7f}");
         assert!(
             CheckpointManager::<TestState>::validate_app_name(&name, &CheckpointConfig::default())
                 .is_err(),
@@ -365,7 +371,7 @@ fn test_validate_app_name_multibyte_char_at_swar_chunk_boundaries() {
     let config = CheckpointConfig::default();
     for offset in [0usize, 5, 6, 7, 8, 13, 14, 15, 16, 23, 24] {
         let mut name = "a".repeat(32);
-        name.replace_range(offset..offset + 1, "\u{202a}");
+        name.replace_range(offset..=offset, "\u{202a}");
         let err = CheckpointManager::<TestState>::validate_app_name(&name, &config)
             .expect_err("Bidi override U+202A must be rejected");
 

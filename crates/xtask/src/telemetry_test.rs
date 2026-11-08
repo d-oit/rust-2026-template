@@ -1,4 +1,7 @@
-#![allow(clippy::unwrap_used)]
+#![allow(
+    clippy::unwrap_used,
+    reason = "fixture/bootstrap code is allowed to panic because a failure is unrecoverable setup"
+)]
 use super::*;
 use std::path::PathBuf;
 

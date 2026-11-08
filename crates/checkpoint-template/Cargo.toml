@@ -11,17 +11,8 @@ readme = "README.md"
 include = ["/src", "README.md", "LICENSE"]
 publish = false
 
-# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
-# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
-[lints.clippy]
-# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
-# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
-# Pedantic/nursery lints to opt-out for now
-missing_errors_doc = "allow"
-must_use_candidate = "allow"
-items_after_statements = "allow"
-derive_partial_eq_without_eq = "allow"
-doc_markdown = "allow"
+[lints]
+workspace = true
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }

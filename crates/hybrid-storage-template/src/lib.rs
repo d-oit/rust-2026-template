@@ -19,7 +19,8 @@
 //! ## Limitations
 //!
 //! - In-memory locks in [`backends::MemoryBackend`] do not coordinate across multiple processes or distributed nodes.
-//! - [`backends::SqliteBackend`] is an explicit fail-closed template stub requiring native libSQL transaction wiring before production use.
+//! - `backends::SqliteBackend` (behind the `sqlite` feature) is an explicit fail-closed template
+//!   stub requiring native libSQL transaction wiring before production use.
 //! - Clock/watermark monotonicity assumes non-decreasing timestamps or sequence counters on write operations.
 
 #![forbid(unsafe_code)]
@@ -100,6 +101,11 @@ impl Record {
     }
 
     /// Validate required fields fail-closed against corruption.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StorageError::CorruptRecord`] when `id` or `data` is empty or
+    /// whitespace-only.
     pub fn validate(&self) -> Result<(), StorageError> {
         if self.id.trim().is_empty() {
             return Err(StorageError::CorruptRecord {
@@ -200,21 +206,39 @@ impl HybridStorage {
     }
 
     /// Get value.
+    ///
+    /// # Errors
+    ///
+    /// Propagates any backend error from [`Backend::get`].
     pub async fn get(&self, key: &str) -> Result<Option<String>, StorageError> {
         self.primary.get(key).await
     }
 
     /// Set value.
+    ///
+    /// # Errors
+    ///
+    /// Propagates any backend error from [`Backend::set`].
     pub async fn set(&self, key: &str, value: &str) -> Result<(), StorageError> {
         self.primary.set(key, value).await
     }
 
     /// Delete value.
+    ///
+    /// # Errors
+    ///
+    /// Propagates any backend error from [`Backend::delete`].
     pub async fn delete(&self, key: &str) -> Result<bool, StorageError> {
         self.primary.delete(key).await
     }
 
     /// Commit a record mutation and its modification watermark atomically.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StorageError::CorruptRecord`] when `record` fails
+    /// [`Record::validate`], [`StorageError::Serialization`] when it cannot be
+    /// encoded, and any backend error from [`Backend::apply_transaction`].
     pub async fn commit_record_and_watermark(
         &self,
         record: &Record,
@@ -239,11 +263,16 @@ impl HybridStorage {
     }
 
     /// Get a record by ID with fail-closed field validation.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StorageError::CorruptRecord`] when the stored payload is not
+    /// valid JSON, fails [`Record::validate`], or belongs to a different ID, and
+    /// propagates any backend error from [`Self::get`].
     pub async fn get_record(&self, id: &str) -> Result<Option<Record>, StorageError> {
         let key = format!("rec:{id}");
-        let raw = match self.get(&key).await? {
-            Some(v) => v,
-            None => return Ok(None),
+        let Some(raw) = self.get(&key).await? else {
+            return Ok(None);
         };
 
         let record: Record =
@@ -258,10 +287,14 @@ impl HybridStorage {
     }
 
     /// Get current system modification watermark.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StorageError::CorruptRecord`] when the stored watermark is not
+    /// a valid `u64`, and propagates any backend error from [`Self::get`].
     pub async fn get_watermark(&self) -> Result<Option<u64>, StorageError> {
-        let raw = match self.get("sys:watermark").await? {
-            Some(v) => v,
-            None => return Ok(None),
+        let Some(raw) = self.get("sys:watermark").await? else {
+            return Ok(None);
         };
 
         let watermark = raw
@@ -276,10 +309,14 @@ impl HybridStorage {
     }
 
     /// Get target synchronization high-watermark cursor.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StorageError::CorruptRecord`] when the stored cursor is not
+    /// valid JSON, and propagates any backend error from [`Self::get`].
     pub async fn get_sync_cursor(&self) -> Result<Option<PageCursor>, StorageError> {
-        let raw = match self.get("sys:sync_cursor").await? {
-            Some(v) => v,
-            None => return Ok(None),
+        let Some(raw) = self.get("sys:sync_cursor").await? else {
+            return Ok(None);
         };
 
         let cursor: PageCursor =
@@ -293,6 +330,12 @@ impl HybridStorage {
     }
 
     /// List records using bounded keyset pagination with a stable `(updated_at, id)` tie-breaker.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StorageError::CorruptRecord`] when any stored record fails
+    /// [`Record::validate`], and propagates backend errors from
+    /// [`Backend::list_keys`] and [`Self::get_record`].
     pub async fn list_records_paginated(
         &self,
         cursor: Option<&PageCursor>,
@@ -358,6 +401,10 @@ pub struct SyncEngine;
 
 impl SyncEngine {
     /// Synchronize records incrementally from `source` to `target`.
+    ///
+    /// # Errors
+    ///
+    /// Propagates the errors documented on [`Self::sync_incremental_with_hook`].
     pub async fn sync_incremental(
         source: &HybridStorage,
         target: &HybridStorage,
@@ -370,6 +417,12 @@ impl SyncEngine {
     /// Synchronize records incrementally with a hook called after each page commit.
     ///
     /// The hook can be used for observing sync progress or simulating network failure/interruption.
+    ///
+    /// # Errors
+    ///
+    /// Returns any error from [`HybridStorage::get_sync_cursor`],
+    /// [`HybridStorage::list_records_paginated`], [`Record::validate`],
+    /// [`Backend::apply_transaction`], or the `on_page_synced` hook.
     pub async fn sync_incremental_with_hook<H>(
         source: &HybridStorage,
         target: &HybridStorage,
@@ -393,9 +446,8 @@ impl SyncEngine {
             }
 
             let page_count = page.records.len();
-            let last_rec = match page.records.last() {
-                Some(r) => r,
-                None => break,
+            let Some(last_rec) = page.records.last() else {
+                break;
             };
 
             let new_cursor = PageCursor {

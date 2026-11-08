@@ -14,7 +14,7 @@
 #![forbid(unsafe_code)]
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::fmt::{self, Write as _};
 use thiserror::Error;
 use tracing::instrument;
 
@@ -117,7 +117,11 @@ pub struct SecretDetector {
 
 impl Default for SecretDetector {
     fn default() -> Self {
-        Self::new(DetectorConfig::default()).expect("Default config should be valid")
+        // `DetectorConfig::default()` is statically known to satisfy every
+        // invariant checked by `new`, so this cannot fail; if it ever does, the
+        // errors are recoverable by falling back to the built-in constants.
+        let config = DetectorConfig::default();
+        Self::new(config.clone()).unwrap_or(Self { config })
     }
 }
 
@@ -143,7 +147,7 @@ impl SecretDetector {
 
     /// Returns a reference to the detector configuration.
     #[must_use]
-    pub fn config(&self) -> &DetectorConfig {
+    pub const fn config(&self) -> &DetectorConfig {
         &self.config
     }
 
@@ -199,7 +203,7 @@ impl SecretDetector {
                     if let Some(sep_rel) = after_kw.find(['=', ':']) {
                         let val_part = &after_kw[sep_rel + 1..];
                         if let Some((start_in_line, end_in_line, token_str)) =
-                            self.extract_assigned_value(kw_pos + kw.len() + sep_rel + 1, val_part)
+                            Self::extract_assigned_value(kw_pos + kw.len() + sep_rel + 1, val_part)
                         {
                             if self.is_valid_secret_token(token_str) {
                                 let abs_start = line_start_byte + start_in_line;
@@ -267,11 +271,10 @@ impl SecretDetector {
     }
 
     /// Extracts value part after assignment operator, trimming quotes, spaces, and trailing delimiters.
-    fn extract_assigned_value<'a>(
-        &self,
+    fn extract_assigned_value(
         base_offset_in_line: usize,
-        val_part: &'a str,
-    ) -> Option<(usize, usize, &'a str)> {
+        val_part: &str,
+    ) -> Option<(usize, usize, &str)> {
         let trimmed_leading = val_part.trim_start();
         let leading_spaces = val_part.len() - trimmed_leading.len();
         let val_start_in_line = base_offset_in_line + leading_spaces;
@@ -378,7 +381,7 @@ pub fn compute_line_col(text: &str, byte_offset: usize) -> (usize, usize) {
         safe_offset -= 1;
     }
     let prefix = &text[..safe_offset];
-    let line = prefix.as_bytes().iter().filter(|&&b| b == b'\n').count() + 1;
+    let line = prefix.bytes().filter(|&b| b == b'\n').count() + 1;
     let last_line_start = prefix.rfind('\n').map_or(0, |pos| pos + 1);
     let segment = &prefix[last_line_start..];
     let col = if segment.is_ascii() {
@@ -415,7 +418,7 @@ pub fn redact_text(input: &str, matches: &[SecretMatch]) -> String {
     for m in sorted_matches {
         if m.start_byte >= last_idx && m.end_byte <= input.len() {
             result.push_str(&input[last_idx..m.start_byte]);
-            result.push_str(&format!("[REDACTED:{}]", m.rule_id));
+            let _ = write!(result, "[REDACTED:{}]", m.rule_id);
             last_idx = m.end_byte;
         }
     }
@@ -429,7 +432,13 @@ pub fn redact_text(input: &str, matches: &[SecretMatch]) -> String {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        missing_docs,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
 
     use super::*;
 
