@@ -241,8 +241,19 @@ RUSTC_MAJOR_MINOR=$(rustc --version 2>/dev/null | awk '{print $2}' | cut -d. -f1
 
 if [[ -n "$MSRV_MAJOR_MINOR" && "$RUSTC_MAJOR_MINOR" == "$MSRV_MAJOR_MINOR" ]]; then
   CARGO_CMD=(cargo check --workspace --all-targets --all-features)
-elif command -v rustup &>/dev/null && rustup toolchain list 2>/dev/null | grep -q "$MSRV"; then
-  CARGO_CMD=(cargo +"$MSRV" check --workspace --all-targets --all-features)
+elif command -v rustup &>/dev/null; then
+  # The MSRV toolchain is not installed by default on CI runners (they ship a
+  # current `stable`). Install it on demand so this check is real rather than a
+  # silent no-op; `rustup toolchain install` is idempotent and cheap.
+  if ! rustup toolchain list 2>/dev/null | grep -q "$MSRV"; then
+    info "MSRV toolchain $MSRV is not installed; installing it now"
+    if ! rustup toolchain install "$MSRV" --profile minimal --no-self-update >/dev/null 2>&1; then
+      fail "Could not install MSRV toolchain $MSRV; cannot verify MSRV compatibility"
+    fi
+  fi
+  if rustup toolchain list 2>/dev/null | grep -q "$MSRV"; then
+    CARGO_CMD=(cargo +"$MSRV" check --workspace --all-targets --all-features)
+  fi
 fi
 
 if [[ ${#CARGO_CMD[@]} -gt 0 ]]; then
@@ -254,7 +265,8 @@ if [[ ${#CARGO_CMD[@]} -gt 0 ]]; then
     echo "$COMPILE_OUTPUT"
   fi
 else
-  warn "MSRV toolchain $MSRV not active or installed via rustup, skipping compilation check"
+  # Fail closed: an MSRV audit that never compiles anything is not a pass.
+  fail "MSRV toolchain $MSRV is unavailable (no rustup); cannot verify MSRV compatibility"
 fi
 echo ""
 
