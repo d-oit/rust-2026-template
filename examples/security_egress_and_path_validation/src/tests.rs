@@ -1,4 +1,5 @@
 use super::*;
+use std::path::Path;
 
 #[test]
 fn test_ip_normalization() {
@@ -12,29 +13,51 @@ fn test_ip_normalization() {
 
     let v6_loopback: IpAddr = "::1".parse().unwrap();
     assert_eq!(normalize_ip(v6_loopback), v6_loopback);
+
+    // IPv4-compatible IPv6 normalization (deprecated ::x.x.x.x)
+    let compat_v4_loopback: IpAddr = "::127.0.0.1".parse().unwrap();
+    assert_eq!(normalize_ip(compat_v4_loopback), v4_loopback);
+
+    let compat_v4_link_local: IpAddr = "::169.254.169.254".parse().unwrap();
+    assert_eq!(normalize_ip(compat_v4_link_local), v4_link_local);
+
+    let compat_v4_public: IpAddr = "::93.184.216.34".parse().unwrap();
+    let v4_public: IpAddr = "93.184.216.34".parse().unwrap();
+    assert_eq!(normalize_ip(compat_v4_public), v4_public);
 }
 
 #[test]
 fn test_restricted_ip_denied_cases() {
     let denied_ips = [
-        "127.0.0.1",          // IPv4 Loopback
-        "0.0.0.0",            // IPv4 Unspecified
-        "169.254.169.254",    // IPv4 Link-local (AWS metadata)
-        "10.0.0.1",           // IPv4 Private
-        "172.16.0.1",         // IPv4 Private
-        "192.168.1.1",        // IPv4 Private
-        "::ffff:127.0.0.1",   // IPv4-mapped IPv6 Loopback
-        "::ffff:169.254.1.1", // IPv4-mapped IPv6 Link-local
-        "::ffff:10.0.0.5",    // IPv4-mapped IPv6 Private
-        "::1",                // IPv6 Loopback
-        "::",                 // IPv6 Unspecified
-        "fe80::1",            // IPv6 Link-local
-        "fc00::1",            // IPv6 Unique Local
-        "224.0.0.1",          // IPv4 Multicast
-        "239.255.255.250",    // IPv4 Multicast (SSDP)
-        "100.64.0.1",         // IPv4 CGNAT (RFC 6598)
-        "ff02::1",            // IPv6 Multicast
-        "2001:db8::1",        // IPv6 Documentation (RFC 3849)
+        "127.0.0.1",                               // IPv4 Loopback
+        "0.0.0.0",                                 // IPv4 Unspecified
+        "169.254.169.254",                         // IPv4 Link-local (AWS metadata)
+        "10.0.0.1",                                // IPv4 Private
+        "172.16.0.1",                              // IPv4 Private
+        "192.168.1.1",                             // IPv4 Private
+        "::ffff:127.0.0.1",                        // IPv4-mapped IPv6 Loopback
+        "::ffff:169.254.1.1",                      // IPv4-mapped IPv6 Link-local
+        "::ffff:10.0.0.5",                         // IPv4-mapped IPv6 Private
+        "::1",                                     // IPv6 Loopback
+        "::",                                      // IPv6 Unspecified
+        "fe80::1",                                 // IPv6 Link-local
+        "fc00::1",                                 // IPv6 Unique Local
+        "224.0.0.1",                               // IPv4 Multicast
+        "239.255.255.250",                         // IPv4 Multicast (SSDP)
+        "100.64.0.1",                              // IPv4 CGNAT (RFC 6598)
+        "198.18.0.1",                              // IPv4 Benchmarking (RFC 2544)
+        "240.0.0.1",                               // IPv4 Reserved (RFC 1112)
+        "::127.0.0.1",                             // IPv4-compatible IPv6 Loopback
+        "::169.254.169.254",                       // IPv4-compatible IPv6 Link-local
+        "::10.0.0.1",                              // IPv4-compatible IPv6 Private
+        "100::1",                                  // IPv6 Discard-only prefix (RFC 6666)
+        "2002:7f00:0001::",                        // 6to4 encapsulation of 127.0.0.1 (Loopback)
+        "2002:a9fe:a9fe::", // 6to4 encapsulation of 169.254.169.254 (Link-local)
+        "2002:0a00:0001::", // 6to4 encapsulation of 10.0.0.1 (Private)
+        "2001:0000:4136:e378:8000:63bf:80ff:feff", // Teredo encapsulation of 127.0.0.1 (^0xffff)
+        "2001:0000:4136:e378:8000:63bf:5601:5601", // Teredo encapsulation of 169.254.169.254 (^0xffff)
+        "ff02::1",                                 // IPv6 Multicast
+        "2001:db8::1",                             // IPv6 Documentation (RFC 3849)
     ];
 
     for ip_str in denied_ips {
@@ -53,9 +76,11 @@ fn test_restricted_ip_denied_cases() {
 #[test]
 fn test_allowed_public_ips() {
     let allowed_ips = [
-        "93.184.216.34",                      // example.com public IPv4
-        "1.1.1.1",                            // Cloudflare DNS IPv4
-        "2606:2800:220:1:248:1893:25c8:1946", // example.com public IPv6
+        "93.184.216.34",                           // example.com public IPv4
+        "1.1.1.1",                                 // Cloudflare DNS IPv4
+        "2606:2800:220:1:248:1893:25c8:1946",      // example.com public IPv6
+        "2002:5db8:d822::", // 6to4 encapsulation of 93.184.216.34 (public IPv4)
+        "2001:0000:4136:e378:8000:63bf:a247:27dd", // Teredo encapsulation of 93.184.216.34 (^0xffff)
     ];
 
     for ip_str in allowed_ips {
