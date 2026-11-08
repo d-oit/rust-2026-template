@@ -147,6 +147,11 @@ pub(super) fn run_deny_check(config: &XtaskConfig) -> Result<(), XtaskError> {
 
 /// Detect unused dependencies with `cargo-machete`.
 ///
+/// `--with-metadata` is required for correctness: the default (regex-only) scan
+/// cannot resolve dependencies declared with `workspace = true`, so every
+/// workspace-inherited dependency is silently treated as used. Without the flag
+/// the check reports a false "no unused dependencies" and the gate is a no-op.
+///
 /// Fixture crates under `tests/fixtures/**` declare dependencies their `src`
 /// deliberately does not use (and some exist only to model a missing manifest,
 /// so they have no `src` at all). Those crates carry a
@@ -154,7 +159,7 @@ pub(super) fn run_deny_check(config: &XtaskConfig) -> Result<(), XtaskError> {
 /// the real workspace without reporting intentional fixture dependencies.
 pub(super) fn run_machete_check(config: &XtaskConfig) -> Result<(), XtaskError> {
     quality_policy::run_with_tool_policy(config, QualityCheck::Machete, || {
-        commands::execute("cargo-machete", &[])
+        commands::execute("cargo-machete", &["--with-metadata"])
     })
 }
 

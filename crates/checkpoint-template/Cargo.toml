@@ -33,5 +33,3 @@ bincode_reloaded = { version = "3", features = ["serde"] }
 
 [dev-dependencies]
 tempfile = "3"
-tokio-test = { workspace = true }
-proptest = { workspace = true }
