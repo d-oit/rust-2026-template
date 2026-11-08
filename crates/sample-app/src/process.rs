@@ -6,7 +6,7 @@ use crate::config::{AppError, Result};
 /// CLI arguments
 #[derive(Parser, Debug)]
 #[command(name = "sample-app")]
-#[command(about = "A sample application using rust-2026-template", long_about = None)]
+#[command(version, about = "A sample application using rust-2026-template", long_about = None)]
 pub struct Args {
     /// Path to config file (optional)
     #[arg(long)]
@@ -32,11 +32,11 @@ static DIGITS_TABLE: [&str; 100] = [
     "96", "97", "98", "99",
 ];
 
+/// Process `count` items, returning one `item-NNNN` label per item.
 ///
 /// # Errors
 ///
-/// Returns `AppError::Config` if `count` exceeds `limit`.
-/// Process items and return a result
+/// Returns [`AppError::Config`] if `count` exceeds `limit`.
 pub fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
     info!("Processing {} items (limit: {})", count, limit);
 
@@ -55,33 +55,41 @@ pub fn process_items(count: usize, limit: usize) -> Result<Vec<String>> {
     // Pre-allocate Vec and Strings for efficiency
     let mut items = Vec::with_capacity(count);
 
-    // Bolt: Split loop to remove branch and dynamic capacity check from hot loop
-    let fast_count = count.min(9999);
+    // Bolt: Use nested loops over a precomputed two-digit table to avoid
+    // division/remainder per item. Items are `item-NNNN`, numbered from 1 and
+    // zero-padded to four digits; the thousands group is formatted directly so
+    // the loop covers every count rather than stopping at an arbitrary bound.
+    'outer: for (thousands, prefix) in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        .iter()
+        .enumerate()
+    {
+        for (tens, t_str) in DIGITS_TABLE.iter().enumerate() {
+            for (ones, o_str) in DIGITS_TABLE.iter().enumerate() {
+                let i = thousands * 10_000 + tens * 100 + ones;
+                if i == 0 {
+                    continue; // Item numbering starts at 1.
+                }
+                if i > count {
+                    break 'outer;
+                }
 
-    // Bolt: Use nested loops to eliminate redundant division/remainder operations
-    // when accessing the DIGITS_TABLE in the hot loop.
-    'outer: for (tens, t_str) in DIGITS_TABLE.iter().enumerate() {
-        for (ones, o_str) in DIGITS_TABLE.iter().enumerate() {
-            let i = tens * 100 + ones;
-            if i == 0 {
-                continue; // continues inner loop; `break 'outer` below
+                let mut s = String::with_capacity("item-".len() + 4);
+                s.push_str("item-");
+                if thousands > 0 {
+                    s.push_str(prefix);
+                }
+                s.push_str(t_str);
+                s.push_str(o_str);
+                items.push(s);
             }
-            if i > fast_count {
-                break 'outer;
-            }
-
-            let mut s = String::with_capacity(9);
-            s.push_str("item-");
-            s.push_str(t_str);
-            s.push_str(o_str);
-            items.push(s);
         }
     }
 
-    // Handle boundary case: count == 10000 (the max allowed by load_config)
-    if count >= 10000 {
-        items.push("item-10000".to_string());
-    }
+    debug_assert_eq!(
+        items.len(),
+        count,
+        "process_items must return exactly `count` items"
+    );
 
     info!("Successfully processed {} items", items.len());
     Ok(items)
