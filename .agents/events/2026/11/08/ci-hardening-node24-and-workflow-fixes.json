@@ -1,0 +1,12 @@
+{
+  "event_id": "ci-hardening-20261108",
+  "task_id": "address-failing-ci-warnings-and-preexisting-issues",
+  "skill": "verify-actions",
+  "status": "success",
+  "started_at": "2026-11-05T18:30:00Z",
+  "finished_at": "2026-11-08T00:00:00Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "6099c9a",
+  "summary": "Cleared every Node-20 deprecation warning and repaired three silently-failing workflows. Moved eight actions to node24 majors (checkout v7.0.1, github-script v9.0.0, labeler v7.0.0, setup-node v7.1.0, setup-python v7.1.0, fetch-metadata v3.1.0, paths-filter v4.0.3, create-pull-request v8.1.1), each SHA resolved from its release tag and runtime confirmed by reading action.yml at that ref. Unified two split pins: Swatinem/rust-cache was on two different commits so the composite setup-rust action and its five callers cached under different keys, and dtolnay/rust-toolchain was likewise split. Update Overview Diagram reported success while publishing nothing: it pushed to protected main, retried the same rejection 5x, then ran gh pr create without GH_TOKEN where || echo swallowed the non-zero exit. Release Preflight rejected every template tag because VERSION intentionally stays 0.0.0 while tags are v0.4.x; it now accepts either source and fails closed otherwise. post-release-check declared issues:write without contents:read while running actions/checkout. Regenerated the stale README diagram (claimed 12 crates/25 skills/45 jobs/1 quality check vs actual 15/26/40/19); the '1' was a real bug where the counter scraped scripts/quality-gates.sh after it became a thin cargo xtask wrapper. Added tests/overview_diagram_test.sh and tests/workflow_permissions_test.sh, both reproduced against the historical bugs before wiring. Dropped the non-reproducible overview PNG (font-stack dependent, unreferenced) that caused a spurious PR on every workflow run. Refreshed the verify-actions canonical SHA table, which was itself two majors stale. ./scripts/quality-gates.sh 19/19 SUCCESS; actionlint clean; zero Node20 warnings across six main runs."
+}
