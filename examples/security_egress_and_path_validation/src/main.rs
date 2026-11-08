@@ -1,4 +1,4 @@
-#![allow(missing_docs)]
+#![allow(missing_docs, reason = "binary entry point has no public API surface")]
 
 //! Security Egress and Untrusted Path Validation Example.
 //!
@@ -76,7 +76,7 @@ pub enum RedirectPolicy {
 /// and deprecated IPv4-compatible IPv6 addresses (`::x.x.x.x`) into their canonical
 /// `IpAddr::V4` representation.
 #[must_use]
-pub fn normalize_ip(ip: IpAddr) -> IpAddr {
+pub const fn normalize_ip(ip: IpAddr) -> IpAddr {
     let canonical = ip.to_canonical();
     if let IpAddr::V6(v6) = canonical {
         // Detect deprecated IPv4-compatible IPv6 addresses (::x.x.x.x for x.x.x.x != 0.0.0.0 and != 0.0.0.1)
@@ -101,25 +101,25 @@ pub fn normalize_ip(ip: IpAddr) -> IpAddr {
 /// Checks if a normalized `IpAddr` is considered non-routable, loopback, unspecified, link-local,
 /// or an IPv6 transition mechanism tunneling to a restricted IPv4 address.
 #[must_use]
-pub fn is_restricted_ip(ip: IpAddr) -> bool {
+pub const fn is_restricted_ip(ip: IpAddr) -> bool {
     let normalized = normalize_ip(ip);
     match normalized {
-        IpAddr::V4(v4) => is_restricted_ipv4(&v4),
+        IpAddr::V4(v4) => is_restricted_ipv4(v4),
         IpAddr::V6(v6) => {
             v6.is_loopback()            // ::1
             || v6.is_unspecified()      // ::
             || v6.is_multicast()        // ff00::/8
-            || is_v6_link_local(&v6)     // fe80::/10
-            || is_v6_unique_local(&v6)   // fc00::/7
-            || is_v6_documentation(&v6) // 2001:db8::/32 (RFC 3849)
-            || is_v6_discard(&v6)       // 100::/64 Discard-only prefix (RFC 6666)
-            || is_v6_transition_restricted(&v6) // 6to4 (2002::/16) or Teredo (2001:0::/32) tunneling restricted IPv4
+            || is_v6_link_local(v6)     // fe80::/10
+            || is_v6_unique_local(v6)   // fc00::/7
+            || is_v6_documentation(v6) // 2001:db8::/32 (RFC 3849)
+            || is_v6_discard(v6)       // 100::/64 Discard-only prefix (RFC 6666)
+            || is_v6_transition_restricted(v6) // 6to4 (2002::/16) or Teredo (2001:0::/32) tunneling restricted IPv4
         }
     }
 }
 
 /// Helper checking if an IPv4 address is restricted/non-routable/private.
-fn is_restricted_ipv4(v4: &Ipv4Addr) -> bool {
+const fn is_restricted_ipv4(v4: Ipv4Addr) -> bool {
     v4.is_loopback()            // 127.0.0.0/8
     || v4.is_unspecified()      // 0.0.0.0
     || v4.is_link_local()        // 169.254.0.0/16
@@ -133,72 +133,66 @@ fn is_restricted_ipv4(v4: &Ipv4Addr) -> bool {
 }
 
 /// Helper checking if an IPv6 address is in the unicast link-local range (`fe80::/10`).
-fn is_v6_link_local(v6: &Ipv6Addr) -> bool {
+const fn is_v6_link_local(v6: Ipv6Addr) -> bool {
     let segments = v6.segments();
     (segments[0] & 0xffc0) == 0xfe80
 }
 
 /// Helper checking if an IPv6 address is in the unique local address range (`fc00::/7`).
-fn is_v6_unique_local(v6: &Ipv6Addr) -> bool {
+const fn is_v6_unique_local(v6: Ipv6Addr) -> bool {
     let segments = v6.segments();
     (segments[0] & 0xfe00) == 0xfc00
 }
 
 /// Helper checking if an IPv4 address is in the shared/CGNAT address space (`100.64.0.0/10`).
-fn is_v4_shared(v4: &std::net::Ipv4Addr) -> bool {
+const fn is_v4_shared(v4: Ipv4Addr) -> bool {
     let octets = v4.octets();
     octets[0] == 100 && (octets[1] & 0xc0) == 64
 }
 
 /// Helper checking if an IPv6 address is in the documentation range (`2001:db8::/32`).
-fn is_v6_documentation(v6: &Ipv6Addr) -> bool {
+const fn is_v6_documentation(v6: Ipv6Addr) -> bool {
     let segments = v6.segments();
     segments[0] == 0x2001 && segments[1] == 0x0db8
 }
 
 /// Helper checking if an IPv6 address is in the discard-only prefix (`100::/64`, RFC 6666).
-fn is_v6_discard(v6: &Ipv6Addr) -> bool {
+const fn is_v6_discard(v6: Ipv6Addr) -> bool {
     let segments = v6.segments();
     segments[0] == 0x0100 && segments[1] == 0 && segments[2] == 0 && segments[3] == 0
 }
 
 /// Helper checking if an IPv4 address is in the benchmarking range (`198.18.0.0/15`, RFC 2544).
-fn is_v4_benchmarking(v4: &Ipv4Addr) -> bool {
+const fn is_v4_benchmarking(v4: Ipv4Addr) -> bool {
     let octets = v4.octets();
     octets[0] == 198 && (octets[1] & 0xfe) == 18
 }
 
 /// Helper checking if an IPv4 address is in the reserved/future use range (`240.0.0.0/4`, RFC 1112).
-fn is_v4_reserved(v4: &Ipv4Addr) -> bool {
+const fn is_v4_reserved(v4: Ipv4Addr) -> bool {
     let octets = v4.octets();
     (octets[0] & 0xf0) == 240
 }
 
 /// Checks whether an IPv6 address uses 6to4 (`2002::/16`) or Teredo (`2001:0::/32`) tunneling
 /// whose embedded destination IPv4 address is in a restricted range.
-fn is_v6_transition_restricted(v6: &Ipv6Addr) -> bool {
+const fn is_v6_transition_restricted(v6: Ipv6Addr) -> bool {
     let segments = v6.segments();
 
     // 6to4 tunneling (2002::/16, RFC 3056): segments[1] and segments[2] encode the IPv4 address
     if segments[0] == 0x2002 {
-        let v4 = Ipv4Addr::new(
-            (segments[1] >> 8) as u8,
-            segments[1] as u8,
-            (segments[2] >> 8) as u8,
-            segments[2] as u8,
-        );
-        return is_restricted_ipv4(&v4);
+        let [a_hi, a_lo] = segments[1].to_be_bytes();
+        let [b_hi, b_lo] = segments[2].to_be_bytes();
+        let v4 = Ipv4Addr::new(a_hi, a_lo, b_hi, b_lo);
+        return is_restricted_ipv4(v4);
     }
 
     // Teredo tunneling (2001:0000::/32, RFC 4380): segments[6] and segments[7] contain the client's public IPv4 address XORed with 0xFFFF
     if segments[0] == 0x2001 && segments[1] == 0 {
-        let v4 = Ipv4Addr::new(
-            (!segments[6] >> 8) as u8,
-            (!segments[6]) as u8,
-            (!segments[7] >> 8) as u8,
-            (!segments[7]) as u8,
-        );
-        return is_restricted_ipv4(&v4);
+        let [a_hi, a_lo] = (!segments[6]).to_be_bytes();
+        let [b_hi, b_lo] = (!segments[7]).to_be_bytes();
+        let v4 = Ipv4Addr::new(a_hi, a_lo, b_hi, b_lo);
+        return is_restricted_ipv4(v4);
     }
 
     false
@@ -210,7 +204,7 @@ fn is_v6_transition_restricted(v6: &Ipv6Addr) -> bool {
 ///
 /// Returns [`EgressError::DeniedIp`] if the address is loopback, unspecified,
 /// link-local, or private.
-pub fn validate_egress_ip(ip: IpAddr) -> Result<IpAddr, EgressError> {
+pub const fn validate_egress_ip(ip: IpAddr) -> Result<IpAddr, EgressError> {
     let normalized = normalize_ip(ip);
     if is_restricted_ip(normalized) {
         Err(EgressError::DeniedIp(normalized))
@@ -233,7 +227,7 @@ pub struct EgressFilter {
 impl EgressFilter {
     /// Creates a default strict egress filter requiring HTTPS and refusing redirects.
     #[must_use]
-    pub fn strict() -> Self {
+    pub const fn strict() -> Self {
         Self {
             allowed_domains: Vec::new(),
             redirect_policy: RedirectPolicy::Refuse,

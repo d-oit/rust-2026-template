@@ -1,3 +1,10 @@
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    reason = "unit tests assert on known-good literals, so panicking is the failure signal"
+)]
+
 use super::*;
 use std::path::Path;
 

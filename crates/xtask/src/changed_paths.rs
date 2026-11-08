@@ -1,5 +1,8 @@
 //! Changed paths detection and classification since a reference commit.
-#![allow(clippy::struct_excessive_bools)]
+#![allow(
+    clippy::struct_excessive_bools,
+    reason = "flags mirror the CLI surface one-to-one"
+)]
 
 use crate::config::XtaskError;
 use serde::{Deserialize, Serialize};
@@ -187,7 +190,6 @@ impl ChangedPaths {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used)]
     use super::*;
 
     #[test]

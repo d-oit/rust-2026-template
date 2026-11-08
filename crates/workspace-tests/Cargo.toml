@@ -2,6 +2,7 @@
 name = "workspace-tests"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 repository.workspace = true
@@ -9,6 +10,9 @@ homepage.workspace = true
 documentation.workspace = true
 description = "Dedicated crate for workspace-level integration and architecture fitness tests"
 publish = false
+
+[lints]
+workspace = true
 
 [dependencies]
 

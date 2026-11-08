@@ -1,4 +1,8 @@
-#![allow(clippy::unwrap_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::panic,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 use super::*;
 use std::fs;
 use std::path::Path;

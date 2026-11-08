@@ -1,6 +1,12 @@
 //! Integration test suite for adversarial secret-detection corpus validation.
 
 #![forbid(unsafe_code)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    reason = "integration tests assert on fixture data, so panicking is the failure signal"
+)]
 
 use security_secret_detector::{DetectorError, SecretDetector, redact_text};
 use serde::Deserialize;

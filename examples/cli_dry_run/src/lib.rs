@@ -225,11 +225,10 @@ pub fn run_plan(plan: &Plan, client: &impl ApiClient) -> Result<ExecutionReport,
             if action.is_costly_remote {
                 let resp = client.execute_remote(action.step, &action.description)?;
                 logs.push(format!("  Step {}: {resp}", action.step));
-                performed += 1;
             } else {
                 logs.push(format!("  Step {}: Local step completed", action.step));
-                performed += 1;
             }
+            performed += 1;
         }
 
         logs.push("Live execution completed successfully.".into());

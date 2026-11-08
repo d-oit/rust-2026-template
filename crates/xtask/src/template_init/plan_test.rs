@@ -1,5 +1,10 @@
 //! Plan-building and end-to-end tests for template initialization.
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 use super::super::apply;
 use super::*;
 use std::collections::BTreeMap;
@@ -145,7 +150,11 @@ fn rel_paths(plan: &InitPlan) -> Vec<String> {
 // Ported from upstream `prune_default_members` tests (issue #321) to prove the
 // structural `toml_edit` implementation preserves the same contract.
 mod default_members_contract {
-    #![allow(clippy::unwrap_used, clippy::panic)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::panic,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
     use super::*;
 
     fn identity() -> ProjectIdentity {

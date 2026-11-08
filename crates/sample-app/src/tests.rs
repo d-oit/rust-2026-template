@@ -1,4 +1,10 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    missing_docs,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 
 use crate::{Args, Config, LogLevel, is_safe_char, load_config, process_items, sanitize_str};
 use clap::Parser;
@@ -133,7 +139,7 @@ fn test_sanitize_str_bad_byte_at_chunk_boundaries() {
     // A DEL (0x7F) byte in each SWAR lane must be found and replaced with '?'.
     for offset in [0usize, 7, 8, 15, 16, 23] {
         let mut s = "a".repeat(31);
-        s.replace_range(offset..offset + 1, "\u{7f}");
+        s.replace_range(offset..=offset, "\u{7f}");
         let expected = format!("{}?{}", "a".repeat(offset), "a".repeat(31 - offset - 1));
         assert_eq!(
             sanitize_str(&s).as_ref(),
@@ -351,4 +357,15 @@ fn test_process_items_labels_are_unique_and_ordered() {
 fn test_args_parsing() {
     let args = Args::parse_from(["sample-app", "--count", "5"]);
     assert_eq!(args.count, 5);
+}
+
+/// `Config::log_level` must actually reach `tracing`: each variant maps to the
+/// corresponding level, ordered most-verbose (`TRACE`) to least (`ERROR`).
+#[test]
+fn test_log_level_maps_to_tracing_levels() {
+    assert_eq!(tracing::Level::from(LogLevel::Trace), tracing::Level::TRACE);
+    assert_eq!(tracing::Level::from(LogLevel::Debug), tracing::Level::DEBUG);
+    assert_eq!(tracing::Level::from(LogLevel::Info), tracing::Level::INFO);
+    assert_eq!(tracing::Level::from(LogLevel::Warn), tracing::Level::WARN);
+    assert_eq!(tracing::Level::from(LogLevel::Error), tracing::Level::ERROR);
 }

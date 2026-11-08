@@ -1,10 +1,10 @@
-//! SQLite backend scaffold using libSQL.
+//! `SQLite` backend scaffold using `libSQL`.
 //!
 //! **Template stub — not a working storage backend.**
 //! Construction and all operations fail closed so adopters cannot mistake
 //! this for a production implementation. Replace the body with real libSQL
 //! calls before enabling the `sqlite` feature in application code.
-//! See: https://docs.rs/libsql
+//! See: <https://docs.rs/libsql>
 
 use crate::{StorageError, StorageOp};
 use std::future::Future;
@@ -14,7 +14,7 @@ const STUB_MSG: &str = "SqliteBackend is a template stub (not implemented). Use 
      or implement libSQL wiring before production use. See crates/hybrid-storage-template/README.md \
      and docs/patterns/trait-only-storage.md.";
 
-/// SQLite backend scaffold (libSQL/Turso).
+/// `SQLite` backend scaffold (`libSQL`/Turso).
 ///
 /// Intentionally incomplete: every method returns [`StorageError::Backend`]
 /// so silent success is impossible.
@@ -23,13 +23,26 @@ pub struct SqliteBackend {
 }
 
 impl SqliteBackend {
-    /// Attempt to create a SQLite backend.
+    /// Attempt to create a `SQLite` backend.
     ///
     /// Always returns [`Err`] until a real libSQL connection is implemented.
     ///
-    /// The `url` parameter would be a libSQL connection URL, e.g.:
+    /// The `url` parameter would be an `libSQL` connection URL, e.g.:
     /// - `"file::memory:?cache=shared"` for in-memory
     /// - `"libsql://your-db.turso.io"` for remote
+    ///
+    /// # Errors
+    ///
+    /// Always returns [`StorageError::Backend`] until real `libSQL` wiring is
+    /// implemented; the stub never succeeds.
+    ///
+    /// `async` is kept deliberately: a real `libSQL` connection is established
+    /// asynchronously, and preserving the signature keeps adopters' call sites
+    /// unchanged when the body is implemented.
+    #[expect(
+        clippy::unused_async,
+        reason = "signature must stay async so real libSQL wiring needs no call-site changes"
+    )]
     pub async fn new(_url: &str) -> Result<Self, StorageError> {
         Err(StorageError::Backend(STUB_MSG.into()))
     }
@@ -79,7 +92,13 @@ impl crate::Backend for SqliteBackend {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        missing_docs,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
 
     use super::*;
 

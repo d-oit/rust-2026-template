@@ -40,7 +40,7 @@ pub use migration::MigrationError;
 use storage::{DEFAULT_MAX_CHECKPOINT_SIZE, FileStorage};
 
 /// Checkpoint header stored with each checkpoint file.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct CheckpointHeader {
     /// Schema version of the checkpoint.
@@ -67,7 +67,7 @@ impl Default for CheckpointHeader {
 pub struct CheckpointConfig {
     /// Maximum size of a checkpoint file in bytes.
     pub max_checkpoint_size: u64,
-    /// Maximum length of the app_name string in the header.
+    /// Maximum length of the `app_name` string in the header.
     pub max_app_name_len: usize,
 }
 
@@ -118,6 +118,10 @@ pub trait Storable: Serialize + DeserializeOwned + Send + Sync + Clone + 'static
         Self: Sized;
 
     /// Migrate data from an older version.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`MigrationError`] when the migration path is unsupported.
     fn migrate(data: Value, from_version: u32) -> Result<Value, MigrationError>
     where
         Self: Sized,
@@ -157,6 +161,11 @@ impl<T: Storable> CheckpointManager<T> {
     }
 
     /// Set the application name with security validation.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CheckpointError::Serialization`] when the name exceeds
+    /// [`CheckpointConfig::max_app_name_len`] or contains control/Bidi characters.
     pub fn set_app_name(&mut self, app_name: impl Into<String>) -> Result<(), CheckpointError> {
         let app_name = app_name.into();
         Self::validate_app_name(&app_name, &self.config)?;
@@ -165,6 +174,11 @@ impl<T: Storable> CheckpointManager<T> {
     }
 
     /// Save state atomically.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CheckpointError::Serialization`] if the state cannot be
+    /// encoded or is oversized, and [`CheckpointError::Storage`] on I/O failure.
     pub async fn save(&mut self, state: &T) -> Result<(), CheckpointError> {
         // Security: Validate header before saving.
         Self::validate_app_name(&self.header.app_name, &self.config)?;
@@ -176,7 +190,7 @@ impl<T: Storable> CheckpointManager<T> {
         let config = bincode_reloaded::config::standard();
         let data = bincode_reloaded::serde::encode_to_vec(state, config)
             .map_err(|e| CheckpointError::Serialization(e.to_string()))?;
-        if data.len() > self.config.max_checkpoint_size as usize {
+        if u64::try_from(data.len()).unwrap_or(u64::MAX) > self.config.max_checkpoint_size {
             return Err(CheckpointError::Serialization(format!(
                 "checkpoint too large: {} bytes (max {})",
                 data.len(),
@@ -210,10 +224,11 @@ impl<T: Storable> CheckpointManager<T> {
             let mut arr = [0u8; 8];
             arr.copy_from_slice(&bytes[i..i + 8]);
             let chunk = u64::from_ne_bytes(arr);
-            let has_low = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
-            let has_high = chunk & 0x8080808080808080;
-            let y = chunk ^ 0x7F7F7F7F7F7F7F7F;
-            let zero_check = (y.wrapping_sub(0x0101010101010101) & !y) & 0x8080808080808080;
+            let has_low =
+                (chunk.wrapping_sub(0x2020_2020_2020_2020) & !chunk) & 0x8080_8080_8080_8080;
+            let has_high = chunk & 0x8080_8080_8080_8080;
+            let y = chunk ^ 0x7F7F_7F7F_7F7F_7F7F;
+            let zero_check = (y.wrapping_sub(0x0101_0101_0101_0101) & !y) & 0x8080_8080_8080_8080;
             if (has_low | has_high | zero_check) != 0 {
                 break;
             }
@@ -255,6 +270,12 @@ impl<T: Storable> CheckpointManager<T> {
     }
 
     /// Load state with migration support.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CheckpointError::Storage`] on I/O or decode failure, and
+    /// [`CheckpointError::VersionMismatch`] when the stored schema version
+    /// differs from `T::version()`.
     pub async fn load(&self) -> Result<Option<T>, CheckpointError> {
         let (header, payload) = match self
             .storage
@@ -277,7 +298,7 @@ impl<T: Storable> CheckpointManager<T> {
         }
 
         // Security: Check payload size then deserialize.
-        if payload.len() > self.config.max_checkpoint_size as usize {
+        if u64::try_from(payload.len()).unwrap_or(u64::MAX) > self.config.max_checkpoint_size {
             return Err(CheckpointError::Serialization(format!(
                 "payload too large: {} bytes (max {})",
                 payload.len(),

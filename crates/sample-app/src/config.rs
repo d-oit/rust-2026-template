@@ -125,10 +125,10 @@ pub fn sanitize_str(s: &str) -> Cow<'_, str> {
         let mut arr = [0u8; 8];
         arr.copy_from_slice(&bytes[i..i + 8]);
         let chunk = u64::from_ne_bytes(arr);
-        let has_low = (chunk.wrapping_sub(0x2020202020202020) & !chunk) & 0x8080808080808080;
-        let has_high = chunk & 0x8080808080808080;
-        let y = chunk ^ 0x7F7F7F7F7F7F7F7F;
-        let zero_check = (y.wrapping_sub(0x0101010101010101) & !y) & 0x8080808080808080;
+        let has_low = (chunk.wrapping_sub(0x2020_2020_2020_2020) & !chunk) & 0x8080_8080_8080_8080;
+        let has_high = chunk & 0x8080_8080_8080_8080;
+        let y = chunk ^ 0x7F7F_7F7F_7F7F_7F7F;
+        let zero_check = (y.wrapping_sub(0x0101_0101_0101_0101) & !y) & 0x8080_8080_8080_8080;
         if (has_low | has_high | zero_check) != 0 {
             break;
         }
@@ -247,16 +247,35 @@ pub fn load_config(config_path: Option<PathBuf>) -> Result<Config> {
     }
 }
 
-/// Initialize logging with tracing
-pub fn init_logging(verbose: bool) {
-    let level = if verbose {
-        tracing::Level::DEBUG
+/// Map a configured [`LogLevel`] to a `tracing` level.
+impl From<LogLevel> for tracing::Level {
+    fn from(level: LogLevel) -> Self {
+        match level {
+            LogLevel::Trace => Self::TRACE,
+            LogLevel::Debug => Self::DEBUG,
+            LogLevel::Info => Self::INFO,
+            LogLevel::Warn => Self::WARN,
+            LogLevel::Error => Self::ERROR,
+        }
+    }
+}
+
+/// Initialize logging with tracing.
+///
+/// The configured [`Config::log_level`] sets the baseline threshold and
+/// `--verbose` can only make output *more* verbose: `tracing::Level` orders from
+/// `TRACE` (most verbose) to `ERROR` (least), so the effective level is the
+/// more verbose of the two.
+pub fn init_logging(level: LogLevel, verbose: bool) {
+    let configured = tracing::Level::from(level);
+    let effective = if verbose {
+        configured.max(tracing::Level::DEBUG)
     } else {
-        tracing::Level::INFO
+        configured
     };
 
     tracing_subscriber::fmt()
-        .with_max_level(level)
+        .with_max_level(effective)
         .with_target(false)
         // Disable thread metadata for CLI performance
         .with_thread_ids(false)

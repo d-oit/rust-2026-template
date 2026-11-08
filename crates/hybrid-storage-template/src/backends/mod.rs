@@ -22,6 +22,7 @@ impl Default for MemoryBackend {
 
 impl MemoryBackend {
     /// Create a new memory backend.
+    #[must_use]
     pub fn new() -> Self {
         Self {
             data: std::sync::Mutex::new(std::collections::HashMap::new()),
@@ -121,6 +122,9 @@ impl crate::Backend for MemoryBackend {
                     }
                 }
             }
+            // Release the lock before returning: the guard is a significant
+            // drop type and holding it past the last mutation is unnecessary.
+            drop(data);
             Ok(())
         })
     }
@@ -128,7 +132,13 @@ impl crate::Backend for MemoryBackend {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        missing_docs,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
 
     use super::*;
     use crate::Backend;

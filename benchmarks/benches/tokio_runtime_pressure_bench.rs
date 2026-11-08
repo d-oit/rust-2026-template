@@ -1,4 +1,10 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    missing_docs,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 
 //! Tokio pressure telemetry: fan-out, registry contention and service queues.
 //!
@@ -126,8 +132,8 @@ fn bench_registry_contention(c: &mut Criterion) {
     let rt = multi_thread_runtime();
     let server = Arc::new(McpServer::new());
     rt.block_on(async {
-        server.register(EchoTool).await.unwrap();
-        server.register(CalcTool).await.unwrap();
+        server.register(EchoTool).unwrap();
+        server.register(CalcTool).unwrap();
     });
 
     let mut group = c.benchmark_group("tokio_registry");
@@ -151,7 +157,7 @@ fn bench_registry_contention(c: &mut Criterion) {
                     let server = Arc::clone(&server);
                     async move {
                         for _ in 0..WRITES {
-                            server.register(EchoTool).await.unwrap();
+                            server.register(EchoTool).unwrap();
                         }
                     }
                 });
@@ -169,7 +175,7 @@ fn bench_registry_contention(c: &mut Criterion) {
             let server = Arc::clone(&server);
             async move {
                 for _ in 0..WRITES {
-                    server.register(EchoTool).await.unwrap();
+                    server.register(EchoTool).unwrap();
                 }
             }
         });

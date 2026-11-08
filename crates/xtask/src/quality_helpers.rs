@@ -1,5 +1,4 @@
 //! Helper functions for quality gate checks (file scanning, line counting, privacy, and secrets).
-#![allow(clippy::unwrap_used)]
 
 use crate::commands;
 use crate::config::XtaskError;
@@ -251,6 +250,11 @@ pub fn run_skill_evals() -> Result<(), XtaskError> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(
+        clippy::unwrap_used,
+        reason = "unit tests assert on known-good fixtures, so panicking is the failure signal"
+    )]
+
     use super::*;
     use std::io::Write as _;
 

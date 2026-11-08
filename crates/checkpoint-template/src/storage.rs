@@ -4,7 +4,7 @@ use super::CheckpointHeader;
 pub use super::MigrationError;
 use std::path::PathBuf;
 use tokio::fs;
-use tokio::io::AsyncWriteExt;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 /// Default maximum size for a checkpoint file (10MB).
 pub const DEFAULT_MAX_CHECKPOINT_SIZE: u64 = 10 * 1024 * 1024;
@@ -47,6 +47,11 @@ impl FileStorage {
     }
 
     /// Save checkpoint data.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StorageError::Serialization`] if the header cannot be encoded
+    /// and [`StorageError::Io`] if the temp file cannot be written or renamed.
     pub async fn save(&self, header: &CheckpointHeader, data: &[u8]) -> Result<(), StorageError> {
         let temp_path = self.path.with_extension("tmp");
         let final_path = self.path.with_extension("ckpt");
@@ -75,6 +80,12 @@ impl FileStorage {
     }
 
     /// Load checkpoint data with a specific size limit.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`StorageError::NotFound`], [`StorageError::InvalidType`],
+    /// [`StorageError::TooLarge`], [`StorageError::Serialization`], or
+    /// [`StorageError::Io`] depending on the failure mode.
     pub async fn load_with_limit(
         &self,
         max_size: u64,
@@ -108,7 +119,6 @@ impl FileStorage {
             usize::try_from(file_size).map_err(|_| StorageError::TooLarge(file_size))?;
         let mut data = Vec::with_capacity(data_capacity);
 
-        use tokio::io::AsyncReadExt;
         let mut reader = file.take(max_size);
         reader
             .read_to_end(&mut data)
@@ -116,7 +126,7 @@ impl FileStorage {
             .map_err(StorageError::Io)?;
 
         // Security: Check size then deserialize.
-        if data.len() > max_size as usize {
+        if u64::try_from(data.len()).unwrap_or(u64::MAX) > max_size {
             return Err(StorageError::Serialization);
         }
         let config = bincode_reloaded::config::standard();
@@ -130,6 +140,10 @@ impl FileStorage {
     }
 
     /// Load checkpoint data using default limit (10MB).
+    ///
+    /// # Errors
+    ///
+    /// Propagates the same errors as [`Self::load_with_limit`].
     pub async fn load(&self) -> Result<(CheckpointHeader, Vec<u8>), StorageError> {
         self.load_with_limit(DEFAULT_MAX_CHECKPOINT_SIZE).await
     }
@@ -137,7 +151,13 @@ impl FileStorage {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        missing_docs,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
 
     use super::*;
     use tempfile::TempDir;

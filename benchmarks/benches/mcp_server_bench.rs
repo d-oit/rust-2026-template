@@ -1,4 +1,10 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    missing_docs,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 
 use criterion::{Criterion, criterion_group, criterion_main};
 use mcp_server_template::{CalcTool, EchoTool, McpServer, ToolRequest};
@@ -12,8 +18,8 @@ fn bench_mcp_server_dispatch(c: &mut Criterion) {
 
     let server = Arc::new(McpServer::new());
     rt.block_on(async {
-        server.register(EchoTool).await.unwrap();
-        server.register(CalcTool).await.unwrap();
+        server.register(EchoTool).unwrap();
+        server.register(CalcTool).unwrap();
     });
 
     let mut group = c.benchmark_group("mcp_server_dispatch");
@@ -64,7 +70,7 @@ fn bench_mcp_server_dispatch(c: &mut Criterion) {
                 for _ in 0..4 {
                     let server_clone = Arc::clone(&server);
                     handles.push(tokio::spawn(async move {
-                        let _tools = server_clone.list_tools().await;
+                        let _tools = server_clone.list_tools();
                     }));
                 }
                 for handle in handles {
@@ -89,7 +95,7 @@ fn bench_mcp_server_dispatch(c: &mut Criterion) {
                 for _ in 0..4 {
                     let server_clone = Arc::clone(&server);
                     handles.push(tokio::spawn(async move {
-                        let _ = server_clone.register(EchoTool).await;
+                        let _ = server_clone.register(EchoTool);
                     }));
                 }
                 for handle in handles {

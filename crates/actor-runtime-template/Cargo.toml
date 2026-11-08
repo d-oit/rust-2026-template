@@ -10,16 +10,8 @@ description = "Minimal actor runtime template with mailbox and supervision"
 readme = "README.md"
 publish = false
 
-# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
-# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
-[lints.clippy]
-# NOTE: workspace = true cannot be combined with local lint overrides in Cargo 1.88.
-# Track https://github.com/rust-lang/cargo/issues/14260; revert when fixed.
-# Pedantic/nursery lints to opt-out for now
-missing_errors_doc = "allow"
-must_use_candidate = "allow"
-use_self = "allow"
-default_trait_access = "allow"
+[lints]
+workspace = true
 
 [dependencies]
 tokio = { workspace = true, features = ["sync"] }

@@ -1,4 +1,10 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    missing_docs,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 
 //! Deterministic behaviour assertions for the Tokio runtime harness.
 //!
@@ -225,18 +231,18 @@ fn concurrent_registrations_are_not_lost() {
         for _ in 0..4 {
             let echo_server = Arc::clone(&server);
             handles.push(tokio::spawn(async move {
-                echo_server.register(EchoTool).await.unwrap();
+                echo_server.register(EchoTool).unwrap();
             }));
             let calc_server = Arc::clone(&server);
             handles.push(tokio::spawn(async move {
-                calc_server.register(CalcTool).await.unwrap();
+                calc_server.register(CalcTool).unwrap();
             }));
         }
         for handle in handles {
             handle.await.unwrap();
         }
 
-        let names = server.list_tools().await;
+        let names = server.list_tools();
         assert!(
             names.contains(&"echo".to_string()),
             "echo registration lost"

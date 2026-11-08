@@ -51,13 +51,13 @@ impl Tool for CalcTool {
 
         let op = obj
             .get("op")
-            .and_then(|v| v.as_str())
+            .and_then(serde_json::Value::as_str)
             .ok_or_else(|| ToolError::InvalidInput("Missing or invalid 'op' field".to_string()))?;
 
         match op {
             "add" | "sub" | "mul" | "div" => {}
             _ => {
-                let safe_op = if op.len() > 32 || op.chars().any(|c| c.is_control()) {
+                let safe_op = if op.len() > 32 || op.chars().any(char::is_control) {
                     "invalid".to_string()
                 } else {
                     op.to_string()
@@ -70,8 +70,8 @@ impl Tool for CalcTool {
 
         if !obj
             .get("a")
-            .and_then(|v| v.as_f64())
-            .is_some_and(|n| n.is_finite())
+            .and_then(serde_json::Value::as_f64)
+            .is_some_and(f64::is_finite)
         {
             return Err(ToolError::InvalidInput(
                 "Missing or invalid 'a' field".to_string(),
@@ -80,8 +80,8 @@ impl Tool for CalcTool {
 
         if !obj
             .get("b")
-            .and_then(|v| v.as_f64())
-            .is_some_and(|n| n.is_finite())
+            .and_then(serde_json::Value::as_f64)
+            .is_some_and(f64::is_finite)
         {
             return Err(ToolError::InvalidInput(
                 "Missing or invalid 'b' field".to_string(),
@@ -103,17 +103,17 @@ impl Tool for CalcTool {
 
             let op = obj
                 .get("op")
-                .and_then(|v| v.as_str())
+                .and_then(serde_json::Value::as_str)
                 .ok_or_else(|| ToolError::InvalidInput("Missing op field".to_string()))?;
 
             let a = obj
                 .get("a")
-                .and_then(|v| v.as_f64())
+                .and_then(serde_json::Value::as_f64)
                 .ok_or_else(|| ToolError::InvalidInput("Missing a field".to_string()))?;
 
             let b = obj
                 .get("b")
-                .and_then(|v| v.as_f64())
+                .and_then(serde_json::Value::as_f64)
                 .ok_or_else(|| ToolError::InvalidInput("Missing b field".to_string()))?;
 
             let result = match op {
@@ -139,7 +139,13 @@ impl Tool for CalcTool {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+    #![allow(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        missing_docs,
+        reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+    )]
 
     use super::*;
 

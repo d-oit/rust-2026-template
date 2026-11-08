@@ -20,6 +20,7 @@ pub struct ToolRequest {
 
 impl ToolRequest {
     /// Create a new tool request with the given input.
+    #[must_use]
     pub const fn new(input: Value) -> Self {
         Self {
             input,
@@ -28,6 +29,7 @@ impl ToolRequest {
     }
 
     /// Set metadata on the request.
+    #[must_use]
     pub fn with_metadata(mut self, metadata: Value) -> Self {
         self.metadata = Some(metadata);
         self
@@ -47,6 +49,7 @@ pub struct ToolResponse {
 
 impl ToolResponse {
     /// Create a successful response.
+    #[must_use]
     pub const fn success(result: Value) -> Self {
         Self {
             result,
@@ -55,6 +58,7 @@ impl ToolResponse {
     }
 
     /// Create a failed response.
+    #[must_use]
     #[expect(
         clippy::missing_const_for_fn,
         reason = "const not possible across MSRV/generic bounds"
@@ -104,6 +108,11 @@ pub trait Tool: Send + Sync {
     fn description(&self) -> &'static str;
 
     /// Validate the input before execution.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ToolError::Validation`] when the input does not satisfy the
+    /// implementor's schema.
     fn validate(&self, input: &Value) -> Result<(), ToolError> {
         let _ = input;
         Ok(())
@@ -123,7 +132,10 @@ pub trait Tool: Send + Sync {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used)]
+    #![allow(
+        clippy::unwrap_used,
+        reason = "fixture/bootstrap code is allowed to panic because a failure is unrecoverable setup"
+    )]
     use super::*;
     use serde_json::json;
 

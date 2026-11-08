@@ -1,4 +1,10 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    missing_docs,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 
 //! MSRV policy contract tests.
 //!
@@ -90,12 +96,11 @@ fn workspace_root() -> PathBuf {
         {
             return dir;
         }
-        if !dir.pop() {
-            panic!(
-                "no Cargo.toml declaring [workspace] above {}",
-                env!("CARGO_MANIFEST_DIR")
-            );
-        }
+        assert!(
+            dir.pop(),
+            "no Cargo.toml declaring [workspace] above {}",
+            env!("CARGO_MANIFEST_DIR")
+        );
     }
 }
 
