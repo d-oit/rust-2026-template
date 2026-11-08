@@ -1,5 +1,4 @@
 //! Quality gate planning and execution.
-#![allow(clippy::unwrap_used)]
 
 use crate::changed_paths::ChangedPaths;
 use crate::config::{XtaskConfig, XtaskError};
@@ -31,6 +30,8 @@ pub enum QualityCheck {
     Test,
     /// rust documentation tests.
     DocTest,
+    /// rustdoc build with warnings denied (broken links, private links, bare URLs).
+    Doc,
     /// cargo audit security checks.
     Audit,
     /// cargo deny check.
@@ -72,6 +73,7 @@ impl QualityCheck {
             Self::Build => "Rust Build",
             Self::Test => "Rust Tests",
             Self::DocTest => "Rust Doc Tests",
+            Self::Doc => "Rust Doc Build",
             Self::Audit => "Rust Security Audit",
             Self::Deny => "Rust Dependency Policy (Deny)",
             Self::Machete => "Rust Unused Dependencies (Machete)",
@@ -129,6 +131,7 @@ fn matches_only_filter(check: QualityCheck, o_list: &[&str]) -> bool {
                 QualityCheck::DocTest => {
                     o_lower == "doctest" || o_lower == "doc-test" || o_lower == "docs"
                 }
+                QualityCheck::Doc => o_lower == "doc",
                 QualityCheck::Audit => o_lower == "audit",
                 QualityCheck::Deny => o_lower == "deny",
                 QualityCheck::Machete => o_lower == "machete" || o_lower == "deps",
@@ -281,6 +284,7 @@ pub fn run_check(check: QualityCheck, config: &XtaskConfig) -> Result<(), XtaskE
         QualityCheck::Build => quality_checks::run_build_check()?,
         QualityCheck::Test => quality_checks::run_test_check()?,
         QualityCheck::DocTest => quality_checks::run_doc_test()?,
+        QualityCheck::Doc => quality_checks::run_doc_check()?,
         QualityCheck::Audit => quality_checks::run_audit_check(config)?,
         QualityCheck::Deny => quality_checks::run_deny_check(config)?,
         QualityCheck::Machete => quality_checks::run_machete_check(config)?,

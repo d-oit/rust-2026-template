@@ -1,6 +1,10 @@
 //! Required-tool policy tests: requiredness resolution, tool-presence decision, and
 //! fail-closed skip behavior (kept out-of-line to respect the 500-LOC limit).
-#![allow(clippy::unwrap_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::panic,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 use super::{
     CheckTool, DEFAULT_REQUIRED_CHECKS, ToolRequirement, absent_outcome, check_tool, is_required,
     required_checks, set_active_tier, tool_present_with,
@@ -10,7 +14,7 @@ use crate::quality::{QualityCheck as Q, plan_checks};
 use std::collections::BTreeSet;
 
 /// Every check variant, used to build fully-populated tier definitions.
-const ALL_CHECKS: [Q; 21] = [
+const ALL_CHECKS: [Q; 22] = [
     Q::LocLimits,
     Q::SkillValidation,
     Q::AdrCompliance,
@@ -19,6 +23,7 @@ const ALL_CHECKS: [Q; 21] = [
     Q::Build,
     Q::Test,
     Q::DocTest,
+    Q::Doc,
     Q::Audit,
     Q::Deny,
     Q::Machete,
