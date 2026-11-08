@@ -1,6 +1,10 @@
 //! Fail-closed configuration tests: structural validation and corrupt-file handling
 //! (kept out-of-line to respect the 500-LOC limit).
-#![allow(clippy::unwrap_used, clippy::panic)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::panic,
+    reason = "test modules assert on known-good fixtures, so panicking macros are the intended failure signal"
+)]
 use super::*;
 use std::io::Write as _;
 
@@ -311,6 +315,7 @@ fn test_load_actual_config_xtask_json() {
         QualityCheck::Build,
         QualityCheck::Test,
         QualityCheck::DocTest,
+        QualityCheck::Doc,
         QualityCheck::Audit,
         QualityCheck::Deny,
         QualityCheck::Machete,

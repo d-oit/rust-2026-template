@@ -202,6 +202,7 @@ impl XtaskConfig {
                 Q::Build,
                 Q::Test,
                 Q::DocTest,
+                Q::Doc,
                 Q::Audit,
                 Q::Deny,
                 Q::Msrv,
@@ -238,6 +239,7 @@ impl XtaskConfig {
                 Q::Build,
                 Q::Test,
                 Q::DocTest,
+                Q::Doc,
                 Q::Audit,
                 Q::Deny,
                 Q::Machete,
@@ -283,6 +285,7 @@ impl XtaskConfig {
                 Q::Build,
                 Q::Test,
                 Q::DocTest,
+                Q::Doc,
                 Q::Audit,
                 Q::Deny,
                 Q::Machete,
@@ -316,7 +319,8 @@ impl XtaskConfig {
         map.insert(Q::Clippy, rust_globs.clone());
         map.insert(Q::Build, rust_globs.clone());
         map.insert(Q::Test, rust_globs.clone());
-        map.insert(Q::DocTest, rust_globs);
+        map.insert(Q::DocTest, rust_globs.clone());
+        map.insert(Q::Doc, rust_globs);
         map.insert(
             Q::Audit,
             vec![

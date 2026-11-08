@@ -10,6 +10,7 @@
         "Build",
         "Test",
         "DocTest",
+        "Doc",
         "Audit",
         "Deny",
         "Msrv",
@@ -43,6 +44,7 @@
         "Build",
         "Test",
         "DocTest",
+        "Doc",
         "Audit",
         "Deny",
         "Machete",
@@ -67,7 +69,8 @@
         "YamlLint",
         "WorkflowValidation",
         "ActionLint",
-        "SecretScan"
+        "SecretScan",
+        "Doc"
       ]
     },
     "scheduled": {
@@ -90,6 +93,7 @@
         "Build",
         "Test",
         "DocTest",
+        "Doc",
         "Audit",
         "Deny",
         "Machete",
@@ -108,27 +112,101 @@
         "WorkflowValidation",
         "ActionLint",
         "YamlLint",
-        "SecretScan"
+        "SecretScan",
+        "Doc"
       ]
     }
   },
   "when_changed": {
-    "Fmt": ["**/*.rs", "**/Cargo.toml", "**/Cargo.lock", "rust-toolchain.toml"],
-    "Clippy": ["**/*.rs", "**/Cargo.toml", "**/Cargo.lock", "rust-toolchain.toml"],
-    "Build": ["**/*.rs", "**/Cargo.toml", "**/Cargo.lock", "rust-toolchain.toml"],
-    "Test": ["**/*.rs", "**/Cargo.toml", "**/Cargo.lock", "rust-toolchain.toml"],
-    "DocTest": ["**/*.rs", "**/Cargo.toml", "**/Cargo.lock", "rust-toolchain.toml"],
-    "Audit": ["**/Cargo.toml", "**/Cargo.lock", "deny.toml", ".cargo/audit.toml"],
-    "Deny": ["**/Cargo.toml", "**/Cargo.lock", "deny.toml"],
-    "Machete": ["**/*.rs", "**/Cargo.toml", "**/Cargo.lock"],
-    "Msrv": ["**/*.rs", "**/Cargo.toml", "**/Cargo.lock", "rust-toolchain.toml", "scripts/audit-msrv.sh"],
-    "ShellCheck": ["scripts/**/*.sh", "**/*.sh"],
-    "MarkdownLint": ["**/*.md"],
-    "YamlLint": ["**/*.yml", "**/*.yaml"],
-    "WorkflowValidation": [".github/workflows/*.yml", "scripts/validate-workflows.sh"],
-    "ActionLint": [".github/workflows/*.yml", ".github/actions/**"],
-    "SkillValidation": [".agents/skills/**", ".agents/SKILLS.md", "scripts/validate-skills.sh", ".claude/skills", ".qwen/skills"],
-    "SkillEvals": [".agents/skills/**", "scripts/run-evals.sh"]
+    "Fmt": [
+      "**/*.rs",
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "rust-toolchain.toml"
+    ],
+    "Clippy": [
+      "**/*.rs",
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "rust-toolchain.toml"
+    ],
+    "Build": [
+      "**/*.rs",
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "rust-toolchain.toml"
+    ],
+    "Test": [
+      "**/*.rs",
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "rust-toolchain.toml"
+    ],
+    "DocTest": [
+      "**/*.rs",
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "rust-toolchain.toml"
+    ],
+    "Audit": [
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "deny.toml",
+      ".cargo/audit.toml"
+    ],
+    "Deny": [
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "deny.toml"
+    ],
+    "Machete": [
+      "**/*.rs",
+      "**/Cargo.toml",
+      "**/Cargo.lock"
+    ],
+    "Msrv": [
+      "**/*.rs",
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "rust-toolchain.toml",
+      "scripts/audit-msrv.sh"
+    ],
+    "ShellCheck": [
+      "scripts/**/*.sh",
+      "**/*.sh"
+    ],
+    "MarkdownLint": [
+      "**/*.md"
+    ],
+    "YamlLint": [
+      "**/*.yml",
+      "**/*.yaml"
+    ],
+    "WorkflowValidation": [
+      ".github/workflows/*.yml",
+      "scripts/validate-workflows.sh"
+    ],
+    "ActionLint": [
+      ".github/workflows/*.yml",
+      ".github/actions/**"
+    ],
+    "SkillValidation": [
+      ".agents/skills/**",
+      ".agents/SKILLS.md",
+      "scripts/validate-skills.sh",
+      ".claude/skills",
+      ".qwen/skills"
+    ],
+    "SkillEvals": [
+      ".agents/skills/**",
+      "scripts/run-evals.sh"
+    ],
+    "Doc": [
+      "**/*.rs",
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "rust-toolchain.toml"
+    ]
   },
   "lint_thresholds": {
     "max_lines_per_file": 500,

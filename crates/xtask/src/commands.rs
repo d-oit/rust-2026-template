@@ -40,6 +40,37 @@ pub fn execute(program: &str, args: &[&str]) -> Result<(), XtaskError> {
     }
 }
 
+/// Safely execute a command with extra environment variables set.
+///
+/// # Errors
+/// Returns `XtaskError::CommandFailure` if the command fails to spawn or returns non-zero.
+pub fn execute_with_env(
+    program: &str,
+    args: &[&str],
+    env: &[(&str, &str)],
+) -> Result<(), XtaskError> {
+    let resolved = resolve_program(program);
+    let rendered = args.join(" ");
+    println!("  → {resolved} {rendered}");
+    let status = Command::new(&resolved)
+        .args(args)
+        .envs(env.iter().copied())
+        .status()
+        .map_err(|_e| XtaskError::CommandFailure {
+            command: format!("{resolved} {rendered}"),
+            exit_code: None,
+        })?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        Err(XtaskError::CommandFailure {
+            command: format!("{resolved} {rendered}"),
+            exit_code: status.code(),
+        })
+    }
+}
+
 /// Safely execute a command and capture its stdout as a String.
 ///
 /// # Errors

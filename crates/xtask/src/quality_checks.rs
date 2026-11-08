@@ -119,6 +119,20 @@ pub(super) fn run_doc_test() -> Result<(), XtaskError> {
     commands::execute("cargo", &["test", "--workspace", "--doc", "--all-features"])
 }
 
+/// Build rustdoc for every workspace member with warnings denied.
+///
+/// `cargo test --doc` only compiles and runs doctests; it never resolves intra-doc
+/// links or checks for rustdoc lints, so broken `[`links`]`, bare URLs, and
+/// private-item links reach `main` undetected. `--no-deps` keeps the gate fast and
+/// scoped to this repository's documentation.
+pub(super) fn run_doc_check() -> Result<(), XtaskError> {
+    commands::execute_with_env(
+        "cargo",
+        &["doc", "--workspace", "--no-deps", "--all-features"],
+        &[("RUSTDOCFLAGS", "-D warnings")],
+    )
+}
+
 pub(super) fn run_audit_check(config: &XtaskConfig) -> Result<(), XtaskError> {
     quality_policy::run_with_tool_policy(config, QualityCheck::Audit, || {
         commands::execute("cargo", &["audit"])

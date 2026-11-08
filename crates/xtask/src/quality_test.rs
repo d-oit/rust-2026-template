@@ -1,5 +1,8 @@
 //! Unit tests for quality planning and execution.
-#![allow(clippy::unwrap_used)]
+#![allow(
+    clippy::unwrap_used,
+    reason = "fixture/bootstrap code is allowed to panic because a failure is unrecoverable setup"
+)]
 
 use super::*;
 
