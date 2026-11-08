@@ -12,7 +12,7 @@
 
 ## When to use
 
-- Applications needing pluggable storage backends (SQLite, redb, in-memory)
+- Applications needing pluggable storage backends (SQLite, in-memory)
 - Systems requiring a consistent API across different storage technologies
 - Testing scenarios with in-memory backends that mirror production storage
 
@@ -43,8 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 | Feature | Backend | Dependency | Default |
 |---------|---------|------------|---------|
 | — | `MemoryBackend` | None (always available) | — |
-| `sqlite` | `SqliteBackend` (**stub**, fail-closed) | `libsql` | No |
-| `kv` | `KvBackend` | `redb` | No |
+| `sqlite` | `SqliteBackend` (**stub**, fail-closed) | `libsql` (optional) | No |
 
 ```toml
 [dependencies]

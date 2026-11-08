@@ -11,7 +11,7 @@ fmt:
 	cargo fmt --all -- --check
 
 clippy:
-	cargo clippy --workspace -- -D warnings
+	cargo clippy --workspace --all-targets --all-features -- -D warnings
 
 test:
 	cargo test --workspace

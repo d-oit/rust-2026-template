@@ -7,7 +7,6 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 description = "Registry and dynamic dispatch pattern template"
-readme = "README.md"
 publish = false
 
 [lints]

@@ -129,10 +129,9 @@ Real feature flags live on member crates that implement them, for example:
 
 | Crate | Feature | Description |
 |-------|---------|-------------|
-| `example-storage-pattern` | `sqlite` / `mock` | **Preferred** trait-only storage pattern |
+| `example-storage-pattern` | `mock` | **Preferred** trait-only storage pattern |
 | `hybrid-storage-template` | (none / `MemoryBackend`) | Working in-memory hybrid wrapper |
 | `hybrid-storage-template` | `sqlite` | Fail-closed SQLite **stub** (not production) |
-| `hybrid-storage-template` | `kv` | redb key-value backend |
 
 Pattern selection: [docs/patterns/README.md](docs/patterns/README.md).
 

@@ -96,7 +96,6 @@ cognitive_complexity = "allow"
 # ─── Workspace-wide dependency versions ───────────────────────────────────────
 [workspace.dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs"] }
-tokio-util = { version = "0.7" }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -108,10 +107,8 @@ clap = { version = "4", features = ["derive", "env"] }
 # Prefer manual `Pin<Box<dyn Future + Send + '_>>` (see storage/MCP templates)
 # or add `async-trait` only when a crate actually uses `#[async_trait]`.
 # https://docs.rs/async-trait/latest/async_trait/
-tokio-test = "0.4"
 proptest = "1"
 insta = { version = "1", features = ["yaml"] }
-colored = "3"
 criterion = { version = "0.8", features = ["html_reports"] }
 
 # ─── cargo-release configuration ─────────────────────────────────────────────────────
@@ -149,10 +146,6 @@ lto = "fat"
 codegen-units = 1
 panic = "unwind"
 strip = "symbols"
-
-# Alias for release with the same settings — kept for backward compatibility
-[profile.release-full]
-inherits = "release"
 
 # Fast CI profile: 95% of release perf at ~50% compile time.
 [profile.ci]
