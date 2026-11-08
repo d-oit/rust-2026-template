@@ -27,6 +27,7 @@
 #![forbid(unsafe_code)]
 
 pub mod actor;
+pub(crate) mod log_sanitize;
 pub mod supervisor;
 
 use std::fmt::Debug;
