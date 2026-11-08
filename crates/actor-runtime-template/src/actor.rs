@@ -1,6 +1,7 @@
 //! Actor implementation patterns.
 
 use super::{ActorError, ActorState, Lifecycle};
+use crate::log_sanitize::sanitize_log_payload;
 use tokio::sync::mpsc;
 use tracing::{debug, error, info};
 
@@ -45,6 +46,11 @@ impl<S: ActorState> ActorHandle<S> {
     }
 
     /// Send a message to the actor.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ActorError::MailboxFull`] when the actor's mailbox has been
+    /// closed or is at capacity.
     pub async fn send(&self, msg: ActorMessage<S>) -> Result<(), ActorError> {
         self.tx.send(msg).await.map_err(|_| ActorError::MailboxFull)
     }
@@ -61,156 +67,17 @@ pub struct Actor<S: ActorState> {
     restart_strategy: super::RestartStrategy,
 }
 
-/// Upper bound (in escaped characters) for a work payload rendered into a log line.
-const MAX_LOGGED_LEN: usize = 256;
-
-/// Escape control/Bidi/format characters and bound the length of a payload for logging.
-///
-/// Runs as a single bounded pass: a source character is emitted only when its whole escape
-/// sequence fits within [`MAX_LOGGED_LEN`], so the payload is never materialised in full and a
-/// truncation suffix can never split an escape sequence mid-way.
-///
-/// Returns the escaped string, or the escaped prefix followed by `... [truncated]`.
-fn sanitize_log_payload(work: &str) -> String {
-    let bytes = work.as_bytes();
-    let mut i = 0;
-
-    // Fast path: SWAR (SIMD Within A Register) check 8-byte chunks simultaneously
-    // for printable ASCII values (0x20-0x7E) excluding '\\', '"', and '\''.
-    // Uses from_le_bytes for deterministic cross-endian behavior.
-    while i + 8 <= bytes.len() {
-        let mut arr = [0u8; 8];
-        arr.copy_from_slice(&bytes[i..i + 8]);
-        let chunk = u64::from_le_bytes(arr);
-
-        let has_low = (chunk.wrapping_sub(0x2020_2020_2020_2020) & !chunk) & 0x8080_8080_8080_8080;
-        let has_high = chunk & 0x8080_8080_8080_8080;
-        let y = chunk ^ 0x7F7F_7F7F_7F7F_7F7F;
-        let zero_check = (y.wrapping_sub(0x0101_0101_0101_0101) & !y) & 0x8080_8080_8080_8080;
-
-        let contains_byte = |b: u8| {
-            let mask = u64::from_le_bytes([b; 8]);
-            let x = chunk ^ mask;
-            (x.wrapping_sub(0x0101_0101_0101_0101) & !x) & 0x8080_8080_8080_8080
-        };
-
-        if (has_low
-            | has_high
-            | zero_check
-            | contains_byte(b'\\')
-            | contains_byte(b'"')
-            | contains_byte(b'\''))
-            != 0
-        {
-            break;
-        }
-        i += 8;
-    }
-
-    // Scalar fallback loop for remaining bytes
-    while i < bytes.len() {
-        let b = bytes[i];
-        if !(0x20..=0x7E).contains(&b) || b == b'\\' || b == b'"' || b == b'\'' {
-            break;
-        }
-        i += 1;
-    }
-
-    if i == bytes.len() {
-        if bytes.len() <= MAX_LOGGED_LEN {
-            return work.to_string();
-        } else {
-            let mut out = String::with_capacity(MAX_LOGGED_LEN + "... [truncated]".len());
-            out.push_str(&work[..MAX_LOGGED_LEN]);
-            out.push_str("... [truncated]");
-            return out;
-        }
-    }
-
-    if i >= MAX_LOGGED_LEN {
-        let mut out = String::with_capacity(MAX_LOGGED_LEN + "... [truncated]".len());
-        out.push_str(&work[..MAX_LOGGED_LEN]);
-        out.push_str("... [truncated]");
-        return out;
-    }
-
-    // Slow path: some characters need escaping before MAX_LOGGED_LEN.
-    // Batch contiguous safe character segments with `push_str` to minimize allocation and copying overhead,
-    // while caching `escape_debug()` for unsafe characters in a stack buffer.
-    let mut out = String::with_capacity(work.len().min(MAX_LOGGED_LEN) + 16);
-    out.push_str(&work[..i]);
-    let mut used = i;
-
-    let mut safe_start: Option<usize> = None;
-    let mut safe_char_count = 0usize;
-
-    for (idx, ch) in work[i..].char_indices() {
-        let mut esc_buf = ['\0'; 12];
-        let mut esc_len = 0;
-        for esc_ch in ch.escape_debug() {
-            esc_buf[esc_len] = esc_ch;
-            esc_len += 1;
-        }
-
-        let is_safe = esc_len == 1 && esc_buf[0] == ch;
-
-        if is_safe {
-            if safe_start.is_none() {
-                safe_start = Some(idx);
-            }
-            safe_char_count += 1;
-        } else {
-            if let Some(start) = safe_start.take() {
-                let safe_slice = &work[i + start..i + idx];
-                if used + safe_char_count > MAX_LOGGED_LEN {
-                    let take_len = MAX_LOGGED_LEN - used;
-                    for c in safe_slice.chars().take(take_len) {
-                        out.push(c);
-                    }
-                    out.push_str("... [truncated]");
-                    return out;
-                }
-                out.push_str(safe_slice);
-                used += safe_char_count;
-                safe_char_count = 0;
-            }
-
-            if used + esc_len > MAX_LOGGED_LEN {
-                out.push_str("... [truncated]");
-                return out;
-            }
-
-            out.extend(&esc_buf[..esc_len]);
-            used += esc_len;
-        }
-    }
-
-    if let Some(start) = safe_start {
-        let safe_slice = &work[i + start..];
-        if used + safe_char_count > MAX_LOGGED_LEN {
-            let take_len = MAX_LOGGED_LEN - used;
-            for c in safe_slice.chars().take(take_len) {
-                out.push(c);
-            }
-            out.push_str("... [truncated]");
-            return out;
-        }
-        out.push_str(safe_slice);
-    }
-
-    out
-}
-
 impl<S: ActorState> Actor<S> {
     /// Create a new actor with initial state.
     pub fn new(state: S) -> Self {
         Self {
             state,
-            restart_strategy: Default::default(),
+            restart_strategy: super::RestartStrategy::default(),
         }
     }
 
     /// Set the restart strategy.
+    #[must_use]
     #[expect(
         clippy::missing_const_for_fn,
         reason = "const not possible across MSRV/generic bounds"
@@ -221,6 +88,11 @@ impl<S: ActorState> Actor<S> {
     }
 
     /// Handle a message and update state.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ActorError`] when the state transition fails validation or the
+    /// mailbox send fails.
     pub async fn receive(&mut self, msg: ActorMessage<S>) -> Result<Lifecycle, ActorError> {
         match msg {
             ActorMessage::Init(new_state) => {
@@ -279,6 +151,7 @@ mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, missing_docs)]
 
     use super::*;
+    use crate::log_sanitize::MAX_LOGGED_LEN;
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Clone, Serialize, Deserialize)]
