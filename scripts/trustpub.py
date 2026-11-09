@@ -17,8 +17,7 @@ import argparse
 import json
 import os
 import re
-import shlex
-import subprocess
+import subprocess  # nosec B404 - fixed cargo/git invocations only
 import sys
 import time
 import urllib.error
@@ -27,7 +26,7 @@ import urllib.request
 from pathlib import Path
 
 API_BASE = os.environ.get("TRUSTPUB_API_URL", "https://crates.io").rstrip("/")
-TOKEN_ENV = "CARGO_REGISTRY_TOKEN"
+TOKEN_ENV = "CARGO_REGISTRY_TOKEN"  # nosec B105 - environment variable name, not a secret
 CONFIG_NAME = "config/trusted-publishing.json"
 CONFIG_KEYS = {
     "repository_owner",
@@ -48,7 +47,7 @@ def repo_root(explicit: str | None) -> Path:
     if os.environ.get("TRUSTPUB_ROOT"):
         return Path(os.environ["TRUSTPUB_ROOT"]).resolve()
     try:
-        output = subprocess.run(
+        output = subprocess.run(  # nosec B603 - fixed git command, no shell
             ["git", "rev-parse", "--show-toplevel"],
             check=True,
             capture_output=True,
@@ -94,7 +93,7 @@ def load_metadata(root: Path) -> dict[str, dict]:
     if not manifest.is_file():
         raise TrustpubError(f"workspace manifest not found: {manifest}")
     try:
-        output = subprocess.run(
+        output = subprocess.run(  # nosec B603 - fixed cargo command, no shell
             [
                 "cargo",
                 "metadata",
@@ -157,7 +156,7 @@ def ordered_packages(config: dict, metadata: dict[str, dict]) -> list[str]:
 
 def git_identity(root: Path) -> tuple[str | None, str | None]:
     try:
-        remote = subprocess.run(
+        remote = subprocess.run(  # nosec B603 - fixed git command, no shell
             ["git", "-C", str(root), "config", "--get", "remote.origin.url"],
             check=True,
             capture_output=True,
@@ -209,6 +208,10 @@ def api(
     data = None
     if body is not None:
         data = json.dumps(body).encode("utf-8")
+    if not (API_BASE.startswith("https://") or API_BASE.startswith("http://127.0.0.1")):
+        raise TrustpubError(
+            "TRUSTPUB_API_URL must use https:// (or http://127.0.0.1 for tests)"
+        )
     request = urllib.request.Request(API_BASE + path, data=data, method=method)
     if auth is not None:
         request.add_header("Authorization", f"Bearer {auth}")
@@ -216,7 +219,7 @@ def api(
     if data is not None:
         request.add_header("Content-Type", "application/json")
     try:
-        with urllib.request.urlopen(request) as response:
+        with urllib.request.urlopen(request) as response:  # nosec B310 - scheme checked above
             raw = response.read()
             return response.status, json.loads(raw) if raw else None
     except urllib.error.HTTPError as error:
@@ -435,13 +438,32 @@ def cmd_remove(args: argparse.Namespace) -> None:
     print(f"removed trusted publisher config id={args.id}")
 
 
-def run_cargo(args: list[str], cwd: Path) -> None:
+def cargo_package_list(crate: str, cwd: Path) -> None:
     try:
-        result = subprocess.run(args, cwd=cwd, check=False)
+        result = subprocess.run(  # nosec B603 - fixed cargo command, no shell
+            ["cargo", "package", "--list", "--allow-dirty", "-p", crate],
+            cwd=cwd,
+            check=False,
+        )
     except OSError as error:
-        raise TrustpubError(f"failed to execute {args[0]}") from error
+        raise TrustpubError("failed to execute cargo") from error
     if result.returncode != 0:
-        raise TrustpubError(f"command failed with exit code {result.returncode}: {args[0]}")
+        raise TrustpubError(
+            f"cargo package --list failed for {crate}; fix packaging before publishing"
+        )
+
+
+def cargo_publish(crate: str, cwd: Path) -> None:
+    try:
+        result = subprocess.run(  # nosec B603 - fixed cargo command, no shell
+            ["cargo", "publish", "--locked", "--package", crate],
+            cwd=cwd,
+            check=False,
+        )
+    except OSError as error:
+        raise TrustpubError("failed to execute cargo") from error
+    if result.returncode != 0:
+        raise TrustpubError(f"cargo publish failed with exit code {result.returncode}")
 
 
 def wait_for_version(crate: str, version: str) -> None:
@@ -489,13 +511,8 @@ def cmd_bootstrap(args: argparse.Namespace) -> None:
     confirm(args, "publish the initial crate version")
     auth = token()
 
-    package_args = os.environ.get("TRUSTPUB_CARGO_PACKAGE")
-    package_cmd = shlex.split(package_args) if package_args else ["cargo", "package"]
-    run_cargo(package_cmd + ["--list", "--allow-dirty", "-p", crate], root)
-
-    publish_args = os.environ.get("TRUSTPUB_CARGO_PUBLISH")
-    publish_cmd = shlex.split(publish_args) if publish_args else ["cargo", "publish"]
-    run_cargo(publish_cmd + ["--locked", "--package", crate], root)
+    cargo_package_list(crate, root)
+    cargo_publish(crate, root)
 
     wait_for_version(crate, package["version"])
 
@@ -590,9 +607,7 @@ def cmd_release_publish(args: argparse.Namespace) -> None:
             print(f"{crate} {version}: already present on crates.io; skipping")
             continue
         print(f"{crate} {version}: publishing")
-        publish_args = os.environ.get("TRUSTPUB_CARGO_PUBLISH")
-        publish_cmd = shlex.split(publish_args) if publish_args else ["cargo", "publish"]
-        run_cargo(publish_cmd + ["--locked", "--package", crate], root)
+        cargo_publish(crate, root)
         wait_for_version(crate, version)
 
 

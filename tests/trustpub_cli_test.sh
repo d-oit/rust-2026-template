@@ -9,7 +9,21 @@ TOKEN="trustpub-test"
 TOKEN="${TOKEN}-credential-placeholder"
 WORK="$(mktemp -d)"
 SERVER_LOG="$WORK/server.log"
-PUBLISH_LOG="$WORK/publish.log"
+CARGO_LOG="$WORK/cargo.log"
+REAL_CARGO="$(command -v cargo)"
+: > "$CARGO_LOG"
+mkdir -p "$WORK/bin"
+cat > "$WORK/bin/cargo" <<EOF
+#!/usr/bin/env bash
+printf '%s\n' "\$*" >> "$CARGO_LOG"
+case "\$1" in
+  metadata) exec "$REAL_CARGO" "\$@" ;;
+  package) exit 0 ;;
+  publish) exit 0 ;;
+  *) echo "unexpected cargo invocation: \$*" >&2; exit 1 ;;
+esac
+EOF
+chmod +x "$WORK/bin/cargo"
 
 cleanup() {
   if [[ -n "${SERVER_PID:-}" ]]; then
@@ -93,13 +107,13 @@ EOF
 }
 
 run() {
+  PATH="$WORK/bin:$PATH" \
   TRUSTPUB_API_URL="$API" \
   TRUSTPUB_ROOT="$WS" \
   TRUSTPUB_CONFIG="$WORK/config.json" \
   CARGO_REGISTRY_TOKEN="$TOKEN" \
   TRUSTPUB_POLL_ATTEMPTS=1 \
   TRUSTPUB_INDEX_WAIT_SECONDS=0 \
-  TRUSTPUB_CARGO_PUBLISH="bash $WORK/fake_publish.sh" \
   "$@"
 }
 
@@ -125,11 +139,6 @@ with urllib.request.urlopen(sys.argv[1] + "/__state") as response:
     print(json.dumps(json.load(response)))
 PY
 }
-
-cat > "$WORK/fake_publish.sh" <<EOF
-#!/usr/bin/env bash
-printf '%s\n' "\$*" >> "$PUBLISH_LOG"
-EOF
 
 write_config '"demo", "dep-lib"'
 
@@ -237,15 +246,15 @@ expect_fail "bootstrap without confirmation" "requires --yes" run "$CLI" bootstr
 expect_fail "enforcement before publisher exists" "missing" \
   run "$CLI" require --package demo --enabled --confirm-oidc-publish --yes
 run "$CLI" bootstrap --package demo --yes >/dev/null
-[[ "$(wc -l < "$PUBLISH_LOG")" == "1" ]] || {
+[[ "$(grep -c '^publish ' "$CARGO_LOG")" == "1" ]] || {
   echo "FAIL: bootstrap did not publish exactly once" >&2; exit 1; }
-grep -q -- "--locked --package demo" "$PUBLISH_LOG" || {
+grep -q '^publish --locked --package demo' "$CARGO_LOG" || {
   echo "FAIL: bootstrap publish arguments are wrong" >&2; exit 1; }
-[[ "$(cat "$PUBLISH_LOG")" != *"$TOKEN"* ]] || {
+[[ "$(cat "$CARGO_LOG")" != *"$TOKEN"* ]] || {
   echo "FAIL: token passed as a process argument" >&2; exit 1; }
 expect_fail "bootstrap registration failure" "Do not publish again" \
   run "$CLI" bootstrap --package regfail --yes
-[[ "$(wc -l < "$PUBLISH_LOG")" == "2" ]] || {
+[[ "$(grep -c '^publish ' "$CARGO_LOG")" == "2" ]] || {
   echo "FAIL: failed registration triggered a second publish" >&2; exit 1; }
 
 # 10. Enforcement requires a verified publisher and explicit OIDC confirmation.
