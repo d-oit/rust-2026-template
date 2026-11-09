@@ -1,0 +1,20 @@
+{
+  "event_id": "1794237498-omp",
+  "task_id": "issues-495-499-skills",
+  "parent_task_id": null,
+  "workflow_id": null,
+  "agent_id": "omp",
+  "agent_type": "coding-assistant",
+  "skill": "issue-triage",
+  "skill_version": "0.2.0",
+  "status": "success",
+  "started_at": "2026-11-09T15:18:18Z",
+  "finished_at": "2026-11-09T15:18:18Z",
+  "success": true,
+  "human_interventions": 1,
+  "git_branch": "feat/trusted-publishing",
+  "git_sha": "e52b357",
+  "pr_number": 501,
+  "artifacts": [],
+  "notes": "Implemented issues #495-#499 (crates.io Trusted Publishing) and refreshed all .agents/skills guidance; PR #501 checks green."
+}
