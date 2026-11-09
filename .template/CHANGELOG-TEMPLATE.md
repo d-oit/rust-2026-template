@@ -9,8 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- crates.io Trusted Publishing: `config/trusted-publishing.json` declares the opt-in package allowlist and OIDC identity; `scripts/trustpub.sh` provides read-only `plan`/`list`/`verify`, idempotent `configure`, explicit `bootstrap`, and guarded enforcement commands; the release workflow adds a `publish_plan` job and an OIDC `publish_crates` job with no long-lived registry secret. `tests/trusted_publishing_contract_test.sh` and `tests/trustpub_cli_test.sh` run offline in the release tier and CI.
-- `docs/src/releasing/crates-io-trusted-publishing.md` documents the full lifecycle from first publish through enforcement and rollback, linked from the README and mdbook summary.
+- for new features.
+
+### Changed
+
+- for changes in existing functionality.
+
+### Deprecated
+
+- for soon-to-be removed features.
+
+### Removed
+
+- for now removed features.
+
+### Fixed
+
+- for any bug fixes.
+
+### Security
+
+- in case of vulnerabilities.
+
+---
+
+## [0.4.1] - 2026-11-09
 
 ### Changed
 
@@ -577,7 +600,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/d-oit/rust-2026-template/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...v0.4.0
 [0.3.11]: https://github.com/d-oit/rust-2026-template/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/d-oit/rust-2026-template/compare/v0.3.9...v0.3.10
