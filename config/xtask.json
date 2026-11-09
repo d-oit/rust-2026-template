@@ -184,7 +184,12 @@
     ],
     "WorkflowValidation": [
       ".github/workflows/*.yml",
-      "scripts/validate-workflows.sh"
+      "config/trusted-publishing.json",
+      "scripts/trustpub.py",
+      "scripts/trustpub.sh",
+      "scripts/validate-workflows.sh",
+      "tests/trusted_publishing_contract_test.sh",
+      "tests/trustpub_cli_test.sh"
     ],
     "ActionLint": [
       ".github/workflows/*.yml",

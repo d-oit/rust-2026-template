@@ -55,10 +55,11 @@ cargo nextest run --all-features
 cargo audit && cargo deny check
 ```
 
-### 2. Bump version in Cargo.toml
+### 2. Bump the workspace version
 
 ```bash
-cargo update --workspace
+./scripts/bump-version.sh            # dry-run: print planned changes
+./scripts/bump-version.sh --execute  # update VERSION, manifests, README, CHANGELOG
 ```
 
 ### 3. Commit and tag
@@ -80,7 +81,9 @@ Pushing a tag triggers `.github/workflows/release.yml`:
 - **Dist Build**: Builds binaries for all targets via cargo-dist with CycloneDX SBOM and cargo-auditable.
 - **Attestations**: Generates signed GitHub build provenance attestations for all release artifacts.
 - **Creates GitHub Release**: Publishes the release with assets.
-- Optionally publishes to crates.io.
+- **Publishes crates.io packages**: Runs only for the explicit allowlist in
+  `config/trusted-publishing.json`, using `rust-lang/crates-io-auth-action`
+  under the `release` environment. See [Trusted Publishing](#cratesio-trusted-publishing).
 
 ### 5. Verifying Release Attestations
 
@@ -89,6 +92,38 @@ Consumers can verify artifact integrity and build provenance using the GitHub CL
 ```bash
 gh attestation verify <binary-archive-or-file> --owner d-oit
 ```
+
+## crates.io Trusted Publishing
+
+Publication is opt-in and package-scoped. The allowlist and OIDC identity live
+in `config/trusted-publishing.json`; `publish = false` packages are never
+selected. Full lifecycle, API contract, troubleshooting, and rollback:
+[`docs/src/releasing/crates-io-trusted-publishing.md`](../../../docs/src/releasing/crates-io-trusted-publishing.md).
+
+Tools and commands:
+
+```bash
+./scripts/trustpub.sh plan                    # read-only tuple + dependency order
+./scripts/trustpub.sh list --all-configured   # current registrations
+./scripts/trustpub.sh configure --package X --yes
+./scripts/trustpub.sh verify --all-configured
+./scripts/trustpub.sh bootstrap --package X   # one-time initial publish
+./scripts/trustpub.sh require --package X --enabled --confirm-oidc-publish --yes
+```
+
+Rules:
+
+- The token comes only from `CARGO_REGISTRY_TOKEN` (scope
+  `trusted-publishing`; add `publish-new` for bootstrap). Never print it,
+  store it, or pass it as an argument.
+- crates.io requires an initial published version before a publisher can be
+  registered; `bootstrap` is the only command that publishes a first version.
+- Registering a publisher does not enable enforcement. Enable
+  trusted-publishing-only only after a successful OIDC release.
+- There is no stable `cargo trustpub` subcommand; do not recommend one.
+  `cargo#17114` is an open proposal.
+- The action is a workflow dependency, not an Agent Skill; verify its pin per
+  `.agents/skills/verify-actions/SKILL.md`.
 
 ## Version Scheme
 
@@ -101,6 +136,7 @@ gh attestation verify <binary-archive-or-file> --owner d-oit
 - Release with binaries created
 - CHANGELOG updated
 - Crate name verified unique on crates.io (first publish)
+- Allowlisted crates published by the OIDC job, or the allowlist is explicitly empty
 
 ## Rationalizations
 
@@ -115,12 +151,17 @@ gh attestation verify <binary-archive-or-file> --owner d-oit
 - [ ] Pushing a tag without running pre-release checks
 - [ ] Bumping the version without updating CHANGELOG.md
 - [ ] Publishing to crates.io without verifying crate name availability
+- [ ] Publishing a crate that is absent from the allowlist or marked `publish = false`
+- [ ] Adding a long-lived `CARGO_REGISTRY_TOKEN` secret instead of OIDC
+- [ ] Enabling trusted-publishing-only before a successful OIDC release
 
 ## References
 
 - [cargo-dist](https://opensource.axo.dev/cargo-dist/)
 - [Keep a Changelog](https://keepachangelog.com/)
 - [crates.io naming policy](https://crates.io/policies)
+- [crates.io Trusted Publishing](https://crates.io/docs/trusted-publishing)
+- [rust-lang/crates-io-auth-action](https://github.com/rust-lang/crates-io-auth-action)
 
 ## GH CLI Usage
 

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- crates.io Trusted Publishing: `config/trusted-publishing.json` declares the opt-in package allowlist and OIDC identity; `scripts/trustpub.sh` provides read-only `plan`/`list`/`verify`, idempotent `configure`, explicit `bootstrap`, and guarded enforcement commands; the release workflow adds a `publish_plan` job and an OIDC `publish_crates` job with no long-lived registry secret. `tests/trusted_publishing_contract_test.sh` and `tests/trustpub_cli_test.sh` run offline in the release tier and CI.
+- `docs/src/releasing/crates-io-trusted-publishing.md` documents the full lifecycle from first publish through enforcement and rollback, linked from the README and mdbook summary.
+
 ### Changed
 
 - Pinned every GitHub Action to a release that runs on the Node.js 24 runtime. `actions/checkout`, `actions/github-script`, `actions/labeler`, `actions/setup-node`, `actions/setup-python`, `dependabot/fetch-metadata`, `dorny/paths-filter`, and `peter-evans/create-pull-request` were several majors behind and logged a deprecation warning in every job.

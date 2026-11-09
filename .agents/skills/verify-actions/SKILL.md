@@ -108,6 +108,7 @@ using — upstream may have released newer versions.
 | `actions/setup-python` | `6d4fd22b20465ccc0f7354476588e8df7c9ca0e0` | v7.1.0 | 2026-11-05 |
 | `actions/attest-build-provenance` | `e8998f949152b193b063cb0ec769d69d929409be` | v2.4.0 | 2026-11-05 |
 | `codecov/codecov-action` | `303a32d7a59b442fa8d48b6a1cc6825c09c847a5` | v7.1.1 | 2026-11-05 |
+| `rust-lang/crates-io-auth-action` | `3268eb413133e2960fa4ae0e963ca76380c54cd9` | v1.0.6 | 2026-11-09 |
 | `dependabot/fetch-metadata` | `25dd0e34f4fe68f24cc83900b1fe3fe149efef98` | v3.1.0 | 2026-11-05 |
 | `dorny/paths-filter` | `ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d` | v4.0.3 | 2026-11-05 |
 | `dtolnay/rust-toolchain` | `b725eda525362e7cf34af9a7243cac1e3f01a7ec` | stable | 2026-11-05 |

@@ -347,6 +347,10 @@ jobs:
         run: bash tests/ci_regression_matrix_test.sh
       - name: Validate release provenance regression fixture
         run: bash tests/release_provenance_test.sh
+      - name: Validate trusted publishing contract
+        run: bash tests/trusted_publishing_contract_test.sh
+      - name: Validate trusted publishing CLI
+        run: bash tests/trustpub_cli_test.sh
       - name: Validate overview diagram is current
         run: bash tests/overview_diagram_test.sh
       - name: Validate workflow permissions
