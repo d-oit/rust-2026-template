@@ -30,8 +30,11 @@ Run the complete test suite for a Rust project using best practices.
 ### 1. Unit + integration tests
 
 ```bash
-cargo nextest run --all-features --workspace
+cargo nextest run --all-features --workspace --no-tests=fail
 ```
+
+For this repository, `./scripts/quality-gates.sh` is the canonical full quality
+pipeline; this direct command is useful for focused test iteration.
 
 ### 2. Doc tests
 
@@ -51,17 +54,19 @@ Call `metrics-reporter` skill.
 
 ## Test Organization
 
-```
-src/lib.rs          # #[cfg(test)] mod tests {}
-tests/              # Integration tests
-benches/            # Criterion benchmarks
+```text
+crates/<crate>/src/lib.rs       # Unit tests in #[cfg(test)] modules
+crates/<crate>/tests/           # Crate-level integration tests
+crates/workspace-tests/tests/   # Cross-crate integration and fitness tests
+benchmarks/benches/             # Criterion benchmarks
 ```
 
 ## Success Criteria
 
 - All tests pass
 - Doc tests pass
-- Coverage >= 80%
+- Coverage meets `.codecov.yml` targets: 70% project coverage and 60% patch coverage;
+  project coverage may drop by no more than the configured 2% threshold
 
 ## Related Skills
 
@@ -72,7 +77,7 @@ benches/            # Criterion benchmarks
 | Rationalization | Reality |
 |-----------------|---------|
 | "Unit tests pass, so the code is correct." | Unit tests don't catch integration issues. Run doc tests and integration tests too. |
-| "Coverage is at 50%, that's probably fine." | Below 80% coverage leaves significant untested code paths. |
+| "Coverage is at 50%, that's probably fine." | The repository sets a 70% project target and 60% patch target in `.codecov.yml`; check the applicable target rather than assuming coverage is sufficient. |
 | "I'll skip doc tests — they're just examples." | Doc tests are compiled and run. They catch stale documentation and API mismatches. |
 
 ## Red Flags

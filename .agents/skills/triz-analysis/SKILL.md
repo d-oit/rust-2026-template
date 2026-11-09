@@ -18,7 +18,7 @@ Systematic innovation audit for Rust codebases, workspace architectures, and CI/
 ## Input Requirements
 
 - **Target Scope**: The specific directory, pipeline, or framework to analyze
-  (e.g., `crates/`, `scripts/`, `.github/workflows/`, `agent-coordination`).
+  (e.g., `crates/`, `scripts/`, `.github/workflows/`).
 - **Language Focus**: Rust-specific patterns (ownership, async, traits, lifetimes).
 
 ## Output Convention
@@ -116,8 +116,7 @@ For detailed Tokio performance guidance, invoke the `tokio-performance` skill.
 ## Integration with Other Skills
 
 - **tokio-performance**: Apply for Tokio scheduling, fairness, contention, blocking, and bounded-concurrency analysis.
-- **agent-coordination**: Orchestrate as a swarm sub-task where multiple agents analyze different crates or pipelines in parallel.
-- **task-decomposition**: Use to break a large workspace audit into smaller scoped TRIZ analyses.
+- **task-decomposition**: Use to split a large workspace audit into scoped, independently analyzable TRIZ tasks.
 - **anti-ai-slop**: Apply after TRIZ resolutions to keep the rewrite idiomatic and not boilerplate-heavy.
 
 ## Quality Checklist

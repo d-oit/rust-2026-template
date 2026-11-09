@@ -31,6 +31,21 @@ GOAL: structure check / eval review / live run / baseline comparison
 
 Confirm the skill directory is sane before judging outputs.
 
+Run the repository validator first — it encodes hard checks you would
+otherwise have to re-derive:
+
+```bash
+bash scripts/validate-skills.sh   # exit 2 on failure
+./.agents/skills-evaluation/scripts/structure_check.sh <iteration-dir>  # scored report
+```
+
+`validate-skills.sh` hard-fails on: missing `SKILL.md`, frontmatter `name`
+missing or not matching the directory name, non-spec frontmatter keys
+(only `name`, `description`, `license`, `compatibility`, `metadata`,
+`allowed-tools` are legal), missing description, and body over 250 lines.
+It warns (does not fail) on missing `metadata.category`, `## Rationalizations`,
+`## Red Flags`, or `evals/evals.json`.
+
 Expected layout:
 
 ```text
@@ -50,7 +65,15 @@ Flag these issues explicitly:
 
 ### 2. Quantitative Evaluation
 
-Consult `.agents/metrics.jsonl` to assess skill performance over time.
+Assess skill performance from these sources (in order):
+
+- `.agents/events/YYYY/MM/DD/*.json` — per-task events written by the
+  `metrics-reporter` skill (the canonical input).
+- `bash scripts/aggregate-metrics.sh` — rolls events up into
+  `.agents/aggregated/metrics.jsonl`; run it first if the rollup looks stale.
+- `.agents/metrics.jsonl` — legacy append-only log; consult it when the
+  rollup predates an event.
+
 Analyze trends in:
 - Success rate
 - Human intervention rate
@@ -75,7 +98,11 @@ Weak evals include:
 
 ### 4. Live Run
 
-Run at least one representative prompt from the eval set or create a focused ad hoc prompt.
+Run at least one representative prompt from the eval set or create a focused ad
+hoc prompt. `bash scripts/run-evals.sh --skill <name>` only validates eval JSON
+structure — it does not execute prompts, so a PASS from it is not a live run.
+CI (`.github/workflows/eval.yml`) runs the same structure validation weekly;
+grading still happens here.
 
 For each live run:
 

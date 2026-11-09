@@ -83,11 +83,11 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Do a swarm-based TRIZ audit on crates/ \u2014 different agents per crate",
-      "expected_output": "Orchestrates parallel TRIZ analysis across crates, integrates findings into single report, uses agent-coordination principles",
+      "expected_output": "Orchestrates parallel TRIZ analysis across crates, integrates findings into a single report, and uses task-decomposition for scoped work.",
       "files": [],
       "assertions": [
         "Mentions parallel or swarm execution across crates",
-        "References agent-coordination skill for orchestration",
+        "References task-decomposition for scoped orchestration",
         "Output aggregates per-crate contradictions into one analysis/ file",
         "Identifies at least one cross-crate contradiction",
         "Saves to analysis/triz-crates-YYYY-MM-DD.md"
@@ -398,7 +398,7 @@
       "split": "validation",
       "should_trigger": false,
       "prompt": "Check this PR for code review issues",
-      "expected_output": "Should not trigger triz-analysis; this is a code review task. Should suggest code-review-assistant or lint-rust.",
+      "expected_output": "Should not trigger triz-analysis; this is a code review task. Should suggest reviewing-pull-requests or lint-rust.",
       "files": [],
       "assertions": [
         "Does NOT run contradiction audit",

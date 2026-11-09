@@ -48,6 +48,13 @@ codacy-analysis init --default
 codacy-analysis analyze --pr --output-format json
 ```
 
+## Repository Integration
+
+`.codacy.yml` configures Codacy's file filters, but no GitHub workflow in this
+repository runs Codacy. It is an optional, external signal, not part of
+`./scripts/quality-gates.sh`. Run the repository gate first; treat Codacy as a
+secondary review source rather than the merge authority.
+
 ## Known Limitations
 
 | Tool Category | Status | Note |
@@ -71,6 +78,7 @@ Always cross-reference with Cloud CLI for full PR data.
 - [ ] Relying solely on local `codacy-analysis` for Rust/Python/Java projects.
 - [ ] Attempting to suppress issues without a valid `--ignore-reason`.
 - [ ] Ignoring the `resultDataId` field in JSON output in favor of hashes.
+- [ ] Treating Codacy as a substitute for `./scripts/quality-gates.sh`.
 
 ## References
 

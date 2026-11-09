@@ -1,9 +1,9 @@
 # Anti-Patterns & Counter-Examples
 
-Worked examples of the four Tokio misapplications that cost the most, each with
+Worked examples of the five Tokio misapplications that cost the most, each with
 the symptom, the cost, and the correct alternative. Read this when a design
-proposes `spawn_blocking`, `yield_now`, a second runtime, or a lock held across
-`.await` — before accepting it.
+proposes `spawn_blocking`, `yield_now`, a second runtime, a read lock where a
+snapshot or mutex is more appropriate, or a lock held across `.await`.
 
 ## Counter-Example 1: When `spawn_blocking` is NOT the Answer
 

@@ -34,22 +34,32 @@ Compile, test, and verify Rust projects following 2026 best practices.
 
 ## Steps
 
+### 0. Canonical gate (preferred)
+
+```bash
+./scripts/quality-gates.sh
+```
+
+This is the repository source of truth: a thin wrapper over
+`cargo xtask quality run` that selects the tier, runs the same checks as CI,
+and writes telemetry. Use the individual commands below for fast iteration.
+
 ### 1. Check (fast feedback)
 
 ```bash
-cargo check --all-targets --all-features 2>&1
+cargo check --workspace --all-targets --all-features 2>&1
 ```
 
 ### 2. Build (debug)
 
 ```bash
-cargo build --all-targets 2>&1
+cargo build --workspace --all-targets 2>&1
 ```
 
 ### 3. Build (release)
 
 ```bash
-cargo build --release 2>&1
+cargo build --workspace --release 2>&1
 ```
 
 ### 4. Lint with Clippy
@@ -71,7 +81,7 @@ cargo fmt --all -- --check
 ### 6. Run tests (with nextest)
 
 ```bash
-cargo nextest run --all-features
+cargo nextest run --workspace --all-features
 ```
 
 ### 7. Doc tests

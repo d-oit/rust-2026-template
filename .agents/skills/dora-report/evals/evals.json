@@ -9,7 +9,8 @@
       "assertions": [
         "Fetches releases from GitHub API",
         "Fetches merged PRs with lead time data",
-        "Generates all four core DORA metrics"
+        "Generates all four core DORA metrics",
+        "Logs completion as an event file under .agents/events/ (metrics-reporter), not an append to .agents/metrics.jsonl"
       ]
     },
     {

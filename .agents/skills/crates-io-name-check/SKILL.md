@@ -88,6 +88,15 @@ The template includes a placeholder crate `crates/example-crate/`. When you repl
 it with your real crate, **rename both the directory and the `[package] name`** in
 `Cargo.toml`, and run this skill to verify availability before your first commit.
 
+## Publication Authorization
+
+A name being available does not authorize publishing. Publication is opt-in
+through `config/trusted-publishing.json`; packages marked `publish = false`
+(including `crates/sample-app`) are never selected. The first upload is a
+one-time `./scripts/trustpub.sh bootstrap --package <name>` step, followed by
+Trusted Publisher registration. See
+[`docs/src/releasing/crates-io-trusted-publishing.md`](../../../docs/src/releasing/crates-io-trusted-publishing.md).
+
 ## Rationalizations
 
 | Rationalization | Reality |
@@ -101,6 +110,7 @@ it with your real crate, **rename both the directory and the `[package] name`** 
 - [ ] Publishing without checking name availability first
 - [ ] Using generic names like `utils`, `helpers`, `common`
 - [ ] Ignoring similar existing crate names that could confuse users
+- [ ] Treating an available name as permission to publish outside the allowlist
 
 ## References
 

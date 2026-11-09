@@ -14,7 +14,7 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `build-rust` | [skills/build-rust/SKILL.md](skills/build-rust/SKILL.md) | Compile, test, and verify Rust projects following 2026 best practices. |
 | `codacy` | [skills/codacy/SKILL.md](skills/codacy/SKILL.md) | Use Codacy static analysis CLIs to query PR analysis, triage issues, suppress false positives, and r |
 | `crates-io-name-check` | [skills/crates-io-name-check/SKILL.md](skills/crates-io-name-check/SKILL.md) | Verify that a new Rust crate name is available and appropriate on crates.io |
-| `dora-report` | [skills/dora-report/SKILL.md](skills/dora-report/SKILL.md) | Generate a DORA-REPORT.md for this repository by computing the five core DORA software delivery perf |
+| `dora-report` | [skills/dora-report/SKILL.md](skills/dora-report/SKILL.md) | Generate a DORA-REPORT.md for this repository by computing the four core DORA software delivery perf |
 | `goap-agent` | [skills/goap-agent/SKILL.md](skills/goap-agent/SKILL.md) | Invoke for complex multi-step tasks requiring intelligent planning and |
 | `harness` | [skills/harness/SKILL.md](skills/harness/SKILL.md) | Harness engineering guide — maps all sensors and feedforward guides, |
 | `issue-triage` | [skills/issue-triage/SKILL.md](skills/issue-triage/SKILL.md) | Read all open issues (GitHub/GitLab), categorize by type and effort, plan |
@@ -24,7 +24,7 @@ Run `bash scripts/generate-skills-md.sh` to regenerate after adding or modifying
 | `release-rust` | [skills/release-rust/SKILL.md](skills/release-rust/SKILL.md) | Create and publish a new release of the Rust project. Handles version bumping, |
 | `reviewing-pull-requests` | [skills/reviewing-pull-requests/SKILL.md](skills/reviewing-pull-requests/SKILL.md) | Review GitHub pull requests and triage open PRs and issues: classify blast |
 | `secret-lint` | [skills/secret-lint/SKILL.md](skills/secret-lint/SKILL.md) | Automated secret scanning using secretlint to prevent credential leaks. |
-| `self-fix-loop` | [skills/self-fix-loop/SKILL.md](skills/self-fix-loop/SKILL.md) | Self-learning fix loop - commit, push, monitor CI, auto-fix failures using |
+| `self-fix-loop` | [skills/self-fix-loop/SKILL.md](skills/self-fix-loop/SKILL.md) | Self-learning fix loop - commit, push, monitor CI, auto-fix failures with |
 | `skill-creator` | [skills/skill-creator/SKILL.md](skills/skill-creator/SKILL.md) | Create new skills, modify and improve existing skills, and measure skill performance. Use when users |
 | `skill-evaluator` | [skills/skill-evaluator/SKILL.md](skills/skill-evaluator/SKILL.md) | Reusable skill for evaluating other skills with structure checks, eval coverage review, and real usa |
 | `stacked-prs` | [skills/stacked-prs/SKILL.md](skills/stacked-prs/SKILL.md) | Optional workflow for large features using stacked PRs via gh-stack. |

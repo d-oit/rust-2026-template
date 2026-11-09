@@ -9,7 +9,9 @@
       "assertions": [
         "Creates directory .agents/events/YYYY/MM/DD/",
         "Writes valid JSON event file",
-        "Includes git SHA in event"
+        "Includes git SHA in event",
+        "Uses agent_id (not agent) so aggregation buckets the event correctly",
+        "Per the canonical schema: success and human_interventions as unquoted JSON values"
       ]
     },
     {

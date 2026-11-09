@@ -15,7 +15,7 @@ The skill computes:
 
 - **GitHub API**: For releases and pull request timestamps.
 - **dora-metrics.jsonl**: Event log for change failure and recovery events; it is an input, not report history.
-- **.agents/metrics.jsonl**: For agent activity and success metrics.
+- **.agents/metrics.jsonl**: For agent activity and success metrics (legacy line format kept as the script's `--agent-metrics` input; canonical per-task records are event files under `.agents/events/` — see the `metrics-reporter` skill).
 - **reports/dora-history.jsonl**: Weekly report snapshots (rolling windows ending on each report date) that back the trend table. The CLI replaces the snapshot of the current UTC ISO week and appends new weeks.
 
 ## Automation

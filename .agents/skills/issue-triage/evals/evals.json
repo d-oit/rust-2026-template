@@ -28,7 +28,8 @@
       "assertions": [
         "Respects dependency order",
         "Groups compatible issues",
-        "Provides checklist format"
+        "Provides checklist format",
+        "After reporting, records an event file under .agents/events/ and updates .agents/context/workflow-state.json"
       ]
     }
   ]
