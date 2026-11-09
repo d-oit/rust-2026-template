@@ -148,6 +148,7 @@ This repository uses a layered documentation strategy to serve both human develo
 - **Testing:** `cargo-nextest` for faster test execution and `proptest` for property-based testing.
 - **Quality Assurance:** `cargo-mutants` for mutation testing and `clippy` with a zero-warnings policy. The template includes a pre-configured workspace-level lint suite that prevents common pitfalls like `unwrap()` in library code.
 - **CI/CD:** Multi-stage GitHub Actions for linting, testing, security audits, and automated releases.
+- **crates.io Trusted Publishing:** Opt-in, OIDC-based crate releases with no long-lived registry token. See [the full lifecycle guide](docs/src/releasing/crates-io-trusted-publishing.md).
 - **Local Workflows:** Helper scripts for running the entire quality gate pipeline locally.
 
 ## Quick Start
