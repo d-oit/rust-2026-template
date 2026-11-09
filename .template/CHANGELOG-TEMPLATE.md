@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- for new features.
+
+### Changed
+
+- for changes in existing functionality.
+
+### Deprecated
+
+- for soon-to-be removed features.
+
+### Removed
+
+- for now removed features.
+
+### Fixed
+
+- for any bug fixes.
+
+### Security
+
+- in case of vulnerabilities.
+
+---
+
+## [0.4.1] - 2026-11-09
+
 ### Changed
 
 - Pinned every GitHub Action to a release that runs on the Node.js 24 runtime. `actions/checkout`, `actions/github-script`, `actions/labeler`, `actions/setup-node`, `actions/setup-python`, `dependabot/fetch-metadata`, `dorny/paths-filter`, and `peter-evans/create-pull-request` were several majors behind and logged a deprecation warning in every job.
@@ -572,7 +600,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/d-oit/rust-2026-template/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...v0.4.0
 [0.3.11]: https://github.com/d-oit/rust-2026-template/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/d-oit/rust-2026-template/compare/v0.3.9...v0.3.10
