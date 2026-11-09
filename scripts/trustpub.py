@@ -21,7 +21,6 @@ import shlex
 import subprocess
 import sys
 import time
-import tomllib
 import urllib.error
 import urllib.parse
 import urllib.request
