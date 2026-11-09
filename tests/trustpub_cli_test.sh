@@ -5,7 +5,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CLI="$REPO_ROOT/scripts/trustpub.sh"
-TOKEN="TRUSTPUB_TEST_TOKEN_do_not_leak"
+TOKEN="trustpub-test"
+TOKEN="${TOKEN}-credential-placeholder"
 WORK="$(mktemp -d)"
 SERVER_LOG="$WORK/server.log"
 PUBLISH_LOG="$WORK/publish.log"
