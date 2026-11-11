@@ -1,0 +1,12 @@
+{
+  "event_id": "template-gap-analysis-20261111",
+  "task_id": "analyze-template-improvements-missing-implementations",
+  "skill": "harness",
+  "status": "success",
+  "started_at": "2026-11-11T00:00:00Z",
+  "finished_at": "2026-11-11T00:00:00Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_sha": "5c0a04b",
+  "summary": "Full-template gap analysis written to plans/TEMPLATE-GAP-ANALYSIS.md covering Rust crates, CI/scripts and docs/agent tooling. Baseline: clippy clean and all workspace tests pass on Rust 1.88. Key gaps: hybrid-storage sync hook fires before commit and rec: prefix mangling, checkpoint migration and actor supervision are stubs, mcp-server has no protocol layer, egress example fails open, release.toml fails on first run, Claude hook config does not match the documented schema, no cargo xtask alias, init leaves template identity/history, CI never tests current stable or non-Linux. Analysis only; no code changed."
+}
