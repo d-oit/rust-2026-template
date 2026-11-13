@@ -34,12 +34,14 @@ import os
 import ssl
 import sys
 import time
-from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Any, Iterable
 
-POLICY_PATH = Path("config/maintenance-pr.json")
-CLASSIFIER_PATH = Path("scripts/classify-maintenance-pr.py")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import maintenance_policy  # noqa: E402  - shared policy engine
+
+POLICY_PATH = maintenance_policy.POLICY_PATH
 
 # GitHub's REST API. Requests use a pinned HTTPS host and an explicit TLS
 # context, and every request path is built from validated components. That rules
@@ -51,16 +53,6 @@ MAX_PAGES = 50
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 
 TERMINAL_FAILURES = {"failure", "cancelled", "timed_out", "action_required", "stale", "startup_failure"}
-
-
-def load_classifier():
-    """Load the classifier module so both tools share one allowlist implementation."""
-    spec = spec_from_file_location("classify_maintenance_pr", CLASSIFIER_PATH)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"cannot load classifier from {CLASSIFIER_PATH}")
-    module = module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
 
 
 class ApiError(RuntimeError):
@@ -284,7 +276,7 @@ def decide(
         "codacy_run": None,
     }
 
-    classification = classifier.classify(
+    classification = maintenance_policy.classify(
         files,
         actor=actor,
         head_ref=head_ref,
@@ -394,24 +386,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--summary-file", type=Path)
     args = parser.parse_args(argv)
 
-    classifier = load_classifier()
     try:
-        policy = classifier.load_policy(args.policy)
-    except classifier.PolicyError as error:
+        policy = maintenance_policy.load_policy(args.policy)
+    except maintenance_policy.PolicyError as error:
         print(f"::error::merge policy configuration rejected: {error}")
         return 1
 
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
 
     if args.files_json is not None:
-        files = classifier.load_file_list(None, args.files_json)
+        files = maintenance_policy.load_file_list(None, args.files_json)
     elif args.repo and token:
         files = fetch_pr_files(args.repo, args.pr, token)
     else:
         files = None
 
     # Classify before touching check runs so the gate knows which context it owes.
-    provisional = classifier.classify(
+    provisional = maintenance_policy.classify(
         files,
         actor=args.actor,
         head_ref=args.head_ref,
@@ -444,7 +435,7 @@ def main(argv: list[str] | None = None) -> int:
         check_runs = None
 
     decision = decide(
-        classifier=classifier,
+        classifier=maintenance_policy,
         policy=policy,
         files=files,
         actor=args.actor,
