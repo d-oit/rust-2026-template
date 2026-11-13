@@ -139,6 +139,24 @@ The job uses:
 
 The action's post step revokes the temporary token when the job finishes.
 
+### Create the `release` environment first
+
+GitHub creates an environment named by a workflow job if it does not already
+exist, and the new environment has **no protection rules**. The `publish_crates`
+job would therefore run ungated while still appearing to target `release`.
+
+Create the environment in **Settings → Environments** before the first release
+tag, and add the protection the repository wants (required reviewers, a
+deployment branch policy limited to release tags, or both). Only a repository
+administrator can configure it, so this is a one-time manual step that a
+workflow change cannot perform.
+
+Verify it exists:
+
+```bash
+gh api repos/{owner}/{repo}/environments --jq '.environments[].name'
+```
+
 ## Verification
 
 Confirm registration before the first OIDC release:

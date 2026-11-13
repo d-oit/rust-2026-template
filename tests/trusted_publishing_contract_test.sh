@@ -6,8 +6,10 @@ cd "$REPO_ROOT"
 
 python3 - <<'PY'
 import json
+import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 import yaml
@@ -64,6 +66,37 @@ assert len(publish_steps) == 1
 assert publish_steps[0]["env"]["CARGO_REGISTRY_TOKEN"] == "${{ steps.auth.outputs.token }}"
 assert "release-publish" in publish_steps[0]["run"]
 assert "--workspace" not in publish_steps[0]["run"]
+
+# Execute the exact CLI commands the workflow runs. A substring assertion is
+# not enough: `--root` is a top-level flag, so `trustpub.py <cmd> --root .`
+# parses fine on paper but exits 2 in production. Only running the command
+# proves the workflow invocation is valid.
+import shlex
+
+parsed = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
+command_steps = [
+    step["run"]
+    for job in parsed["jobs"].values()
+    for step in job.get("steps", [])
+    if "trustpub.py" in str(step.get("run", ""))
+]
+assert command_steps, "release workflow no longer invokes the trusted publishing CLI"
+
+for command in command_steps:
+    # Strip shell redirection so only the CLI invocation is executed.
+    argv = shlex.split(command.split(">>")[0].strip())
+    assert argv[0] == "python3", f"unexpected interpreter in workflow command: {argv[0]}"
+    completed = subprocess.run(
+        [sys.executable, *argv[1:]],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, "CARGO_REGISTRY_TOKEN": ""},
+    )
+    assert completed.returncode == 0, (
+        f"workflow command failed with exit {completed.returncode}: {command}\n"
+        f"stderr: {completed.stderr.strip()}"
+    )
 assert '"--locked"' in Path("scripts/trustpub.py").read_text(encoding="utf-8")
 
 workflow_text = workflow_path.read_text(encoding="utf-8")
