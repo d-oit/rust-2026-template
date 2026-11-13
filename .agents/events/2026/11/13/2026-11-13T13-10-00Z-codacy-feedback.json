@@ -11,10 +11,11 @@
     "semgrep_run_shell_injection": "sync-labels.yml interpolated github.event.inputs into a run: body; these are user-supplied on workflow_dispatch. Moved to env and expanded as quoted shell variables.",
     "sc2086": "Quoted gh api repos/${REPO} in enable-github-pages.sh",
     "sc2001_sc2129": "Native parameter expansion and grouped redirects in learn-labels.sh and generate-llms-txt.sh",
-    "agentlinter_gemini_md": "False positive: GEMINI.md is tracked and present at the analysed commit 7dbf454"
+    "agentlinter_gemini_md": "False positive suppressed with evidence: GEMINI.md is tracked, 491 bytes, exact casing, present at every analysed commit; verified with git cat-file -e HEAD:GEMINI.md and git ls-files --error-unmatch"
   },
   "root_cause": "The local ShellCheck gate ran --severity=error while HARNESS.md documents severity=warning, so the gate was looser than both its own contract and the external reviewer. Raised to warning.",
   "verification": [
+    "Codacy repo issuesCount on merged main (bd22251) is 0 after the fixes and the evidenced suppression",
     "Whole repo ShellCheck-clean at severity=warning (4 findings before)",
     "Raised gate is non-vacuous: an SC2046 probe fails the gate, the real tree passes",
     "llms-full.txt regenerates byte-identically after the redirect refactor",
