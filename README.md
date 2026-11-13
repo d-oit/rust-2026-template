@@ -42,14 +42,13 @@ This repository uses a layered documentation strategy to serve both human develo
 | **Human Onboarding** | `README.md`, `QUICKSTART.md` | Humans | High-level project overview and setup |
 | **Agent Contract** | `AGENTS.md` | AI Agents | Canonical rules and project contract (SSOT) |
 | **Reusable Procedures** | `.agents/skills/` | AI Agents | Step-by-step executable task knowledge |
-| **Tool Adapters** | `CLAUDE.md`, `GEMINI.md`, etc. | Specific Tools | Tool-specific deltas and harness quirks |
+| **Tool Adapters** | `CLAUDE.md`, `QWEN.md`, etc. | Specific Tools | Tool-specific deltas and harness quirks |
 
 ### AI Editor Integration
 
 | Editor / Agent | Config Location | Included |
 |---|---|---|
 | Claude Code | `.claude/` | ✅ |
-| Gemini CLI | `GEMINI.md` | ✅ |
 | Qwen | `.qwen/` | ✅ |
 | OpenCode | `.opencode/` | ✅ |
 

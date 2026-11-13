@@ -26,14 +26,6 @@ role = "tool-delta"
 canonical_reference = "AGENTS.md"
 
 [[adapters]]
-id = "gemini"
-# GEMINI.md stays at the repository root; there is no .gemini/ directory.
-root = "."
-entrypoint = "GEMINI.md"
-role = "tool-delta"
-canonical_reference = "AGENTS.md"
-
-[[adapters]]
 id = "qwen"
 root = ".qwen"
 entrypoint = "QWEN.md"

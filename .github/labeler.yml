@@ -31,7 +31,6 @@ agents:
           - '.agents/**'
           - 'agents-docs/**'
           - 'CLAUDE.md'
-          - 'GEMINI.md'
           - 'QWEN.md'
 
 docs:

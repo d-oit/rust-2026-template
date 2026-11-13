@@ -5,7 +5,7 @@ set -euo pipefail
 # Validates that assistant-specific entrypoints follow the 3-layer model.
 
 # Root-level adapters
-AGENT_FILES=("CLAUDE.md" "GEMINI.md" "QWEN.md")
+AGENT_FILES=("CLAUDE.md" "QWEN.md")
 # Subdirectory adapters
 SUB_ADAPTERS=(".claude/rules.md" ".qwen/rules.md" ".opencode/rules/rust-rules.md")
 

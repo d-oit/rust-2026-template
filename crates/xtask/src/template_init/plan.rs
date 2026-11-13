@@ -441,7 +441,6 @@ fn prose_rewrites(
     push("README.md", vec![(template_url, repo_url)]);
     for doc_file in [
         "CLAUDE.md",
-        "GEMINI.md",
         "QWEN.md",
         "CONTRIBUTING.md",
         "SECURITY.md",

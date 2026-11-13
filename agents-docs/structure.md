@@ -132,7 +132,6 @@ rust-2026-template/
 ├── CONTRIBUTING.md
 ├── Cargo.lock
 ├── Cargo.toml                     # Workspace manifest
-├── GEMINI.md                      # Gemini CLI adapter
 ├── HARNESS.md                     # Harness engineering guide
 ├── LICENSE                        # MIT
 ├── MIGRATION.md                   # Template adoption guide
