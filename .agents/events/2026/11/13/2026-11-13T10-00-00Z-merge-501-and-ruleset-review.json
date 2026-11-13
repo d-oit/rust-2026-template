@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-11-13T10:00:00Z",
+  "agent": "opencode",
+  "skill": "issue-triage",
+  "task_description": "Land the trusted-publishing PR after resolving conflicts with main, and verify the post-merge state of every delivered issue",
+  "issues": [495, 496, 497, 498, 499, 502, 503, 504],
+  "success": true,
+  "human_interventions": 1,
+  "tokens_used": 0,
+  "verification": [
+    "Regenerated .template/overview.* and docs/src/overview.svg with scripts/sync-architecture.sh instead of hand-merging the conflicted SVGs",
+    "Regenerated reports/quality-report.json and .agents/ci/* with a release-tier quality run instead of hand-merging generated JSON",
+    "CHANGELOG merge verified against the merge base: 0 pre-existing lines dropped, both sides' entries retained",
+    "Seven offline suites pass on merged main, including trusted_publishing_contract_test and trustpub_cli_test",
+    "The merged publish commands were executed for real: release-plan and release-publish both exit 0 with the shipped empty allowlist",
+    "Main CI, CodeQL, docs deploy, fuzz, secret-lint, and overview sync all succeeded on fc0835e"
+  ],
+  "notes": "All nine issues are closed on main. The ruleset still requires Codacy directly; the documented migration keeps that requirement until the new gate has shadow-compared for a week, so the ruleset was deliberately left unchanged."
+}
