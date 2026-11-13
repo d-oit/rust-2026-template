@@ -7,9 +7,12 @@ consolidate-pushes = true
 pre-release-hook = ["./scripts/pre-release-hook.sh"]
 # Update changelog using git-cliff
 pre-release-replacements = [
-  {file = "CHANGELOG.md", search = "unreleased", replace = "{{version}}", min = 1},
+  # `min = 1` makes cargo-release fail when a pattern matches nothing, and the
+  # CHANGELOG only ever contains `## [Unreleased]` -- so a lowercase
+  # `search = "unreleased"` entry aborted the very first release run.
   {file = "CHANGELOG.md", search = "Unreleased", replace = "{{version}}", min = 1},
-  {file = "VERSION", search = ".*", replace = "{{version}}", exactly = 1},
+  # Anchored so the replacement cannot match inside a version link or prose.
+  {file = "VERSION", search = '^[0-9]+\.[0-9]+\.[0-9]+$', replace = "{{version}}", exactly = 1},
 ]
 
 [changelog]

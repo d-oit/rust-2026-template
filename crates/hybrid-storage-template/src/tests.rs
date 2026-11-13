@@ -275,18 +275,23 @@ async fn test_empty_data_equal_timestamps_and_interrupted_retried_sync() {
 
     assert!(matches!(sync_err, Err(StorageError::Connection(_))));
 
-    // Target should have page 1 (records "a" and "b") committed
+    // The hook runs *after* each page commit, so by the time page 2 reports it is
+    // already durable. A failure raised from the hook therefore leaves two
+    // committed pages on the target, and the cursor must match them so the retry
+    // resumes exactly there rather than replaying or skipping a page.
     assert!(target.get_record("a").await.unwrap().is_some());
     assert!(target.get_record("b").await.unwrap().is_some());
-    assert!(target.get_record("c").await.unwrap().is_none());
+    assert!(target.get_record("c").await.unwrap().is_some());
+    assert!(target.get_record("d").await.unwrap().is_some());
+    assert!(target.get_record("e").await.unwrap().is_none());
 
     // Retry sync without interruption
     let retried_count = SyncEngine::sync_incremental(&source, &target, 2)
         .await
         .unwrap();
 
-    // 5 remaining records synced
-    assert_eq!(retried_count, 5);
+    // 3 remaining records synced ("e", "f", "g")
+    assert_eq!(retried_count, 3);
 
     // Verify target now contains all 7 records
     for id in ["a", "b", "c", "d", "e", "f", "g"] {
@@ -393,4 +398,41 @@ fn test_record_validation_all_branches() {
 
     let r_valid = Record::new("id", "data", 1, 10);
     assert!(r_valid.validate().is_ok());
+}
+
+#[tokio::test]
+async fn test_pagination_preserves_ids_that_start_with_record_prefix() {
+    // Regression: `trim_start_matches("rec:")` stripped repeatedly, so an id
+    // like "rec:x" was truncated to "x" and never resolved during pagination.
+    let storage = HybridStorage::default();
+    for id in ["rec:x", "rec:rec:y", "plain"] {
+        let rec = Record::new(id, format!("data_{id}"), 1, 10);
+        storage.commit_record_and_watermark(&rec, 10).await.unwrap();
+    }
+
+    let page = storage.list_records_paginated(None, 10).await.unwrap();
+    let mut ids: Vec<&str> = page.records.iter().map(|r| r.id.as_str()).collect();
+    ids.sort_unstable();
+    assert_eq!(ids, vec!["plain", "rec:rec:y", "rec:x"]);
+}
+
+#[tokio::test]
+async fn test_get_record_rejects_payload_with_foreign_id() {
+    // Regression: the doc promised a CorruptRecord for a mismatched id, but the
+    // id was never compared, so a mis-keyed record was returned.
+    let storage = HybridStorage::default();
+    let rec = Record::new("real", "data".to_string(), 1, 10);
+    let json = serde_json::to_string(&rec).unwrap();
+    // Store the payload under a different key.
+    storage.set("rec:other", &json).await.unwrap();
+
+    let err = storage.get_record("other").await.unwrap_err();
+    let is_id_mismatch = matches!(
+        &err,
+        StorageError::CorruptRecord { field, .. } if field == "id"
+    );
+    assert!(
+        is_id_mismatch,
+        "expected a CorruptRecord id mismatch, got {err:?}"
+    );
 }

@@ -45,8 +45,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 |-----------|---------|-------------|
 | `CheckpointManager<T>` | `new(path)` | Manages save/load for type `T` |
 | `FileStorage` | `new(path)` | Atomic file backend (temp + rename) |
-| `MigrationRegistry` | `register(from, to)` | Schema migration paths |
-| `Storable` | `version()`, `migrate()` | Version-aware serialization trait |
+| `MigrationRegistry` | `register(from, to)`, `path()`, `migrate_with()` | Schema migration paths and chained steps |
+| `Storable` | `version()`, `migrate()`, `supports_migration_from()` | Version-aware serialization trait |
 
 ## Architecture
 
@@ -59,6 +59,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## Features
 
 - Atomic save operations (write to temp, rename on success)
-- Version-aware deserialization with automatic migration hooks
-- Schema evolution via `MigrationRegistry`
+- Version-aware deserialization with migration hooks that run on load
+- Schema evolution via `MigrationRegistry` (chained multi-step paths)
 - Bincode serialization for compact binary checkpoints
+
+## Migrating an older checkpoint
+
+Migrations operate on the stored **bincode bytes**, not JSON: bincode is not
+self-describing, so a `serde_json::Value` payload could never be decoded.
+Override `supports_migration_from` to opt in, and `migrate` to rewrite the
+old layout:
+
+```rust
+# use serde::{Serialize, Deserialize};
+# use checkpoint_template::{Storable, MigrationError};
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct V2 { value: u32, label: String }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct V1 { value: u32 }
+
+impl Storable for V2 {
+    fn version() -> u32 { 2 }
+
+    fn supports_migration_from(from: u32) -> bool { from == 1 }
+
+    fn migrate(payload: &[u8], from: u32) -> Result<Vec<u8>, MigrationError> {
+        assert_eq!(from, 1);
+        let cfg = bincode_reloaded::config::standard();
+        let (old, _): (V1, usize) =
+            bincode_reloaded::serde::decode_from_slice(payload, cfg)
+                .map_err(|e| MigrationError::Corruption(e.to_string()))?;
+        let upgraded = V2 { value: old.value, label: "migrated".into() };
+        bincode_reloaded::serde::encode_to_vec(&upgraded, cfg)
+            .map_err(|e| MigrationError::Corruption(e.to_string()))
+    }
+}
+```
+
+Without `supports_migration_from`, loading a different version fails closed with
+`CheckpointError::VersionMismatch` rather than decoding an unknown layout.

@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-11-13T14:30:00Z",
+  "agent": "opencode",
+  "skill": "harness",
+  "task_description": "Fix the verified P0 behavioural defects from the template gap analysis: checkpoint migration, hybrid-storage sync ordering and ID handling, actor Init validation, and the release.toml replacements",
+  "issues": [
+    "#5 checkpoint migration never ran and its API could not be implemented",
+    "#1 hybrid-storage sync hook fired before the page commit",
+    "#2 trim_start_matches truncated record ids that begin with the prefix",
+    "#3 get_record never verified the payload id it promised to check",
+    "#7 actor stored Init state before validating it",
+    "#12 release.toml replacements aborted the first release"
+  ],
+  "success": true,
+  "human_interventions": 0,
+  "tokens_used": 0,
+  "resolution": {
+    "checkpoint_migration": "Storable::migrate now takes the raw bincode bytes instead of serde_json::Value, because bincode is not self-describing and cannot decode into Value (verified: AnyNotSupported). Added Storable::supports_migration_from as an explicit opt-in; load() runs the migration chain and otherwise fails closed with VersionMismatch. MigrationRegistry gained path() and migrate_with() so a registered chain actually applies each step.",
+    "sync_hook_ordering": "on_page_synced now fires after apply_transaction, matching its documented contract; it previously reported pages a failed commit could still discard.",
+    "record_id_prefix": "strip_prefix replaces trim_start_matches, which stripped the prefix repeatedly and turned an id like rec:x into x.",
+    "get_record_id_check": "get_record now returns CorruptRecord when the decoded payload id differs from the requested id, as its doc comment already claimed.",
+    "actor_init_validation": "Init validates the incoming state before assigning it, so a rejected transition leaves the previous state intact.",
+    "release_toml": "Removed the lowercase `unreleased` replacement, which matched zero times in a changelog containing only `## [Unreleased]` and therefore aborted the release under min = 1; anchored the VERSION regex so it cannot match inside a link or prose."
+  },
+  "root_cause": "The defects were unimplemented or misordered code paths whose README and doc comments described behaviour that never existed. The published checkpoint-template README advertised automatic migration that a real consumer could not use.",
+  "verification": [
+    "Every fix has a regression test that was proven non-vacuous by reverting the fix and watching the test fail",
+    "Consumer-style crates.io probe that previously printed `FAILED: Version mismatch` now prints `LOADED (migration ran)`",
+    "bincode into serde_json::Value confirmed impossible with a standalone AnyNotSupported probe before changing the public API",
+    "trim_start_matches over-matching demonstrated on rec:rec:x before switching to strip_prefix",
+    "release.toml: the removed lowercase pattern matched 0 lines in CHANGELOG.md; the new VERSION anchor matches exactly 1",
+    "./scripts/quality-gates.sh: all checks pass, Overall Status SUCCESS",
+    "cargo machete confirmed serde_json became genuinely unused rather than suppressing the warning"
+  ],
+  "notes": "Four of the twelve P0 items remain unfixed and were not in the approved scope: watermark enforcement, supervisor restarts, the MCP JSON-RPC/stdio protocol, and the egress/path/redaction validators. Two files were split to respect the 500-LOC limit: hybrid-storage-template/src/sync.rs and checkpoint-template/src/tests_migration.rs. The migrate signature change is a breaking change to a published crate and needs a minor version bump."
+}

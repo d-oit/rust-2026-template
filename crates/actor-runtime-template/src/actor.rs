@@ -96,8 +96,10 @@ impl<S: ActorState> Actor<S> {
     pub async fn receive(&mut self, msg: ActorMessage<S>) -> Result<Lifecycle, ActorError> {
         match msg {
             ActorMessage::Init(new_state) => {
+                // Validate before storing: committing first meant a rejected
+                // state still replaced the actor's current state.
+                new_state.validate()?;
                 self.state = new_state;
-                self.state.validate()?;
                 info!("Actor initialized");
                 Ok(Lifecycle::Started)
             }
@@ -182,6 +184,37 @@ mod tests {
         let result = actor.receive(msg).await.unwrap();
         assert_eq!(actor.state.count, 5);
         assert_eq!(result, Lifecycle::Started);
+    }
+
+    #[tokio::test]
+    async fn test_actor_init_rejected_state_is_not_committed() {
+        // Regression: the state was assigned before `validate`, so a rejected
+        // Init still replaced the actor's current state.
+        #[derive(Debug, Clone, Serialize, Deserialize)]
+        struct StrictState {
+            count: u32,
+        }
+
+        impl ActorState for StrictState {
+            fn validate(&self) -> Result<(), ActorError> {
+                if self.count > 100 {
+                    return Err(ActorError::State("count exceeds 100".into()));
+                }
+                Ok(())
+            }
+        }
+
+        let mut actor = Actor::new(StrictState { count: 5 });
+        let err = actor
+            .receive(ActorMessage::Init(StrictState { count: 999 }))
+            .await
+            .unwrap_err();
+
+        assert!(matches!(err, ActorError::State(_)));
+        assert_eq!(
+            actor.state.count, 5,
+            "a rejected Init must leave the previous state intact"
+        );
     }
 
     #[tokio::test]
