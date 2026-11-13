@@ -30,7 +30,6 @@ pub mod migration;
 pub mod storage;
 
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use serde_json::Value;
 use std::path::Path;
 use std::time::SystemTime;
 use thiserror::Error;
@@ -117,17 +116,41 @@ pub trait Storable: Serialize + DeserializeOwned + Send + Sync + Clone + 'static
     where
         Self: Sized;
 
-    /// Migrate data from an older version.
+    /// Migrate a payload written by an older schema version.
+    ///
+    /// `payload` is the raw stored bytes (bincode), **not** JSON. JSON is not
+    /// available here because bincode is not self-describing and cannot decode
+    /// an arbitrary `serde_json::Value`; a previous signature that took
+    /// `serde_json::Value` could therefore never be implemented and was never
+    /// called.
+    ///
+    /// The default implementation returns the payload unchanged, which means
+    /// "no migration declared": [`CheckpointManager::load`] then reports
+    /// [`CheckpointError::VersionMismatch`] rather than guessing a layout.
+    /// Override this to decode `from_version`'s layout, transform it, and
+    /// re-encode the current layout.
     ///
     /// # Errors
     ///
-    /// Returns [`MigrationError`] when the migration path is unsupported.
-    fn migrate(data: Value, from_version: u32) -> Result<Value, MigrationError>
+    /// Returns [`MigrationError`] when the payload cannot be migrated.
+    fn migrate(payload: &[u8], from_version: u32) -> Result<Vec<u8>, MigrationError>
     where
         Self: Sized,
     {
         let _ = from_version;
-        Ok(data)
+        Ok(payload.to_vec())
+    }
+
+    /// Whether [`Self::migrate`] can handle `from_version`.
+    ///
+    /// Defaults to `false` so a type only opts into migration explicitly.
+    #[must_use]
+    fn supports_migration_from(from_version: u32) -> bool
+    where
+        Self: Sized,
+    {
+        let _ = from_version;
+        false
     }
 }
 
@@ -289,13 +312,20 @@ impl<T: Storable> CheckpointManager<T> {
 
         Self::validate_app_name(&header.app_name, &self.config)?;
 
-        // Handle version mismatch
-        if header.version != T::version() {
-            return Err(CheckpointError::VersionMismatch {
-                expected: T::version(),
-                actual: header.version,
-            });
-        }
+        // Migrate older schema versions before decoding. A type opts in through
+        // `Storable::supports_migration_from`; without that, fail closed rather
+        // than decode bytes written by a layout we do not understand.
+        let payload = if header.version == T::version() {
+            payload
+        } else {
+            if !T::supports_migration_from(header.version) {
+                return Err(CheckpointError::VersionMismatch {
+                    expected: T::version(),
+                    actual: header.version,
+                });
+            }
+            T::migrate(&payload, header.version)?
+        };
 
         // Security: Check payload size then deserialize.
         if u64::try_from(payload.len()).unwrap_or(u64::MAX) > self.config.max_checkpoint_size {
@@ -315,3 +345,6 @@ impl<T: Storable> CheckpointManager<T> {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod tests_migration;

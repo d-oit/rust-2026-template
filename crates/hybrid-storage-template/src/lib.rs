@@ -26,6 +26,9 @@
 #![forbid(unsafe_code)]
 
 pub mod backends;
+pub mod sync;
+
+pub use sync::SyncEngine;
 
 use std::future::Future;
 use std::pin::Pin;
@@ -283,6 +286,16 @@ impl HybridStorage {
             })?;
 
         record.validate()?;
+        // The doc promises a CorruptRecord when the payload belongs to another
+        // id; without this check a mis-keyed record would be returned under the
+        // wrong identity.
+        if record.id != id {
+            return Err(StorageError::CorruptRecord {
+                id: id.to_string(),
+                field: "id".to_string(),
+                reason: format!("payload id mismatch: found `{}`", record.id),
+            });
+        }
         Ok(Some(record))
     }
 
@@ -345,7 +358,12 @@ impl HybridStorage {
         let mut all_records = Vec::with_capacity(keys.len());
 
         for key in keys {
-            let id = key.trim_start_matches("rec:");
+            // `strip_prefix`, not `trim_start_matches`: the latter strips
+            // repeatedly, so an id that itself begins with "rec:" would be
+            // silently truncated ("rec:rec:x" -> "x") and never resolve.
+            let Some(id) = key.strip_prefix("rec:") else {
+                continue;
+            };
             if let Some(record) = self.get_record(id).await? {
                 all_records.push(record);
             }
@@ -393,99 +411,6 @@ impl HybridStorage {
             records: page_records,
             next_cursor,
         })
-    }
-}
-
-/// Synchronization engine for replicating records between storage instances.
-pub struct SyncEngine;
-
-impl SyncEngine {
-    /// Synchronize records incrementally from `source` to `target`.
-    ///
-    /// # Errors
-    ///
-    /// Propagates the errors documented on [`Self::sync_incremental_with_hook`].
-    pub async fn sync_incremental(
-        source: &HybridStorage,
-        target: &HybridStorage,
-        page_size: usize,
-    ) -> Result<usize, StorageError> {
-        Self::sync_incremental_with_hook(source, target, page_size, |_page_num, _cursor| Ok(()))
-            .await
-    }
-
-    /// Synchronize records incrementally with a hook called after each page commit.
-    ///
-    /// The hook can be used for observing sync progress or simulating network failure/interruption.
-    ///
-    /// # Errors
-    ///
-    /// Returns any error from [`HybridStorage::get_sync_cursor`],
-    /// [`HybridStorage::list_records_paginated`], [`Record::validate`],
-    /// [`Backend::apply_transaction`], or the `on_page_synced` hook.
-    pub async fn sync_incremental_with_hook<H>(
-        source: &HybridStorage,
-        target: &HybridStorage,
-        page_size: usize,
-        mut on_page_synced: H,
-    ) -> Result<usize, StorageError>
-    where
-        H: FnMut(usize, &PageCursor) -> Result<(), StorageError>,
-    {
-        let mut total_synced = 0;
-        let mut current_cursor = target.get_sync_cursor().await?;
-        let mut page_num = 0;
-
-        loop {
-            let page = source
-                .list_records_paginated(current_cursor.as_ref(), page_size)
-                .await?;
-
-            if page.records.is_empty() {
-                break;
-            }
-
-            let page_count = page.records.len();
-            let Some(last_rec) = page.records.last() else {
-                break;
-            };
-
-            let new_cursor = PageCursor {
-                updated_at: last_rec.updated_at,
-                id: last_rec.id.clone(),
-            };
-
-            let mut ops = Vec::with_capacity(page_count + 1);
-            for rec in &page.records {
-                rec.validate()?;
-                let json = serde_json::to_string(rec)
-                    .map_err(|e| StorageError::Serialization(e.to_string()))?;
-                ops.push(StorageOp::Set {
-                    key: format!("rec:{}", rec.id),
-                    value: json,
-                });
-            }
-
-            let cursor_json = serde_json::to_string(&new_cursor)
-                .map_err(|e| StorageError::Serialization(e.to_string()))?;
-            ops.push(StorageOp::Set {
-                key: "sys:sync_cursor".to_string(),
-                value: cursor_json,
-            });
-
-            page_num += 1;
-            on_page_synced(page_num, &new_cursor)?;
-
-            target.primary.apply_transaction(&ops).await?;
-            total_synced += page_count;
-
-            match page.next_cursor {
-                Some(next) => current_cursor = Some(next),
-                None => break,
-            }
-        }
-
-        Ok(total_synced)
     }
 }
 
