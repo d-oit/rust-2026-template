@@ -338,8 +338,10 @@ if [[ "$CANDIDATE_COUNT" -gt 0 ]]; then
     for lname in $(echo "${!CANDIDATES[@]}" | tr ' ' '\n' | sort); do
       color=$(echo "${CANDIDATES[$lname]}" | cut -d'|' -f1)
       desc=$(echo "${CANDIDATES[$lname]}"  | cut -d'|' -f2-)
-      # Strip the "(seen N×)" annotation from the description before creating
-      clean_desc=$(echo "$desc" | sed 's/ (seen [0-9]*×)//')
+      # Strip the "(seen N×)" annotation from the description before creating.
+      # Non-greedy (`${var/pat/}`), not `${var//pat/}`: the glob would otherwise
+      # swallow a greedy span if the suffix ever appeared twice.
+      clean_desc="${desc/ (seen [0-9]*×)/}"
       if gh label create "$lname" \
           --repo "$REPO" \
           --color "$color" \
@@ -364,8 +366,10 @@ echo "SUMMARY: existing=${EXISTING_COUNT} candidates=${CANDIDATE_COUNT} created=
 
 # Emit GitHub Actions outputs when running in CI
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-  echo "existing_count=${EXISTING_COUNT}"   >> "$GITHUB_OUTPUT"
-  echo "candidate_count=${CANDIDATE_COUNT}" >> "$GITHUB_OUTPUT"
-  echo "created_count=${CREATED}"           >> "$GITHUB_OUTPUT"
-  echo "stale_count=${#STALE_LABELS[@]}"    >> "$GITHUB_OUTPUT"
+  {
+    echo "existing_count=${EXISTING_COUNT}"
+    echo "candidate_count=${CANDIDATE_COUNT}"
+    echo "created_count=${CREATED}"
+    echo "stale_count=${#STALE_LABELS[@]}"
+  } >> "$GITHUB_OUTPUT"
 fi

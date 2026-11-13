@@ -129,21 +129,22 @@ for file in "${FILES[@]}"; do
     if [[ -f "${file_path}" ]]; then
         echo "Adding to full context: ${file}"
         
-        # Add file separator
-        cat >> "${FULL_FILE}" << EOF
+        # Separator, file content, and trailing spacing in a single append so the
+        # file is opened once instead of one redirect per fragment.
+        {
+            cat << EOF
 
 ================================================================================
 # Source: ${file}
 ================================================================================
 
 EOF
-        
-        # Append file content
-        cat "${file_path}" >> "${FULL_FILE}"
-        
-        # Add spacing
-        echo "" >> "${FULL_FILE}"
-        echo "" >> "${FULL_FILE}"
+            cat "${file_path}"
+            
+            # Add spacing
+            echo ""
+            echo ""
+        } >> "${FULL_FILE}"
     else
         echo "Warning: ${file} not found, skipping..."
     fi
