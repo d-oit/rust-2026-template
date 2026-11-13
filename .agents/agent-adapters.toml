@@ -27,7 +27,8 @@ canonical_reference = "AGENTS.md"
 
 [[adapters]]
 id = "gemini"
-root = ".gemini"
+# GEMINI.md stays at the repository root; there is no .gemini/ directory.
+root = "."
 entrypoint = "GEMINI.md"
 role = "tool-delta"
 canonical_reference = "AGENTS.md"
@@ -43,12 +44,5 @@ canonical_reference = "AGENTS.md"
 id = "opencode"
 root = ".opencode"
 entrypoint = "rules/rust-rules.md"
-role = "tool-delta"
-canonical_reference = "AGENTS.md"
-
-[[adapters]]
-id = "windsurf"
-root = ".windsurf"
-entrypoint = "rules.md"
 role = "tool-delta"
 canonical_reference = "AGENTS.md"

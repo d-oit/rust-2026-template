@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- The `.gemini/` and `.windsurf/` adapter directories. Both held a six-line `@AGENTS.md` stub that duplicated `.claude/rules.md` and `.qwen/rules.md` verbatim, so neither carried tool-specific content. Their registrations are gone from `.agents/agent-adapters.toml` and the validator's sub-adapter list, and the README editor table, `AGENTS.md`, and `agents-docs/structure.md` no longer advertise them. Gemini CLI remains supported through the root-level `GEMINI.md`, which the manifest now resolves with `root = "."`.
 - The `documentation` key in `[workspace.package]`, which pointed at a docs.rs page for a crate that does not exist, and placeholder `Your Name` / `your-org/your-repo` metadata. `template_init` rewrites authors, repository, and homepage from the adopter's answers, so real baseline values do not hurt portability.
 
 ### Fixed

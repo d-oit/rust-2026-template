@@ -48,7 +48,7 @@ Skill symlinks are managed automatically. After cloning, run:
 CLI-specific directories read from `.agents/skills/` via symlinks:
 - `.claude/skills/` → Claude Code
 - `.qwen/skills/` → Qwen Code
-- `.gemini/`, `.opencode/`, `.windsurf/` → Read directly
+- `.opencode/` → Read directly
 
 ## Session Bootstrap
 

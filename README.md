@@ -49,10 +49,9 @@ This repository uses a layered documentation strategy to serve both human develo
 | Editor / Agent | Config Location | Included |
 |---|---|---|
 | Claude Code | `.claude/` | ✅ |
-| Gemini CLI | `.gemini/` | ✅ |
+| Gemini CLI | `GEMINI.md` | ✅ |
 | Qwen | `.qwen/` | ✅ |
 | OpenCode | `.opencode/` | ✅ |
-| Windsurf | `.windsurf/` | ✅ |
 
 ## Included Tooling
 

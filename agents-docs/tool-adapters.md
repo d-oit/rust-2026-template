@@ -4,7 +4,7 @@ The repository uses a **3-layer agent architecture**:
 
 1. **Canonical contract** (`AGENTS.md`) — the single source of truth for all AI agents, max 200 LOC.
 2. **Tool-specific adapters** (root-level `CLAUDE.md`, `GEMINI.md`, `QWEN.md`) — thin wrappers that reference `AGENTS.md` and add only tool-specific guidance.
-3. **Subdirectory adapters** (`.claude/rules.md`, `.gemini/rules.md`, etc.) — CLI-specific rule files that also reference `AGENTS.md`.
+3. **Subdirectory adapters** (`.claude/rules.md`, `.qwen/rules.md`, etc.) — CLI-specific rule files that also reference `AGENTS.md`.
 
 ## Adapter Manifest
 
