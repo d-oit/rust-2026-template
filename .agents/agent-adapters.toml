@@ -26,13 +26,6 @@ role = "tool-delta"
 canonical_reference = "AGENTS.md"
 
 [[adapters]]
-id = "gemini"
-root = ".gemini"
-entrypoint = "GEMINI.md"
-role = "tool-delta"
-canonical_reference = "AGENTS.md"
-
-[[adapters]]
 id = "qwen"
 root = ".qwen"
 entrypoint = "QWEN.md"
@@ -43,12 +36,5 @@ canonical_reference = "AGENTS.md"
 id = "opencode"
 root = ".opencode"
 entrypoint = "rules/rust-rules.md"
-role = "tool-delta"
-canonical_reference = "AGENTS.md"
-
-[[adapters]]
-id = "windsurf"
-root = ".windsurf"
-entrypoint = "rules.md"
 role = "tool-delta"
 canonical_reference = "AGENTS.md"

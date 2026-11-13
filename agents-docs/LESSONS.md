@@ -4,7 +4,7 @@
 
 ### Architecture Decisions
 
-1. **Single Source of Truth (ADR-0001)**: `AGENTS.md` is the canonical instruction file. Tool-specific files (`CLAUDE.md`, `GEMINI.md`, etc.) contain only thin adapters with `@AGENTS.md` references. This prevents instruction drift across agent platforms.
+1. **Single Source of Truth (ADR-0001)**: `AGENTS.md` is the canonical instruction file. Tool-specific files (`CLAUDE.md`, `QWEN.md`, etc.) contain only thin adapters with `@AGENTS.md` references. This prevents instruction drift across agent platforms.
 
 1. **CI Path Filtering (ADR-0002)**: Using `dorny/paths-filter` to detect changed files before running expensive CI jobs. This reduces CI time by ~60% for documentation-only changes.
 

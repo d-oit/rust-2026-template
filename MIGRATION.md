@@ -40,7 +40,6 @@ chmod +x your-project/scripts/pre-release-hook.sh
 ```bash
 cp AGENTS.md your-project/
 cp CLAUDE.md your-project/
-cp GEMINI.md your-project/
 cp QWEN.md your-project/
 cp opencode.json your-project/
 

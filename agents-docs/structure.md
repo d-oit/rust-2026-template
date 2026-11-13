@@ -41,7 +41,6 @@ rust-2026-template/
 ├── .claude/                       # Claude Code integration
 ├── .config/
 │   └── nextest.toml               # nextest profiles: default, ci
-├── .gemini/                       # Gemini CLI integration
 ├── .github/
 │   ├── ISSUE_TEMPLATE/            # bug_report.yml, feature_request.yml
 │   ├── PULL_REQUEST_TEMPLATE.md
@@ -67,7 +66,6 @@ rust-2026-template/
 │       └── ...                    # +8 more workflows
 ├── .opencode/                     # OpenCode integration
 ├── .qwen/                         # Qwen Code integration
-├── .windsurf/                     # Windsurf integration
 ├── .vscode/
 │   └── settings.json              # rust-analyzer + WSL2 settings
 ├── agents-docs/                   # Agent reference documentation
@@ -134,7 +132,6 @@ rust-2026-template/
 ├── CONTRIBUTING.md
 ├── Cargo.lock
 ├── Cargo.toml                     # Workspace manifest
-├── GEMINI.md                      # Gemini CLI adapter
 ├── HARNESS.md                     # Harness engineering guide
 ├── LICENSE                        # MIT
 ├── MIGRATION.md                   # Template adoption guide

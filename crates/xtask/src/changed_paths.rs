@@ -86,7 +86,6 @@ impl ChangedPaths {
             // Agents
             if path == "AGENTS.md"
                 || path == "CLAUDE.md"
-                || path == "GEMINI.md"
                 || path == "QWEN.md"
                 || path.starts_with("agents-docs/")
                 || path.starts_with(".agents/skills/")

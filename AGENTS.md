@@ -1,7 +1,7 @@
 # Agent Coding Contract
 
 > **2026 Best Practice Rust Template** - This is the single canonical instruction file for all AI agents.
-> Tool-specific files (`CLAUDE.md`, `GEMINI.md`, etc.) are thin adapters that point here.
+> Tool-specific files (`CLAUDE.md`, `QWEN.md`, etc.) are thin adapters that point here.
 
 ## Quick Reference
 
@@ -48,7 +48,7 @@ Skill symlinks are managed automatically. After cloning, run:
 CLI-specific directories read from `.agents/skills/` via symlinks:
 - `.claude/skills/` → Claude Code
 - `.qwen/skills/` → Qwen Code
-- `.gemini/`, `.opencode/`, `.windsurf/` → Read directly
+- `.opencode/` → Read directly
 
 ## Session Bootstrap
 

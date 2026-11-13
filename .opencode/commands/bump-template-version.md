@@ -2,11 +2,15 @@
 
 ## Description
 Bumps the **template** repository's own internal version — the version tracked
-in `.template/CHANGELOG-TEMPLATE.md`'s link footer. **This is the SOLE place
-where the template's version lives**, by design — `VERSION`, `CHANGELOG.md`,
-`Cargo.toml [workspace.package].version`, and the `README.md` version badge are
-all kept free of any version number so a `bump-template-version` run mutates
-exactly one file.
+in `.template/CHANGELOG-TEMPLATE.md`'s link footer. That footer is the
+**canonical source** for the template's version: `VERSION`,
+`CHANGELOG.md`, and `Cargo.toml [workspace.package].version` are kept free of
+any version number, so the script mutates exactly one file.
+
+The one follower is `README.md`: it carries the version badge, its `#anchor`,
+and a `**Latest release: vX.Y.Z**` line, and CI fails when they disagree with
+the changelog. Update all three in the same commit — the script prints the
+exact old → new strings.
 
 The per-repo version that derived repos use (in their own `VERSION` /
 `Cargo.toml [workspace.package].version` / `CHANGELOG.md`) starts at `0.0.0`
@@ -62,7 +66,11 @@ template version. Typical cadence: few times per month, not per-PR.
 - `VERSION` (kept at `0.0.0` — this is the generated-project starter version, not the template's own)
 - `CHANGELOG.md` (kept in its initial Keep-a-Changelog skeleton state — this is the generated-project changelog, not the template's own)
 - `Cargo.toml` `[workspace.package].version` (workspace baseline; stays `0.0.0` — derived repos inherit and bump locally via `scripts/bump-version.sh`)
-- `README.md` (no version badge — the changelog IS the source of truth)
+- `README.md` — this script does **not** edit it, but the README *does* carry the
+  version badge, its `#anchor`, and a `**Latest release: vX.Y.Z**` line. Update
+  those three in the same commit; `scripts/check-template-version.sh` fails the
+  `VERSION consistency check` CI job when the badge and the newest changelog
+  release disagree. The script prints the exact old → new strings to change.
 - `rust-toolchain.toml` (toolchain channel, not crate version)
 - `deny.toml`, `target/`, `.git/`
 
