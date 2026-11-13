@@ -113,6 +113,44 @@ These jobs run only when the affected paths match:
 > **Note:** Docs sync checking is handled by a separate workflow
 > (`.github/workflows/docs-check.yml`), not by `ci.yml`.
 
+## Generated maintenance fast path
+
+A narrowly allowlisted class of generated pull requests — initially the weekly DORA
+report PR — skips the full `pull-request` quality tier and runs only the validators
+its artifacts need. The required context name does not change: the same
+`Quality Gate (pull-request)` job resolves the classification before installing any
+toolchain and either runs the maintenance validators or the unchanged full tier.
+
+`config/maintenance-pr.json` is the single source of truth for the allowlist, the
+trusted automation identities, and the status-check identities used by the merge
+policy. The classifier (`scripts/classify-maintenance-pr.py`) requires **all** of:
+
+1. the PR targets `main`;
+2. the author and head branch are recognized first-party automation;
+3. every changed path is in the literal allowlist;
+4. the complete changed-file list was retrieved.
+
+Anything else — an unknown path, a mixed source/report change, an untrusted
+identity, a push event, an API error, or a truncated file list — falls back to the
+normal CI path. PR titles, bodies, and labels are never inputs, so user-controlled
+metadata cannot force the exception. Globs and `..` segments in the allowlist are
+rejected outright.
+
+Tool installation is resolved from the selected check plan
+(`scripts/quality-plan-tools.py`), so a Markdown-only PR no longer installs the Rust,
+security, shell, YAML, or actionlint tool sets. A selected required check whose tool
+is absent still fails closed inside xtask.
+
+The fast path is **not** a security bypass. Gitleaks, secretlint, CodeQL, and
+code-scanning rules stay active for every PR, and any workflow change disqualifies
+the PR from the fast path.
+
+Because the ruleset cannot express a conditional required check, the unconditional
+Codacy context is enforced through `PR Merge Policy Gate`
+(`.github/workflows/pr-merge-policy.yml`). See
+[`docs/ci/required-checks.md`](ci/required-checks.md) for the policy, the migration
+sequence, and the rollback procedure.
+
 ## Tier 3 — Scheduled / heavy
 
 These jobs are **too expensive for every PR**. They run on:

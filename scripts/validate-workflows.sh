@@ -142,12 +142,18 @@ echo ""
 # check to explain why. Any job whose name is a required status check context
 # must therefore use a static literal.
 info "Checking required status check job names are static..."
-REQUIRED_CONTEXT_JOB="${REQUIRED_CONTEXT_JOB:-ci.yml:quality-gate}"
+# Colon-separated `workflow.yml:job-key` pairs; add every context the `main`
+# ruleset requires. See docs/ci/required-checks.md.
+REQUIRED_CONTEXT_JOBS="${REQUIRED_CONTEXT_JOBS:-ci.yml:quality-gate pr-merge-policy.yml:merge-policy}"
 STATIC_NAME_ISSUES=0
-IFS=':' read -r REQ_WORKFLOW REQ_JOB <<<"${REQUIRED_CONTEXT_JOB}"
-REQ_WORKFLOW_FILE="${WORKFLOWS_DIR}/${REQ_WORKFLOW}"
-if [[ -f "${REQ_WORKFLOW_FILE}" ]] && command -v python3 &>/dev/null; then
-  STATIC_NAME_ISSUES=$(python3 - "${REQ_WORKFLOW_FILE}" "${REQ_JOB}" <<'PY' 2>/dev/null || echo 0
+for required_context in ${REQUIRED_CONTEXT_JOBS}; do
+  IFS=':' read -r REQ_WORKFLOW REQ_JOB <<<"${required_context}"
+  REQ_WORKFLOW_FILE="${WORKFLOWS_DIR}/${REQ_WORKFLOW}"
+  if [[ ! -f "${REQ_WORKFLOW_FILE}" ]] || ! command -v python3 &>/dev/null; then
+    warn "Static job name check skipped for ${required_context} (workflow or python3 unavailable)"
+    continue
+  fi
+  JOB_STATIC_ISSUES=$(python3 - "${REQ_WORKFLOW_FILE}" "${REQ_JOB}" <<'PY' 2>/dev/null || echo 1
 import sys
 import yaml
 
@@ -157,7 +163,7 @@ with open(workflow_path, 'r', encoding='utf-8') as fh:
 
 job = (workflow.get('jobs') or {}).get(job_key)
 if not isinstance(job, dict):
-    print(0)
+    print(1)
     sys.exit(0)
 
 name = job.get('name')
@@ -167,13 +173,13 @@ if not isinstance(name, str) or '${{' in name:
 print(0)
 PY
 )
-  if [[ "${STATIC_NAME_ISSUES}" -ne 0 ]]; then
+  if [[ "${JOB_STATIC_ISSUES}" -ne 0 ]]; then
     fail "${REQ_WORKFLOW}: job '${REQ_JOB}' must use a static name (no \${{ }} expression) so skipped runs still report the required status check context"
-  else
-    pass "Required status check job names are static: ${REQUIRED_CONTEXT_JOB}"
+    STATIC_NAME_ISSUES=$((STATIC_NAME_ISSUES + 1))
   fi
-else
-  warn "Static job name check skipped (workflow or python3 unavailable)"
+done
+if [[ "${STATIC_NAME_ISSUES}" -eq 0 ]]; then
+  pass "Required status check job names are static: ${REQUIRED_CONTEXT_JOBS}"
 fi
 echo ""
 

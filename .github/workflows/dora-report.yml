@@ -15,12 +15,22 @@ jobs:
       (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0 * * 1')
     runs-on: ubuntu-latest
     permissions:
+      # Least privilege for the two operations this job performs: pushing the
+      # automation branch and creating/updating its pull request. Auto-merge is
+      # requested through the same `pull-requests: write` scope — no admin
+      # bypass and no ruleset bypass actors are involved.
       contents: write
       pull-requests: write
+      checks: read
     steps:
-      - name: Checkout repository
+      - name: Checkout latest main
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          # Explicitly check out the PR base so the regenerated reports are always
+          # computed on top of current `main`, never on a stale branch tip.
+          ref: main
+          # Full history is required by the report computation and by the
+          # generated branch comparison.
           fetch-depth: 0
 
       - name: Set up Python
@@ -76,14 +86,107 @@ jobs:
             --period-days 30 \
             --repo ${{ github.repository }}
 
-      - name: Create Pull Request
+      - name: Validate generated artifacts
+        run: python3 scripts/validate-dora-artifacts.py
+
+      - name: Create or update pull request
+        id: dora_pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8.1.1
         with:
-          commit-message: "docs(dora): update reports/DORA-REPORT.md [skip ci]"
+          # Deliberately no commit-message CI skip: `Quality Gate (pull-request)`
+          # is a required context and a skipped required workflow stays pending,
+          # which would block auto-merge.
+          # The generated-maintenance fast path (issue #503) keeps the cost of
+          # running real checks on this PR small.
+          commit-message: "docs(dora): update reports/DORA-REPORT.md"
           title: "docs(dora): weekly DORA performance report update"
           body: "Automated weekly DORA report generation."
           branch: "automation/dora-report"
           base: main
+          delete-branch: false
           labels: |
             agentic
             documentation
+
+      # A no-op run (reports unchanged, PR already up to date) must finish
+      # cleanly without attempting to merge an empty PR output.
+      - name: Resolve pull request state
+        id: pr_state
+        if: steps.dora_pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.dora_pr.outputs.pull-request-number }}
+          PR_URL: ${{ steps.dora_pr.outputs.pull-request-url }}
+        run: |
+          set -euo pipefail
+          echo "PR #${PR_NUMBER}: ${PR_URL}"
+          STATE=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json state,mergeStateStatus,headRefOid,baseRefOid)
+          echo "$STATE"
+          echo "$STATE" | jq -r '"state=\(.state) merge_state=\(.mergeStateStatus) head=\(.headRefOid)"'
+
+      # Strict required checks mean the PR head must be up to date with `main`.
+      # Request a branch update only when the PR is actually behind; a failed
+      # update (e.g. a conflict) stops here and never enables auto-merge.
+      - name: Refresh stale pull request branch
+        id: refresh
+        if: steps.dora_pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.dora_pr.outputs.pull-request-number }}
+        run: |
+          set -euo pipefail
+          read -r MERGE_STATE <<<"$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json mergeStateStatus --jq '.mergeStateStatus')"
+          echo "mergeStateStatus=${MERGE_STATE}"
+          {
+            echo "### DORA report PR #${PR_NUMBER}"
+            echo ""
+            echo "- mergeStateStatus: \`${MERGE_STATE}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${MERGE_STATE}" = "BEHIND" ]; then
+            echo "Branch is behind main; requesting an update."
+            if ! UPDATE_OUTPUT=$(gh pr update-branch "$PR_NUMBER" \
+                --repo "$GITHUB_REPOSITORY" 2>&1); then
+              echo "::error::Failed to update the DORA report branch: ${UPDATE_OUTPUT}"
+              {
+                echo ""
+                echo "> **Branch update failed** — auto-merge was not requested."
+                echo "> ${UPDATE_OUTPUT}"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+            echo "${UPDATE_OUTPUT}"
+          elif [ "${MERGE_STATE}" = "DIRTY" ] || [ "${MERGE_STATE}" = "CONFLICTING" ]; then
+            echo "::error::DORA report PR has merge conflicts; auto-merge was not requested."
+            exit 1
+          else
+            echo "Branch already current; no update commit needed."
+          fi
+
+      - name: Enable squash auto-merge
+        if: steps.dora_pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ steps.dora_pr.outputs.pull-request-url }}
+        run: |
+          set -euo pipefail
+          # GitHub merges only after the ruleset and every required check passes
+          # on the final head SHA. `--auto --squash` never bypasses requirements.
+          gh pr merge "$PR_URL" --repo "$GITHUB_REPOSITORY" --auto --squash
+          {
+            echo ""
+            echo "Squash auto-merge enabled for ${PR_URL}."
+            echo "GitHub will merge once all required checks pass; no rules were bypassed."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report no-op run
+        if: steps.dora_pr.outputs.pull-request-number == ''
+        run: |
+          echo "No report changes were detected; no pull request to update."
+          {
+            echo "### DORA report"
+            echo ""
+            echo "No report changes were detected; no pull request was opened or updated."
+          } >> "$GITHUB_STEP_SUMMARY"

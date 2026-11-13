@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "base_ref": "main",
+  "trusted_actors": [
+    "github-actions[bot]"
+  ],
+  "trusted_branches": [
+    "automation/dora-report"
+  ],
+  "allowed_paths": [
+    "reports/DORA-REPORT.md",
+    "reports/dora-history.jsonl",
+    "reports/dora-manifest.json"
+  ],
+  "validators": [
+    "dora-artifacts"
+  ],
+  "quality_gate_check_name": "Quality Gate (pull-request)",
+  "github_actions_app_id": 15368,
+  "codacy": {
+    "check_name": "Codacy Static Code Analysis",
+    "app_id": 56611
+  },
+  "policy_timeout_seconds": 900,
+  "policy_poll_seconds": 30
+}
