@@ -9,11 +9,12 @@ version = "0.0.0"
 edition = "2024"
 rust-version = "1.88"
 license = "MIT"
-# TODO: Replace these with your actual project metadata
-authors = ["Your Name"]
-repository = "https://github.com/your-org/your-repo"
-homepage = "https://github.com/your-org/your-repo"
-documentation = "https://docs.rs/your-crate"
+# Template baseline metadata. `scripts/init-template.sh` rewrites authors,
+# repository, and homepage from the adopter's answers, so these values describe
+# the upstream template rather than any single generated project.
+authors = ["Dominik Oswald (d-oit)"]
+repository = "https://github.com/d-oit/rust-2026-template"
+homepage = "https://github.com/d-oit/rust-2026-template"
 readme = "README.md"
 include = [
     "/src",

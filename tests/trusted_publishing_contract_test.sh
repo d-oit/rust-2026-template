@@ -93,10 +93,25 @@ for command in command_steps:
         check=False,
         env={**os.environ, "CARGO_REGISTRY_TOKEN": ""},
     )
-    assert completed.returncode == 0, (
-        f"workflow command failed with exit {completed.returncode}: {command}\n"
+    # argparse exits 2 on a malformed invocation. That is the failure mode this
+    # check exists to catch (`--root` is a top-level flag, so placing it after
+    # the subcommand parses fine on paper but exits 2 in production).
+    assert completed.returncode != 2, (
+        f"workflow command is not parseable: {command}\n"
         f"stderr: {completed.stderr.strip()}"
     )
+    assert "unrecognized arguments" not in completed.stderr, (
+        f"workflow command has misplaced arguments: {command}\n"
+        f"stderr: {completed.stderr.strip()}"
+    )
+    # Commands that read only local configuration must fully succeed offline.
+    # `release-publish` legitimately exits 1 without a registry token, so it is
+    # covered by the parse check above rather than a zero-exit requirement.
+    if "release-publish" not in command:
+        assert completed.returncode == 0, (
+            f"workflow command failed with exit {completed.returncode}: {command}\n"
+            f"stderr: {completed.stderr.strip()}"
+        )
 assert '"--locked"' in Path("scripts/trustpub.py").read_text(encoding="utf-8")
 
 workflow_text = workflow_path.read_text(encoding="utf-8")

@@ -22,16 +22,18 @@ may be published and the exact OIDC identity tuple:
   "repository_name": "rust-2026-template",
   "workflow_filename": "release.yml",
   "environment": "release",
-  "packages": []
+  "packages": ["checkpoint-template"]
 }
 ```
 
-The template ships an empty allowlist. Every workspace member currently sets
-`publish = false`, including `crates/sample-app`; `publish = false` makes Cargo
-refuse to upload the package, and the release tooling refuses to select it even
-if it is added to the allowlist by mistake. Remove `publish = false`, replace
-the `0.0.0` placeholder version, and add the crate name to `packages` before
-the first release.
+The template ships with a single canary entry, `checkpoint-template`, which is
+the crate used to prove the full trusted-publishing path works in production.
+Every other workspace member still sets `publish = false`, and
+`publish = false` makes Cargo refuse to upload the package — the release tooling
+refuses to select it even if it is added to the allowlist by mistake. To publish
+another crate, remove its `publish = false`, replace the `0.0.0` placeholder
+version, add its name to `packages`, and add a `LICENSE` file (every crate's
+`include` list already references one).
 
 The release workflow resolves the allowlist through
 `./scripts/trustpub.sh release-plan`. Invalid configuration fails the
@@ -41,7 +43,8 @@ The release workflow resolves the allowlist through
 ## Initial publication
 
 crates.io only allows a Trusted Publisher to be configured after the crate
-exists, so the first version is a one-time manual step:
+exists, so the first version is a one-time manual step. It is performed once per
+crate, from a committed tree:
 
 1. Create a short-lived, crate-scoped crates.io API token with the
    `publish-new` endpoint scope. Do not store it in GitHub Secrets or in a
