@@ -3,5 +3,5 @@
   "repository_name": "rust-2026-template",
   "workflow_filename": "release.yml",
   "environment": "release",
-  "packages": []
+  "packages": ["checkpoint-template"]
 }

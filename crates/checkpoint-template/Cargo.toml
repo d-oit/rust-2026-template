@@ -1,6 +1,9 @@
 [package]
 name = "checkpoint-template"
-version.workspace = true
+# Standalone version: this is the first publicly published crate, so it carries
+# its own semver instead of the workspace `0.0.0` placeholder. See
+# docs/src/releasing/crates-io-trusted-publishing.md.
+version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -9,7 +12,7 @@ repository.workspace = true
 description = "Secure and high-performance checkpointing template for state-intensive applications"
 readme = "README.md"
 include = ["/src", "README.md", "LICENSE"]
-publish = false
+publish = true
 
 [lints]
 workspace = true

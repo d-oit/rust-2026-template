@@ -7,7 +7,6 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-documentation.workspace = true
 description = "Dedicated crate for workspace-level integration and architecture fitness tests"
 publish = false
 
@@ -17,7 +16,7 @@ workspace = true
 [dependencies]
 
 [dev-dependencies]
-checkpoint-template = { path = "../checkpoint-template", version = "0.0.0" }
+checkpoint-template = { path = "../checkpoint-template", version = "0.1.0" }
 example-registry-pattern = { path = "../example-registry-pattern", version = "0.0.0" }
 insta = { workspace = true }
 mcp-server-template = { path = "../mcp-server-template", version = "0.0.0" }
