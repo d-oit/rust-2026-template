@@ -28,13 +28,12 @@ the ambient ``GH_TOKEN``.
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import os
+import ssl
 import sys
 import time
-import urllib.error
-import urllib.parse
-import urllib.request
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Any, Iterable
@@ -42,12 +41,14 @@ from typing import Any, Iterable
 POLICY_PATH = Path("config/maintenance-pr.json")
 CLASSIFIER_PATH = Path("scripts/classify-maintenance-pr.py")
 
-# GitHub's REST API. Requests go directly over HTTPS instead of shelling out to
-# `gh`: every request path is built from validated components, so no untrusted
-# input ever reaches a process argument list.
-API_ROOT = "https://api.github.com"
+# GitHub's REST API. Requests use a pinned HTTPS host and an explicit TLS
+# context, and every request path is built from validated components. That rules
+# out both the `subprocess` argument-injection surface and any `file://` or
+# custom-scheme URL ambiguity in generic URL openers.
+API_HOST = "api.github.com"
 API_VERSION = "2022-11-28"
 MAX_PAGES = 50
+MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 
 TERMINAL_FAILURES = {"failure", "cancelled", "timed_out", "action_required", "stale", "startup_failure"}
 
@@ -66,25 +67,34 @@ class ApiError(RuntimeError):
     """A GitHub REST call failed or returned an unusable payload."""
 
 
-def _request(url: str, token: str) -> tuple[Any, str]:
-    """Perform one authenticated GET, returning the parsed body and the Link header."""
-    request = urllib.request.Request(  # noqa: S310 - fixed HTTPS GitHub API root
-        url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
-            "X-GitHub-Api-Version": API_VERSION,
-            "User-Agent": "rust-2026-template-merge-policy",
-        },
+def _request(path: str, token: str) -> tuple[Any, str]:
+    """Perform one authenticated GET against the pinned GitHub API host."""
+    connection = http.client.HTTPSConnection(
+        API_HOST, timeout=30, context=ssl.create_default_context()
     )
     try:
-        with urllib.request.urlopen(request, timeout=30) as response:  # noqa: S310
-            body = response.read().decode("utf-8")
-            link = response.headers.get("Link", "")
-    except urllib.error.HTTPError as error:
-        raise ApiError(f"GitHub API returned HTTP {error.code}") from error
-    except urllib.error.URLError as error:
-        raise ApiError(f"GitHub API request failed: {error.reason}") from error
+        connection.request(
+            "GET",
+            path,
+            headers={
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {token}",
+                "X-GitHub-Api-Version": API_VERSION,
+                "User-Agent": "rust-2026-template-merge-policy",
+            },
+        )
+        response = connection.getresponse()
+        body = response.read(MAX_RESPONSE_BYTES).decode("utf-8")
+        link = response.getheader("Link", "") or ""
+        if response.status != http.HTTPStatus.OK:
+            raise ApiError(f"GitHub API returned HTTP {response.status}")
+    except ApiError:
+        raise
+    except (OSError, http.client.HTTPException) as error:
+        raise ApiError(f"GitHub API request failed: {error}") from error
+    finally:
+        connection.close()
+
     try:
         return json.loads(body), link
     except json.JSONDecodeError as error:
@@ -100,16 +110,30 @@ def _next_page(link_header: str) -> str | None:
 
 
 def api_get_paginated(path: str, token: str) -> list[Any]:
-    """Follow `Link: rel="next"` until exhausted, returning every page body."""
+    """Follow `Link: rel="next"` until exhausted, returning every page body.
+
+    Only paths on the pinned host are followed; a `next` link pointing anywhere
+    else is rejected instead of being dereferenced.
+    """
     pages: list[Any] = []
-    next_url: str | None = f"{API_ROOT}{path}"
-    while next_url is not None:
+    next_path: str | None = path
+    while next_path is not None:
         if len(pages) >= MAX_PAGES:
             raise ApiError(f"pagination exceeded {MAX_PAGES} pages; refusing to decide")
-        payload, link = _request(next_url, token)
+        payload, link = _request(next_path, token)
         pages.append(payload)
-        next_url = _next_page(link)
+        next_path = _same_host_path(_next_page(link))
     return pages
+
+
+def _same_host_path(url: str | None) -> str | None:
+    """Convert a `Link` URL into a path if, and only if, it targets the API host."""
+    if url is None:
+        return None
+    expected = f"https://{API_HOST}"
+    if not url.startswith(expected):
+        raise ApiError("refusing to follow a pagination link to an unexpected host")
+    return url[len(expected):]
 
 
 def fetch_pr_files(repo: str, pr: str, token: str) -> list[str] | None:
