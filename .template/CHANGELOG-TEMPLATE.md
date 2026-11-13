@@ -33,6 +33,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.2] - 2026-11-13
+
+### Added
+
+- Opt-in crates.io trusted publishing lifecycle (`scripts/trustpub.py`, `config/trusted-publishing.json`, and `docs/src/releasing/crates-io-trusted-publishing.md`). Publication is gated by an explicit package allowlist and an OIDC identity check, and the release workflow publishes with `rust-lang/crates-io-auth-action` so no long-lived registry token is stored. The allowlist ships empty: every workspace package stays `publish = false` at the `0.0.0` placeholder until an adopter opts in.
+- `checkpoint-template` is the single allowlisted canary, so the publish path is exercised in production instead of remaining an unexecuted branch.
+- A generated-maintenance fast path classifies report-only pull requests from the complete changed-file set, the PR base, and the author recorded in `config/maintenance-pr.json`. Titles, bodies, and labels are never inputs, and globs or traversal segments are rejected so the allowlist cannot widen. The required `Quality Gate (pull-request)` context is unchanged.
+
+### Changed
+
+- `scripts/bump-template-version.sh` documents that the README version badge is part of the release surface; the badge and its anchor now move together with the changelog entry, and `scripts/check-template-version.sh` fails the `VERSION consistency check` job when they disagree. The dry run now prints the exact README strings to follow, and the command doc no longer claims the badge is version-free.
+- `checkpoint-template` no longer depends on `serde_json`.
+- `README.md` matches the tree it describes again: the repository tree lists `workspace-tests` and all four `examples/` members, the profile table includes `performance-sensitive`, and the customization guidance points lint policy at `[workspace.lints]` in `Cargo.toml` rather than at `.clippy.toml`, which only holds Clippy's behavioural thresholds.
+
+### Removed
+
+- The `documentation` key in `[workspace.package]`, which pointed at a docs.rs page for a crate that does not exist, and placeholder `Your Name` / `your-org/your-repo` metadata. `template_init` rewrites authors, repository, and homepage from the adopter's answers, so real baseline values do not hurt portability.
+
+### Fixed
+
+- `README.md` no longer documents a root package that does not exist. The workspace is virtual, so the `add(2, 3)` example could never compile; it is replaced with `cargo run -p sample-app`, and the "root package exports a tiny example API" claim in the feature-flags section is gone. The dead `cargo-sync-readme` markers are removed: that step is gated on `src/lib.rs`, which no longer exists.
+- `README.md` claimed `reports/` is git-ignored and that `.agents/ci/` is not committed. Both are wrong: `reports/DORA-REPORT.md`, `reports/quality-report.json`, `.agents/ci/ci-status.json`, and `.agents/ci/ci-summary.md` are all tracked, and CI no longer writes the status files back.
+- `checkpoint-template` advertised automatic migration, but `load` returned `VersionMismatch` without ever calling `Storable::migrate` — and the signature could not have worked, because storage is bincode, which is not self-describing and cannot decode into `serde_json::Value` (`AnyNotSupported`). `migrate` now takes the raw stored bytes, `supports_migration_from` is an explicit opt-in, and a type that does not opt in still fails closed. `MigrationRegistry` gained `path` and `migrate_with`, so a registered chain applies each step instead of returning its input.
+- `hybrid-storage-template` invoked the sync progress hook *before* committing the page, reporting progress for pages a failed commit could still discard.
+- `hybrid-storage-template` used `trim_start_matches("rec:")`, which strips the prefix repeatedly and truncated an id such as `rec:x` to `x`, so pagination could never resolve it.
+- `hybrid-storage-template::get_record` never compared the decoded payload id against the requested id, despite documenting a `CorruptRecord` for that case.
+- `actor-runtime-template` assigned `Init` state before validating it, so a rejected transition still replaced the actor's current state.
+- `release.toml` listed a lowercase `unreleased` replacement that matches zero times in a changelog containing only `## [Unreleased]`; under `min = 1` that aborted the first release run. The `VERSION` regex is now anchored so it cannot match inside a link or prose.
+
+### Security
+
+- `sync-labels.yml` interpolated `github.event.inputs` directly into a `run:` body; on `workflow_dispatch` those values are user-supplied, making the expression a shell-injection sink. They now arrive through `env` and are expanded as quoted shell variables.
+- The local ShellCheck gate ran `--severity=error` while `HARNESS.md` documents `severity=warning`, so the gate was looser than its own contract and quoting or redirect findings could never fail locally. It now runs at `warning`.
+- Every crate now ships a `LICENSE` file. Each `Cargo.toml` referenced one in `include`, but no file existed, so packages silently dropped their license and the canary published without one.
+
+---
+
 ## [0.4.1] - 2026-11-09
 
 ### Changed
@@ -600,7 +637,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/d-oit/rust-2026-template/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/d-oit/rust-2026-template/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...v0.4.0
 [0.3.11]: https://github.com/d-oit/rust-2026-template/compare/v0.3.10...v0.3.11

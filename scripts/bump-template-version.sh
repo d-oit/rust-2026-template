@@ -26,8 +26,13 @@ set -euo pipefail
 #   - Cargo.toml workspace.package.version
 #                                (workspace baseline; intentionally stays 0.0.0 —
 #                                 derived repos inherit and bump separately)
-#   - README.md                 (no version badge — the changelog-template IS the
-#                                single source of truth for the template's version)
+#   - README.md                 (NOT edited by this script, but it DOES carry the version
+#                                badge and a "Latest release" line. This script only
+#                                rewrites the changelog, so update the badge, its #anchor,
+#                                and that line in the same commit. CI runs
+#                                `scripts/check-template-version.sh`, which fails the
+#                                `VERSION consistency check` job when the badge disagrees
+#                                with the newest release in the changelog.)
 #   - rust-toolchain.toml       (toolchain channel, not crate version)
 #   - deny.toml                 (supply-chain policy)
 #
@@ -167,6 +172,20 @@ if $EXECUTE; then
 else
   warn "Would update $CHANGELOG (promote [Unreleased] → [$NEXT_VERSION] - $DATE_OVERRIDE)"
 fi
+
+# ── 2. Report the README follower edits ──────────────────────────────────────
+# The badge, its anchor, and the "Latest release" line live in README.md. This
+# script does not edit them (a bump must stay a single-file changelog change),
+# but `scripts/check-template-version.sh` fails CI when they lag behind, so
+# print exactly what has to follow in the same commit.
+badge_old="badge/version-${CURRENT_VERSION}-blue"
+badge_new="badge/version-${NEXT_VERSION}-blue"
+echo ""
+info "README.md must be updated in the same commit (check-template-version.sh enforces this):"
+echo "  ${badge_old}                    -> ${badge_new}"
+echo "  CHANGELOG-TEMPLATE.md#${CURRENT_VERSION}          -> CHANGELOG-TEMPLATE.md#${NEXT_VERSION}"
+echo "  **Latest release: v${CURRENT_VERSION}**          -> **Latest release: v${NEXT_VERSION}**"
+echo "  then run: bash scripts/generate-llms-txt.sh"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""

@@ -4,11 +4,9 @@
 [![codecov](https://codecov.io/gh/d-oit/rust-2026-template/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88-blue.svg)](https://www.rust-lang.org)
-[![Template Version](https://img.shields.io/badge/version-0.4.1-blue)](.template/CHANGELOG-TEMPLATE.md#0.4.1)
+[![Template Version](https://img.shields.io/badge/version-0.4.2-blue)](.template/CHANGELOG-TEMPLATE.md#0.4.2)
 
-**Latest release: v0.4.1** — see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) for the full changelog.
-
-<!-- cargo-sync-readme start -->
+**Latest release: v0.4.2** — see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) for the full changelog.
 
 A production-ready Rust workspace template with modern tooling, CI/CD and AI agent integration.
 
@@ -28,13 +26,12 @@ This template is designed for Rust developers who want to start new projects wit
 
 ## Example
 
-```rust,no_run
+`sample-app` is the runnable reference. The workspace itself is virtual — there is
+no root `[package]`, so member crates are the entry points:
 
-let result = add(2, 3);
-assert_eq!(result, 5);
+```bash
+cargo run -p sample-app
 ```
-
-<!-- cargo-sync-readme end -->
 
 ## Documentation Map
 
@@ -83,8 +80,9 @@ This repository uses a layered documentation strategy to serve both human develo
 ├── .github/             # GitHub Actions workflows and issue templates
 ├── agents-docs/         # Detailed documentation for AI agents
 ├── benchmarks/          # Criterion benchmark suites
-├── config/              # Profile-based runtime configuration
-│   └── profiles/        # Environment-specific JSON configs (default.json, etc.)
+├── config/              # Template profiles, xtask tiers, and publishing config
+│   ├── profiles/        # Environment-specific runtime JSON configs (default.json, etc.)
+│   └── template-profiles/  # Validated blueprints for `init-template.sh`
 ├── crates/              # Workspace member crates
 │   ├── actor-runtime-template/
 │   ├── checkpoint-template/
@@ -94,13 +92,17 @@ This repository uses a layered documentation strategy to serve both human develo
 │   ├── hybrid-storage-template/
 │   ├── mcp-server-template/
 │   ├── sample-app/      # Reference application implementing best practices
+│   ├── workspace-tests/ # Workspace-level integration and architecture fitness tests
 │   └── xtask/           # Cargo task runner
 ├── docs/                # mdbook documentation and architecture guides
-├── examples/            # Example usage of workspace crates
-│   └── hello_world/     # Simple hello world example
+├── examples/            # Standalone example binaries
+│   ├── cli_dry_run/     # Non-destructive CLI invocation example
+│   ├── hello_world/     # Simple hello world example
+│   ├── security_egress_and_path_validation/
+│   └── security_secret_detector/
 ├── fuzz/                # cargo-fuzz testing scaffold
 ├── hooks/               # Git hooks (session-start.sh, etc.)
-├── reports/             # Generated HTML review and analysis output (ignored)
+├── reports/             # Tracked DORA/quality reports (see Output Artifacts)
 ├── schema/              # JSON Schema definitions for config/API contracts
 ├── scripts/             # Automation scripts for quality gates and releases
 ├── AGENTS.md            # Canonical instructions for AI coding agents
@@ -125,8 +127,7 @@ See [docs/github-hardening.md](docs/github-hardening.md) for the full guide.
 
 ## Feature Flags
 
-The root package has no optional features (it only exports a tiny example API).
-Real feature flags live on member crates that implement them, for example:
+The workspace has no root package, so all feature flags live on member crates:
 
 | Crate | Feature | Description |
 |-------|---------|-------------|
@@ -148,6 +149,7 @@ workspace: which crates stay, which workflows run, the default CI tier, and lock
 | `service` | Long-running service | actor/storage/registry patterns + `xtask` | Committed (`Cargo.lock` tracked) |
 | `workspace` | Full reference | every crate, benchmark, and workflow | Committed (`Cargo.lock` tracked) |
 | `ai-agent` | Agent-centric dev | `sample-app` + lib crate + `xtask` + agent tooling | Committed (`Cargo.lock` tracked) |
+| `performance-sensitive` | Performance-critical | benchmark harness + lib crate + `xtask` + reference runner checklist | Committed (`Cargo.lock` tracked) |
 
 `sample-app` is the binary/CLI starter. The legacy `--profile cli` spelling
 aliases `minimal`'s workspace while retaining its historical
@@ -194,22 +196,22 @@ See **[AGENTS.md](AGENTS.md)** for instructions on maintaining and using these c
 
 The project uses several directories for generated artifacts and documentation:
 
-- **`reports/`**: Standardized directory for generated HTML reports (coverage, audit, benchmarks). This directory is git-ignored by default.
-- **`.agents/ci/`**: CI telemetry and generated summaries; workflow artifacts are downloadable and not committed to project branches.
+- **`reports/`**: Generated DORA and quality reports. `reports/DORA-REPORT.md`, `reports/dora-history.jsonl`, `reports/dora-manifest.json`, and `reports/quality-report.json` are tracked so their history is reviewable; the ignore rules for scratch HTML output live under the `# Coverage reports` block in `.gitignore`.
+- **`.agents/ci/`**: CI telemetry and generated summaries. `ci-status.json` and `ci-summary.md` are tracked (CI no longer writes them back; they are regenerated locally by `./scripts/quality-gates.sh`), while volatile artifacts such as `quality-run.json` are git-ignored and uploaded as workflow artifacts.
 - **`target/`**: Rust build artifacts.
 
 ## VERSION File
 
-A `VERSION` file at the repo root serves as a plain-text single source of truth for tooling that can't easily parse TOML.
+A `VERSION` file at the repo root is a plain-text source of truth for tooling that can't easily parse TOML.
 
-> **Versioning note:** `VERSION` is the generated project starter version; `.template/CHANGELOG-TEMPLATE.md` is internal to the template - see #135.
+> **Versioning note:** `VERSION` and `Cargo.toml [workspace.package].version` are the *starter* version inherited by generated projects (`0.0.0` in the template). The template's own meta-release version lives only in `.template/CHANGELOG-TEMPLATE.md` — see #135.
 
 ```bash
 VERSION=$(cat VERSION)
 echo "Building version $VERSION"
 ```
 
-The CI pipeline verifies `VERSION` content matches `Cargo.toml` on every push to main.
+The `VERSION consistency check` CI job runs `scripts/propagate-version.sh --check`, which fails when `VERSION`, the workspace version, or any member's inherited version disagrees. The same job also runs `scripts/check-template-version.sh` (README badge vs newest changelog release) and regenerates `llms.txt` and `.agents/SKILLS.md` to assert they are current.
 
 ## Cargo.lock Policy
 
@@ -225,7 +227,7 @@ See the [Cargo docs on Cargo.lock](https://doc.rust-lang.org/cargo/guide/cargo-t
 To adapt this template to your needs:
 
 - **Renaming Crates:** Search and replace `example-crate` and `sample-app` with your desired crate names.
-- **Adjusting Lints:** Modify `.clippy.toml` or crate-level attributes if you need to diverge from the default pedantic lint set.
+- **Adjusting Lints:** The lint policy lives in `[workspace.lints]` in the root `Cargo.toml` (a virtual workspace has no root package to attach attributes to). `.clippy.toml` holds Clippy's behavioural thresholds such as `cognitive-complexity-threshold`, not the lint levels.
 - **Security Policy:** Review `deny.toml` to customize allowed licenses and dependency bans.
 
 ## Maintenance
