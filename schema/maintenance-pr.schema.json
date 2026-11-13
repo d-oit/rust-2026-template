@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/d-oit/rust-2026-template/schema/maintenance-pr.schema.json",
+  "title": "Generated Maintenance PR Classification Policy (config/maintenance-pr.json)",
+  "description": "Central definition of the generated-maintenance fast path: which automation identities and file sets may skip Codacy, plus the status-check identities the merge policy gate accepts.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "base_ref",
+    "trusted_actors",
+    "trusted_branches",
+    "allowed_paths",
+    "validators",
+    "quality_gate_check_name",
+    "github_actions_app_id",
+    "codacy",
+    "policy_timeout_seconds",
+    "policy_poll_seconds"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "base_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trusted_actors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "trusted_branches": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_paths": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^(?!.*\\.\\.)[A-Za-z0-9._/-]+$"
+      },
+      "description": "Literal repository-relative paths. Globs, traversal segments, and absolute prefixes are rejected so a fast path can never widen by accident."
+    },
+    "validators": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["dora-artifacts"]
+      }
+    },
+    "quality_gate_check_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "github_actions_app_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "codacy": {
+      "type": "object",
+      "required": ["check_name", "app_id"],
+      "properties": {
+        "check_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "app_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "policy_timeout_seconds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "policy_poll_seconds": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "additionalProperties": false
+}

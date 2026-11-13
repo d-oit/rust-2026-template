@@ -82,11 +82,26 @@ python3 .agents/skills/dora-report/scripts/compute_dora.py \
 snapshot from the same UTC ISO week with the current one, appends snapshots from new weeks, and renders the
 latest three snapshots (rolling windows ending on each report date) as the report's trend table.
 
-### 4. Review and commit the report
+### 4. Validate and commit the report
+
+Generated artifacts are validated offline by a contract check that reuses the
+generator's own schema. Run it before committing; CI runs the same script through
+the required quality gate:
+
+```bash
+python3 scripts/validate-dora-artifacts.py
+```
+
+It fails closed on malformed manifest JSON, malformed history JSONL, missing metric
+sections, invalid timestamps, malformed input hashes, and — most importantly — drift
+between the report, the manifest, and the latest history entry for the same
+generation. Never update one artifact without regenerating all three.
 
 ```bash
 git add reports/DORA-REPORT.md reports/dora-manifest.json reports/dora-history.jsonl
-git commit -m "docs(dora): update reports/DORA-REPORT.md [skip ci]"
+# No commit-message CI skip: the maintenance fast path keeps real checks cheap,
+# while a skipped required workflow would leave the PR blocked.
+git commit -m "docs(dora): update reports/DORA-REPORT.md"
 ```
 
 ### 5. Log the report generation with metrics-reporter
@@ -109,12 +124,16 @@ per the `metrics-reporter` skill (the canonical Event File Format in
 | "We shipped a lot of features, so DORA must be good." | DORA measures flow efficiency, not volume. Ship fast but measure lead time. |
 | "Our MTTR is low because we roll back quickly." | Rollback isn't recovery. Recovery means the fix is deployed and working. |
 | "Manual deployment is fine for our team size." | Manual deployment is the #1 blocker for Deployment Frequency improvement. |
+| "I'll add `[skip ci]` so this report PR merges faster." | A skipped required workflow leaves `Quality Gate (pull-request)` pending forever, which blocks merge. The generated-maintenance fast path is the supported way to keep this PR cheap. |
+| "Only the report changed, so I can edit the manifest by hand." | The validator cross-checks report, manifest, and history. Regenerate all three with the script; hand-editing one artifact fails the gate. |
 
 ## Red Flags
 
 - [ ] Running DORA report less than monthly (trends need data points)
 - [ ] Ignoring Lead Time for Changes (the hardest metric to improve)
 - [ ] Not tracking human_interventions in metrics (hides true agent performance)
+- [ ] Committing generated artifacts without running `scripts/validate-dora-artifacts.py`
+- [ ] Adding `[skip ci]` or path filters to make the report PR "fast"
 
 ## GH CLI Usage
 

@@ -1,0 +1,74 @@
+---
+# .github/workflows/pr-merge-policy.yml
+# Repository-owned required merge-policy check (issue #504).
+#
+# GitHub rulesets cannot express conditional required checks. An unconditional
+# `Codacy Static Code Analysis` context therefore blocks the generated-maintenance
+# fast path, because a skipped Codacy run stays pending forever. This workflow
+# replaces that unconditional context with an always-running gate that decides,
+# for the exact PR head SHA, whether Codacy is required.
+#
+# Ruleset migration (documented in docs/ci/required-checks.md):
+#   1. add `PR Merge Policy Gate` as a required context (GitHub Actions);
+#   2. keep `Quality Gate (pull-request)`;
+#   3. only then remove the direct `Codacy Static Code Analysis` context.
+name: PR Merge Policy
+
+on:
+  pull_request:
+    branches: [main]
+    # `ready_for_review` is included because draft PRs skip check evaluation
+    # until they are marked ready, and the gate must publish a terminal result
+    # for every applicable state transition.
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  merge-policy:
+    # The job name MUST stay a static literal: an expression in `name:` is only
+    # evaluated when the job runs, so a skipped job would report the raw
+    # expression as its check name and never satisfy the ruleset context.
+    name: PR Merge Policy Gate
+    runs-on: ubuntu-latest
+    permissions:
+      # Least privilege: read the repository, the PR's changed files, and the
+      # check runs this gate evaluates. No write scope is needed or granted.
+      contents: read
+      pull-requests: read
+      checks: read
+    steps:
+      - name: Checkout policy configuration
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # The gate must read the policy and the scripts pinned to the PR head,
+          # which is the code being judged.
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Enforce merge policy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The exact current PR head SHA from the event payload — never the
+          # synthetic merge commit or a possibly-stale API `head.sha`.
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_ACTOR: ${{ github.event.pull_request.user.login }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -euo pipefail
+          python3 scripts/pr-merge-policy.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --pr "$PR_NUMBER" \
+            --head-sha "$HEAD_SHA" \
+            --actor "$PR_ACTOR" \
+            --head-ref "$PR_HEAD_REF" \
+            --base-ref "$PR_BASE_REF" \
+            --event "$GITHUB_EVENT_NAME" \
+            --summary-file "$GITHUB_STEP_SUMMARY"

@@ -6,6 +6,7 @@ def evaluate(data):
     changes_result = data.get("changes_result", "")
     changes = data.get("changes", {})
     jobs = data.get("jobs", {})
+    maintenance = data.get("maintenance") or {}
 
     if changes_result != "success":
         return False, [
@@ -18,6 +19,34 @@ def evaluate(data):
     agents_changed = str(changes.get("agents", "")).lower() == "true"
     workflows_changed = str(changes.get("workflows", "")).lower() == "true"
     is_pr = (event_name == "pull_request")
+
+    # The generated-maintenance fast path replaces the full pull-request tier
+    # with the allowlisted validators. Accept it only when the classifier
+    # explicitly granted it; anything ambiguous keeps the normal contract
+    # (issue #503 - a fast path must never be inferred from a missing payload).
+    # Job outputs arrive as strings, so normalise before trusting them.
+    granted = str(maintenance.get("maintenance_only", "")).strip().lower()
+    maintenance_only = granted == "true"
+    maintenance_source = str(maintenance.get("source", "")).strip()
+    if maintenance_only and maintenance_source not in ("classifier",):
+        return False, [
+            f"Maintenance classification came from an untrusted source "
+            f"('{maintenance_source or '<missing>'}'); only the file-set classifier "
+            "may grant the fast path."
+        ]
+
+    if maintenance_only and not is_pr:
+        return False, [
+            "Maintenance fast path was requested for a non-PR event "
+            f"('{event_name}'); the fast path only applies to pull requests."
+        ]
+
+    if maintenance_only and (code_changed or agents_changed or workflows_changed or heavy_changed):
+        return False, [
+            "Maintenance fast path was granted for a PR that also changed code, "
+            "agents, workflows, or heavy paths. The classifier must not allow this; "
+            "falling back to the full contract."
+        ]
 
     job_configs = {
         "validate-agents": {
@@ -70,6 +99,9 @@ def evaluate(data):
         else:
             failures.append(f"Job '{job_name}' ended with status '{res}'. -> {config['hint']}")
 
+    # A maintenance-only PR is required to run the fast-path validators inside the
+    # required quality gate, which the loop above already enforces. Nothing else
+    # may be skipped differently, so no extra exemptions are granted here.
     return (len(failures) == 0), failures
 
 def main():

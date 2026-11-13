@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-11-13T09:00:00Z",
+  "agent": "opencode",
+  "skill": "release-rust",
+  "task_description": "Verify the crates.io trusted-publishing path against production and fix a latent workflow bug: both release.yml invocations placed the top-level --root flag after the subcommand, which argparse rejects with exit 2",
+  "success": true,
+  "human_interventions": 1,
+  "tokens_used": 0,
+  "verification": [
+    "Ran the exact workflow commands: broken form exits 2, corrected form exits 0",
+    "cargo publish --dry-run --locked on a real workspace crate: packages, verifies, uploads (dry run)",
+    "Workspace-inherited version (version.workspace = true) resolves correctly at publish time",
+    "--locked works without a committed Cargo.lock (library-repo policy)",
+    "New contract test fails on the previous workflow and passes on the fix (non-vacuous)",
+    "Pinned crates-io-auth-action SHA 3268eb41 matches upstream tag v1.0.6 exactly"
+  ],
+  "notes": "The publish job has never executed in production: every release run predates it, no crate is on crates.io, and the allowlist ships empty. The bug was therefore latent, not a regression. Fixed at source on PR #501 and documented that the release environment must be created manually, because GitHub auto-creates a named environment with no protection rules."
+}

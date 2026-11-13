@@ -34,6 +34,32 @@
         "Computes human_interventions ratio",
         "Reports agent task success rate"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Validate the committed DORA report artifacts before I commit them",
+      "expected_output": "Runs the offline artifact validator and reports any report/manifest/history drift",
+      "files": [
+        "scripts/validate-dora-artifacts.py"
+      ],
+      "assertions": [
+        "Runs `python3 scripts/validate-dora-artifacts.py` rather than a hand-rolled check",
+        "Validates all three artifacts: report, manifest, and history",
+        "Treats drift between the artifacts as a failure, not a warning",
+        "Does not fetch live GitHub data to validate committed files"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The weekly DORA report PR has been blocked for days. Can we add [skip ci] so it merges?",
+      "expected_output": "Explains that a skipped required workflow stays pending and blocks merge, and points at the generated-maintenance fast path instead",
+      "files": [],
+      "assertions": [
+        "Refuses to add `[skip ci]` or workflow-level path filters",
+        "Explains that skipped required checks remain pending and block merge",
+        "Identifies the generated-maintenance fast path as the supported optimization",
+        "Does not suggest bypassing the ruleset or using an admin merge"
+      ]
     }
   ]
 }
