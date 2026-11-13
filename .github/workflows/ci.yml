@@ -266,11 +266,59 @@ jobs:
       needs.changes.outputs.docs == 'true' ||
       needs.changes.outputs.workflows == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      # Exposed so `CI Success` can validate the fast path against the same
+      # decision the gate acted on. Empty on non-PR events.
+      maintenance_only: ${{ steps.classify.outputs.maintenance_only }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
+      # Classification runs before any toolchain installation (issue #503). It
+      # needs only the runner's python3, so a generated-maintenance PR never pays
+      # the Rust/shell/YAML/actionlint setup cost. The decision is fail-closed and
+      # published for the PR Merge Policy Gate and CI telemetry.
+      - name: Classify generated maintenance PR
+        id: classify
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_ACTOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          set -euo pipefail
+          mkdir -p .agents/ci
+          gh api --paginate --slurp \
+            "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+            > .agents/ci/pr-files.json
+          python3 scripts/classify-maintenance-pr.py \
+            --files-from .agents/ci/pr-files.json \
+            --actor "$PR_ACTOR" \
+            --head-ref "$PR_HEAD_REF" \
+            --base-ref "$PR_BASE_REF" \
+            --event "$GITHUB_EVENT_NAME" \
+            > .agents/ci/maintenance-classification.json
+          MAINTENANCE=$(python3 -c 'import json; \
+          print(str(json.load(open(".agents/ci/maintenance-classification.json"))["maintenance_only"]).lower())')
+          echo "maintenance_only=${MAINTENANCE}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Generated maintenance classification"
+            echo ""
+            echo '```json'
+            cat .agents/ci/maintenance-classification.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Run generated maintenance validators
+        if: steps.classify.outputs.maintenance_only == 'true'
+        run: bash scripts/maintenance-validate.sh --classification .agents/ci/maintenance-classification.json
+      # ── Full pull-request tier (unchanged behaviour) ──────────────────────
+      # Everything below is skipped only when the classifier granted the fast
+      # path. Every other PR runs the complete tier exactly as before.
       - name: Report resolved tier
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             TIER=pull-request
@@ -280,15 +328,62 @@ jobs:
           echo "Resolved quality tier: $TIER"
           echo "### Resolved quality tier: \`$TIER\`" >> "$GITHUB_STEP_SUMMARY"
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec  # stable
+        if: steps.classify.outputs.maintenance_only != 'true'
         with:
           components: llvm-tools-preview
       - uses: ./.github/actions/setup-rust
-      - name: Install verification tooling
+        if: steps.classify.outputs.maintenance_only != 'true'
+      # Resolve which checks the tier will actually run before installing
+      # optional tooling, so a Markdown-only PR does not install the Rust,
+      # shell, YAML, or actionlint tool sets.
+      - name: Resolve selected quality checks
+        id: plan
+        if: steps.classify.outputs.maintenance_only != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p .agents/ci
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TIER=pull-request
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            TIER=protected-branch
+            BASE="${{ github.event.before }}"
+          fi
+          if [ -n "$BASE" ]; then
+            cargo run --quiet -p xtask --bin xtask -- quality plan \
+              --tier "$TIER" --changed-from "$BASE" | tee .agents/ci/quality-plan.txt
+          else
+            cargo run --quiet -p xtask --bin xtask -- quality plan --tier "$TIER" \
+              | tee .agents/ci/quality-plan.txt
+          fi
+          {
+            echo "### Selected quality checks"
+            echo ""
+            echo '```'
+            cat .agents/ci/quality-plan.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          NEEDS=$(python3 scripts/quality-plan-tools.py .agents/ci/quality-plan.txt)
+          echo "needs=${NEEDS}" >> "$GITHUB_OUTPUT"
+          echo "Selected tool groups: ${NEEDS}"
+      - name: Install Cargo verification tooling
+        if: steps.classify.outputs.maintenance_only != 'true' && contains(steps.plan.outputs.needs, 'cargo')
         uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b  # v2
         with:
-          tool: cargo-nextest,cargo-llvm-cov,cargo-audit,cargo-deny,cargo-machete
-      - name: Install quality-check tooling
+          tool: cargo-nextest,cargo-llvm-cov
+      - name: Install Rust security tooling
+        if: steps.classify.outputs.maintenance_only != 'true' && contains(steps.plan.outputs.needs, 'security')
+        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b  # v2
+        with:
+          tool: cargo-audit,cargo-deny,cargo-machete
+      - name: Install shell, YAML, and Markdown tooling
+        if: >-
+          steps.classify.outputs.maintenance_only != 'true' &&
+          (contains(steps.plan.outputs.needs, 'shell') ||
+          contains(steps.plan.outputs.needs, 'yaml') ||
+          contains(steps.plan.outputs.needs, 'markdown'))
         run: |
+          set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y shellcheck yamllint
           npm install -g markdownlint-cli2
@@ -296,12 +391,14 @@ jobs:
           # runner image shipping it, or those tests degrade to no-ops.
           python3 -m pip install --user pyyaml
       - name: Install actionlint
+        if: steps.classify.outputs.maintenance_only != 'true' && contains(steps.plan.outputs.needs, 'actionlint')
         run: |
           ACTIONLINT_VERSION=1.7.12
           SCRIPT=https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash
           bash <(curl -fsSL "${SCRIPT}") "${ACTIONLINT_VERSION}" /usr/local/bin
           actionlint --version
       - name: Publish configured verification tiers
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: |
           echo "### Verification tiers (config/xtask.json)" >> "$GITHUB_STEP_SUMMARY"
           for tier in pull-request protected-branch scheduled release; do
@@ -312,6 +409,7 @@ jobs:
             echo '```' >> "$GITHUB_STEP_SUMMARY"
           done
       - name: Run trigger tier
+        if: steps.classify.outputs.maintenance_only != 'true'
         env:
           XTASK_TEST_COVERAGE: "1"
         run: |
@@ -338,20 +436,38 @@ jobs:
           files: ./lcov.info
           fail_ci_if_error: false
       - name: Validate CI quality ownership contract
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/ci_quality_ownership_test.sh
       - name: Validate quality gate fail-closed contracts
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/quality_gate_contracts_test.sh
       - name: Validate do-harness integration
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/do_harness_integration_test.sh
       - name: Validate CI regression matrix
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/ci_regression_matrix_test.sh
+      - name: Validate maintenance classification and DORA artifacts
+        run: bash tests/maintenance_classification_test.sh
+      - name: Validate PR merge policy gate
+        run: bash tests/pr_merge_policy_test.sh
+      - name: Validate workflow maintenance contracts
+        run: bash tests/workflow_maintenance_contract_test.sh
+      - name: Validate quality-plan tool mapping
+        if: steps.classify.outputs.maintenance_only != 'true'
+        run: bash tests/quality_plan_tools_test.sh
+      - name: Validate CI required-job evaluator
+        run: bash tests/ci_required_evaluate_test.sh
       - name: Validate release provenance regression fixture
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/release_provenance_test.sh
       - name: Validate overview diagram is current
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/overview_diagram_test.sh
       - name: Validate workflow permissions
         run: bash tests/workflow_permissions_test.sh
       - name: Validate quality-gate telemetry contract
+        if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/ci_telemetry/telemetry_integration_test.sh --use-existing
       - name: Publish quality summary
         if: always()
@@ -463,6 +579,10 @@ jobs:
               "heavy": "${{ needs.changes.outputs.heavy }}",
               "agents": "${{ needs.changes.outputs.agents }}",
               "workflows": "${{ needs.changes.outputs.workflows }}"
+            },
+            "maintenance": {
+              "maintenance_only": "${{ needs.quality-gate.outputs.maintenance_only }}",
+              "source": "classifier"
             },
             "jobs": {
               "validate-agents": "${{ needs.validate-agents.result }}",

@@ -127,4 +127,48 @@ if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "Job 'validate-agents' w
 fi
 echo "✓ Push event with skipped jobs correctly rejected: PASSED"
 
+# Test 9: Maintenance-only PR with legitimate skips -> PASS (0)
+echo "[9/12] Testing generated-maintenance fast path acceptance..."
+if ! "$EVAL_SCRIPT" "${FIXTURES_DIR}/maintenance_fast_path_valid.json" >/dev/null 2>&1; then
+  echo "FAIL: Valid maintenance-only PR fixture should have passed."
+  exit 1
+fi
+echo "✓ Maintenance-only PR with allowlisted validators and legitimate skips: PASSED"
+
+# Test 10: Maintenance classification alongside a code change -> FAIL
+echo "[10/12] Testing maintenance fast path claiming a mixed code PR..."
+set +e
+output=$("$EVAL_SCRIPT" "${FIXTURES_DIR}/maintenance_fast_path_mixed_code.json" 2>&1)
+exit_code=$?
+set -e
+if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "cannot\|must not allow this\|also changed code"; then
+  echo "FAIL: Expected mixed maintenance+code rejection, got exit code $exit_code. Output: $output"
+  exit 1
+fi
+echo "✓ Maintenance fast path cannot cover a PR that also changes code: PASSED"
+
+# Test 11: Maintenance classification from an untrusted source -> FAIL
+echo "[11/12] Testing maintenance fast path with an untrusted source..."
+set +e
+output=$("$EVAL_SCRIPT" "${FIXTURES_DIR}/maintenance_fast_path_untrusted_source.json" 2>&1)
+exit_code=$?
+set -e
+if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "untrusted source"; then
+  echo "FAIL: Expected untrusted maintenance source rejection, got exit code $exit_code. Output: $output"
+  exit 1
+fi
+echo "✓ Maintenance fast path requires the file-set classifier as its source: PASSED"
+
+# Test 12: Maintenance-only PR whose validator run failed -> FAIL
+echo "[12/12] Testing maintenance fast path with a failing validator gate..."
+set +e
+output=$("$EVAL_SCRIPT" "${FIXTURES_DIR}/maintenance_fast_path_gate_failed.json" 2>&1)
+exit_code=$?
+set -e
+if [[ $exit_code -eq 0 ]] || ! echo "$output" | grep -q "Job 'quality-gate' ended with status 'failure'"; then
+  echo "FAIL: Expected failing maintenance validator rejection, got exit code $exit_code. Output: $output"
+  exit 1
+fi
+echo "✓ Maintenance fast path still fails when its validators fail: PASSED"
+
 echo "=== All CI Required Job Evaluator tests PASSED successfully ==="

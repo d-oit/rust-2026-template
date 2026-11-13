@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-11-13T00:00:00Z",
+  "agent": "opencode",
+  "skill": "issue-triage",
+  "task_description": "Implement open issues #502, #503, #504: generated-maintenance CI fast path, conditional Codacy merge policy gate, and DORA report auto-merge",
+  "issues": [502, 503, 504],
+  "success": true,
+  "human_interventions": 1,
+  "tokens_used": 0,
+  "tests_run": [
+    "tests/maintenance_classification_test.sh",
+    "tests/pr_merge_policy_test.sh",
+    "tests/workflow_maintenance_contract_test.sh",
+    "tests/quality_plan_tools_test.sh",
+    "tests/ci_required_evaluate_test.sh",
+    "scripts/quality-gates.sh --tier pull-request"
+  ],
+  "notes": "Scope confirmed with the user: PR #501 already closes #495-#499, so this change covers only the CI maintenance issues. All work landed in one pull request per the single-PR policy."
+}
