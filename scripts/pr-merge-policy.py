@@ -43,10 +43,10 @@ import maintenance_policy  # noqa: E402  - shared policy engine
 
 POLICY_PATH = maintenance_policy.POLICY_PATH
 
-# GitHub's REST API. Requests use a pinned HTTPS host and an explicit TLS
-# context, and every request path is built from validated components. That rules
-# out both the `subprocess` argument-injection surface and any `file://` or
-# custom-scheme URL ambiguity in generic URL openers.
+# GitHub's REST API. Requests go to a pinned HTTPS host through an explicit TLS
+# context, and every request path is built from validated components. No child
+# process is spawned and no user-controlled URL is dereferenced, so there is no
+# command-injection or scheme-confusion surface here.
 API_HOST = "api.github.com"
 API_VERSION = "2022-11-28"
 MAX_PAGES = 50
