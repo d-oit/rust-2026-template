@@ -369,7 +369,12 @@ impl XtaskConfig {
             Q::WorkflowValidation,
             vec![
                 ".github/workflows/*.yml".to_string(),
+                "config/trusted-publishing.json".to_string(),
+                "scripts/trustpub.py".to_string(),
+                "scripts/trustpub.sh".to_string(),
                 "scripts/validate-workflows.sh".to_string(),
+                "tests/trusted_publishing_contract_test.sh".to_string(),
+                "tests/trustpub_cli_test.sh".to_string(),
             ],
         );
         map.insert(

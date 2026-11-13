@@ -19,9 +19,17 @@ metadata:
 3. **Write draft** - Create SKILL.md with frontmatter and instructions
 4. **Create test cases** - Realistic prompts users would actually say
 5. **Run evals** - Test with-skill vs baseline (or old version)
-6. **Review results** - Use eval-viewer for human review + benchmarks
+6. **Review results** - `bash scripts/run-evals.sh --verbose` (validates eval
+   JSON structure) plus a subjective grading pass via the `skill-evaluator`
+   skill for output quality
 7. **Iterate** - Improve based on feedback until satisfied
 8. **Optimize description** - Fine-tune frontmatter for better triggering
+
+`scripts/run-evals.sh` does not execute prompts — it validates eval JSON
+structure. Real grade runs go through the `skill-evaluator` skill, and CI
+(`.github/workflows/skills-evaluation.yml`) runs structure checks on pushes and
+PRs touching `.agents/skills/`. There is no `eval-viewer` in this repository —
+do not cite one.
 
 ---
 
@@ -122,6 +130,17 @@ Store in `evals/evals.json`:
 - **Near-misses**: Include queries that share keywords but need something different
 
 ---
+
+## Validation (run before finishing)
+
+```bash
+bash scripts/validate-skills.sh
+```
+
+This hard-fails on: missing/mismatched frontmatter `name`, non-spec frontmatter
+keys (only the six spec fields are allowed), body over 250 lines, and missing
+`SKILL.md`. Recommended (warn only): `metadata.category`, `## Rationalizations`,
+`## Red Flags`, and `evals/evals.json`.
 
 ## Reference Files
 

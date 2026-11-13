@@ -7,7 +7,7 @@
       "expected_output": "Runs scripts/generate_overview.py with --no-export and writes an Excalidraw JSON file containing the section frames",
       "files": [],
       "assertions": [
-        "Runs python .agents/skills/architecture-diagram/scripts/generate_overview.py with --no-export",
+        "Runs python3 .agents/skills/architecture-diagram/scripts/generate_overview.py with --no-export",
         "Writes a file whose content contains \"type\": \"excalidraw\"",
         "Generated file contains the section heading texts GETTING STARTED, BY THE NUMBERS, and HOW IT CONNECTS"
       ]

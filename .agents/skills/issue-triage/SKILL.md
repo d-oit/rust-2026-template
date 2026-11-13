@@ -76,9 +76,10 @@ fi
 ```
 [Start]
    ↓
-Phase 1: DETECT PLATFORM
+Phase 1: DETECT PLATFORM + CONTEXT
    - Check git remote URL
    - Select gh or glab CLI
+   - Read .agents/context/workflow-state.json to reuse pending/active work
    ↓
 Phase 2: DISCOVER
    - gh issue list / glab issue list
@@ -111,7 +112,16 @@ Phase 7: REPORT
    - Summarize implemented issues
    - List any skipped/blocked issues
    - Report CI status
+   - Record event file (see Handoff, below)
 ```
+
+**Handoff**: after REPORT, write an event file to
+`.agents/events/YYYY/MM/DD/` with `skill: "issue-triage"` per the
+`metrics-reporter` skill (canonical Event File Format in
+`.agents/ORCHESTRATION.md`) and update `.agents/context/workflow-state.json`
+(`current_phase`, `pending_skill`, result fields) — the handoff protocol
+required of every coordinating skill. Do not append to the legacy
+`.agents/metrics.jsonl`.
 
 ## Categorization Rules
 
@@ -149,11 +159,11 @@ Look for:
 
 ## Quality Gates
 
-| Phase | Check | Failure Action |
+| phase | Check | Failure Action |
 |-------|-------|----------------|
 | PLAN | All issues categorized | Re-scan with labels |
-| IMPLEMENT | Each change compiles | Fix before proceeding |
-| VERIFY | `./scripts/quality-gates.sh` | Fix and retry |
+| IMPLEMENT | Each change compiles (see `build-rust`) | Fix before proceeding |
+| VERIFY | `./scripts/quality-gates.sh` (canonical wrapper over `cargo xtask -- quality run`; pick the tier with `--tier pull-request` for the fast PR set) | Fix and retry |
 | VERIFY | All CI checks pass | `self-fix-loop` skill |
 | REPORT | PR/MR created and green | Done |
 

@@ -91,6 +91,7 @@ The five costliest Tokio misapplications — `spawn_blocking` and `yield_now` us
 reflexively, a second runtime, `RwLock` where `Mutex` or a snapshot fits, and a lock
 held across `.await` — are worked through with symptom, cost, and the correct
 alternative in `references/counter-examples.md`. Read it before accepting any of them.
+The worked examples are also linked in the References section below.
 
 ## Regression Harness (Preferred Evidence)
 
@@ -173,4 +174,5 @@ Capture metrics to distinguish execution phase behavior:
 - Tokio documentation: https://tokio.rs/tokio/tutorial
 - Principles for Fast Tokio Applications: https://dial9-rs.github.io/blog/principles-for-fast-tokio-applications/
 - Rust Performance Book: https://nnethercote.github.io/perf-book/
+- Worked counter-examples: [`references/counter-examples.md`](references/counter-examples.md)
 - Harness entry point: [`benchmarks/README.md`](../../../benchmarks/README.md)

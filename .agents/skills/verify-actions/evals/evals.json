@@ -102,6 +102,19 @@
         "Each SHA has a version comment",
         "Agent verified each SHA against upstream"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "Add crates.io OIDC publishing to release.yml with rust-lang/crates-io-auth-action@v1",
+      "expected_output": "Agent resolves the v1 release commit, pins the SHA with a version comment, and keeps id-token write scoped to the publish job",
+      "files": [
+        ".github/workflows/release.yml"
+      ],
+      "assertions": [
+        "Resolves the SHA for a v1.x release tag via gh api",
+        "Pins rust-lang/crates-io-auth-action by 40-character SHA",
+        "Grants id-token: write only to the crates.io publish job"
+      ]
     }
   ]
 }

@@ -121,6 +121,22 @@ Always **name the problem** before fixing it.
 - **Flat is better than deep.** One layer of abstraction does more than three thin ones.
 - **Zero-cost means earned.** Don't add generics for flexibility you won't use.
 
+## Repository Enforcement
+
+This workspace already fails the build for several patterns above, so "fix"
+means changing the code, not silencing the lint:
+
+- `clippy::unwrap_used` and `clippy::expect_used` are denied in library code;
+  binaries and tests may opt out with a reasoned attribute.
+- `clippy::allow_attributes` and `allow_attributes_without_reason` are denied,
+  so adding `#[allow(...)]` is itself a failure unless a reason is supplied.
+- `#![forbid(unsafe_code)]` applies at the crate roots; `// Safety:` comments
+  are only relevant to the explicitly reviewed `unsafe` sites that remain.
+- `missing_docs` and rustdoc link checks run in the quality gate.
+
+Run `./scripts/quality-gates.sh --only clippy` while iterating and the full
+gate before committing.
+
 ## Rationalizations
 
 | Rationalization | Reality |

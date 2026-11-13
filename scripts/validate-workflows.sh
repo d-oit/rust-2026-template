@@ -256,6 +256,25 @@ else
 fi
 echo ""
 
+# 6. crates.io trusted publishing contract
+# Guards the allowlist, release workflow job graph, OIDC permissions, and docs
+# links. Runs offline and needs no crates.io credentials.
+info "Checking crates.io trusted publishing contract..."
+for test_script in \
+  tests/trusted_publishing_contract_test.sh \
+  tests/trustpub_cli_test.sh; do
+  if [[ ! -f "$test_script" ]]; then
+    fail "Trusted publishing test missing: $test_script"
+    continue
+  fi
+  if bash "$test_script"; then
+    pass "Trusted publishing: $test_script"
+  else
+    fail "Trusted publishing: $test_script"
+  fi
+done
+echo ""
+
 # Summary
 if [[ $FAILED -ne 0 ]]; then
   echo -e "${RED}Workflow validation FAILED${NC}"

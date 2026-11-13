@@ -1,102 +1,27 @@
 {
-  "timestamp": "2026-11-13T07:36:11Z",
-  "commit": "5c0a04b741379aa8430c74758863f04cd6e64962",
-  "branch": "feat/ci-maintenance-fast-path",
+  "timestamp": "2026-11-13T09:28:37Z",
+  "commit": "e466fe7b6138bd95fe4fdf03acb8e1a2878cfabb",
+  "branch": "fix/merge-501",
   "checks": [
-    {
-      "name": "LOC Limits",
-      "status": "success",
-      "message": "Passed in 12.231932ms"
-    },
-    {
-      "name": "Rust Format",
-      "status": "success",
-      "message": "Passed in 236.176109ms"
-    },
     {
       "name": "Rust Clippy",
       "status": "success",
-      "message": "Passed in 174.174623ms"
-    },
-    {
-      "name": "Rust Build",
-      "status": "success",
-      "message": "Passed in 139.151223ms"
+      "message": "Passed in 25.533928089s"
     },
     {
       "name": "Rust Tests",
       "status": "success",
-      "message": "Passed in 3.020405149s"
+      "message": "Passed in 46.713389592s"
     },
     {
       "name": "Rust Doc Tests",
       "status": "success",
-      "message": "Passed in 722.836676ms"
+      "message": "Passed in 1.307035338s"
     },
     {
       "name": "Rust Doc Build",
       "status": "success",
-      "message": "Passed in 114.007008ms"
-    },
-    {
-      "name": "Rust Security Audit",
-      "status": "success",
-      "message": "Passed in 780.637759ms"
-    },
-    {
-      "name": "Rust Dependency Policy (Deny)",
-      "status": "success",
-      "message": "Passed in 1.13279687s"
-    },
-    {
-      "name": "Rust MSRV Audit",
-      "status": "success",
-      "message": "Passed in 433.845117ms"
-    },
-    {
-      "name": "Shell Script Lint (ShellCheck)",
-      "status": "success",
-      "message": "Passed in 2.534602507s"
-    },
-    {
-      "name": "Markdown Lint (markdownlint-cli2)",
-      "status": "success",
-      "message": "Passed in 1.720373465s"
-    },
-    {
-      "name": "YAML Lint (yamllint)",
-      "status": "success",
-      "message": "Passed in 622.860151ms"
-    },
-    {
-      "name": "Skill Validation",
-      "status": "success",
-      "message": "Passed in 410.79688ms"
-    },
-    {
-      "name": "Skill Evaluations",
-      "status": "success",
-      "message": "Passed in 1.743100208s"
-    },
-    {
-      "name": "Privacy Check (No emails)",
-      "status": "success",
-      "message": "Passed in 42.198873ms"
-    },
-    {
-      "name": "Secret Scan",
-      "status": "success",
-      "message": "Passed in 90.81032ms"
-    },
-    {
-      "name": "GitHub Actions Workflow Validation",
-      "status": "success",
-      "message": "Passed in 2.244410643s"
-    },
-    {
-      "name": "GitHub Actions Semantic Check (actionlint)",
-      "status": "success",
-      "message": "Passed in 15.731189ms"
+      "message": "Passed in 5.663775426s"
     }
   ],
   "overall": "success"

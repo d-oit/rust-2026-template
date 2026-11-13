@@ -461,6 +461,10 @@ jobs:
       - name: Validate release provenance regression fixture
         if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/release_provenance_test.sh
+      - name: Validate trusted publishing contract
+        run: bash tests/trusted_publishing_contract_test.sh
+      - name: Validate trusted publishing CLI
+        run: bash tests/trustpub_cli_test.sh
       - name: Validate overview diagram is current
         if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/overview_diagram_test.sh

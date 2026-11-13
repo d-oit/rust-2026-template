@@ -9,7 +9,8 @@
       "assertions": [
         "Runs clippy with -D warnings",
         "Runs cargo fmt --check",
-        "Runs cargo audit and cargo deny"
+        "Runs cargo audit and cargo deny",
+        "Prefers the canonical wrapper ./scripts/quality-gates.sh or explains the xtask tier selection"
       ]
     },
     {

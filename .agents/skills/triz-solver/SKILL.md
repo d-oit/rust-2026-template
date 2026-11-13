@@ -185,8 +185,6 @@ Result: Borrow enforced where needed, flexible where not
 ## Integration with Other Skills
 
 - **task-decomposition**: Use TRIZ to identify contradictions before decomposing
-- **agent-coordination**: Apply IFR to coordination strategy selection
-- **iterative-refinement**: Use contradiction analysis to guide refinement cycles
 - **triz-analysis**: Audit first, then solve
 - **anti-ai-slop**: Validate the TRIZ solution isn't boilerplate-heavy
 

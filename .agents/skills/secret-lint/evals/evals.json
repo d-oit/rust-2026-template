@@ -8,11 +8,11 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "I need to check our repository for credentials and API keys before opening a pull request. How do I scan for secrets?",
-      "expected_output": "Run make secrets-lint from the repository root to invoke secretlint.",
+      "expected_output": "Run secretlint from the repository root (npm --prefix .agents/skills/secret-lint, the node_modules binary, or quality-gates.sh --only secret); no make secrets target exists.",
       "files": [],
       "assertions": [
-        "Recommends running make secrets-lint",
-        "Mentions pre-commit hook and CI secretlint.yml integration",
+        "Recommends an actually working scan command (npm --prefix .agents/skills/secret-lint run secretlint, .agents/skills/secret-lint/node_modules/.bin/secretlint, or bash scripts/quality-gates.sh --only secret), not a nonexistent make target",
+        "Mentions the homegrown .githooks/pre-commit scan (staged .rs files only) and the secretlint.yml CI integration",
         "References .secretlintrc.json configuration"
       ]
     },
@@ -21,11 +21,12 @@
       "split": "train",
       "should_trigger": true,
       "prompt": "Secretlint is reporting a false positive on a synthetic test token in our test suite. How do I handle this?",
-      "expected_output": "Configure .secretlintignore at the repository root to exclude the specific test fixture or pattern rather than disabling rules globally.",
+      "expected_output": "Configure .secretlintignore at the repository root to exclude the specific fixture path (or extend the native gate's exclude regex) rather than disabling rules globally.",
       "files": [],
       "assertions": [
         "Recommends updating .secretlintignore for false positive exclusion",
-        "Warns against bypassing secret checks or committing real credentials"
+        "Warns against bypassing secret checks or committing real credentials",
+        "Recommends excluding the narrowest fixture path, not disabling a whole rule"
       ]
     },
     {

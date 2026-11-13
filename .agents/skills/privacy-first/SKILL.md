@@ -29,10 +29,13 @@ metadata:
 
 ### 1. Before Writing Any File
 
-Before creating or editing any file, check for email patterns:
+Never introduce an email address yourself — not in code, config, docs,
+comments, or commit examples. The pre-commit hook and quality gate (see
+Existing Enforcement) will catch Rust files and tracked files respectively,
+but a gate catching your mistake still means the mistake was made:
 
 ```bash
-# Scan the file being edited for email patterns
+# Re-check a file you just edited — the same pattern the gate uses
 grep -E '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' <file> || true
 ```
 
@@ -86,24 +89,33 @@ The following are permitted and should NOT be flagged:
 - Git history (cannot modify)
 - Skill reference files with generic examples (for demonstration)
 
-## Quality Gate Integration
+## Existing Enforcement (run these, don't reinvent)
 
-Add to `scripts/quality-gates.sh` or CI:
+Privacy scanning is already wired into this repository — do not paste a new
+grep snippet into `scripts/quality-gates.sh`; that file is a thin wrapper around
+`cargo xtask quality run`, and the Privacy Check lives in
+`crates/xtask/src/quality_helpers.rs` (`run_privacy_check`).
 
 ```bash
-# Scan for email patterns (exclude test data and git)
-EMAIL_PATTERN='[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-EXCLUDE_PATTERN='example\.com|example\.org|test\.com|\.git|node_modules|target'
+# Run only the Privacy Check (fast feedback)
+bash scripts/quality-gates.sh --only privacy
 
-# Check source files
-if grep -rE "$EMAIL_PATTERN" \
-  --include="*.rs" --include="*.toml" \
-  --include="*.yaml" --include="*.json" --include="*.md" . \
-  2>/dev/null | grep -vE "$EXCLUDE_PATTERN"; then
-  echo "ERROR: Email address detected in codebase"
-  exit 1
-fi
+# It also runs inside the full gate, on every tier used for PRs/releases
+bash scripts/quality-gates.sh
 ```
+
+Two scanners already run automatically:
+
+- **Pre-commit** — `.githooks/pre-commit` (installed by `./scripts/bootstrap.sh`
+  via `core.hooksPath`) greps staged `.rs` files for emails, excluding
+  `example.com`/`example.org`/`test.com`. Rust files only; config files reach
+  the next scanner.
+- **Quality gate** — `run_privacy_check` scans every git-tracked file (all
+  file types) for email matches, failing the gate on any non-test-domain hit.
+  It is part of the `pull-request`, `protected-branch`, and `release` tiers.
+
+If a scan flags a legitimate test fixture, prefer keeping the privacy rule and
+fixing the fixture (use `example.com`) over widening the exclude pattern.
 
 ## Quick Reference
 

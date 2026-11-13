@@ -45,20 +45,20 @@ When a computational sensor fires:
 4. **Apply the minimal fix** — do not refactor unrelated code.
 5. **Re-run the specific sensor** — `cargo fmt`, `cargo clippy`, etc.
 6. **Only commit when the sensor is green.**
-7. **Write a metrics event** to `.agents/events/YYYY/MM/DD/` per the `metrics-reporter` skill.
+7. **Write a metrics event** — a per-event JSON file in `.agents/events/YYYY/MM/DD/` per the `metrics-reporter` skill (canonical Event File Format in `.agents/ORCHESTRATION.md`; do not append to the legacy `.agents/metrics.jsonl`).
 
 ## Sensor Quick Reference
 
 | Sensor | Command | Config | Stage |
 |--------|---------|--------|-------|
-| fmt | `cargo fmt --all -- --check` | `.pre-commit-config.yaml` | pre-commit |
-| clippy | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | `.clippy.toml`, `.pre-commit-config.yaml` | pre-commit + CI |
-| deny | `cargo deny check` | `deny.toml` | pre-commit + CI |
-| nextest | `cargo nextest run` | `Cargo.toml` | CI |
-| mutants | `cargo mutants` | `[workspace.metadata.cargo-mutants]` in `Cargo.toml` | CI weekly |
-| arch_fitness | `cargo test --test arch_fitness` | `tests/arch_fitness.rs` | CI |
+| fmt | `cargo fmt --all -- --check` | `.pre-commit-config.yaml` | pre-commit (fast) |
+| clippy | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | `.clippy.toml`, `.pre-commit-config.yaml` | pre-push only (`harness-check.sh` hook) + CI |
+| deny | `cargo deny check` | `deny.toml` | pre-push only (`harness-check.sh` hook) + CI |
+| nextest | `cargo nextest run --workspace` | `.config/nextest.toml` | CI |
+| mutants | `cargo mutants --workspace --test-tool nextest` | `[workspace.metadata.cargo-mutants]` in `Cargo.toml` | CI: weekly Mon 03:00 UTC + push to `main`/`develop` (survivors are `continue-on-error`) |
+| arch_fitness | `cargo test --test arch_fitness --package workspace-tests` | `crates/workspace-tests/tests/arch_fitness.rs` | local only (`harness-check.sh arch`; no workflow runs it) |
 | insta snapshots | `make insta-test` / `cargo insta review` | `crates/workspace-tests/tests/behaviour_harness.rs` | CI |
-| gitleaks | `gitleaks detect` | `.gitleaks.toml` | CI |
+| gitleaks | `gitleaks detect` | `.gitleaks.toml` | CI (`security-scan.yml`) |
 
 ## Snapshot Contract
 
@@ -66,9 +66,9 @@ Treat snapshot changes as behavior changes. Inspect them with `cargo insta revie
 
 ## Steering Loop
 
-When any sensor fires **repeatedly** (>2 times in one sprint):
+When any sensor fires **repeatedly** (3 or more matches in one review — `distill-strikes.sh`'s default and recommended `--threshold 3`):
 
-1. Run `./scripts/distill-strikes.sh --threshold 3` to cluster repeated failure signatures from `.agents/ci/regression-matrix.json` and recent quality history.
+1. Run `./scripts/distill-strikes.sh --threshold 3` to cluster repeated failure signatures from `.agents/ci/regression-matrix.json` and recent quality run history (`.agents/ci/quality-run.json`).
 2. If the fail-fast threshold is reached and no guide exists, `distill-strikes.sh` drafts a starter skill skeleton (`.agents/skills/drafts/<subsystem>/SKILL.md`) with verbatim HARNESS VIOLATION hints and a red fixture sample. If an existing skill exists, `distill-strikes.sh` refuses to overwrite and points to it instead.
 3. Review and refine the draft skill with `skill-creator` principles. Draft promotion requires a green sensor verification run.
 4. Update the corresponding **feedforward guide** to prevent recurrence and document the update in `CHANGELOG.md`.
@@ -94,4 +94,4 @@ The steering loop closes the harness: sensors fire → `distill-strikes.sh` draf
 - Full harness map: [`HARNESS.md`](../../../HARNESS.md) at repo root.
 - Historical CI Regression Matrix: [`.agents/ci/regression-matrix.json`](../../ci/regression-matrix.json)
 - Matrix test suite: [`tests/ci_regression_matrix_test.sh`](../../../tests/ci_regression_matrix_test.sh)
-- Agent-optimised error output: `scripts/harness-check.sh` runs each sensor and emits structured error output with `HARNESS VIOLATION` prefix.
+- Agent-optimised error output: `scripts/harness-check.sh` runs `fmt`, `clippy`, `deny`, `test`, `arch`, or `all` (`make harness`) and emits structured error output with `HARNESS VIOLATION` / fix-hint prefixes. Its `test` sensor runs `cargo nextest run --workspace`. Its `arch` sensor is wired into neither `harness-check.sh all` nor CI — run `bash scripts/harness-check.sh arch` explicitly after changing layering.

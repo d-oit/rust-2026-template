@@ -4,34 +4,87 @@
     {
       "id": 1,
       "prompt": "Prepare a release for version 1.2.0",
-      "expected_output": "Runs pre-release checks, bumps version, updates changelog, creates tag",
+      "expected_output": "Runs pre-release checks, bumps the workspace version, updates changelog, creates an annotated tag",
       "files": [],
       "assertions": [
         "Runs fmt, clippy, tests, audit before release",
-        "Bumps version in Cargo.toml",
-        "Creates annotated git tag"
+        "Uses ./scripts/bump-version.sh rather than cargo update",
+        "Creates an annotated git tag"
       ]
     },
     {
       "id": 2,
       "prompt": "Publish this crate to crates.io for the first time",
-      "expected_output": "Verifies crate name availability, runs full check suite, publishes",
-      "files": [],
+      "expected_output": "Confirms the package is allowlisted and publishable, explains the one-time bootstrap prerequisite, and uses the repository CLI",
+      "files": [
+        "config/trusted-publishing.json"
+      ],
       "assertions": [
         "Checks crates.io name availability first",
-        "Runs cargo publish --dry-run",
-        "Verifies all CI checks pass"
+        "Runs ./scripts/trustpub.sh bootstrap --package <name> and requires explicit confirmation",
+        "Does not claim a stable cargo trustpub subcommand exists"
       ]
     },
     {
       "id": 3,
       "prompt": "What's the release process for this project?",
-      "expected_output": "Explains the 4-step release workflow with version scheme",
+      "expected_output": "Explains the release workflow, version scheme, and OIDC crates.io publish job",
       "files": [],
       "assertions": [
         "Describes pre-release checks",
         "Explains semantic versioning",
-        "References cargo-dist and CI workflow"
+        "References cargo-dist, the release workflow, and config/trusted-publishing.json"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Publish every crate in the workspace to crates.io on the next tag",
+      "expected_output": "Refuses implicit workspace publishing and selects only the explicit allowlist",
+      "files": [
+        "config/trusted-publishing.json",
+        "crates/sample-app/Cargo.toml"
+      ],
+      "assertions": [
+        "States publication is opt-in and package-scoped",
+        "Excludes crates/sample-app because it sets publish = false",
+        "Edits the allowlist rather than adding cargo publish --workspace"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Show me which crates would be published and to which workflow identity",
+      "expected_output": "Uses the read-only plan before any mutation",
+      "files": [
+        "config/trusted-publishing.json"
+      ],
+      "assertions": [
+        "Runs ./scripts/trustpub.sh plan",
+        "Prints the owner, repository, workflow filename, and environment tuple",
+        "Performs no API mutation"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Enable trusted-publishing-only for my crate right after registering the publisher",
+      "expected_output": "Explains that enforcement is separate and must wait for a successful OIDC publish",
+      "files": [],
+      "assertions": [
+        "Does not enable enforcement from configure or bootstrap",
+        "Requires --confirm-oidc-publish and explicit confirmation",
+        "Documents the --disabled rollback command"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "The crates.io publish job failed with a 403; how do I fix it?",
+      "expected_output": "Checks token scope, crate ownership, and the registered identity tuple",
+      "files": [
+        "docs/src/releasing/crates-io-trusted-publishing.md"
+      ],
+      "assertions": [
+        "Identifies a missing trusted-publishing token scope or missing ownership",
+        "Points to ./scripts/trustpub.sh verify --all-configured",
+        "Never asks to paste or print the token"
       ]
     }
   ]

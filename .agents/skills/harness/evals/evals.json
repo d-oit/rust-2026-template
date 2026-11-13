@@ -25,7 +25,7 @@
       "expected_output": "Run distill-strikes.sh to cluster failure signatures and scaffold a draft starter skill or red fixture without overwriting existing skills.",
       "files": [],
       "assertions": [
-        "References the harness steering loop for repeated strikes (>2 times)",
+        "References the harness steering loop for repeated strikes (threshold 3)",
         "Recommends running scripts/distill-strikes.sh",
         "Mentions updating feedforward guides to close the loop"
       ]

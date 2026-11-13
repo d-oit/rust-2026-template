@@ -24,7 +24,7 @@ ls .agents/ Cargo.toml 2>/dev/null || echo "NOT_FOUND"
 ### Step 2 — Generate the Diagram
 
 ```bash
-python .agents/skills/architecture-diagram/scripts/generate_overview.py \
+python3 .agents/skills/architecture-diagram/scripts/generate_overview.py \
   --root . \
   --out .template/overview.excalidraw \
   --svg-out .template/overview.svg
@@ -52,6 +52,8 @@ After the script exits:
 1. Tell the user the output path.
 2. Report counts: N crates · M skills.
 3. If counts differ from the last known state, summarize what changed.
+4. Run `bash tests/overview_diagram_test.sh`; it fails when the committed SVG
+   and Excalidraw files drift from a fresh generation.
 
 ## Output
 

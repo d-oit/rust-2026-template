@@ -99,6 +99,25 @@ jobs:
       - name: Run release-tier quality gates
         run: ./scripts/quality-gates.sh --tier release
 
+  # Resolve the explicit crates.io allowlist before touching the registry
+  publish_plan:
+    name: Resolve crates.io publish plan
+    needs: [verify]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      has_packages: ${{ steps.plan.outputs.has_packages }}
+      packages: ${{ steps.plan.outputs.packages }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec  # stable
+      - name: Resolve publish allowlist
+        id: plan
+        run: python3 scripts/trustpub.py --root . release-plan >> "$GITHUB_OUTPUT"
+
   # Run 'dist plan' (or host) to determine what tasks we need to do
   plan:
     name: cargo-dist plan
@@ -362,6 +381,30 @@ jobs:
         with:
           name: dora-metrics-release-${{ github.ref_name }}
           path: dora-metrics.jsonl
+
+  # Publish the explicitly allowlisted crates after the GitHub Release exists.
+  # Authentication uses GitHub OIDC; no long-lived crates.io token is stored.
+  publish_crates:
+    name: Publish to crates.io
+    needs: [host, publish_plan]
+    if: ${{ needs.publish_plan.outputs.has_packages == 'true' }}
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec  # stable
+      - name: Authenticate with crates.io
+        id: auth
+        uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9  # v1.0.6
+      - name: Publish configured crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: python3 scripts/trustpub.py --root . release-publish
 
   post-release-check:
     name: Post-Release Health Check

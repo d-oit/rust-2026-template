@@ -1,8 +1,8 @@
 ---
 name: self-fix-loop
 description: >
-  Self-learning fix loop - commit, push, monitor CI, auto-fix failures using
-  swarm agents with skills on demand, loop until all checks pass.
+  Self-learning fix loop - commit, push, monitor CI, auto-fix failures with
+  skills (and subagents when diagnosis warrants), loop until all checks pass.
   Supports GitHub Actions and GitLab CI.
   Use when CI fails and you need to iteratively fix until green.
   Triggers: "fix CI", "loop until green", "auto-fix failures", "self-fix".
@@ -21,7 +21,9 @@ metadata:
 
 Automated self-learning cycle: **commit → push → monitor → analyze failures → fix → retry** until all CI checks pass.
 
-**Self-Fix Threshold**: If 2+ similar errors occur during the loop, pause and diagnose the root cause before attempting another fix.
+**Self-Fix Threshold**: If 2+ identical or near-identical failures occur, stop fixing and diagnose the root cause. Transient flaps are not a license to loop.
+
+**Before the first fix**: capture the baseline. Record the failing check names, the head commit of the branch, and whether the failures also exist on `main` at the merge base. Without this you cannot tell "my fix worked" from "the flake moved".
 
 ## Overview
 
@@ -72,9 +74,10 @@ fi
 [Start]
    ↓
 Phase 1: COMMIT & PUSH
-   - Stage all changes
-   - Run quality gate
-   - Atomic commit
+   - Stage changes (pick the files for this fix; never blanket-stage)
+   - Run quality gate: bash scripts/quality-gates.sh --only <failed-area>
+     (it is `cargo xtask quality run` under the hood; full gate = no --only)
+   - Atomic commit (Conventional Commits format — commitlint enforces it)
    - Push to feature branch
    ↓
 Phase 2: CREATE/UPDATE PR/MR
@@ -106,13 +109,13 @@ Phase 6: RETRY LOOP
 |--------------|--------|
 | `cargo fmt` | Run `cargo fmt --all` |
 | `cargo clippy` | Fix warnings, respect `-D warnings` |
-| `cargo test` | Debug test failures, fix or skip flaky |
+| `cargo test` | Debug test failures; isolate or quarantine flaky tests (skip only when no failing assertion exists) |
 | `cargo audit` | Update vulnerable dependency (refer to `.agents/ci/regression-matrix.json`) |
 | `cargo deny` | Fix license or advisory violations (refer to `.agents/ci/regression-matrix.json`) |
 | `markdownlint` | Fix heading increments/links (refer to `.agents/ci/regression-matrix.json`) |
 | `gitleaks` | Remove secret or add exception (refer to `.agents/ci/regression-matrix.json`) |
 | `cargo machete` | Remove unused dependencies |
-| Linker errors | Check `build-essential`, `pkg-config` |
+| Linker errors | `bash scripts/check-linker.sh` detects missing `build-essential`, `pkg-config`, or `mold`/`clang` |
 
 ## Stacked PR Interaction
 

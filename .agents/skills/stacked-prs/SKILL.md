@@ -77,19 +77,25 @@ gh stack init feat/billing/schema feat/billing/api feat/billing/ui
 git add ... && git commit -m "feat(billing): add schema and models"
 ./scripts/quality-gates.sh
 
-# 3. Move up and implement next layer
-gh stack up
+# 3. Implement the API layer
+gh stack checkout feat/billing/api
 git add ... && git commit -m "feat(billing): add API routes"
 ./scripts/quality-gates.sh
 
-# 4. Push and create draft PRs
+# 4. Implement the UI layer
+gh stack checkout feat/billing/ui
+git add ... && git commit -m "feat(billing): add billing UI"
+./scripts/quality-gates.sh
+
+# 5. Push and create draft PRs for the complete stack
 gh stack submit --auto
 
-# 5. After review changes on a layer
-gh stack bottom
+# 6. After review changes on a layer
+gh stack checkout feat/billing/schema
 git add ... && git commit -m "fix(billing): address schema review"
 gh stack rebase --upstack
 gh stack push
+
 ```
 
 ## Merge Strategy
@@ -103,7 +109,7 @@ gh stack push
 
 - **Partial submit**: If `gh stack submit` fails mid-way (e.g., network error after 2 of 3 PRs created), re-run `gh stack submit` — it skips branches that already have PRs
 - **Rebase conflict**: Run `gh stack rebase`, resolve conflicts, `git add`, `gh stack rebase --continue`. Use `--abort` to restore all branches
-- **Diverged stacks**: Run `gh stack sync` to fetch and reconcile with GitHub. If that fails, `gh stack unstack` then `gh stack submit --auto` to recreate.
+- **Diverged stacks**: Run `gh stack sync` to fetch and reconcile. If keeping the remote state, use `gh stack unstack --local` and check out the desired stack or PR. If keeping local branches, unstack and reinitialize with `gh stack init --base <trunk> <branches...>`, then submit with `gh stack submit --auto`.
 
 ## Rationalizations
 

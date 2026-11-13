@@ -98,13 +98,16 @@ Before committing, verify:
 ## Commit Format
 
 ```
-type(scope): Brief description (50 chars max)
+type(scope): lowercase description (50 chars max)
 
 - Why (not what) - user perspective
 - Reference issues: Fixes #123
 ```
 
 **Types:** feat, fix, docs, style, refactor, perf, test, ci, chore
+
+The subject must start lowercase: `ci` rejects `Feat(scope): Add ...`.
+Never bypass the pre-commit hook with `--no-verify`; it runs the secret scan.
 
 ## Rationalizations
 
@@ -119,3 +122,5 @@ type(scope): Brief description (50 chars max)
 - [ ] Bypassing the quality gate for "trivial" changes
 - [ ] Committing without running validation checks
 - [ ] Disabling rollback on failure
+- [ ] Using `--no-verify` to skip the secret scan
+- [ ] A commit subject that starts with an uppercase letter

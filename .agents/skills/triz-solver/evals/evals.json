@@ -293,11 +293,11 @@
       "split": "validation",
       "should_trigger": false,
       "prompt": "Fix the failing test in tests/integration_test.rs",
-      "expected_output": "Should not trigger triz-solver; this is a bug fix. Should suggest test-rust or debugger skill.",
+      "expected_output": "Should not trigger triz-solver; this is a bug fix. Should suggest test-rust or harness skill.",
       "files": [],
       "assertions": [
         "Does NOT run TRIZ analysis",
-        "Suggests test-rust or debug skill",
+        "Suggests test-rust or harness skill",
         "Direct fix suggestion",
         "No mention of contradictions or principles",
         "Mentions cargo nextest or test debugging"
