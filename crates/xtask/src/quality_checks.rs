@@ -177,7 +177,12 @@ pub(super) fn run_shellcheck_check(config: &XtaskConfig) -> Result<(), XtaskErro
             println!("  ✓ No shell scripts detected");
             return Ok(());
         }
-        let mut args = vec!["--severity=error"];
+        // `warning`, not `error`: ShellCheck defaults to warning level, and the
+        // documented harness policy (HARNESS.md) is "fix issues at
+        // severity=warning". Using `error` silently ignored the quoting and
+        // redirect findings that Codacy reports, so the local gate and the
+        // external reviewer disagreed about the same scripts.
+        let mut args = vec!["--severity=warning"];
         let sh_strs: Vec<String> = sh_files
             .iter()
             .map(|p| p.to_string_lossy().into_owned())

@@ -37,7 +37,7 @@ ok "GitHub Pages configured"
 
 # Check deployment status
 log "Checking deployment..."
-DEPLOY_URL="https://$(gh api repos/${REPO} -q '.owner.login').github.io/$(gh api repos/${REPO} -q '.name')"
+DEPLOY_URL="https://$(gh api "repos/${REPO}" -q '.owner.login').github.io/$(gh api "repos/${REPO}" -q '.name')"
 ok "Deploy URL: ${DEPLOY_URL}"
 
 echo ""

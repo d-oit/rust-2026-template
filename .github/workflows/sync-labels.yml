@@ -60,10 +60,16 @@ jobs:
       # ── Resolve inputs (schedule has no inputs object) ──────────────────────
       - name: Resolve inputs
         id: inputs
+        env:
+          # Passed through `env` rather than interpolated into the script body:
+          # `github.event.inputs` is user-supplied on workflow_dispatch, and
+          # `${{ }}` substitution inside `run:` would let it inject shell code.
+          INPUT_DAYS: ${{ github.event.inputs.days }}
+          INPUT_DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           # workflow_dispatch sets github.event.inputs; schedule leaves it null.
-          DAYS="${{ github.event.inputs.days || '90' }}"
-          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          DAYS="${INPUT_DAYS:-90}"
+          DRY_RUN="${INPUT_DRY_RUN:-false}"
           echo "days=$DAYS" >> "$GITHUB_OUTPUT"
           echo "dry_run=$DRY_RUN" >> "$GITHUB_OUTPUT"
           echo "Lookback: $DAYS days | Dry-run: $DRY_RUN"
