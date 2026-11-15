@@ -1,0 +1,20 @@
+{
+  "event_id": "2026-11-15T20-12-43Z-copilot",
+  "task_id": "issue-518-gitleaks-pin",
+  "parent_task_id": null,
+  "workflow_id": null,
+  "agent_id": "copilot",
+  "agent_type": "copilot-sdk-vscode",
+  "skill": "suggest-fix-issue",
+  "skill_version": "1.0.0",
+  "status": "success",
+  "started_at": "2026-11-15T20:08:01Z",
+  "finished_at": "2026-11-15T20:12:43Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_branch": "main",
+  "git_sha": "12cb688",
+  "pr_number": null,
+  "artifacts": [],
+  "notes": "Pinned Gitleaks v8.30.1 to its verified official Linux x64 SHA-256; added setup failure classification, regression coverage, and update guidance."
+}

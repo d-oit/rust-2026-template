@@ -19,6 +19,10 @@ jobs:
   gitleaks:
     name: Secret Scan (Gitleaks)
     runs-on: ubuntu-latest
+    env:
+      # Update together from a verified official Gitleaks release and checksum.
+      GITLEAKS_VERSION: "8.30.1"
+      GITLEAKS_SHA256_LINUX_X64: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
     outputs:
       scan_outcome: ${{ steps.record-result.outputs.scan_outcome }}
       failure_type: ${{ steps.record-result.outputs.failure_type }}
@@ -29,29 +33,56 @@ jobs:
         with:
           fetch-depth: 0
 
-      - id: scan
-        name: Run Gitleaks
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - id: setup-gitleaks
+        name: Install pinned Gitleaks
         run: |
-          set +e
-          if command -v gitleaks >/dev/null 2>&1; then
-            gitleaks detect --report-format json --report-path gitleaks-report.json --verbose
-            EXIT_CODE=$?
-          else
-            docker run --rm -v "$PWD:/path" zricethezav/gitleaks:latest \
-              detect --source="/path" --report-format json --report-path /path/gitleaks-report.json --verbose
-            EXIT_CODE=$?
+          set -euo pipefail
+          if [ "$(uname -m)" != "x86_64" ]; then
+            echo "::error::Pinned Gitleaks checksum is only configured for Linux x64."
+            exit 1
           fi
 
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          archive_path="${RUNNER_TEMP}/${archive}"
+          release_url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          curl --fail --location --silent --show-error \
+            "${release_url}/${archive}" --output "${archive_path}"
+          printf '%s  %s\n' "${GITLEAKS_SHA256_LINUX_X64}" "${archive_path}" \
+            | sha256sum --check
+
+          install_dir="${RUNNER_TEMP}/gitleaks"
+          mkdir -p "${install_dir}"
+          tar -xzf "${archive_path}" -C "${install_dir}" gitleaks
+          chmod 0755 "${install_dir}/gitleaks"
+          echo "${install_dir}" >> "${GITHUB_PATH}"
+
+          actual_version="$("${install_dir}/gitleaks" version)"
+          if [ "${actual_version}" != "${GITLEAKS_VERSION}" ]; then
+            echo "::error::Expected Gitleaks ${GITLEAKS_VERSION}, found ${actual_version}."
+            exit 1
+          fi
+
+      - id: scan
+        name: Run Gitleaks
+        run: |
+          set +e
+          gitleaks detect --report-format json --report-path gitleaks-report.json --verbose
+          EXIT_CODE=$?
+          set -e
+          echo "exit_code=${EXIT_CODE}" >> "$GITHUB_OUTPUT"
+
           if [ $EXIT_CODE -ne 0 ]; then
-            echo "::error::Gitleaks detected hardcoded secrets or sensitive credentials."
+            if [ "$EXIT_CODE" -eq 1 ]; then
+              echo "::error::Gitleaks detected hardcoded secrets or sensitive credentials."
+            else
+              echo "::error::Gitleaks exited unexpectedly with status ${EXIT_CODE}."
+            fi
             exit $EXIT_CODE
           fi
 
       - id: upload-artifact
         name: Upload Gitleaks Artifact
-        if: failure() || steps.scan.outcome == 'failure'
+        if: failure() || steps.setup-gitleaks.outcome == 'failure' || steps.scan.outcome == 'failure'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: gitleaks-report
@@ -63,11 +94,16 @@ jobs:
         name: Record Execution Outcome
         if: always()
         run: |
-          if [ "${{ steps.checkout.outcome }}" = "failure" ]; then
+          if [ "${{ steps.checkout.outcome }}" = "failure" ] || \
+             [ "${{ steps.setup-gitleaks.outcome }}" = "failure" ]; then
             echo "failure_type=infrastructure_failure" >> "$GITHUB_OUTPUT"
             echo "scan_outcome=failure" >> "$GITHUB_OUTPUT"
-          elif [ "${{ steps.scan.outcome }}" = "failure" ]; then
+          elif [ "${{ steps.scan.outcome }}" = "failure" ] && \
+               [ "${{ steps.scan.outputs.exit_code }}" = "1" ]; then
             echo "failure_type=security_finding" >> "$GITHUB_OUTPUT"
+            echo "scan_outcome=failure" >> "$GITHUB_OUTPUT"
+          elif [ "${{ steps.scan.outcome }}" = "failure" ]; then
+            echo "failure_type=infrastructure_failure" >> "$GITHUB_OUTPUT"
             echo "scan_outcome=failure" >> "$GITHUB_OUTPUT"
           else
             echo "failure_type=none" >> "$GITHUB_OUTPUT"
@@ -307,10 +343,12 @@ jobs:
 
           FAILED=0
 
-          echo "## Security Gate Verification Summary" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Control | Upstream Result | Failure Category | Diagnostic Guidance |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Security Gate Verification Summary"
+            echo ""
+            echo "| Control | Upstream Result | Failure Category | Diagnostic Guidance |"
+            echo "|---|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           # 1. Gitleaks
           if [ "$GITLEAKS_RES" = "success" ]; then
@@ -318,8 +356,9 @@ jobs:
               >> "$GITHUB_STEP_SUMMARY"
           elif [ "$GITLEAKS_TYPE" = "infrastructure_failure" ]; then
             FAILED=1
-            echo "| Secret Scan (Gitleaks) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Runner/checkout failed. |" \
-              >> "$GITHUB_STEP_SUMMARY"
+            MSG="| Secret Scan (Gitleaks) | ❌ INFRASTRUCTURE FAILURE | Tool Setup |"
+            MSG="${MSG} Pinned scanner setup or runner failed. |"
+            echo "$MSG" >> "$GITHUB_STEP_SUMMARY"
           else
             FAILED=1
             MSG="| Secret Scan (Gitleaks) | ❌ SECURITY FINDING | Secret Leak | Credentials detected. Revoke secret. |"
