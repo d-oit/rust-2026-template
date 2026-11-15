@@ -1,0 +1,20 @@
+{
+  "event_id": "2026-11-15T20-30-35Z-copilot",
+  "task_id": "issue-517-ubuntu-runner-migration",
+  "parent_task_id": null,
+  "workflow_id": null,
+  "agent_id": "copilot",
+  "agent_type": "copilot-sdk-vscode",
+  "skill": "suggest-fix-issue",
+  "skill_version": "1.0.0",
+  "status": "success",
+  "started_at": "2026-11-15T20:22:46Z",
+  "finished_at": "2026-11-15T20:30:35Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_branch": "main",
+  "git_sha": "12cb688",
+  "pr_number": null,
+  "artifacts": [],
+  "notes": "Migrated cargo-dist release planning, Linux x64 build, global build, and hosting to Ubuntu 24.04; verified plan and local/global artifacts on Ubuntu 24.04 and documented 26.04 review date."
+}

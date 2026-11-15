@@ -11,13 +11,41 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+import tomllib
 
 import yaml
 
 workflow_path = Path(".github/workflows/release.yml")
 config_path = Path("config/trusted-publishing.json")
+dist_config_path = Path("dist-workspace.toml")
 workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
 config = json.loads(config_path.read_text(encoding="utf-8"))
+dist_config = tomllib.loads(dist_config_path.read_text(encoding="utf-8"))
+
+release_jobs = workflow["jobs"]
+for job_name in ("plan", "build-global-artifacts", "host"):
+    assert release_jobs[job_name]["runs-on"] == "ubuntu-24.04", (
+        f"{job_name} must use the explicitly supported Ubuntu 24.04 runner"
+    )
+assert "ubuntu-22.04" not in workflow_path.read_text(encoding="utf-8"), (
+    "release workflow must not reference the deprecated Ubuntu 22.04 image"
+)
+assert release_jobs["build-local-artifacts"]["runs-on"] == "${{ matrix.runner }}", (
+    "cargo-dist target builds must keep their configured runner matrix"
+)
+custom_runners = dist_config["dist"]["github-custom-runners"]
+assert custom_runners["global"] == "ubuntu-24.04", (
+    "cargo-dist global artifact jobs must use Ubuntu 24.04"
+)
+assert custom_runners["x86_64-unknown-linux-gnu"] == "ubuntu-24.04", (
+    "cargo-dist Linux x64 artifact builds must use Ubuntu 24.04"
+)
+assert dist_config["dist"]["targets"] == [
+    "x86_64-unknown-linux-gnu",
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+    "x86_64-pc-windows-msvc",
+], "runner migration must preserve the supported release targets"
 
 assert config["workflow_filename"] == workflow_path.name
 assert config["environment"] == "release"

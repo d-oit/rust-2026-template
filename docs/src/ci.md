@@ -28,6 +28,13 @@ Markdown. `Quality Gate (pull-request)` owns the canonical xtask checks, and
   uploaded to Codecov.
 - **lint** — template placeholder and agent-metrics metadata checks only.
 - **gitleaks** — secret scanning on full git history in `security-scan.yml`.
+- The Gitleaks workflow downloads the official Linux x64 archive for the
+  `GITLEAKS_VERSION` configured in that workflow and verifies its pinned
+  `GITLEAKS_SHA256_LINUX_X64` before execution. To update it, select an official
+  [Gitleaks release](https://github.com/gitleaks/gitleaks/releases), verify the
+  matching archive checksum against that release's `checksums.txt`, then update
+  the version and checksum together. Installation and version verification fail
+  closed; there is no mutable-image fallback.
 - **version-check** — `VERSION` file matches `Cargo.toml`; generated context
   and skill indexes are current.
 - **validate-agents** — agent entrypoint consistency check.
@@ -138,6 +145,21 @@ Triggered by pushing a version tag (`v*.*.*`):
 2. `cargo dist build` + GitHub Release creation
 3. `cargo publish` to crates.io
 4. Post-release health check (smoke test + DORA FDRT tracking)
+
+### Release runner lifecycle
+
+The cargo-dist plan, x86_64 Linux artifact build, global artifact build, and
+release-hosting jobs use the explicit `ubuntu-24.04` image. GitHub began
+deprecating Ubuntu 22.04 on September 17, 2026 and will retire it on April 17,
+2027 ([official notice](https://github.com/actions/runner-images/issues/14254)).
+Ubuntu 26.04 is generally available, but this release pipeline stays on 24.04
+until its cargo-dist packaging and release flow have been exercised end to end
+on 26.04. Cross-platform artifact targets remain unchanged.
+
+Review the runner lifecycle and re-evaluate 26.04 by **March 15, 2027**, before
+the 22.04 retirement date. The explicit `github-custom-runners` settings in
+`dist-workspace.toml` control cargo-dist's Linux matrix and global jobs; keep
+them aligned with the explicit runner labels in `release.yml`.
 
 ## Tier 5 — Template maintenance
 

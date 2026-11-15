@@ -7,8 +7,32 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 FIXTURE_DIR="${REPO_ROOT}/tests/fixtures/security"
+WORKFLOW="${REPO_ROOT}/.github/workflows/security-scan.yml"
 
 echo "=== Running Security Workflow Integration & Regression Tests ==="
+
+# 0. Guard the pinned Gitleaks installation contract.
+echo "[TEST] Validating pinned Gitleaks release and checksum..."
+if grep -Eq 'zricethezav/gitleaks:' "${WORKFLOW}"; then
+  echo "ERROR: Security workflow must not use a Gitleaks container tag."
+  exit 1
+fi
+if ! grep -Eq 'GITLEAKS_VERSION: "[0-9]+\.[0-9]+\.[0-9]+"' "${WORKFLOW}" || \
+   ! grep -Eq 'GITLEAKS_SHA256_LINUX_X64: "[[:xdigit:]]{64}"' "${WORKFLOW}" || \
+   ! grep -Fq "releases/download/v\${GITLEAKS_VERSION}" "${WORKFLOW}" || \
+   ! grep -Fq "archive=\"gitleaks_\${GITLEAKS_VERSION}_linux_x64.tar.gz\"" "${WORKFLOW}" || \
+   ! grep -Fq 'sha256sum --check' "${WORKFLOW}" || \
+   ! grep -Fq 'actual_version' "${WORKFLOW}"; then
+  echo "ERROR: Gitleaks must use a versioned official release, pinned checksum, and version verification."
+  exit 1
+fi
+if ! grep -Fq 'steps.setup-gitleaks.outcome' "${WORKFLOW}" || \
+   ! grep -Fq 'steps.scan.outputs.exit_code' "${WORKFLOW}" || \
+   ! grep -Fq 'Pinned scanner setup or runner failed.' "${WORKFLOW}"; then
+  echo "ERROR: Gitleaks setup failures and scan findings must be classified separately."
+  exit 1
+fi
+echo "[PASS] Gitleaks release pin, checksum, and failure classification are enforced."
 
 # 1. Test Gitleaks Fixture Detection
 echo "[TEST] Validating Gitleaks secret detection on test fixture..."
@@ -54,7 +78,7 @@ EOF
     echo "| Secret Scan (Gitleaks) | ✅ PASSED | None | No secrets detected. |" >> "${summary_out}"
   elif [ "$gitleaks_type" = "infrastructure_failure" ]; then
     FAILED=1
-    echo "| Secret Scan (Gitleaks) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Runner/checkout failed. |" \
+    echo "| Secret Scan (Gitleaks) | ❌ INFRASTRUCTURE FAILURE | Tool Setup | Pinned scanner setup or runner/checkout failed. |" \
       >> "${summary_out}"
   else
     FAILED=1
@@ -127,6 +151,12 @@ SCENARIO_D=$(parse_summary "success" "none" "failure" "infrastructure_failure" "
 echo "$SCENARIO_D" | grep -q "INFRASTRUCTURE FAILURE" || (echo "Scenario D failed" && exit 1)
 echo "$SCENARIO_D" | grep -q "Tool Setup" || (echo "Scenario D failed category" && exit 1)
 echo "[PASS] Scenario D (Infrastructure failure) distinguished from security finding."
+
+# Scenario G: Gitleaks setup failure
+SCENARIO_G=$(parse_summary "failure" "infrastructure_failure" "success" "none" "success" "none")
+echo "$SCENARIO_G" | grep -q "Pinned scanner setup" || (echo "Scenario G failed guidance" && exit 1)
+echo "$SCENARIO_G" | grep -q "INFRASTRUCTURE FAILURE" || (echo "Scenario G failed classification" && exit 1)
+echo "[PASS] Scenario G (Gitleaks setup failure) classified as infrastructure failure."
 
 # Test Scenario E: All Scans Passed
 SCENARIO_E=$(parse_summary "success" "none" "success" "none" "success" "none")
