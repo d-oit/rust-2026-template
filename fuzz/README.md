@@ -22,6 +22,6 @@ The local `sample-app` dependency carries its package version to satisfy the
 repository's wildcard-dependency ban. If the root workspace version changes,
 keep that dependency version aligned with `sample-app`.
 
-`libfuzzer-sys` uses the NCSA license. `deny.toml` permits it as a crate-specific
-exception rather than adding it to the global license allowlist used by every
-workspace member.
+`libfuzzer-sys` uses the NCSA license. `deny.exceptions.toml` permits it only
+for this independent workspace rather than adding it to the global license
+allowlist used by every workspace member.

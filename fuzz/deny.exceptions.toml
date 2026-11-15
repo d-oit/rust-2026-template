@@ -1,0 +1,4 @@
+# This exception is scoped to the independent fuzz workspace.
+exceptions = [
+  { crate = "libfuzzer-sys", allow = ["NCSA"] },
+]
