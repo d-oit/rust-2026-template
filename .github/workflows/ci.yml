@@ -367,12 +367,12 @@ jobs:
           echo "Selected tool groups: ${NEEDS}"
       - name: Install Cargo verification tooling
         if: steps.classify.outputs.maintenance_only != 'true' && contains(steps.plan.outputs.needs, 'cargo')
-        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b  # v2
+        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39  # v2
         with:
           tool: cargo-nextest,cargo-llvm-cov
       - name: Install Rust security tooling
         if: steps.classify.outputs.maintenance_only != 'true' && contains(steps.plan.outputs.needs, 'security')
-        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b  # v2
+        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39  # v2
         with:
           tool: cargo-audit,cargo-deny,cargo-machete
       - name: Install shell, YAML, and Markdown tooling
