@@ -48,11 +48,6 @@ allow = [
   "MPL-2.0",
   "CDLA-Permissive-2.0",
 ]
-# Exceptions for specific crates with special licenses
-[[licenses.exceptions]]
-allow = ["NCSA"]
-name = "libfuzzer-sys"
-
 # ============================================================
 # BANS - Block specific crates or versions
 # ============================================================
@@ -72,8 +67,9 @@ deny = [    # Old unmaintained openssl bindings
   # [[bans.deny]]
   # Example: name = "your-crate-cli", wrappers = ["your-crate-core"]
 ]
-# Allow certain duplicate versions that are unavoidable
+# tracing-attributes and zerocopy-derive require Syn 2 while other proc macros use Syn 3.
 skip = [
+  { name = "syn", version = "=2.0.119" },
   # { name = "example-crate", version = "=1.0.0" }
 ]
 skip-tree = [

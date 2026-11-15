@@ -150,11 +150,11 @@ jobs:
           TAG_REF="${{ github.ref_name }}"
           IS_PR="${{ github.event.pull_request }}"
           if [ -z "$IS_PR" ]; then
-            CMD="host --steps=create --tag=$TAG_REF"
+            CMD=(host --steps=create "--tag=$TAG_REF")
           else
-            CMD="plan"
+            CMD=(plan)
           fi
-          dist $CMD --output-format=json > plan-dist-manifest.json
+          dist "${CMD[@]}" --output-format=json > plan-dist-manifest.json
           echo "dist ran successfully"
           cat plan-dist-manifest.json
           echo "manifest=$(jq -c "." plan-dist-manifest.json)" >> "$GITHUB_OUTPUT"
@@ -192,7 +192,7 @@ jobs:
         run: |
           if ! command -v cargo > /dev/null 2>&1; then
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
           fi
       - name: Install dist
         run: ${{ matrix.install_dist.run }}
@@ -204,6 +204,8 @@ jobs:
           merge-multiple: true
       - name: Install dependencies
         run: |
+          # cargo-dist emits an intentional shell command, including arguments and compound commands.
+          # shellcheck disable=SC2086
           ${{ matrix.packages_install }}
       - name: Install cargo-cyclonedx
         uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39  # v2
@@ -218,9 +220,11 @@ jobs:
         name: Post-build
         shell: bash
         run: |
-          echo "paths<<EOF" >> "$GITHUB_OUTPUT"
-          dist print-upload-files-from-manifest --manifest dist-manifest.json >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          {
+            echo "paths<<EOF"
+            dist print-upload-files-from-manifest --manifest dist-manifest.json
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           cp dist-manifest.json "$BUILD_MANIFEST_NAME"
       - name: Upload artifacts
@@ -261,9 +265,11 @@ jobs:
           dist build ${{ needs.plan.outputs.tag-flag }} --output-format=json "--artifacts=global" > dist-manifest.json
           echo "dist ran successfully"
 
-          echo "paths<<EOF" >> "$GITHUB_OUTPUT"
-          jq --raw-output ".upload_files[]" dist-manifest.json >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          {
+            echo "paths<<EOF"
+            jq --raw-output ".upload_files[]" dist-manifest.json
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           cp dist-manifest.json "$BUILD_MANIFEST_NAME"
       - name: Upload artifacts
@@ -304,9 +310,9 @@ jobs:
           MSG=$(git log --oneline -1)
           if [[ "$TAG_OR_BRANCH" == *"hotfix"* ]] || \
              echo "$MSG" | grep -qi 'hotfix\|regression\|critical'; then
-            echo "type=hotfix" >> $GITHUB_OUTPUT
+            echo "type=hotfix" >> "$GITHUB_OUTPUT"
           else
-            echo "type=regular" >> $GITHUB_OUTPUT
+            echo "type=regular" >> "$GITHUB_OUTPUT"
           fi
       - name: Install cached dist
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v4
@@ -354,9 +360,13 @@ jobs:
           ANNOUNCEMENT_BODY: "${{ fromJson(steps.host.outputs.manifest).announcement_github_body }}"
           RELEASE_COMMIT: "${{ github.sha }}"
         run: |
-          echo "$ANNOUNCEMENT_BODY" > $RUNNER_TEMP/notes.txt
+          echo "$ANNOUNCEMENT_BODY" > "$RUNNER_TEMP/notes.txt"
+          RELEASE_ARGS=()
+          if [[ -n "$PRERELEASE_FLAG" ]]; then
+            RELEASE_ARGS+=("$PRERELEASE_FLAG")
+          fi
           gh release create "${{ needs.plan.outputs.tag }}" \
-            --target "$RELEASE_COMMIT" $PRERELEASE_FLAG \
+            --target "$RELEASE_COMMIT" "${RELEASE_ARGS[@]}" \
             --title "$ANNOUNCEMENT_TITLE" \
             --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*
 
