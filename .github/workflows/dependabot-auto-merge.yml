@@ -1,33 +1,42 @@
 ---
 # .github/workflows/dependabot-auto-merge.yml
-# Auto-merge Dependabot PRs for minor/patch updates after CI passes
+# Enable native auto-merge for Dependabot minor/patch PRs after required checks pass.
 name: Dependabot Auto-Merge
 
-on: pull_request
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   auto-merge:
     name: Auto-Merge Dependabot
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98  # v3.1.0
+      - name: Read Dependabot update metadata
         id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98  # v3.1.0
 
-      - name: Approve PR
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Enable auto-merge
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
-        run: gh pr merge --auto --squash "$PR_URL"
+      # The ruleset requires zero approvals. Avoid an approval mutation that
+      # needs an additional repository setting and can block the merge step.
+      # GitHub native auto-merge still enforces every required rule and check.
+      - name: Enable squash auto-merge
+        if: >-
+          contains(
+            fromJSON('["version-update:semver-minor","version-update:semver-patch"]'),
+            steps.metadata.outputs.update-type
+          )
+        run: gh pr merge "$PR_URL" --repo "$GITHUB_REPOSITORY" --auto --squash
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
