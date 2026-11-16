@@ -110,8 +110,7 @@ pub fn run_doctor() -> Result<(), XtaskError> {
             .stderr(std::process::Stdio::null())
             .spawn()
             .and_then(|mut child| child.wait())
-            .map(|status| status.success())
-            .unwrap_or(false);
+            .is_ok_and(|status| status.success());
 
         if available {
             println!("  ✓ {}: installed", tool.name);
@@ -264,10 +263,10 @@ fn check_symlinks() {
             let mut count = 0;
             if let Ok(entries) = std::fs::read_dir(path) {
                 for entry in entries.flatten() {
-                    if let Ok(meta) = entry.file_type() {
-                        if meta.is_symlink() {
-                            count += 1;
-                        }
+                    if let Ok(meta) = entry.file_type()
+                        && meta.is_symlink()
+                    {
+                        count += 1;
                     }
                 }
             }

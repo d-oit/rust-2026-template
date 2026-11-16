@@ -356,24 +356,24 @@ impl AgentAdaptersManifest {
             }
         }
         // Policy duplication.
-        if self.validation.reject_policy_duplication {
-            if let Some(c) = canonical {
-                let headers: Vec<&str> = c.lines().filter(|l| l.starts_with("## ")).collect();
-                let body = strip_ref_header(&content);
-                let dup: Vec<&str> = headers
-                    .iter()
-                    .filter(|h| body.contains(*h))
-                    .copied()
-                    .collect();
-                if !dup.is_empty() {
-                    result.warnings.push(warn(
-                        &a.id,
-                        &format!(
-                            "Adapter may duplicate canonical sections: {}",
-                            dup.join(", ")
-                        ),
-                    ));
-                }
+        if self.validation.reject_policy_duplication
+            && let Some(c) = canonical
+        {
+            let headers: Vec<&str> = c.lines().filter(|l| l.starts_with("## ")).collect();
+            let body = strip_ref_header(&content);
+            let dup: Vec<&str> = headers
+                .iter()
+                .filter(|h| body.contains(*h))
+                .copied()
+                .collect();
+            if !dup.is_empty() {
+                result.warnings.push(warn(
+                    &a.id,
+                    &format!(
+                        "Adapter may duplicate canonical sections: {}",
+                        dup.join(", ")
+                    ),
+                ));
             }
         }
         // Scope enforcement.

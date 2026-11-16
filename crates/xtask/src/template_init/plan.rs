@@ -265,10 +265,10 @@ fn list_crate_dirs(crates_dir: &Path) -> Result<Vec<String>, XtaskError> {
     })?;
     let mut names = Vec::new();
     for entry in entries.flatten() {
-        if entry.path().is_dir() {
-            if let Some(name) = entry.file_name().to_str() {
-                names.push(name.to_string());
-            }
+        if entry.path().is_dir()
+            && let Some(name) = entry.file_name().to_str()
+        {
+            names.push(name.to_string());
         }
     }
     names.sort_unstable();

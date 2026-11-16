@@ -1,6 +1,10 @@
 # .cargo/config.toml — Cross-platform linker configuration
 # Works on: Linux, macOS, WSL2, and Windows (MSVC + GNU)
 
+# Delay newly published registry packages for three days during resolution.
+[registry]
+global-min-publish-age = "3 days"
+
 # ─── Linux: mold linker via clang (OPTIONAL — off by default for portability) ─
 # mold is the fastest available linker on Linux, ~7x faster than default ld.
 # Requires: apt install mold clang  (Ubuntu/Debian)  or  brew install mold (Linuxbrew)

@@ -41,6 +41,7 @@ impl SqliteBackend {
     /// unchanged when the body is implemented.
     #[expect(
         clippy::unused_async,
+        clippy::unused_async_trait_impl,
         reason = "signature must stay async so real libSQL wiring needs no call-site changes"
     )]
     pub async fn new(_url: &str) -> Result<Self, StorageError> {

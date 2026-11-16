@@ -2,6 +2,8 @@
 
 This document describes the branch-ruleset contract for `main`, the repository-owned
 `PR Merge Policy Gate`, and the safe migration sequence for changing required contexts.
+For action dependency locking and maintenance, see
+[GitHub Actions workflow lockfiles](./actions-lockfiles.md).
 
 ## Why a repository-owned gate exists
 

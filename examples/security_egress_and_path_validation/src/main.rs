@@ -353,10 +353,10 @@ impl EffectiveConfig {
         }
 
         // Validate redirect limits if revalidation is enabled
-        if let RedirectPolicy::Revalidate { max_hops } = self.egress_filter.redirect_policy {
-            if max_hops > 5 {
-                return Err(ConfigValidationError::InvalidMaxRedirects(max_hops));
-            }
+        if let RedirectPolicy::Revalidate { max_hops } = self.egress_filter.redirect_policy
+            && max_hops > 5
+        {
+            return Err(ConfigValidationError::InvalidMaxRedirects(max_hops));
         }
 
         Ok(())

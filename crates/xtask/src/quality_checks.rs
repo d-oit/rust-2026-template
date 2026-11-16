@@ -58,10 +58,10 @@ pub(super) fn has_executed_tests(output: &str) -> bool {
         if let Some(idx) = line.find("running ") {
             let rest = &line[idx + "running ".len()..];
             let num_str = rest.split_whitespace().next().unwrap_or("");
-            if let Ok(count) = num_str.parse::<usize>() {
-                if count > 0 {
-                    return true;
-                }
+            if let Ok(count) = num_str.parse::<usize>()
+                && count > 0
+            {
+                return true;
             }
         }
         if line.contains("passed") && !line.contains("0 passed") {

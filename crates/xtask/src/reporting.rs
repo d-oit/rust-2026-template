@@ -101,20 +101,20 @@ impl QualityReport {
         let markdown = self.summary_markdown();
 
         // Write to $GITHUB_STEP_SUMMARY if exists
-        if let Ok(summary_path) = std::env::var("GITHUB_STEP_SUMMARY") {
-            if !summary_path.is_empty() {
-                let mut file = std::fs::OpenOptions::new()
-                    .append(true)
-                    .create(true)
-                    .open(&summary_path)
-                    .map_err(|e| XtaskError::CacheIssue {
-                        message: e.to_string(),
-                    })?;
-                writeln!(file, "\n{markdown}").map_err(|e| XtaskError::CacheIssue {
+        if let Ok(summary_path) = std::env::var("GITHUB_STEP_SUMMARY")
+            && !summary_path.is_empty()
+        {
+            let mut file = std::fs::OpenOptions::new()
+                .append(true)
+                .create(true)
+                .open(&summary_path)
+                .map_err(|e| XtaskError::CacheIssue {
                     message: e.to_string(),
                 })?;
-                println!("  ✓ Appended summary to $GITHUB_STEP_SUMMARY");
-            }
+            writeln!(file, "\n{markdown}").map_err(|e| XtaskError::CacheIssue {
+                message: e.to_string(),
+            })?;
+            println!("  ✓ Appended summary to $GITHUB_STEP_SUMMARY");
         }
 
         // Write to .agents/ci/ci-summary.md

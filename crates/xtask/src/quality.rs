@@ -220,15 +220,15 @@ pub fn plan_checks_detailed(
     let mut selected_checks = Vec::new();
 
     for check in &full_tier_checks {
-        if let Some(ref o_list) = only_checks {
-            if !matches_only_filter(*check, o_list) {
-                details.push(DetailedCheckSelection {
-                    check: *check,
-                    selected: false,
-                    reason: "excluded by --only filter".to_string(),
-                });
-                continue;
-            }
+        if let Some(ref o_list) = only_checks
+            && !matches_only_filter(*check, o_list)
+        {
+            details.push(DetailedCheckSelection {
+                check: *check,
+                selected: false,
+                reason: "excluded by --only filter".to_string(),
+            });
+            continue;
         }
 
         let (selected, reason) = cp_opt.as_ref().map_or_else(

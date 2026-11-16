@@ -50,7 +50,7 @@ cargo run -p sample-app -- --config config.json
 | Doc tests | `cargo test --workspace --doc` |
 | Security | `cargo audit` |
 | Deny | `cargo deny check` |
-| MSRV | `rustup run 1.88 cargo check --workspace` |
+| MSRV | `bash scripts/audit-msrv.sh` |
 
 ## Release Workflow
 

@@ -185,10 +185,10 @@ impl SecretDetector {
 
     /// Scans for key-value assignment patterns (e.g. `API_KEY = "sec_1234567890123456"`).
     fn scan_key_assignments(&self, input: &str, matches: &mut Vec<SecretMatch>) {
-        let mut line_num = 1;
         let mut line_start_byte = 0;
 
-        for line in input.split('\n') {
+        for (line_index, line) in input.split('\n').enumerate() {
+            let line_num = line_index + 1;
             let line_len = line.len();
             let line_clean = if line.ends_with('\r') {
                 &line[..line_len - 1]
@@ -204,33 +204,31 @@ impl SecretDetector {
                         let val_part = &after_kw[sep_rel + 1..];
                         if let Some((start_in_line, end_in_line, token_str)) =
                             Self::extract_assigned_value(kw_pos + kw.len() + sep_rel + 1, val_part)
+                            && self.is_valid_secret_token(token_str)
                         {
-                            if self.is_valid_secret_token(token_str) {
-                                let abs_start = line_start_byte + start_in_line;
-                                let abs_end = line_start_byte + end_in_line;
-                                let prefix_in_line = &line_clean[..start_in_line];
-                                let column = if prefix_in_line.is_ascii() {
-                                    prefix_in_line.len() + 1
-                                } else {
-                                    prefix_in_line.chars().count() + 1
-                                };
+                            let abs_start = line_start_byte + start_in_line;
+                            let abs_end = line_start_byte + end_in_line;
+                            let prefix_in_line = &line_clean[..start_in_line];
+                            let column = if prefix_in_line.is_ascii() {
+                                prefix_in_line.len() + 1
+                            } else {
+                                prefix_in_line.chars().count() + 1
+                            };
 
-                                matches.push(SecretMatch {
-                                    rule_id: format!("assignment-{kw}"),
-                                    start_byte: abs_start,
-                                    end_byte: abs_end,
-                                    line: line_num,
-                                    column,
-                                    masked_value: mask_secret_token(token_str),
-                                });
-                            }
+                            matches.push(SecretMatch {
+                                rule_id: format!("assignment-{kw}"),
+                                start_byte: abs_start,
+                                end_byte: abs_end,
+                                line: line_num,
+                                column,
+                                masked_value: mask_secret_token(token_str),
+                            });
                         }
                     }
                 }
             }
 
             line_start_byte += line_len + 1; // +1 for '\n'
-            line_num += 1;
         }
     }
 

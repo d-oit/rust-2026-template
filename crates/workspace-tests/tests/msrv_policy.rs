@@ -197,17 +197,6 @@ fn test_msrv_policy_synchronized() {
 
     let mut problems = Vec::new();
 
-    if let Ok(toolchain) = fs::read_to_string(root.join("rust-toolchain.toml"))
-        && let Some(channel) = toml_value(&toolchain, Some("toolchain"), "channel")
-    {
-        assert_matches_workspace(
-            "rust-toolchain.toml channel",
-            &channel,
-            workspace,
-            &mut problems,
-        );
-    }
-
     if let Ok(clippy) = fs::read_to_string(root.join(".clippy.toml"))
         && let Some(msrv) = toml_value(&clippy, None, "msrv")
     {
@@ -230,6 +219,29 @@ fn test_msrv_policy_synchronized() {
         "MSRV policy drift detected (workspace rust-version {}):\n{}",
         format_version(workspace),
         problems.join("\n")
+    );
+}
+
+#[test]
+fn test_development_toolchain_is_independent_of_msrv() {
+    let root = workspace_root();
+    let Some((workspace_msrv, _)) = declared_msrv(&root) else {
+        return;
+    };
+    let toolchain = fs::read_to_string(root.join("rust-toolchain.toml"))
+        .expect("rust-toolchain.toml is readable");
+    let channel = toml_value(&toolchain, Some("toolchain"), "channel")
+        .expect("rust-toolchain.toml declares a channel");
+
+    assert_eq!(
+        channel, "stable",
+        "development should use current stable Rust"
+    );
+    assert_eq!(parse_rust_version(&channel), None);
+    assert_ne!(
+        parse_rust_version(&channel),
+        Some(workspace_msrv),
+        "the development toolchain must not define the MSRV"
     );
 }
 

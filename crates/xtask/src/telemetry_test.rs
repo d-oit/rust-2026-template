@@ -177,7 +177,7 @@ fn test_freshness_stale_when_no_fingerprint_v1() {
 fn test_compute_fingerprint_returns_valid_hashes() {
     let fp = compute_fingerprint("pull-request");
     assert_eq!(fp.tier, "pull-request");
-    assert!(!fp.head_commit.is_empty());
+    assert_ne!(fp.head_commit, "");
     assert_eq!(fp.worktree_hash.len(), 16);
     assert_eq!(fp.policy_hash.len(), 16);
 }

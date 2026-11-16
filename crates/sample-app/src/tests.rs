@@ -306,7 +306,7 @@ fn test_config_deny_unknown_fields() {
 #[test]
 fn test_process_items_zero() {
     let result = process_items(0, 100).unwrap();
-    assert!(result.is_empty());
+    assert_eq!(result.len(), 0);
 }
 
 #[test]

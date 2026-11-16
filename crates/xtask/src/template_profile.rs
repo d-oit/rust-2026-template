@@ -334,9 +334,9 @@ mod tests {
             let profile = TemplateProfile::load_from_path(&profile_path(id))
                 .unwrap_or_else(|e| panic!("profile {id} must load: {e}"));
             assert_eq!(profile.metadata.id, *id);
-            assert!(!profile.workspace.include_crates.is_empty());
-            assert!(!profile.ci.default_tier.is_empty());
-            assert!(!profile.post_init.checklist.is_empty());
+            assert_ne!(profile.workspace.include_crates.len(), 0);
+            assert_ne!(profile.ci.default_tier, "");
+            assert_ne!(profile.post_init.checklist.len(), 0);
         }
     }
 

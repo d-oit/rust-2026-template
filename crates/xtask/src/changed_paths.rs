@@ -35,12 +35,12 @@ pub struct ChangedPaths {
 pub fn affected_crates(changed_files: &[String]) -> Vec<String> {
     let mut seen = Vec::new();
     for file in changed_files {
-        if let Some(rest) = file.strip_prefix("crates/") {
-            if let Some(crate_name) = rest.split('/').next() {
-                if !crate_name.is_empty() && !seen.iter().any(|s| s == crate_name) {
-                    seen.push(crate_name.to_string());
-                }
-            }
+        if let Some(rest) = file.strip_prefix("crates/")
+            && let Some(crate_name) = rest.split('/').next()
+            && !crate_name.is_empty()
+            && !seen.iter().any(|s| s == crate_name)
+        {
+            seen.push(crate_name.to_string());
         }
     }
     seen
