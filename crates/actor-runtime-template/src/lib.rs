@@ -35,7 +35,6 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use tracing::error;
 
 /// Actor lifecycle events.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

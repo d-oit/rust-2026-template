@@ -125,7 +125,7 @@ pub fn handle_quality_run(
         || ("all", Vec::new(), false),
         |_base| {
             let cp = plan_result.changed_paths.as_ref();
-            let fallback = cp.is_none() || cp.is_some_and(|c| c.fallback_used);
+            let fallback = cp.is_none_or(|c| c.fallback_used);
             let affected = cp.map_or_else(Vec::new, |c| {
                 crate::changed_paths::affected_crates(&c.changed_files)
             });
@@ -192,21 +192,21 @@ pub fn handle_quality_run(
     };
     telemetry.emit(&telemetry_config)?;
     // Surface the telemetry summary in the GHA step summary too, when present.
-    if let Ok(summary_path) = std::env::var("GITHUB_STEP_SUMMARY") {
-        if !summary_path.is_empty() {
-            use std::io::Write as _;
-            let mut file = std::fs::OpenOptions::new()
-                .append(true)
-                .open(&summary_path)
-                .map_err(|e| XtaskError::CacheIssue {
-                    message: e.to_string(),
-                })?;
-            writeln!(file, "\n{}", telemetry.summary_markdown(&telemetry_config)).map_err(|e| {
-                XtaskError::CacheIssue {
-                    message: e.to_string(),
-                }
+    if let Ok(summary_path) = std::env::var("GITHUB_STEP_SUMMARY")
+        && !summary_path.is_empty()
+    {
+        use std::io::Write as _;
+        let mut file = std::fs::OpenOptions::new()
+            .append(true)
+            .open(&summary_path)
+            .map_err(|e| XtaskError::CacheIssue {
+                message: e.to_string(),
             })?;
-        }
+        writeln!(file, "\n{}", telemetry.summary_markdown(&telemetry_config)).map_err(|e| {
+            XtaskError::CacheIssue {
+                message: e.to_string(),
+            }
+        })?;
     }
 
     if overall_success {

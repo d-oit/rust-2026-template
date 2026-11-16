@@ -238,7 +238,7 @@ mod tests {
     async fn test_server_creation() {
         let server = McpServer::new();
         let tools = server.list_tools();
-        assert!(tools.is_empty());
+        assert_eq!(tools.len(), 0);
     }
 
     #[tokio::test]

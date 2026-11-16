@@ -87,8 +87,8 @@ fn test_plan_checks_detailed_when_changed_glob_matching() {
     let config = XtaskConfig::default();
     // HEAD SHA or valid git commit
     let plan = plan_checks_detailed(&config, Some("protected-branch"), None, Some("HEAD")).unwrap();
-    assert!(!plan.full_tier_checks.is_empty());
-    assert!(!plan.details.is_empty());
+    assert_ne!(plan.full_tier_checks.len(), 0);
+    assert_ne!(plan.details.len(), 0);
 }
 
 #[test]

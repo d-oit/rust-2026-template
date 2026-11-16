@@ -145,6 +145,6 @@ rust-2026-template/
 ├── llms.txt                       # LLM context file (machine-readable)
 ├── llms-full.txt                  # Full LLM source context (auto-generated)
 ├── opencode.json                  # OpenCode configuration
-├── rust-toolchain.toml            # Pinned stable 1.88
+├── rust-toolchain.toml            # Stable development channel; MSRV is in Cargo.toml
 └── rustfmt.toml                   # Rustfmt 2024 edition settings
 ```

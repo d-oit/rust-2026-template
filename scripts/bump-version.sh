@@ -201,7 +201,7 @@ fi
 #   "version": "0.1.0" (JSON)
 # Does NOT match lines like:
 #   tokio = { version = "1", ... }   (dependency specs use short versions)
-#   rust-version = "1.87"            (toolchain MSRV)
+#   rust-version = "1.87"            (minimum supported Rust version)
 VERSION_LINE_PATTERN="^[[:space:]]*(\"version\"|version)[[:space:]]*[:=][[:space:]]*\"${CURRENT_VERSION}\""
 
 while IFS= read -r -d '' file; do

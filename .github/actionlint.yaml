@@ -1,0 +1,5 @@
+paths:
+  .github/workflows/**/*.{yml,yaml}:
+    ignore:
+      # actionlint does not yet recognize GitHub's GA same-repository `$/` syntax.
+      - 'specifying action "\$/\.github/actions/setup-rust" in invalid format because ref is missing'

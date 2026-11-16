@@ -51,7 +51,7 @@ rust-2026-template/
 
 ### Configuration & Health
 - `Cargo.toml`: Workspace manifest
-- `rust-toolchain.toml`: Pinned toolchain (1.88+)
+- `rust-toolchain.toml`: Stable development channel; MSRV is declared in `Cargo.toml`
 - `ci-summary.md`: Current CI health status (in .agents/ci/)
 - `deny.toml`: Security and license policy
 
@@ -107,6 +107,7 @@ This template is designed for Rust developers who want to start new projects wit
 - **Rust 2024 Edition:** Leverages the latest language features and idioms with an MSRV of 1.88.
 - **Workspace Layout:** Clean separation of concerns with a `crates/` directory for internal libraries and applications.
 - **Security First:** Pre-configured supply chain audits, secret scanning, and hardened configuration patterns.
+- **Dependency Cooldown:** Cargo 1.100+ waits three days before resolving newly published registry packages; see [SECURITY.md](SECURITY.md) for scope and override details.
 - **Performance Optimized:** Optimized dev profiles with reduced debug artifacts and disk space savings.
 - **AI-Native:** First-class support for AI coding agents with specialized skills and canonical instruction sets. Includes `llms.txt` for machine-readable project context.
 
@@ -534,7 +535,7 @@ chore(deps): bump serde from 1.0.195 to 1.0.196
 - Lint: `cargo clippy -- -D warnings` (zero warnings policy)
 - Shell Lint: `shellcheck` for all scripts in `scripts/` (enforced by CI)
 - Edition: Rust 2024
-- MSRV: 1.88 (see `rust-toolchain.toml`)
+- Development uses the current stable channel; MSRV 1.88 is declared in `Cargo.toml`
 
 ### Tests
 
@@ -655,7 +656,7 @@ Get a new Rust project running in under 5 minutes.
 
 ## Prerequisites
 
-- Rust stable via [rustup](https://rustup.rs/) — toolchain pinned to 1.88 in `rust-toolchain.toml`
+- Rust stable via [rustup](https://rustup.rs/) — `rust-toolchain.toml` selects the stable development channel; the MSRV is declared in `Cargo.toml`
 - Git 2.30+
 - Optional: `cargo-nextest`, `cargo-deny`, `cargo-audit` for full quality gates
 
@@ -950,6 +951,28 @@ Both run automatically in CI on every push.
   - Banned crates list
   - Advisory database checks
 - Dependabot is configured to auto-update dependencies weekly
+
+### Dependency Publication Cooldown
+
+The checked-in `.cargo/config.toml` configures Cargo to wait **three days**
+before selecting newly published registry packages during dependency
+resolution. This policy requires Cargo 1.100 or newer; older Cargo versions do
+not enforce it, so use a current Cargo release when relying on it.
+
+The cooldown applies when Cargo resolves dependencies; it does not retroactively
+validate versions already recorded in `Cargo.lock` or protect `cargo install`.
+It also requires the registry index to provide publication timestamps, and does
+not apply to non-registry sources. It complements rather than replaces
+`cargo audit`, `cargo deny`, checksum verification, and lockfile review. It is
+a delay to reduce exposure, not a guarantee that a package is safe.
+
+For an urgent update, a one-command override is available:
+`CARGO_RESOLVER_INCOMPATIBLE_PUBLISH_AGE=allow cargo update -p <crate> --precise <version>`.
+Use it deliberately and review the resulting lockfile.
+
+See the [Cargo registry configuration reference](https://doc.rust-lang.org/cargo/reference/config.html#registry)
+and [Rust 1.100 release notes](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/#cargo-min-publish-age-a-k-a-dependency-cooldowns)
+for the supported setting and its behavior.
 
 ### Unsafe Code
 

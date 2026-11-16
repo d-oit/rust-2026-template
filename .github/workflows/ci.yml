@@ -105,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec  # stable
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca  # stable
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0  # v2.9.3
       - name: Run agent validator
         run: ./scripts/validate-agent-entrypoints.sh
@@ -170,8 +170,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec  # stable
-      - uses: ./.github/actions/setup-rust
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca  # stable
+      - uses: $/.github/actions/setup-rust  # nosemgrep: third-party-action-not-pinned-to-commit-sha
       - name: Run benchmarks
         run: |
           set -o pipefail
@@ -326,11 +326,11 @@ jobs:
           fi
           echo "Resolved quality tier: $TIER"
           echo "### Resolved quality tier: \`$TIER\`" >> "$GITHUB_STEP_SUMMARY"
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec  # stable
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca  # stable
         if: steps.classify.outputs.maintenance_only != 'true'
         with:
           components: llvm-tools-preview
-      - uses: ./.github/actions/setup-rust
+      - uses: $/.github/actions/setup-rust  # nosemgrep: third-party-action-not-pinned-to-commit-sha
         if: steps.classify.outputs.maintenance_only != 'true'
       # Resolve which checks the tier will actually run before installing
       # optional tooling, so a Markdown-only PR does not install the Rust,
@@ -452,6 +452,8 @@ jobs:
         run: bash tests/pr_merge_policy_test.sh
       - name: Validate workflow maintenance contracts
         run: bash tests/workflow_maintenance_contract_test.sh
+      - name: Validate MSRV audit regression cases
+        run: bash tests/audit_msrv_test.sh
       - name: Validate quality-plan tool mapping
         if: steps.classify.outputs.maintenance_only != 'true'
         run: bash tests/quality_plan_tools_test.sh

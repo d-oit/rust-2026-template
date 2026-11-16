@@ -85,13 +85,10 @@ pub fn run_privacy_check() -> Result<(), XtaskError> {
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .status()
-        .map(|s| s.success())
-        .unwrap_or(false);
+        .is_ok_and(|s| s.success());
 
-    if is_git {
-        if let Ok(out) = commands::execute_captured("git", &["ls-files"]) {
-            files = out.lines().map(|s| PathBuf::from(s.trim())).collect();
-        }
+    if is_git && let Ok(out) = commands::execute_captured("git", &["ls-files"]) {
+        files = out.lines().map(|s| PathBuf::from(s.trim())).collect();
     }
 
     if files.is_empty() {
@@ -158,13 +155,10 @@ pub fn run_secret_scan() -> Result<(), XtaskError> {
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .status()
-        .map(|s| s.success())
-        .unwrap_or(false);
+        .is_ok_and(|s| s.success());
 
-    if is_git {
-        if let Ok(out) = commands::execute_captured("git", &["ls-files"]) {
-            files = out.lines().map(|s| PathBuf::from(s.trim())).collect();
-        }
+    if is_git && let Ok(out) = commands::execute_captured("git", &["ls-files"]) {
+        files = out.lines().map(|s| PathBuf::from(s.trim())).collect();
     }
 
     if files.is_empty() {

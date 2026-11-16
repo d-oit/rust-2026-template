@@ -46,6 +46,13 @@ fn write(path: &Path, content: &str) {
 fn profile_fixture() -> tempfile::TempDir {
     let fixture = tempfile::tempdir().unwrap();
     let root = fixture.path();
+    let cargo_config = fs::read_to_string(repo_root().join(".cargo/config.toml")).unwrap();
+    let parsed_cargo_config: toml::Value = toml::from_str(&cargo_config).unwrap();
+    assert_eq!(
+        parsed_cargo_config["registry"]["global-min-publish-age"].as_str(),
+        Some("3 days")
+    );
+    write(&root.join(".cargo/config.toml"), &cargo_config);
     write(
         &root.join("Cargo.toml"),
         "[workspace]\nmembers = [\"crates/*\", \"benchmarks\"]\ndefault-members = [\"crates/sample-app\"]\nresolver = \"3\"\n",
@@ -127,6 +134,14 @@ fn minimal_and_library_profiles_prune_skills_and_refresh_adapters() {
         .unwrap();
         let plan = InitPlan::build(root, &blueprint, &identity).unwrap();
         apply::execute(&plan).unwrap();
+
+        let generated_cargo_config = fs::read_to_string(root.join(".cargo/config.toml")).unwrap();
+        let parsed_cargo_config: toml::Value = toml::from_str(&generated_cargo_config).unwrap();
+        assert_eq!(
+            parsed_cargo_config["registry"]["global-min-publish-age"].as_str(),
+            Some("3 days"),
+            "{id} profile must preserve the Cargo publication cooldown"
+        );
 
         let skill_root = root.join(".agents/skills");
         let retained: HashSet<_> = fs::read_dir(&skill_root)

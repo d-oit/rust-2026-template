@@ -51,6 +51,28 @@ Both run automatically in CI on every push.
   - Advisory database checks
 - Dependabot is configured to auto-update dependencies weekly
 
+### Dependency Publication Cooldown
+
+The checked-in `.cargo/config.toml` configures Cargo to wait **three days**
+before selecting newly published registry packages during dependency
+resolution. This policy requires Cargo 1.100 or newer; older Cargo versions do
+not enforce it, so use a current Cargo release when relying on it.
+
+The cooldown applies when Cargo resolves dependencies; it does not retroactively
+validate versions already recorded in `Cargo.lock` or protect `cargo install`.
+It also requires the registry index to provide publication timestamps, and does
+not apply to non-registry sources. It complements rather than replaces
+`cargo audit`, `cargo deny`, checksum verification, and lockfile review. It is
+a delay to reduce exposure, not a guarantee that a package is safe.
+
+For an urgent update, a one-command override is available:
+`CARGO_RESOLVER_INCOMPATIBLE_PUBLISH_AGE=allow cargo update -p <crate> --precise <version>`.
+Use it deliberately and review the resulting lockfile.
+
+See the [Cargo registry configuration reference](https://doc.rust-lang.org/cargo/reference/config.html#registry)
+and [Rust 1.100 release notes](https://blog.rust-lang.org/2026/11/12/Rust-1.100.0/#cargo-min-publish-age-a-k-a-dependency-cooldowns)
+for the supported setting and its behavior.
+
 ### Unsafe Code
 
 - All `unsafe` blocks must include a `// SAFETY:` comment explaining invariants

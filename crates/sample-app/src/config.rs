@@ -25,7 +25,7 @@ pub enum AppError {
 pub type Result<T> = std::result::Result<T, AppError>;
 
 /// Supported log levels for the application
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum LogLevel {
     /// Finest-grained informational events
@@ -33,17 +33,12 @@ pub enum LogLevel {
     /// Fine-grained informational events that are most useful to debug an application
     Debug,
     /// Informational messages that highlight the progress of the application
+    #[default]
     Info,
     /// Potentially harmful situations
     Warn,
     /// Error events that might still allow the application to continue running
     Error,
-}
-
-impl Default for LogLevel {
-    fn default() -> Self {
-        Self::Info
-    }
 }
 
 /// Configuration for the application

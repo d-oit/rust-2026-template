@@ -65,8 +65,9 @@ fn builtin_policy_requires_security_checks_on_protected_tiers() {
 fn builtin_policy_keeps_other_tiers_advisory() {
     for tier in ["pull-request", "scheduled", "adopters-custom-tier"] {
         let required = required_checks(tier, &tier_def(&ALL_CHECKS));
-        assert!(
-            required.is_empty(),
+        assert_eq!(
+            required.len(),
+            0,
             "tier '{tier}' must stay advisory by default"
         );
     }
@@ -94,7 +95,7 @@ fn table_every_required_check_either_maps_to_a_tool_or_is_tool_free() {
                 guidance,
                 ..
             }) => {
-                assert!(!tool_name.is_empty());
+                assert_ne!(tool_name, "");
                 assert!(
                     !guidance.is_empty(),
                     "{tool_name} must carry install guidance"

@@ -4,7 +4,7 @@
 # Usage: ./scripts/audit-msrv.sh [--fix]
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="${AUDIT_MSRV_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$REPO_ROOT" || exit 1
 
 # --- Colors ---
@@ -29,56 +29,46 @@ info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 
 FAILED=0
 
-# --- Read workspace MSRV from rust-toolchain.toml ---
-if [[ -f "rust-toolchain.toml" ]]; then
-  TOOLCHAIN=$(grep '^channel' rust-toolchain.toml | sed 's/.*"\(.*\)".*/\1/')
-  # Extract just the version number
-  MSRV=$(echo "$TOOLCHAIN" | grep -oE '[0-9]+\.[0-9]+' | head -1)
-else
-  # Fallback: read from Cargo.toml (POSIX awk — no gawk 3-arg match)
-  MSRV=$(awk '
-    /^\[workspace\.package\]/ { in_section=1; next }
-    /^\[/                     { in_section=0 }
-    in_section && /^rust-version/ {
-      if (match($0, /"[^"]+"/)) {
-        print substr($0, RSTART + 1, RLENGTH - 2)
-        exit
-      }
-    }
-  ' Cargo.toml)
+# --- Read and validate workspace MSRV from Cargo.toml ---
+if ! command -v python3 >/dev/null 2>&1; then
+  echo -e "${RED}[ERROR]${NC} python3 is required to read workspace MSRV from Cargo.toml"
+  exit 1
 fi
 
-if [[ -z "$MSRV" ]]; then
-  echo -e "${RED}[ERROR]${NC} Could not determine MSRV from rust-toolchain.toml or Cargo.toml"
+if ! MSRV=$(python3 - <<'PY'
+import re
+import sys
+import tomllib
+
+try:
+    with open("Cargo.toml", "rb") as manifest:
+        version = tomllib.load(manifest)["workspace"]["package"]["rust-version"]
+except (KeyError, OSError, tomllib.TOMLDecodeError) as exc:
+    print(f"ERROR: could not read workspace.package.rust-version from Cargo.toml: {exc}", file=sys.stderr)
+    sys.exit(1)
+
+if not isinstance(version, str) or re.fullmatch(r"[0-9]+\.[0-9]+(?:\.[0-9]+)?", version) is None:
+    print(f"ERROR: invalid workspace rust-version: {version!r}", file=sys.stderr)
+    sys.exit(1)
+
+print(version)
+PY
+); then
   exit 1
 fi
 
 info "Workspace MSRV: $MSRV"
+CURRENT_RUSTC_VERSION=$(rustc --version 2>/dev/null | awk '{print $2}')
+if [[ -n "$CURRENT_RUSTC_VERSION" ]]; then
+  info "Current rustc: $CURRENT_RUSTC_VERSION"
+else
+  info "Current rustc: unavailable; selecting the MSRV toolchain with rustup"
+fi
 echo ""
 
 # --- Check root Cargo.toml rust-version ---
 info "Checking root Cargo.toml rust-version field..."
-# Portable POSIX awk (works with mawk/nawk; avoid gawk-only match 3-arg form)
-ROOT_RUST_VERSION=$(awk '
-  /^\[workspace\.package\]/ { in_section=1; next }
-  /^\[/                     { in_section=0 }
-  in_section && /^rust-version/ {
-    if (match($0, /"[^"]+"/)) {
-      print substr($0, RSTART + 1, RLENGTH - 2)
-      exit
-    }
-  }
-' Cargo.toml)
-
-if [[ -n "$ROOT_RUST_VERSION" ]]; then
-  if [[ "$ROOT_RUST_VERSION" == "$MSRV" ]]; then
-    pass "Root rust-version matches MSRV: $ROOT_RUST_VERSION"
-  else
-    warn "Root rust-version ($ROOT_RUST_VERSION) differs from MSRV ($MSRV)"
-  fi
-else
-  warn "No rust-version field in workspace.package"
-fi
+pass "Root rust-version is the authoritative MSRV: $MSRV"
 echo ""
 
 # --- Check workspace member crates ---
@@ -235,23 +225,37 @@ echo ""
 info "Verifying MSRV toolchain compiles workspace (all targets, all features)..."
 
 CARGO_CMD=()
-# Compare major.minor rather than substring-matching, so 1.8 does not match 1.88.
-MSRV_MAJOR_MINOR=$(echo "$MSRV" | cut -d. -f1-2)
-RUSTC_MAJOR_MINOR=$(rustc --version 2>/dev/null | awk '{print $2}' | cut -d. -f1-2)
+MSRV_MAJOR_MINOR=$(python3 -c 'parts = input().split("."); print(".".join(parts[:2]))' <<<"$MSRV")
+RUSTC_MAJOR_MINOR=$(python3 - "$CURRENT_RUSTC_VERSION" <<'PY'
+import re
+import sys
+
+match = re.fullmatch(r"([0-9]+\.[0-9]+)(?:\.[0-9]+)?", sys.argv[1])
+if match:
+    print(match.group(1))
+PY
+)
 
 if [[ -n "$MSRV_MAJOR_MINOR" && "$RUSTC_MAJOR_MINOR" == "$MSRV_MAJOR_MINOR" ]]; then
   CARGO_CMD=(cargo check --workspace --all-targets --all-features)
 elif command -v rustup &>/dev/null; then
+  msrv_toolchain_installed() {
+    rustup toolchain list 2>/dev/null | awk -v msrv="$MSRV" '
+      $1 == msrv || index($1, msrv "-") == 1 { found = 1 }
+      END { exit !found }
+    '
+  }
+
   # The MSRV toolchain is not installed by default on CI runners (they ship a
   # current `stable`). Install it on demand so this check is real rather than a
   # silent no-op; `rustup toolchain install` is idempotent and cheap.
-  if ! rustup toolchain list 2>/dev/null | grep -q "$MSRV"; then
+  if ! msrv_toolchain_installed; then
     info "MSRV toolchain $MSRV is not installed; installing it now"
     if ! rustup toolchain install "$MSRV" --profile minimal --no-self-update >/dev/null 2>&1; then
       fail "Could not install MSRV toolchain $MSRV; cannot verify MSRV compatibility"
     fi
   fi
-  if rustup toolchain list 2>/dev/null | grep -q "$MSRV"; then
+  if msrv_toolchain_installed; then
     CARGO_CMD=(cargo +"$MSRV" check --workspace --all-targets --all-features)
   fi
 fi

@@ -359,7 +359,7 @@ async fn test_list_records_paginated_zero_limit() {
         .list_records_paginated(Some(&cursor), 0)
         .await
         .unwrap();
-    assert!(page.records.is_empty());
+    assert_eq!(page.records.len(), 0);
     assert_eq!(page.next_cursor, Some(cursor));
 }
 

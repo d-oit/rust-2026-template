@@ -42,6 +42,111 @@ def check(condition, message):
         failures.append(message)
 
 
+# ── Actions lockfile verification is read-only and covers every workflow ────
+lock_path = Path(".github/workflows/actions.lock")
+lock_workflow_path = Path(".github/workflows/verify-actions-lock.yml")
+check(lock_path.is_file(), "the generated GitHub Actions lockfile must be committed")
+check(lock_workflow_path.is_file(), "the read-only lockfile verification workflow must exist")
+
+if lock_path.is_file() and lock_workflow_path.is_file():
+    lock = yaml.safe_load(lock_path.read_text(encoding="utf-8")) or {}
+    lock_workflow = yaml.safe_load(lock_workflow_path.read_text(encoding="utf-8")) or {}
+    locked_workflows = lock.get("workflows") or {}
+    locked_dependencies = lock.get("dependencies") or {}
+    locked_dependency_names = {name.lower() for name in locked_dependencies}
+    check(lock.get("version") == "v0.0.3", "actions.lock must use the generated lockfile format")
+    check(".github/workflows/verify-actions-lock.yml" in locked_workflows,
+          "the verifier workflow must itself be onboarded in actions.lock")
+    check("d-oit/rust-2026-template" not in lock_path.read_text(encoding="utf-8"),
+          "actions.lock must not contain repository-specific references")
+
+    for workflow_path in sorted(Path(".github/workflows").glob("*.yml")):
+        relative_path = workflow_path.as_posix()
+        workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8")) or {}
+        locked_refs = {name.lower() for name in locked_workflows.get(relative_path) or []}
+        for job in (workflow.get("jobs") or {}).values():
+            for step in job.get("steps") or []:
+                uses = step.get("uses")
+                if not uses or uses.startswith(("./", "$/")):
+                    continue
+                check(uses.lower() in locked_refs,
+                      f"{relative_path}: {uses} is missing from the workflow lock entries")
+                check(uses.lower() in locked_dependency_names,
+                      f"{relative_path}: {uses} is missing from the dependency lock entries")
+
+    setup_rust = yaml.safe_load(
+        Path(".github/actions/setup-rust/action.yml").read_text(encoding="utf-8")
+    )
+    composite_refs = {
+        step["uses"].lower()
+        for step in (setup_rust.get("runs") or {}).get("steps") or []
+        if step.get("uses") and not step["uses"].startswith(("./", "$/"))
+    }
+    users = [
+        path.as_posix()
+        for path in sorted(Path(".github/workflows").glob("*.yml"))
+        if "$/.github/actions/setup-rust" in path.read_text(encoding="utf-8")
+    ]
+    check(bool(users), "workflows must use the local Rust composite action")
+    for relative_path in users:
+        locked_refs = {
+            name.lower() for name in locked_workflows.get(relative_path) or []
+        }
+        for uses in composite_refs:
+            check(uses in locked_refs,
+                  f"{relative_path}: composite dependency {uses} is not locked")
+            check(uses in locked_dependency_names,
+                  f"composite dependency {uses} is missing from dependencies")
+
+    verifier_job = (lock_workflow.get("jobs") or {}).get("verify") or {}
+    triggers = lock_workflow.get("on") or lock_workflow.get(True) or {}
+    check(lock_workflow.get("permissions") == {"contents": "read"},
+          "lockfile verification must use contents: read only")
+    check("pull_request" in triggers,
+          "lockfile verification must run on pull requests")
+    check((triggers.get("push") or {}).get("branches") == ["main"],
+          "lockfile verification must run on pushes to main")
+    check(bool(triggers.get("schedule")),
+          "lockfile verification must periodically check upstream pins")
+    check(verifier_job.get("permissions") is None,
+          "the verification job must not broaden workflow permissions")
+    verifier_steps = verifier_job.get("steps") or []
+    check(any(
+        re.fullmatch(r"actions/checkout@[a-f0-9]{40}", step.get("uses", ""))
+        and (step.get("with") or {}).get("persist-credentials") is False
+        for step in verifier_steps
+    ), "the verifier must check out source without persisting credentials")
+    check(any(
+        "gh extension install github/gh-actions-lock --pin v0.4.1" in str(step.get("run", ""))
+        for step in verifier_steps
+    ), "the verifier must install the supported pinned gh-actions-lock extension")
+    check(any(
+        "gh actions-lock --verify" in str(step.get("run", ""))
+        for step in verifier_steps
+    ), "CI must run the lockfile verifier without writing")
+    check(Path("tests/actions_lock_cli_test.sh").is_file(),
+          "the stale and missing lockfile regression test must exist")
+    check(any(
+        "tests/actions_lock_cli_test.sh" in str(step.get("run", ""))
+        for step in verifier_steps
+    ), "CI must run the stale and missing lockfile regression test")
+
+    dependabot = yaml.safe_load(
+        Path(".github/dependabot.yml").read_text(encoding="utf-8")
+    ) or {}
+    action_updates = [
+        update for update in dependabot.get("updates") or []
+        if update.get("package-ecosystem") == "github-actions"
+    ]
+    check(len(action_updates) == 1,
+          "Dependabot must keep one GitHub Actions update configuration")
+    if action_updates:
+        check(action_updates[0].get("schedule", {}).get("interval") == "weekly",
+              "GitHub Actions Dependabot updates must remain weekly")
+        check("actions" in (action_updates[0].get("groups") or {}),
+              "the existing GitHub Actions Dependabot group must remain configured")
+
+
 def job_names(workflow):
     return set((workflow.get("jobs") or {}).keys())
 
