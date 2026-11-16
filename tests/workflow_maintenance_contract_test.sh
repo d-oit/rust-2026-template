@@ -14,22 +14,25 @@ cd "$REPO_ROOT"
 CI=".github/workflows/ci.yml"
 DORA=".github/workflows/dora-report.yml"
 POLICY=".github/workflows/pr-merge-policy.yml"
+DEPENDABOT=".github/workflows/dependabot-auto-merge.yml"
 
-python3 - "$CI" "$DORA" "$POLICY" <<'PY'
+python3 - "$CI" "$DORA" "$POLICY" "$DEPENDABOT" <<'PY'
 import re
 import sys
 from pathlib import Path
 
 import yaml
 
-ci_path, dora_path, policy_path = (Path(arg) for arg in sys.argv[1:4])
+ci_path, dora_path, policy_path, dependabot_path = (Path(arg) for arg in sys.argv[1:5])
 ci_text = ci_path.read_text(encoding="utf-8")
 dora_text = dora_path.read_text(encoding="utf-8")
 policy_text = policy_path.read_text(encoding="utf-8")
+dependabot_text = dependabot_path.read_text(encoding="utf-8")
 
 ci = yaml.safe_load(ci_text)
 dora = yaml.safe_load(dora_text)
 policy = yaml.safe_load(policy_text)
+dependabot = yaml.safe_load(dependabot_text)
 
 failures = []
 
@@ -102,6 +105,37 @@ for required in ("opened", "synchronize", "reopened", "ready_for_review"):
     check(required in pr_types, f"merge policy must run on pull_request '{required}'")
 check("paths:" not in policy_text,
       "the merge policy workflow must not use path filters")
+
+# ── Dependabot auto-merge workflow ─────────────────────────────────────────
+dep_triggers = dependabot.get("on") or dependabot.get(True) or {}
+dep_pull_request = dep_triggers.get("pull_request") or {}
+check(dep_pull_request.get("branches") == ["main"],
+      "Dependabot auto-merge must only target main")
+for required in ("opened", "synchronize", "reopened", "ready_for_review"):
+    check(required in (dep_pull_request.get("types") or []),
+          f"Dependabot auto-merge must run on pull_request '{required}'")
+check(dependabot.get("permissions") == {},
+      "Dependabot workflow must default to no permissions")
+dep_job = dependabot["jobs"]["auto-merge"]
+check(dep_job.get("if") == "github.actor == 'dependabot[bot]'",
+      "only Dependabot-authored PRs may enable this auto-merge path")
+check(dep_job.get("permissions") == {"contents": "write", "pull-requests": "write"},
+      "Dependabot auto-merge must use only contents/pull-requests write permissions")
+dep_steps = dep_job["steps"]
+metadata_step = next((step for step in dep_steps if "dependabot/fetch-metadata@" in str(step.get("uses", ""))), None)
+check(metadata_step is not None and re.search(r"dependabot/fetch-metadata@[0-9a-f]{40}", str(metadata_step.get("uses", ""))),
+      "Dependabot metadata action must be pinned to a full commit SHA")
+check(not any("gh pr review" in str(step.get("run", "")) or "--approve" in str(step.get("run", ""))
+              for step in dep_steps),
+      "Dependabot workflow must not auto-approve when the ruleset requires zero approvals")
+dep_merge = next((step for step in dep_steps if "gh pr merge" in str(step.get("run", ""))), None)
+check(dep_merge is not None and "--auto" in str(dep_merge.get("run", "")) and "--squash" in str(dep_merge.get("run", "")),
+      "Dependabot must request native squash auto-merge")
+dep_condition = str(dep_merge.get("if", "")) if dep_merge else ""
+check("version-update:semver-minor" in dep_condition and "version-update:semver-patch" in dep_condition,
+      "Dependabot auto-merge must explicitly allow minor and patch updates")
+check("semver-major" not in dep_condition,
+      "Dependabot auto-merge must fail closed for major or unknown update types")
 
 # ── DORA workflow ──────────────────────────────────────────────────────────
 dora_job = dora["jobs"]["dora-report"]
