@@ -1,6 +1,6 @@
 # DORA Delivery Performance Report
 
-**Generated:** 2026-11-09T03:45:14Z
+**Generated:** 2026-11-16T03:54:29Z
 **Period:** Last 30 days
 **Repository:** d-oit/rust-2026-template
 
@@ -9,7 +9,7 @@
 | Metric | Value | Tier |
 |---|---|---|
 | Deployment Frequency | 0.0/day (0 releases) | **Low** |
-| Change Lead Time | 8.92 hours avg | **High** |
+| Change Lead Time | 8.64 hours avg | **High** |
 | Change Failure Rate | 0% (0/0) | **N/A** |
 | Failed Deployment Recovery Time | 0 hours avg | **N/A** |
 
@@ -28,13 +28,13 @@
 
 ## Derivation Manifest
 
-- **Evaluation Window:** 2026-10-10T03:45:14Z to 2026-11-09T03:45:14Z (30 days)
+- **Evaluation Window:** 2026-10-17T03:54:29Z to 2026-11-16T03:54:29Z (30 days)
 - **Percentile Method:** mean
 - **Revert Predicate:** title_contains_revert
 - **Bot Allowlist:** dependabot[bot], renovate[bot], github-actions[bot]
 - **Input Hashes (SHA-256):**
   - `releases.json`: `8f4b0af6a8d5bda9c97f8adf4dcc3fdfd20c1ddae6bebca6f54b5763807218b2`
-  - `prs.json`: `54a9b55e65e845cbc42c004917d64ae12b34003632305b59e2ba732416d2194a`
+  - `prs.json`: `6c49ecd68303c5719ffb551493658cd3c35c47582c819424c5e259ea08060a21`
   - `policy`: `89bd8289b3e0ecb05dc3d6dfe607e129217523a0d0be62417348b068fb8d0ec9`
 
 ## Trend: Latest 3 Weekly Reports
@@ -43,6 +43,6 @@ Each row is a rolling window ending on its report date; older weekly snapshots s
 
 | Report date (UTC) | Window (days) | Deployment frequency | Change lead time | Change failure rate | Recovery time |
 |---|---|---|---|---|---|
-| 2026-10-26 | 30 | 0.0/day (0 releases) | 11.36 h | N/A | N/A |
 | 2026-11-02 | 30 | 0.0/day (0 releases) | 11.64 h | N/A | N/A |
 | 2026-11-09 | 30 | 0.0/day (0 releases) | 8.92 h | N/A | N/A |
+| 2026-11-16 | 30 | 0.0/day (0 releases) | 8.64 h | N/A | N/A |
