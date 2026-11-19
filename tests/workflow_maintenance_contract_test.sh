@@ -131,11 +131,11 @@ if lock_path.is_file() and lock_workflow_path.is_file():
         for step in verifier_steps
     ), "CI must run the stale and missing lockfile regression test")
 
-    dependabot = yaml.safe_load(
+    dependabot_config = yaml.safe_load(
         Path(".github/dependabot.yml").read_text(encoding="utf-8")
     ) or {}
     action_updates = [
-        update for update in dependabot.get("updates") or []
+        update for update in dependabot_config.get("updates") or []
         if update.get("package-ecosystem") == "github-actions"
     ]
     check(len(action_updates) == 1,
