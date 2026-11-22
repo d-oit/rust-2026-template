@@ -4,7 +4,9 @@ GitHub Actions workflow dependency lockfiles became generally available on Octob
 28, 2026. See GitHub's [feature announcement](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)
 and [workflow lockfile documentation](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles).
 The generated `.github/workflows/actions.lock` uses format `v0.0.3` and pins direct
-and transitive action dependencies to verified commits. Reusable workflow calls are
+and transitive action dependencies to verified commits. The repository overrides
+the generic `*.lock` gitattributes pattern so the lockfile is reviewed as text and
+its dependency diff remains visible in pull requests. Reusable workflow calls are
 not covered by the caller's lockfile; the repository that defines a reusable
 workflow must lock its own dependencies.
 
@@ -49,7 +51,9 @@ branch. Review the upstream history and update the workflow to a current verifie
 full SHA before regenerating; do not use `--accept-moved` in automation.
 
 Template profiles may remove workflows, but the lockfile contains no adopter
-repository coordinates. After initializing a profile or deleting workflows, run
-the full-directory regeneration command to prune entries for removed workflows.
+repository coordinates. `cargo xtask template init` adds a `refresh-actions-lock`
+checklist item whenever the selected profile removes workflows. After initializing
+a profile or deleting workflows, run the full-directory regeneration command to
+prune entries for removed workflows.
 The lockfile covers action commits only, not container images or other workflow
 inputs.

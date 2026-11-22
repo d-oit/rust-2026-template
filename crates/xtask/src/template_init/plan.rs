@@ -79,6 +79,11 @@ const LOCKFILE_IGNORE_LINES: [&str; 4] = [
     "Cargo.lock",
 ];
 
+/// Post-init follow-up when the profile removes workflows that the generated
+/// Actions lockfile still records.
+const ACTIONS_LOCK_REFRESH_ITEM: &str =
+    "refresh-actions-lock: run `gh actions-lock` to prune entries for removed workflows";
+
 impl InitPlan {
     /// Builds the complete plan. Reads and validates everything; mutates nothing.
     ///
@@ -178,6 +183,11 @@ impl InitPlan {
 
         let text_replacements = prose_rewrites(root, rename.as_ref(), identity, &removed_paths);
 
+        let mut checklist = blueprint.post_init.checklist.clone();
+        if !blueprint.workspace.exclude_workflows.is_empty() {
+            checklist.push(ACTIONS_LOCK_REFRESH_ITEM.to_string());
+        }
+
         Ok(Self {
             root: root.to_path_buf(),
             profile_id: blueprint.metadata.id.clone(),
@@ -192,7 +202,7 @@ impl InitPlan {
             text_replacements,
             lockfile_committed: blueprint.policy.lockfile == LockfilePolicy::Committed,
             publish_packages: blueprint.policy.publish_packages.clone(),
-            checklist: blueprint.post_init.checklist.clone(),
+            checklist,
         })
     }
 
