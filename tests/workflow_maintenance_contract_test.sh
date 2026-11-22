@@ -18,6 +18,7 @@ DEPENDABOT=".github/workflows/dependabot-auto-merge.yml"
 
 python3 - "$CI" "$DORA" "$POLICY" "$DEPENDABOT" <<'PY'
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -47,6 +48,17 @@ lock_path = Path(".github/workflows/actions.lock")
 lock_workflow_path = Path(".github/workflows/verify-actions-lock.yml")
 check(lock_path.is_file(), "the generated GitHub Actions lockfile must be committed")
 check(lock_workflow_path.is_file(), "the read-only lockfile verification workflow must exist")
+if lock_path.is_file():
+    diff_attr = subprocess.run(
+        ["git", "check-attr", "diff", "--", lock_path.as_posix()],
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout.strip()
+    check(
+        diff_attr.endswith(": set"),
+        "actions.lock must stay diffable so dependency changes are reviewable",
+    )
 
 if lock_path.is_file() and lock_workflow_path.is_file():
     lock = yaml.safe_load(lock_path.read_text(encoding="utf-8")) or {}

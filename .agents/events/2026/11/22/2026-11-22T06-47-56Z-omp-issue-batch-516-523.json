@@ -1,0 +1,27 @@
+{
+  "event_id": "2026-11-22T06-47-56Z-omp",
+  "task_id": "issue-batch-516-523",
+  "parent_task_id": null,
+  "workflow_id": "open-issue-batch",
+  "agent_id": "omp",
+  "agent_type": "omp",
+  "skill": "issue-triage",
+  "skill_version": "0.2.0",
+  "status": "success",
+  "started_at": "2026-11-22T06:20:00Z",
+  "finished_at": "2026-11-22T06:47:56Z",
+  "success": true,
+  "human_interventions": 0,
+  "git_branch": "ci/close-open-issues",
+  "git_sha": "c238e62",
+  "pr_number": 526,
+  "artifacts": [
+    "https://github.com/d-oit/rust-2026-template/issues/516",
+    "https://github.com/d-oit/rust-2026-template/issues/523",
+    "https://github.com/d-oit/rust-2026-template/pull/526",
+    ".github/workflows/actions.lock",
+    "docs/ci/required-checks.md",
+    "docs/ci/actions-lockfiles.md"
+  ],
+  "notes": "Completed ruleset 15206329 migration to PR Merge Policy Gate after reviewing seven days of shadow evidence; closed issue 523. Verified issue 516 lockfile adoption against official docs, gh actions-lock, Dependabot PR 525, and quality gates; kept actions.lock diffable and added the template refresh checklist."
+}

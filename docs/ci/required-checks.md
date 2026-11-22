@@ -77,6 +77,25 @@ proven itself on real PRs.
 5. **Verify.** Keep strict up-to-date branch policy, the CodeQL code-scanning rule,
    and the existing review policy. Add no administrator or bot bypass actor.
 
+### Migration record
+
+Completed on 2026-11-22 for ruleset
+[`15206329`](https://github.com/d-oit/rust-2026-template/rules/15206329).
+
+The gate merged in #506 on 2026-11-13. During the shadow window through 2026-11-21,
+every ordinary PR that merged (PRs #501, #507–#513, #519, #520, #522, #524) had a
+`success` Codacy run from app `56611` on the exact head SHA and a passing gate.
+The failing gate runs on #524 failed closed because Codacy reported
+`action_required`, never because the gate skipped the check. The generated DORA
+maintenance PR #521 was classified `maintenance-allowlisted`, required
+`Quality Gate (pull-request)`, and passed without a Codacy requirement.
+
+The live ruleset now requires `Quality Gate (pull-request)` and
+`PR Merge Policy Gate` from app `15368`. The direct Codacy context is removed;
+Codacy remains enabled and is enforced by the gate for ordinary PRs. CodeQL,
+strict status checks, the review policy, allowed merge methods, and the existing
+bypass configuration are unchanged.
+
 ### Rollback
 
 If the gate is unavailable or behaves incorrectly:

@@ -7,6 +7,8 @@
 *.rs     text eol=lf
 *.toml   text eol=lf
 *.lock   text eol=lf -diff
+# Generated Actions lockfile: YAML, and its dependency diffs must stay reviewable.
+.github/workflows/actions.lock text eol=lf diff
 
 # Shell scripts
 *.sh     text eol=lf

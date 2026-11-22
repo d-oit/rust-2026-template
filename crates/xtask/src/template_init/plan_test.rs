@@ -278,6 +278,13 @@ fn plan_computes_expected_operations() {
     assert!(removals.contains(&"crates/sample-app".to_string()));
     assert!(removals.contains(&"benchmarks".to_string()));
     assert!(removals.contains(&".github/workflows/removed.yml".to_string()));
+    assert!(
+        plan.checklist
+            .iter()
+            .any(|item| item.contains("gh actions-lock")),
+        "removing workflows must schedule a lockfile refresh: {:?}",
+        plan.checklist
+    );
 
     let rename = plan.rename.as_ref().unwrap();
     assert!(rename.from.ends_with("crates/example-crate"));
