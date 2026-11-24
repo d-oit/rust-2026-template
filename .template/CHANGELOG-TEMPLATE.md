@@ -33,6 +33,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.3] - 2026-11-24
+
+### Added
+
+- for new features.
+
+### Changed
+
+- for changes in existing functionality.
+
+### Deprecated
+
+- for soon-to-be removed features.
+
+### Removed
+
+- for now removed features.
+
+### Fixed
+
+- for any bug fixes.
+
+### Security
+
+- in case of vulnerabilities.
+
+---
+
 ## [0.4.2] - 2026-11-13
 
 ### Added
@@ -639,7 +667,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rust 2024 edition formatting (rustfmt.toml)
 - Clippy configuration (.clippy.toml)
 
-[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/d-oit/rust-2026-template/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/d-oit/rust-2026-template/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/d-oit/rust-2026-template/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/d-oit/rust-2026-template/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/d-oit/rust-2026-template/compare/v0.3.11...v0.4.0
