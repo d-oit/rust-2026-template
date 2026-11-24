@@ -37,29 +37,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- for new features.
+- `actions.lock` pins every GitHub Actions dependency the workflows reference, following the same reviewable-lockfile pattern as `Cargo.lock`. `.github/actionlint.yaml` declares the annotations the self-repository action references carry, and the template lockfile refresh checklist plus a workflow contract test pin `actions.lock` reviewability so the diff is meant to be reviewed, not silently regenerated.
+- Cargo's three-day publication cooldown is enabled in `.cargo/config.toml`, so freshly republished dependency versions cannot be picked up for three days.
+- Workflow contract tests enforce the Dependabot auto-merge contract on `dependabot-auto-merge.yml`, and the contract suite now also pins `actions.lock` reviewability.
 
 ### Changed
 
-- for changes in existing functionality.
-
-### Deprecated
-
-- for soon-to-be removed features.
-
-### Removed
-
-- for now removed features.
+- Dependency resolution and toolchain policy are hardened: `rust-toolchain.toml` tracks current `stable` for development while `Cargo.toml` still declares the Rust 1.88 MSRV as the compatibility target under audit, GitHub Actions dependencies are locked in `actions.lock`, and self-repository action references are annotated with `nosemgrep` so Opengrep does not misclassify GitHub's `$/` interpolation as an unpinned third-party action (`#514`, `#515`, `#516`).
+- The native Dependabot auto-merge workflow is hardened against untrusted branch and head-repository inputs before enabling auto-merge.
+- The merge-policy ruleset migration is complete: the live `main` ruleset requires the `PR Merge Policy Gate` context and no longer carries the direct Codacy context, and the seven-day shadow-window evidence is recorded in the required-checks runbook.
+- `taiki-e/install-action` is bumped from 2.90.1 to 2.90.6 and `peter-evans/create-pull-request` from 8.1.1 to 8.1.3 (`#513`, `#525`).
 
 ### Fixed
 
-- for any bug fixes.
-
-### Security
-
-- in case of vulnerabilities.
-
----
+- The security scanner no longer falls back to a mutable image reference, and deprecated release runner labels are gone while the release target matrix is unchanged (`#517`, `#518`).
+- The fuzz license exception in `deny.toml` is scoped to the actual fuzz targets, the intended overlap between the lint policy and Syn's own lints is documented, and the release workflow's shell lint findings are cleared.
+- The Dependabot workflow contract test no longer shadows its loop variable, which made one assertion assert against the wrong workflow.
 
 ## [0.4.2] - 2026-11-13
 
