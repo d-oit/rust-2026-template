@@ -107,8 +107,9 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 2. **Plan:** Identify affected files and required test coverage.
 3. **Test-First:** Add or update tests before logic implementation.
 4. **Implement:** Write code adhering to conventions.
-5. **Quality Check:** Run `./scripts/quality-gates.sh`.
-6. **Commit:** Use conventional commit format.
+5. **Changelog:** Record every user-visible change under `## [Unreleased]` in `.template/CHANGELOG-TEMPLATE.md` in the same PR; a template release promotes that section and refuses to promote it while it holds only skeleton placeholders.
+6. **Quality Check:** Run `./scripts/quality-gates.sh`.
+7. **Commit:** Use conventional commit format.
 
 ### Stacked PRs (Optional)
 

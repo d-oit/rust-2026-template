@@ -136,6 +136,22 @@ if grep -qF "[${NEXT_VERSION}]:" "$CHANGELOG"; then
   die "Link footer already contains [${NEXT_VERSION}]: — refusing to duplicate"
 fi
 
+# A release promotes the entries that accumulated under [Unreleased]; promoting
+# a skeleton-only section publishes a version with an empty changelog. Reject
+# the bump until the release is documented in .template/CHANGELOG-TEMPLATE.md.
+unreleased_entries="$(awk '/^## \\[Unreleased\\]$/{flag=1; next} /^## /{flag=0} flag' "$CHANGELOG" \
+  | grep -E '^- ' \
+  | grep -vF \
+      -e '- for new features.' \
+      -e '- for changes in existing functionality.' \
+      -e '- for soon-to-be removed features.' \
+      -e '- for now removed features.' \
+      -e '- for any bug fixes.' \
+      -e '- in case of vulnerabilities.' || true)"
+if [[ -z "${unreleased_entries}" ]]; then
+  die "No changes recorded under [Unreleased] in $CHANGELOG — document the release there before promoting"
+fi
+
 # ── 1. Update `.template/CHANGELOG-TEMPLATE.md` ─────────────────────────────
 if $EXECUTE; then
   # a) Rename ## [Unreleased] → ## [NEXT] - DATE
