@@ -90,9 +90,9 @@ rust-2026-template/
 [![codecov](https://codecov.io/gh/d-oit/rust-2026-template/graph/badge.svg)](https://codecov.io/gh/d-oit/rust-2026-template)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88-blue.svg)](https://www.rust-lang.org)
-[![Template Version](https://img.shields.io/badge/version-0.4.2-blue)](.template/CHANGELOG-TEMPLATE.md#0.4.2)
+[![Template Version](https://img.shields.io/badge/version-0.4.3-blue)](.template/CHANGELOG-TEMPLATE.md#0.4.3)
 
-**Latest release: v0.4.2** — see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) for the full changelog.
+**Latest release: v0.4.3** — see [`.template/CHANGELOG-TEMPLATE.md`](.template/CHANGELOG-TEMPLATE.md) for the full changelog.
 
 A production-ready Rust workspace template with modern tooling, CI/CD and AI agent integration.
 
@@ -438,8 +438,9 @@ Derived repositories should check `.agents/context/` for shared conventions and 
 2. **Plan:** Identify affected files and required test coverage.
 3. **Test-First:** Add or update tests before logic implementation.
 4. **Implement:** Write code adhering to conventions.
-5. **Quality Check:** Run `./scripts/quality-gates.sh`.
-6. **Commit:** Use conventional commit format.
+5. **Changelog:** Record every user-visible change under `## [Unreleased]` in `.template/CHANGELOG-TEMPLATE.md` in the same PR; a template release promotes that section and refuses to promote it while it holds only skeleton placeholders.
+6. **Quality Check:** Run `./scripts/quality-gates.sh`.
+7. **Commit:** Use conventional commit format.
 
 ### Stacked PRs (Optional)
 
